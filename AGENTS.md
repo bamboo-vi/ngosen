@@ -64,9 +64,11 @@ a careful human wrote it, and the person sending it must be able to explain ever
   `test/ibus-dbus-forward-backspaces.cpp` and the SDL case in `test/x11-xtest-replacement.cpp`
   passing.
 - **Reuse one build directory.** A full Rust or C++ build writes over 1 GB, and a new directory
-  per experiment wears out the SSD and fills it. Rebuild in one CMake build directory and point Cargo
-  at one shared `CARGO_TARGET_DIR`; make a second only when two builds must exist side by side, and
-  delete it when done.
+  per experiment wears out the SSD and fills it. Rebuild in one CMake build directory; make a second
+  only when two builds must exist side by side, and delete it when done. Do not share one
+  `CARGO_TARGET_DIR` between worktrees: Cargo locks it, so parallel builds wait for each other. To
+  keep Cargo's intermediate files off the disk, set `build.build-dir` (Cargo 1.91+) in
+  `~/.cargo/config.toml`, for example `"/tmp/cargo-build/{workspace-path-hash}"` on a tmpfs `/tmp`.
 
 ## Commits
 
