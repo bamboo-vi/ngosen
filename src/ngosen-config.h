@@ -234,6 +234,7 @@ namespace fcitx {
         Option<bool> modernStyle{this, "ModernStyle", _("Use oà, uý (Instead Of òa, úy)"), true};
         Option<bool> freeMarking{this, "FreeMarking", _("Allow Type With More Freedom"), true};
         Option<bool> ddFreeStyle{this, "DdFreeStyle", _("Allow dd To Produce đ When Auto Restore Invalid Words Is On"), true};
+        Option<bool> backspaceRemovesTone{this, "BackspaceRemovesTone", _("Backspace Removes the Tone Mark"), false};
         Option<bool> waitSurroundingEvent{this, "WaitSurroundingEvent", _("Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping"), true};
         Option<int>  waitSurroundingTimeoutMs{this, "WaitSurroundingTimeoutMs", _("Experiment: timeout (ms) for that wait"), 50};
         Option<int>  waitSurroundingShortMs{this, "WaitSurroundingShortMs", _("Experiment: shorter timeout (ms) used after two consecutive timeouts without a matching event"), 40};

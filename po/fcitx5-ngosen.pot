@@ -166,6 +166,10 @@ msgstr ""
 msgid "Allow Type With More Freedom"
 msgstr ""
 
+#: src/ngosen-config.h
+msgid "Backspace Removes the Tone Mark"
+msgstr ""
+
 #: src/ngosen-config.h:242
 msgid "Allow dd To Produce đ When Auto Restore Invalid Words Is On"
 msgstr ""
@@ -984,6 +988,10 @@ msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tone marks can also go at the end of the word."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py

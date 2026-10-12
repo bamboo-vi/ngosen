@@ -167,6 +167,10 @@ msgstr "Bỏ dấu kiểu mới (oà, uý)"
 msgid "Allow Type With More Freedom"
 msgstr "Gõ tự do"
 
+#: src/ngosen-config.h
+msgid "Backspace Removes the Tone Mark"
+msgstr "Backspace xóa dấu thanh"
+
 #: src/ngosen-config.h:242
 msgid "Allow dd To Produce đ When Auto Restore Invalid Words Is On"
 msgstr "Vẫn gõ dd ra đ khi tự khôi phục"
@@ -1053,6 +1057,10 @@ msgstr "Gõ windows vẫn ra windows."
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tone marks can also go at the end of the word."
 msgstr "Gõ dấu ở cuối từ cũng được."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
+msgstr "Kể cả khi tắt mục này, phím z (Telex) hay 0 (VNI) vẫn xóa dấu thanh. Chữ không có dấu thanh thì Backspace xóa chữ như thường."
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Turn this off if an app repeats letters."
