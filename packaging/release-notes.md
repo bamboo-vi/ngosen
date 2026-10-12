@@ -43,6 +43,8 @@ Cài xong, hoặc mỗi lần cập nhật, khởi động lại fcitx5:
 fcitx5 -rd
 ```
 
+KDE Wayland: đăng xuất rồi đăng nhập lại, vì KDE tự mở fcitx5 và lệnh trên không thay được.
+
 Ubuntu 26.04: xem mục "bật extension sửa lỗi gõ" trong [README](https://github.com/ngosen/ngosen#cài).
 
 Đối chiếu tệp tải về với `SHA256SUMS`: `sha256sum -c SHA256SUMS --ignore-missing`.

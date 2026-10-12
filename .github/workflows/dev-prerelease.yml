@@ -1,0 +1,50 @@
+name: Dev Pre-release
+
+# Builds every push to dev and republishes the packages under one fixed pre-release, so testers
+# have a stable link instead of CI artifacts that need a login and expire after three days.
+on:
+  push:
+    branches: [dev]
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/packaging-dev.yml
+
+  publish:
+    name: Publish the dev-build pre-release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts/
+
+      - name: Collect release files
+        run: packaging/collect-release-files.sh artifacts dist
+
+      # The tag does not match ngosen-*, so it never starts the release workflow.
+      - name: Replace the pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sed "s/@SHA@/$GITHUB_SHA/g" packaging/dev-release-notes.md > notes.md
+          gh release delete dev-build --cleanup-tag --yes || true
+          gh release create dev-build dist/* \
+            --prerelease \
+            --latest=false \
+            --target "$GITHUB_SHA" \
+            --title "Ngó Sen bản thử (dev)" \
+            --notes-file notes.md

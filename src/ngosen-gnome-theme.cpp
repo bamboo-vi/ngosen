@@ -302,4 +302,54 @@ namespace fcitx {
         return isShellCssPanelDark(*css);
     }
 
+    CinnamonThemeInfo cinnamonThemeInfoFromEnv() {
+        CinnamonThemeInfo info;
+        info.home        = envOr("HOME", "");
+        info.dataHome    = envOr("XDG_DATA_HOME", joinPath(info.home, ".local/share"));
+        info.dataDirs    = splitList(envOr("XDG_DATA_DIRS", "/usr/local/share:/usr/share"), ':');
+        std::string name = gsettingsGet("gsettings get org.cinnamon.theme name 2>/dev/null");
+        if (name.size() >= 2 && name.front() == '\'' && name.back() == '\'')
+            info.themeName = name.substr(1, name.size() - 2);
+        return info;
+    }
+
+    bool isCinnamonSession(const std::string& xdgCurrentDesktop, const std::string& desktopSession) {
+        const auto desktops = splitList(xdgCurrentDesktop, ':');
+        if (std::find(desktops.begin(), desktops.end(), "X-Cinnamon") != desktops.end())
+            return true;
+        // "cinnamon", "cinnamon2d" or "cinnamon-wayland"
+        return xdgCurrentDesktop.empty() && desktopSession.rfind("cinnamon", 0) == 0;
+    }
+
+    std::optional<std::string> cinnamonStylesheet(const CinnamonThemeInfo& info) {
+        if (info.themeName.empty() || info.themeName == "cinnamon") {
+            for (const auto& dir : info.dataDirs) {
+                const std::string path = joinPath(dir, "cinnamon/theme/cinnamon.css");
+                if (readable(path))
+                    return path;
+            }
+            return std::nullopt;
+        }
+        // Same search order as Cinnamon's theme manager.
+        std::vector<std::string> dirs{joinPath(info.home, ".themes"), joinPath(info.dataHome, "themes")};
+        for (const auto& dir : info.dataDirs)
+            dirs.push_back(joinPath(dir, "themes"));
+        for (const auto& dir : dirs) {
+            const std::string path = joinPath(dir, info.themeName + "/cinnamon/cinnamon.css");
+            if (readable(path))
+                return path;
+        }
+        return std::nullopt;
+    }
+
+    std::optional<bool> isCinnamonPanelDark(const CinnamonThemeInfo& info) {
+        const auto path = cinnamonStylesheet(info);
+        if (!path)
+            return std::nullopt;
+        const auto css = readFile(*path);
+        if (!css)
+            return std::nullopt;
+        return isShellCssPanelDark(*css);
+    }
+
 } // namespace fcitx

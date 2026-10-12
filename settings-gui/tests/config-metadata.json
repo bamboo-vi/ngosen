@@ -233,6 +233,13 @@
     {}
    ],
    [
+    "BackspaceRemovesTone",
+    "Boolean",
+    "Backspace Removes the Tone Mark",
+    "False",
+    {}
+   ],
+   [
     "WaitSurroundingEvent",
     "Boolean",
     "Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping",

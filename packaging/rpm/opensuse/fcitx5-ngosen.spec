@@ -67,6 +67,7 @@ find . -type f -name '*.py' -exec sed -i '1s|^#!.*env python3|#!/usr/bin/python3
 %{_datadir}/gnome-shell/extensions/forward-keys@ngosen.github.io/
 
 %{_datadir}/icons/hicolor/scalable/apps/*fcitx-ngosen*.svg
+%{_datadir}/icons/hicolor/scalable/apps/io.github.ngosen.NgoSen.Settings.svg
 %{_datadir}/icons/hicolor/scalable/status/fcitx-ngosen*.svg
 %{_datadir}/icons/hicolor/*/status/fcitx-ngosen*.png
 
@@ -110,6 +111,7 @@ udevadm control --reload-rules >/dev/null 2>&1 || :
 
 echo "--- Cấu hình Ngó Sen ---"
 echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen, hoặc khởi động lại fcitx5 nếu vừa cập nhật: fcitx5 -rd"
+echo "KDE Wayland: cập nhật xong thì đăng xuất rồi đăng nhập lại."
 echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
 
 %changelog
