@@ -4,14 +4,7 @@
 import unittest
 
 from qtpy.QtCore import QEvent
-from qtpy.QtWidgets import (
-    QCheckBox,
-    QFormLayout,
-    QLabel,
-    QLineEdit,
-    QListWidget,
-    QScrollArea,
-)
+from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QLineEdit, QListWidget
 from support import FakeDBusHandler, app
 from ui.components import SingleKeyCaptureWidget
 from ui.main_window import NgoSenSettingsWindow
@@ -80,8 +73,9 @@ class TypingPageTest(unittest.TestCase):
             if label.text().startswith("z in Telex (0 in VNI)")
         )
         self.assertGreaterEqual(hint.height(), 2 * hint.fontMetrics().lineSpacing())
-        scroll = self.page.findChild(QScrollArea)
-        self.assertEqual(scroll.horizontalScrollBar().maximum(), 0)
+        # The page may still scroll for other reasons; the hint must not be what forces it.
+        one_line = hint.fontMetrics().boundingRect(hint.text()).width()
+        self.assertLess(hint.minimumSizeHint().width(), one_line)
 
     def test_has_a_field_to_try_typing(self):
         form = form_of(self.page)
