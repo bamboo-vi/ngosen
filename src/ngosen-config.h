@@ -249,7 +249,7 @@ namespace fcitx {
         Option<int>  surrDeleteSleepMs{this, "SurrDeleteSleepMs", _("Experiment: ms per deleted char to sleep after deleteSurroundingText"), 4};
         Option<int>  surrCommitSleepMs{this, "SurrCommitSleepMs", _("Experiment: ms per committed char to sleep after commitString on the surrounding-text path"), 3};
         // The key keeps its old name so saved settings still load.
-        Option<bool> useNgoSenIcons{this, "UseLotusIcons", _("Use Ngó Sen Status Icons"), false};
+        Option<bool> useNgoSenIcons{this, "UseLotusIcons", _("Use Ngó Sen Status Icons"), true};
 
         Option<bool> enableDictionary{this, "EnableDictionary", _("Custom Dictionary"), false};
         Option<bool> enableCustomKeymap{this, "EnableCustomKeymap", _("Custom Keymap"), false};

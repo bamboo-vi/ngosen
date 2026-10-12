@@ -24,6 +24,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Icon mới: hai cọng ngó sen chụm thành chữ V, thay cho lát củ sen 7 lỗ. Cửa sổ cài đặt dùng bản đầy
   đủ có đổ bóng; icon trên khay (khi bật "Sử dụng biểu tượng trạng thái Ngó Sen") dùng bản giản lược,
   màu xám khi tắt tiếng Việt (#43).
+- Khay mặc định hiện icon Ngó Sen có nền màu, rõ trên panel sáng lẫn tối. Máy đã lưu cài đặt Ngó Sen
+  thì giữ lựa chọn cũ; muốn đổi thì bật "Sử dụng biểu tượng trạng thái Ngó Sen" trong cài đặt (#45).
 
 ### Sửa
 
