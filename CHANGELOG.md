@@ -17,7 +17,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   (Telex) hay `0` (VNI) vẫn xóa dấu thanh như trước. Đề xuất ở #34 (#37).
 - [Bản thử](https://github.com/ngosen/ngosen/releases/tag/dev-build) dựng tự động mỗi khi nhánh `dev` thay
   đổi, cài bằng một lệnh trong README. Số phiên bản có thêm ngày giờ và mã commit, nên cài đè lên bản chính
-  thức được, và bản chính thức sau đó vẫn tự nâng lên (#38).
+  thức được, và bản chính thức sau đó vẫn tự nâng lên (#38, #41).
 
 ### Sửa
 
