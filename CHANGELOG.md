@@ -19,6 +19,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   đổi, cài bằng một lệnh trong README. Số phiên bản có thêm ngày giờ và mã commit, nên cài đè lên bản chính
   thức được, và bản chính thức sau đó vẫn tự nâng lên (#38, #41).
 
+### Thay đổi
+
+- Icon mới: hai cọng ngó sen chụm thành chữ V, thay cho lát củ sen 7 lỗ. Cửa sổ cài đặt dùng bản đầy
+  đủ có đổ bóng; icon trên khay (khi bật "Sử dụng biểu tượng trạng thái Ngó Sen") dùng bản giản lược,
+  màu xám khi tắt tiếng Việt (#43).
+
 ### Sửa
 
 - Dòng gợi ý dưới tùy chọn trong cửa sổ cài đặt tự xuống dòng khi không đủ chỗ, thay vì bị cắt và bắt cuộn
