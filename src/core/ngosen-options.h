@@ -31,6 +31,7 @@ namespace ngosen {
         std::string  dateFormat;
         bool         autoNonVnRestore               = false;
         bool         ddFreeStyle                    = false;
+        bool         backspaceRemovesTone           = false;
         bool         enableMacro                    = false;
         bool         enableMacroInOffMode           = false;
         bool         capitalizeMacro                = false;

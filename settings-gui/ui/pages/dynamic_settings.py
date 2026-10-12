@@ -54,6 +54,7 @@ SETTINGS_MAP = {
             "DdFreeStyle",
             "ModernStyle",
             "FreeMarking",
+            "BackspaceRemovesTone",
             "W2U",
             "BracketTransform",
         ],
@@ -84,6 +85,9 @@ HINTS = {
     "SpellCheck": N_("Words that are not Vietnamese get no tone marks."),
     "AutoNonVnRestore": N_("Typing windows still gives windows."),
     "FreeMarking": N_("Tone marks can also go at the end of the word."),
+    "BackspaceRemovesTone": N_(
+        "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
+    ),
     "useSurroundingTextIfPossible": N_("Turn this off if an app repeats letters."),
 }
 
