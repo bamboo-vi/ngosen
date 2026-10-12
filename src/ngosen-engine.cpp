@@ -437,6 +437,7 @@ namespace fcitx {
         o.dateFormat                       = config_.dateFormat.value();
         o.autoNonVnRestore                 = config_.autoNonVnRestore.value();
         o.ddFreeStyle                      = config_.ddFreeStyle.value();
+        o.backspaceRemovesTone             = config_.backspaceRemovesTone.value();
         o.enableMacro                      = config_.enableMacro.value();
         o.enableMacroInOffMode             = config_.enableMacroInOffMode.value();
         o.capitalizeMacro                  = config_.capitalizeMacro.value();

@@ -2,7 +2,7 @@
 Name=Ngó Sen Settings
 Comment=Configure the Ngó Sen input method
 Exec=fcitx5-ngosen-settings
-Icon=fcitx-ngosen
+Icon=io.github.ngosen.NgoSen.Settings
 StartupWMClass=io.github.ngosen.NgoSen.Settings
 Terminal=false
 Type=Application

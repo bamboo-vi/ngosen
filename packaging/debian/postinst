@@ -36,6 +36,7 @@ if [ "$1" = "configure" ]; then
         echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
     else
         echo "Khởi động lại fcitx5 để dùng bản mới: fcitx5 -rd"
+        echo "KDE Wayland: đăng xuất rồi đăng nhập lại."
     fi
 fi
 
