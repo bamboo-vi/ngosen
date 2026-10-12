@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thay đổi
+
+- Khay mặc định hiện icon Ngó Sen có nền màu, rõ trên panel sáng lẫn tối. Máy đã lưu cài đặt Ngó Sen
+  thì giữ lựa chọn cũ; muốn đổi thì bật "Sử dụng biểu tượng trạng thái Ngó Sen" trong cài đặt.
+
 ## [1.2.2-1] — 11/10/2026
 
 Bản vá nhỏ: chữ `vi` thay hình bông sen cạnh con trỏ, và hết lỗi mất dấu khi gõ trên thanh địa chỉ Edge.
