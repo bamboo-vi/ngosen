@@ -83,6 +83,8 @@ NixOS thật. Gặp lỗi xin mở issue. Tự dựng từ bản clone trên má
 fcitx5 -rd
 ```
 
+KDE Wayland: đăng xuất rồi đăng nhập lại, vì KDE tự mở fcitx5 và lệnh trên không thay được.
+
 ### Ubuntu 26.04: bật extension sửa lỗi gõ
 
 Có từ bản `0.5.0-1`. Cài xong, đăng xuất rồi đăng nhập lại, sau đó chạy một lần:

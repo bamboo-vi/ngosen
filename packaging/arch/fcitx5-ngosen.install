@@ -38,4 +38,5 @@ post_upgrade() {
 
     echo "--- Cấu hình Ngó Sen ---"
     echo "Khởi động lại fcitx5 để dùng bản mới: fcitx5 -rd"
+    echo "KDE Wayland: đăng xuất rồi đăng nhập lại."
 }
