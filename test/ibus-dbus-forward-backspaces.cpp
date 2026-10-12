@@ -3,8 +3,8 @@
 // On the ibus, dbus and fcitx4 frontends the backspaces of a replacement go to the app through
 // forwardKey, or through deleteSurroundingText for GTK4 clients, which drop forwarded keys. SDL clients
 // take neither, so they get nothing; on X11 they get XTEST keys (x11-xtest-replacement.cpp).
-#include "lotus-engine.h"
-#include "lotus-utils.h"
+#include "ngosen-engine.h"
+#include "ngosen-utils.h"
 #include "test-input-context.h"
 
 #include <cstddef>
@@ -45,7 +45,7 @@ namespace {
 
     struct Harness {
         TestInstance&                     testInstance;
-        fcitx::LotusEngine&               engine;
+        fcitx::NgoSenEngine&              engine;
         fcitx::InputMethodEntry&          entry;
 
         std::unique_ptr<TestInputContext> open(const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps) {
@@ -118,6 +118,28 @@ namespace {
         pumpEventLoop(h.testInstance.instance, 120);
         if (context->commits() != std::vector<std::string>{"ê"}) {
             reportFailure("dbus: commit once the app reports the deletion", "['ê']", joinCommits(*context));
+            return false;
+        }
+        return true;
+    }
+
+    // fcitx5-gtk (GTK3) gets the commit after the reply to the key event, and puts back a key we let
+    // through on its own queue, so the two race: typing "roofi" fast in gnome-terminal showed "riồ".
+    // A key typed during the wait must go out inside the commit.
+    bool dbusKeyDuringWaitJoinsCommit(Harness& h) {
+        auto context = h.open("gnome-terminal-server", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::KeyEventOrderFix});
+        if (!h.type(*context, FcitxKey_r, false) || !h.type(*context, FcitxKey_o, false))
+            return false;
+        pumpEventLoop(h.testInstance.instance, 1);
+        if (!h.type(*context, FcitxKey_o, true))
+            return false;
+        h.pumpUntil([&] { return !context->commits().empty(); }, nowUs() + 500000);
+        pumpEventLoop(h.testInstance.instance, 1);
+        if (!h.type(*context, FcitxKey_f, true) || !h.type(*context, FcitxKey_i, true))
+            return false;
+        h.pumpUntil([&] { return context->commits().size() > 1; }, nowUs() + 500000);
+        if (context->commits() != std::vector<std::string>{"ô", "ồi"}) {
+            reportFailure("dbus: a key typed during the wait goes out with the replacement", "['ô']['ồi']", joinCommits(*context));
             return false;
         }
         return true;
@@ -228,19 +250,21 @@ namespace {
 int main() {
     setenv("XDG_CURRENT_DESKTOP", "KDE", 1);
 
-    configureTestPaths("fcitx5-lotus-ibus-dbus-forward-backspaces");
-    TestInstance       testInstance;
-    fcitx::LotusEngine engine(&testInstance.instance);
-    fcitx::RawConfig   config;
+    configureTestPaths("fcitx5-ngosen-ibus-dbus-forward-backspaces");
+    TestInstance        testInstance;
+    fcitx::NgoSenEngine engine(&testInstance.instance);
+    fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Sen");
     config.setValueByPath("InputMethod", "Telex");
     config.setValueByPath("WaitSurroundingEvent", "True");
     engine.setConfig(config);
 
-    fcitx::InputMethodEntry entry("lotus", "Lotus", "vi", "lotus");
+    fcitx::InputMethodEntry entry("ngosen", "Ngó Sen", "vi", "ngosen");
     Harness                 h{testInstance, engine, entry};
 
     if (!dbusForwardsAndWaitsForDeletion(h))
+        return 1;
+    if (!dbusKeyDuringWaitJoinsCommit(h))
         return 1;
     if (!gtk4DeletesThroughSurroundingText(h, "gtk4app", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText}))
         return 1;

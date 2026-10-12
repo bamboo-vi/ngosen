@@ -1,0 +1,6 @@
+[InputMethod]
+Name=Ngó Sen
+Icon=fcitx-ngosen
+LangCode=vi
+Addon=ngosen
+Configurable=True

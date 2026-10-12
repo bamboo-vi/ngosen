@@ -4,7 +4,7 @@
 
 from i18n import _
 from qtpy.QtCore import Qt, QUrl
-from qtpy.QtGui import QDesktopServices, QIcon
+from qtpy.QtGui import QDesktopServices
 from qtpy.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -14,6 +14,9 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from ui import brand
+from ui.typography import mute
 
 try:
     from version import __version__
@@ -44,49 +47,31 @@ class AboutPage(QWidget):
         layout = QVBoxLayout(content_widget)
         layout.setContentsMargins(40, 30, 40, 40)
         layout.setSpacing(20)
-        layout.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        # Centred per widget: a centred layout would squeeze the wrapping description.
+        layout.setAlignment(Qt.AlignTop)
 
-        # Logo/Icon
-        try:
-            pixmap = QIcon.fromTheme("fcitx-lotus").pixmap(80, 80)
-            if pixmap.isNull():
-                logo = QLabel("🪷")
-                logo.setStyleSheet("font-size: 64px; margin-bottom: 5px;")
-            else:
-                logo = QLabel()
-                logo.setPixmap(pixmap)
-                logo.setStyleSheet("margin-bottom: 5px;")
-        except Exception:
-            logo = QLabel("🪷")
-            logo.setStyleSheet("font-size: 64px; margin-bottom: 5px;")
-
-        layout.addWidget(logo, alignment=Qt.AlignCenter)
+        pixmap = brand.logo_icon().pixmap(80, 80)
+        if not pixmap.isNull():
+            logo = QLabel()
+            logo.setPixmap(pixmap)
+            layout.addWidget(logo, alignment=Qt.AlignCenter)
 
         title = QLabel("Ngó Sen")
-        title.setObjectName("AboutTitle")
+        title.setObjectName("Wordmark")
+        title.setFont(brand.wordmark_font(30))
         layout.addWidget(title, alignment=Qt.AlignCenter)
 
         version = QLabel(_("Version {}").format(__version__))
         version.setObjectName("VersionTag")
         version.setAlignment(Qt.AlignCenter)
-        version.setStyleSheet("""
-            QLabel#VersionTag {
-                background-color: palette(highlight);
-                color: palette(highlighted-text);
-                border-radius: 10px;
-                padding: 2px 10px;
-                font-size: 11px;
-                font-weight: bold;
-            }
-        """)
+        mute(version)
         layout.addWidget(version, alignment=Qt.AlignCenter)
 
         desc = QLabel(_("Modern, fast, and stable Vietnamese input method for Linux."))
         desc.setWordWrap(True)
         desc.setAlignment(Qt.AlignCenter)
         desc.setObjectName("AboutDescription")
-        desc.setMinimumHeight(60)
-        layout.addWidget(desc, alignment=Qt.AlignCenter)
+        layout.addWidget(desc)
 
         # GitHub Project Link
         github_link = QLabel(
@@ -127,35 +112,21 @@ class AboutPage(QWidget):
         line.setObjectName("AboutLine")
         layout.addWidget(line)
 
-        # Credits Section
-        credits_title = QLabel(_("Based on fcitx5-lotus by"))
-        credits_title.setObjectName("CreditsTitle")
-        layout.addWidget(credits_title, alignment=Qt.AlignCenter)
+        developer = QLabel(_("Developed by Nguyen Phi"))
+        developer.setObjectName("DeveloperLine")
+        layout.addWidget(developer, alignment=Qt.AlignCenter)
 
-        # Authors List - Single Column with wrap-round support
-        authors_layout = QVBoxLayout()
-        authors_layout.setSpacing(12)
-
-        authors_data = [
-            ("Nguyễn Hoàng Kỳ", "https://github.com/nhktmdzhg"),
-            ("Nguyễn Hồng Hiệp", "https://github.com/justanoobcoder"),
-            ("Đặng Quang Hiển", "https://github.com/Miho1254"),
-            ("Zebra2711", "https://github.com/Zebra2711"),
-            ("Huỳnh Thiện Lộc", "https://github.com/hthienloc"),
-        ]
-
-        for name, profile_url in authors_data:
-            author_link = QLabel(
-                f'<a href="{profile_url}" style="text-decoration: none;">{name}</a>'
+        # One credit line; the authors are named in the copyright notices.
+        credits = QLabel(
+            _("Based on the code of {lotus} and {vmk}.").format(
+                lotus='<a href="https://github.com/LotusInputMethod/fcitx5-lotus" style="text-decoration: none;">fcitx5-lotus</a>',
+                vmk='<a href="https://github.com/thanhpy2009/VMK" style="text-decoration: none;">VMK</a>',
             )
-            author_link.setOpenExternalLinks(True)
-            author_link.setCursor(Qt.PointingHandCursor)
-            author_link.setObjectName("AuthorLink")
-            author_link.setAlignment(Qt.AlignCenter)
-            author_link.setMinimumHeight(24)
-            authors_layout.addWidget(author_link)
-
-        layout.addLayout(authors_layout)
+        )
+        credits.setOpenExternalLinks(True)
+        credits.setObjectName("CreditsLine")
+        mute(credits)
+        layout.addWidget(credits, alignment=Qt.AlignCenter)
         layout.addStretch()
 
         # Footer
@@ -166,6 +137,7 @@ class AboutPage(QWidget):
 
         license_info = QLabel(_("Licensed under the GNU General Public License v3.0"))
         license_info.setObjectName("LicenseInfo")
+        mute(license_info)
         layout.addWidget(license_info, alignment=Qt.AlignCenter)
 
         scroll.setWidget(content_widget)

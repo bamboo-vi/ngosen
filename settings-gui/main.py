@@ -10,26 +10,21 @@ import signal
 import sys
 
 from i18n import setup_i18n
-from qtpy.QtCore import QTimer
-from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QApplication
-from ui.main_window import LotusSettingsWindow
+from ui import brand
+from ui.main_window import NgoSenSettingsWindow
 
 
 def main():
     """Main execution function."""
     setup_i18n()
     app = QApplication(sys.argv)
-    app.setDesktopFileName("org.fcitx.Fcitx5.Addon.Lotus.Settings")
-    app.setApplicationName("org.fcitx.Fcitx5.Addon.Lotus.Settings")
+    app.setDesktopFileName("io.github.ngosen.NgoSen.Settings")
+    app.setApplicationName("io.github.ngosen.NgoSen.Settings")
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app.setWindowIcon(QIcon.fromTheme("fcitx-lotus"))
+    app.setWindowIcon(brand.logo_icon())
 
-    timer = QTimer()
-    timer.start(500)
-    timer.timeout.connect(lambda: None)
-
-    window = LotusSettingsWindow()
+    window = NgoSenSettingsWindow()
     window.show()
 
     try:

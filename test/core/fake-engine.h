@@ -38,12 +38,16 @@ namespace ngosen::test {
         std::vector<EmojiEntry> searchEmoji(const std::string& /*prefix*/) override {
             return {};
         }
-        void recordEmoji(const EmojiEntry& /*entry*/) override {}
+        void      recordEmoji(const EmojiEntry& /*entry*/) override {}
+        Recorder& recorder() override {
+            return recorder_;
+        }
 
       private:
         Options   options_;
         uintptr_t dictionary_ = 0;
         uintptr_t macroTable_ = 0;
+        Recorder  recorder_;
     };
 
     class FakeKey final : public KeyPress {
@@ -83,6 +87,10 @@ namespace ngosen::test {
 
         bool accepted() const {
             return accepted_;
+        }
+        // The key the app gets when the typing logic lets it through.
+        uint32_t appSym() const {
+            return appSym_;
         }
 
       private:

@@ -241,6 +241,7 @@ namespace ngosen {
     }
 
     void TypingState::surroundingUpdated() {
+        engine_->recorder().add("app", host_->field().password ? "hidden" : ngosen::describeSurrounding(host_->surrounding()));
         // A wait that starts while this report is handled sees only the next report.
         const bool waiting    = surr_wait_watching_;
         const bool overtyping = overtype_watching_;
@@ -365,6 +366,9 @@ namespace ngosen {
         bool       jumped   = sameText && (s.cursor() != lastSurroundingCursor_ || s.anchor() != lastSurroundingAnchor_);
         // Some editors (Lark in Firefox) report the cursor past our commit before the committed text.
         const bool echo = jumped && unreportedCommitLength_ > 0 && s.cursor() == s.anchor() && s.cursor() == lastSurroundingCursor_ + unreportedCommitLength_;
+        // Typing the next letter of a selected inline suggestion (Edge's address bar) keeps the text.
+        const bool intoSuggestion = jumped && passed_key_ && s.anchor() == lastSurroundingAnchor_ && s.anchor() > s.cursor() && s.cursor() == lastSurroundingCursor_ + 1 &&
+            ngosen::utf8::decode(s.text())[lastSurroundingCursor_] == passed_key_->sym;
         // A spreadsheet reports a click on another cell only as that cell's text with the cursor at its start.
         const bool newField =
             hasLastSurrounding_ && !sameText && s.cursor() == 0 && s.anchor() == 0 && !oldPreBuffer_.empty() && (unreportedCommitLength_ == 0 || textAfterCursorChanged(s));
@@ -375,7 +379,7 @@ namespace ngosen {
         // Calc reports the new cell empty just before the key we let through lands in it.
         // Our unreported commits do not matter here: in the same cell the key would follow them.
         const bool keyStartedCell = settling && passed_key_ && !sameText && s.text().empty() && !oldPreBuffer_.empty() && ngosen::reportsFieldOnlyOnKey(host_->field());
-        jumped                    = ((jumped && !echo) || newField) && !settling;
+        jumped                    = ((jumped && !echo && !intoSuggestion) || newField) && !settling;
         lastSurroundingText_      = s.text();
         lastSurroundingCursor_    = s.cursor();
         lastSurroundingAnchor_    = s.anchor();
@@ -404,8 +408,18 @@ namespace ngosen {
     }
 
     void TypingState::noteCommit(const std::string& text) {
+        // fcitx reports our own commits too; commit() has recorded those already.
+        if (committing_)
+            return;
         unreportedCommitLength_ += ngosen::utf8::length(text);
         lastInputAtUs_ = ngosen::monotonicUs();
+    }
+
+    void TypingState::commit(const std::string& text) {
+        noteCommit(text);
+        committing_ = true;
+        host_->commitText(text);
+        committing_ = false;
     }
 
 } // namespace ngosen

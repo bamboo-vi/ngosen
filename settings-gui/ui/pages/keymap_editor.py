@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
-Keymap Editor Page. Edits lotus-custom-keymap.conf.
+Keymap Editor Page. Edits ngosen-custom-keymap.conf.
 Implements custom keymap presets and TSV import/export.
 """
 
-from core.dbus_handler import LotusDBusHandler
+from core.dbus_handler import NgoSenDBusHandler
 from i18n import _
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (
@@ -26,6 +26,7 @@ from qtpy.QtWidgets import (
 
 from ui.pages.base_editor import BaseEditorPage
 from ui.pages.dynamic_settings import CardWidget
+from ui.typography import page_title
 
 BAMBOO_ACTIONS = [
     ("XoaDauThanh", "Xóa dấu thanh"),
@@ -200,9 +201,9 @@ PRESETS = {
 
 
 class KeymapEditorPage(BaseEditorPage):
-    """UI for editing Lotus custom keymap."""
+    """UI for editing the Ngó Sen custom keymap."""
 
-    def __init__(self, dbus_handler: LotusDBusHandler, parent=None):
+    def __init__(self, dbus_handler: NgoSenDBusHandler, parent=None):
         super().__init__(parent)
         self.dbus = dbus_handler
         self.initial_state = {}
@@ -214,8 +215,7 @@ class KeymapEditorPage(BaseEditorPage):
         main_layout.setContentsMargins(30, 20, 30, 20)
         main_layout.setSpacing(15)
 
-        title = QLabel(_("Keymap"))
-        title.setObjectName("CategoryTitle")
+        title = page_title(_("Keymap"))
         main_layout.addWidget(title)
 
         # Configuration card
@@ -328,13 +328,14 @@ class KeymapEditorPage(BaseEditorPage):
             self.on_search_changed()
 
     def restore_defaults(self):
-        """Clears all custom keymap entries, restoring to default."""
+        """Clears all custom keymap entries and turns the custom keymap off."""
+        self.cb_enable.setChecked(False)
         self.table.setRowCount(0)
         self._on_item_changed()
 
     def is_modified_from_default(self):
-        """Returns True if the keymap table has any entries."""
-        return self.table.rowCount() > 0
+        """Returns True if the keymap is on or has any entries."""
+        return self.table.rowCount() > 0 or self.cb_enable.isChecked()
 
     def is_modified(self):
         """Returns True if the current state differs from the initial loaded state."""

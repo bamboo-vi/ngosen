@@ -8,9 +8,9 @@ D-Bus handler to communicate with Fcitx5 Controller.
 import dbus
 
 
-class LotusDBusHandler:
+class NgoSenDBusHandler:
     def __init__(self):
-        self.addon_name = "fcitx://config/addon/lotus"
+        self.addon_name = "fcitx://config/addon/ngosen"
         try:
             self.bus = dbus.SessionBus()
             self.proxy = self.bus.get_object("org.fcitx.Fcitx5", "/controller")
@@ -43,6 +43,17 @@ class LotusDBusHandler:
             return True
         except Exception as e:
             print(f"Failed to set config: {e}")
+            return False
+
+    def reload_addon_config(self) -> bool:
+        """Makes the addon read its files again, which SetConfig does not do for the dictionary."""
+        if not self.iface:
+            return False
+        try:
+            self.iface.ReloadAddonConfig(self.addon_name.rsplit("/", 1)[-1])
+            return True
+        except Exception as e:
+            print(f"Failed to reload addon config: {e}")
             return False
 
     def get_sub_config_list(self, path: str, root_key: str) -> list:

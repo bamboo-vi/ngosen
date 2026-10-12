@@ -3,11 +3,13 @@
 add_library(ngosen_core STATIC
     ngosen-state.cpp
     ngosen-state-emoji.cpp
+    ngosen-state-focus.cpp
     ngosen-state-macro.cpp
     ngosen-state-replace.cpp
     ngosen-state-wait.cpp
     ngosen-app-quirks.cpp
     ngosen-globals.cpp
+    ngosen-recorder.cpp
     ngosen-strings.cpp
     ngosen-utf8.cpp
     ngosen-xtest.cpp

@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(fcitx5-lotus VERSION 0.5.1)
+project(fcitx5-ngosen VERSION 1.2.2)
+# The typing log names the version it came from.
+add_definitions(-DNGOSEN_VERSION=\"${PROJECT_VERSION}\")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-option(BUILD_TESTING "Build Lotus tests" OFF)
+option(BUILD_TESTING "Build the tests" OFF)
 option(NGOSEN_RUST_CORE "Build the typing core from bamboo-rs/ (Rust) instead of the Go sources in bamboo/" OFF)
 option(NGOSEN_CORE_ONLY "Build only the typing logic and its tests, without fcitx5" OFF)
 
@@ -24,17 +26,17 @@ endif()
 
 # The fcitx5 shell around the typing logic (src/core, built as ngosen_core). The addon entry point
 # is excluded so the headless tests can link the same sources the module does.
-set(fcitx_lotus_core_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lotus-engine.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lotus-candidates.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lotus-utils.cpp
+set(ngosen_fcitx_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-engine.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-candidates.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-utils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-fcitx-host.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-fcitx-log.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-pointer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lotus-monitor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lotus-icon-resolver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lotus-plasma-theme.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lotus-gnome-theme.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-monitor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-icon-resolver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-plasma-theme.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-gnome-theme.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/emoji.cpp
 )
 
@@ -51,10 +53,10 @@ find_package(Pthread REQUIRED)
 find_package(Gettext REQUIRED)
 
 include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
-add_definitions(-DFCITX_GETTEXT_DOMAIN=\"fcitx5-lotus\") 
+add_definitions(-DFCITX_GETTEXT_DOMAIN=\"fcitx5-ngosen\") 
 
 if (Fcitx5Utils_VERSION VERSION_GREATER_EQUAL "5.1.13")
-    add_definitions(-DLOTUS_USE_MODERN_FCITX_API)
+    add_definitions(-DNGOSEN_USE_MODERN_FCITX_API)
     message(STATUS "Fcitx5 version ${Fcitx5Utils_VERSION} detected: Using modern API")
 else()
     message(STATUS "Fcitx5 version ${Fcitx5Utils_VERSION} detected: Using legacy API")
@@ -77,18 +79,18 @@ if (BUILD_TESTING)
 endif()
 
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/org.fcitx.Fcitx5.Addon.Lotus.metainfo.xml.in.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/org.fcitx.Fcitx5.Addon.Lotus.metainfo.xml.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/io.github.ngosen.NgoSen.metainfo.xml.in.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/io.github.ngosen.NgoSen.metainfo.xml.in"
     @ONLY
 )
 
 fcitx5_translate_desktop_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/org.fcitx.Fcitx5.Addon.Lotus.metainfo.xml.in"
-    org.fcitx.Fcitx5.Addon.Lotus.metainfo.xml
+    "${CMAKE_CURRENT_BINARY_DIR}/io.github.ngosen.NgoSen.metainfo.xml.in"
+    io.github.ngosen.NgoSen.metainfo.xml
     XML
 )
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/org.fcitx.Fcitx5.Addon.Lotus.metainfo.xml" DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/io.github.ngosen.NgoSen.metainfo.xml" DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
 
 # GNOME 50.0-50.3 drop keys an input method forwards; the user enables this extension there.
 install(DIRECTORY gnome-shell/forward-keys@ngosen.github.io DESTINATION ${CMAKE_INSTALL_DATADIR}/gnome-shell/extensions)
@@ -96,6 +98,7 @@ install(DIRECTORY gnome-shell/forward-keys@ngosen.github.io DESTINATION ${CMAKE_
 install(FILES 
         LICENSES/GPL-3.0-or-later.txt
         LICENSES/LGPL-2.1-or-later.txt
+        LICENSES/OFL-1.1.txt
         DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/${PROJECT_NAME}
 )
 
