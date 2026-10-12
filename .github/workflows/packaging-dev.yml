@@ -2,9 +2,10 @@ name: Test Packaging Build
 
 on:
   push:
-    # Tags are built by the release workflow, which calls this one.
+    # Tags and dev are built by the release and dev pre-release workflows, which call this one.
     branches:
       - '**'
+      - '!dev'
   pull_request:
   workflow_call:
 
