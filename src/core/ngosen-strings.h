@@ -24,3 +24,6 @@ bool isStartsWith(const std::string& str, const std::string& prefix);
  * @return Program name without a trailing ".desktop".
  */
 std::string stripDesktopSuffix(const std::string& program);
+
+// The word with its tone mark (sắc, huyền, hỏi, ngã, nặng) taken off; circumflex, breve, horn and đ stay.
+std::string withoutToneMark(const std::string& word);

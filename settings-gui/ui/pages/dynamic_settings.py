@@ -54,6 +54,7 @@ SETTINGS_MAP = {
             "DdFreeStyle",
             "ModernStyle",
             "FreeMarking",
+            "BackspaceRemovesTone",
             "W2U",
             "BracketTransform",
         ],
@@ -84,6 +85,9 @@ HINTS = {
     "SpellCheck": N_("Words that are not Vietnamese get no tone marks."),
     "AutoNonVnRestore": N_("Typing windows still gives windows."),
     "FreeMarking": N_("Tone marks can also go at the end of the word."),
+    "BackspaceRemovesTone": N_(
+        "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
+    ),
     "useSurroundingTextIfPossible": N_("Turn this off if an app repeats letters."),
 }
 
@@ -100,6 +104,22 @@ TYPING_EXAMPLES = {
 
 # Below this width the labels go above their fields.
 NARROW_WIDTH = 620
+
+
+class HintLabel(QLabel):
+    """A hint that wraps when the page is too narrow for it, and is as tall as its lines."""
+
+    def __init__(self, text):
+        super().__init__(text)
+        self.setWordWrap(True)
+
+    # QFormLayout sizes a wrapping label for a guessed width, which left a blank line under short
+    # hints; pin the height to the width the label really got.
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        height = self.heightForWidth(self.width())
+        if height > 0 and height != self.minimumHeight():
+            self.setFixedHeight(height)
 
 
 MODE_SHORTCUT_TO_VISIBILITY = {
@@ -321,8 +341,7 @@ class DynamicSettingsPage(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(widget)
-        # Wrapping makes the form reserve two lines for a one-line hint.
-        hint = QLabel(_(hint_text))
+        hint = HintLabel(_(hint_text))
         mute(hint)
         if isinstance(widget, QCheckBox):
             # Line the hint up with the checkbox text, not its box.

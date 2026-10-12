@@ -63,6 +63,20 @@ class TypingPageTest(unittest.TestCase):
         for hint in hints:
             self.assertLess(hint.height(), 2 * hint.fontMetrics().lineSpacing(), hint.text())
 
+    def test_long_hint_wraps_instead_of_scrolling(self):
+        self.page.resize(760, 900)
+        self.page.show()
+        app.processEvents()
+        hint = next(
+            label
+            for label in self.page.findChildren(QLabel)
+            if label.text().startswith("z in Telex (0 in VNI)")
+        )
+        self.assertGreaterEqual(hint.height(), 2 * hint.fontMetrics().lineSpacing())
+        # The page may still scroll for other reasons; the hint must not be what forces it.
+        one_line = hint.fontMetrics().boundingRect(hint.text()).width()
+        self.assertLess(hint.minimumSizeHint().width(), one_line)
+
     def test_has_a_field_to_try_typing(self):
         form = form_of(self.page)
         last = form.itemAt(form.rowCount() - 1, QFormLayout.FieldRole).widget()
