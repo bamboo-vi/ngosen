@@ -23,6 +23,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - Dòng gợi ý dưới tùy chọn trong cửa sổ cài đặt tự xuống dòng khi không đủ chỗ, thay vì bị cắt và bắt cuộn
   ngang (#39).
+- Lời nhắc sau khi cài hoặc cập nhật nói thêm: trên KDE Wayland phải đăng xuất rồi đăng nhập lại, vì
+  `fcitx5 -rd` không thay được fcitx5 do KDE mở, nên cửa sổ cài đặt chưa hiện tùy chọn mới (#42).
 
 ## [1.2.2-1] — 11/10/2026
 
