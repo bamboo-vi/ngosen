@@ -67,6 +67,7 @@ find . -type f -name '*.py' -exec sed -i '1s|^#!.*env python3|#!/usr/bin/python3
 %{_datadir}/gnome-shell/extensions/forward-keys@ngosen.github.io/
 
 %{_datadir}/icons/hicolor/scalable/apps/*fcitx-ngosen*.svg
+%{_datadir}/icons/hicolor/scalable/apps/io.github.ngosen.NgoSen.Settings.svg
 %{_datadir}/icons/hicolor/scalable/status/fcitx-ngosen*.svg
 %{_datadir}/icons/hicolor/*/status/fcitx-ngosen*.png
 

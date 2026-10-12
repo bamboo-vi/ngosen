@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thay đổi
+
+- Icon mới: hai cọng ngó sen chụm thành chữ V, thay cho lát củ sen 7 lỗ. Cửa sổ cài đặt dùng bản đầy
+  đủ có đổ bóng; icon trên khay (khi bật "Sử dụng biểu tượng trạng thái Ngó Sen") dùng bản giản lược,
+  màu xám khi tắt tiếng Việt.
+
 ## [1.2.2-1] — 11/10/2026
 
 Bản vá nhỏ: chữ `vi` thay hình bông sen cạnh con trỏ, và hết lỗi mất dấu khi gõ trên thanh địa chỉ Edge.
