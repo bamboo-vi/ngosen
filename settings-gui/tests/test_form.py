@@ -4,7 +4,14 @@
 import unittest
 
 from qtpy.QtCore import QEvent
-from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QLineEdit, QListWidget
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QFormLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QScrollArea,
+)
 from support import FakeDBusHandler, app
 from ui.components import SingleKeyCaptureWidget
 from ui.main_window import NgoSenSettingsWindow
@@ -62,6 +69,19 @@ class TypingPageTest(unittest.TestCase):
         self.assertEqual(len(hints), 2)
         for hint in hints:
             self.assertLess(hint.height(), 2 * hint.fontMetrics().lineSpacing(), hint.text())
+
+    def test_long_hint_wraps_instead_of_scrolling(self):
+        self.page.resize(760, 900)
+        self.page.show()
+        app.processEvents()
+        hint = next(
+            label
+            for label in self.page.findChildren(QLabel)
+            if label.text().startswith("z in Telex (0 in VNI)")
+        )
+        self.assertGreaterEqual(hint.height(), 2 * hint.fontMetrics().lineSpacing())
+        scroll = self.page.findChild(QScrollArea)
+        self.assertEqual(scroll.horizontalScrollBar().maximum(), 0)
 
     def test_has_a_field_to_try_typing(self):
         form = form_of(self.page)

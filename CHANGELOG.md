@@ -16,6 +16,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   gõ chữ `tiếng` thì ra `tiêng`; chữ không có dấu thanh thì Backspace xóa như thường. Khi tắt, phím `z`
   (Telex) hay `0` (VNI) vẫn xóa dấu thanh như trước. Đề xuất ở #34 (#37).
 
+### Sửa
+
+- Dòng gợi ý dưới tùy chọn trong cửa sổ cài đặt tự xuống dòng khi không đủ chỗ, thay vì bị cắt và bắt cuộn
+  ngang (#39).
+
 ## [1.2.2-1] — 11/10/2026
 
 Bản vá nhỏ: chữ `vi` thay hình bông sen cạnh con trỏ, và hết lỗi mất dấu khi gõ trên thanh địa chỉ Edge.
