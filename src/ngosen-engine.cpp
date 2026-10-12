@@ -151,8 +151,8 @@ namespace fcitx {
         cachedValue = false;
 
         // KDE Plasma: the tray sits on the panel, painted by the Plasma Style,
-        // while the portal below reports the application colour scheme.  The
-        // two differ in the default Fedora/Kubuntu look (#374).
+        // not by the application colour scheme.  The two differ in the
+        // default Fedora/Kubuntu look (#374).
         if (isKdePlasmaSession(getEnv("XDG_CURRENT_DESKTOP"))) {
             if (const auto dark = isPlasmaPanelDark(plasmaThemeSearchPathsFromEnv())) {
                 cachedValue = *dark;
@@ -169,59 +169,17 @@ namespace fcitx {
             }
         }
 
-        // GTK_THEME is honored by lightweight DEs that lack the settings
-        // portal; covers XFCE, openbox, etc. with a dark theme.
-        if (std::string theme = getEnv("GTK_THEME"); !theme.empty()) {
-            std::transform(theme.begin(), theme.end(), theme.begin(), ::tolower);
-            if (theme.find("dark") != std::string::npos) {
-                cachedValue = true;
+        // Cinnamon: Linux Mint pairs a dark panel theme with light apps.
+        if (isCinnamonSession(getEnv("XDG_CURRENT_DESKTOP"), getEnv("DESKTOP_SESSION"))) {
+            if (const auto dark = isCinnamonPanelDark(cinnamonThemeInfoFromEnv())) {
+                cachedValue = *dark;
                 return cachedValue;
             }
         }
 
-        FILE* pipe = popen("dbus-send --session --dest=org.freedesktop.portal.Desktop --print-reply /org/freedesktop/portal/desktop org.freedesktop.portal.Settings.ReadOne "
-                           "string:'org.freedesktop.appearance' string:'color-scheme' 2>/dev/null",
-                           "r");
-        if (pipe != nullptr) {
-            char buffer[256];
-            while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-                uint32_t value = 0;
-                if (sscanf(buffer, "%*[^v]variant uint32 %u", &value) == 1) {
-                    pclose(pipe);
-                    cachedValue = value == 1;
-                    return cachedValue;
-                }
-            }
-            pclose(pipe);
-        }
-
-        pipe = popen("gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null", "r");
-        if (pipe != nullptr) {
-            char buffer[256];
-            if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-                pclose(pipe);
-                cachedValue = strstr(buffer, "prefer-dark") != nullptr;
-                return cachedValue;
-            }
-            pclose(pipe);
-        }
-
-        // GTK settings file — covers DEs where the dark preference is stored
-        // there instead of being exposed via portal/gsettings.
-        if (std::string home = getEnv("HOME"); !home.empty()) {
-            std::ifstream settingsFile(home + "/.config/gtk-3.0/settings.ini");
-            if (settingsFile.is_open()) {
-                std::string line;
-                while (std::getline(settingsFile, line)) {
-                    if (line.find("gtk-application-prefer-dark-theme=1") != std::string::npos) {
-                        cachedValue = true;
-                        return cachedValue;
-                    }
-                }
-            }
-            settingsFile.close();
-        }
-
+        // Elsewhere the app colour scheme says nothing about the panel, and
+        // Xfce, MATE, LXQt, Budgie and tiling-WM bars mostly ship dark ones.
+        cachedValue = true;
         return cachedValue;
     }
 
