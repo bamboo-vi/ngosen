@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Rules for anyone (human or coding agent) changing this fork or sending patches upstream to
-[LotusInputMethod/fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus). Upstream's
-[CONTRIBUTING](CONTRIBUTING.en.md) still applies; this file adds what it leaves out.
+Rules for anyone (human or coding agent) changing this repository. [CONTRIBUTING](CONTRIBUTING.en.md)
+still applies; this file adds what it leaves out. Outside the code, fcitx5-lotus is named only in the
+README credit line and the credit line on the settings About page; do not add comparisons or "forked from" lines elsewhere.
 
 These rules exist because upstream reviewers said our patches were hard to read: Vietnamese
 identifiers, too many core changes at once, long AI-sounding PR text, and claims they could not
@@ -26,18 +26,18 @@ a careful human wrote it, and the person sending it must be able to explain ever
 - **No measurements, dates or history in code.** "Measured 0/60 wrong at 70 ms", "the old path
   slept here", "since 20/09" belong in the commit message or PR. Refer to a real issue as `#123`.
   No internal labels (`v7`, `B33`, `AF-0012`, session names) anywhere in the repo.
-- **Reuse what exists.** Log with `NGOSEN_DEBUG/INFO/WARN/ERROR` (`src/core/ngosen-log.h`) in the typing
-  logic and `LOTUS_DEBUG/INFO/WARN/ERROR` (`src/lotus-utils.h`) elsewhere; use fcitx5 and libc
-  facilities (event loop timers, `syslog()`) before writing a new mechanism.
+- **Reuse what exists.** Log with `NGOSEN_DEBUG/INFO/WARN/ERROR` (`src/core/ngosen-log.h`); use fcitx5
+  and libc facilities (event loop timers, `syslog()`) before writing a new mechanism.
 - **Fix reported problems.** Do not add code for cases no user hits ("200 keys per second"). If only
   a test harness triggers it, file a low-priority issue instead of changing core code.
 - **Match surrounding code.** clang-format (`.clang-format`), ruff for `settings-gui/`, existing
   naming (`camelCase` functions, `snake_case_` members). Functions under ~50 lines.
-- **No "lotus" in new names.** The project is Ngó Sen; a new file, class, function, constant,
-  macro or environment variable uses `ngosen`/`NgoSen`/`NGOSEN_` or a plain descriptive name.
-  Existing lotus names stay until a change has another reason to touch them, and calling them is
-  fine. Runtime names users already have (addon id, config files, mode names) change only
-  together with a migration step. `misc/check-new-names.sh` enforces this in CI.
+- **No "lotus" in names.** The project is Ngó Sen; a file, class, function, constant, macro or
+  environment variable uses `ngosen`/`NgoSen`/`NGOSEN_` or a plain descriptive name. The lotus
+  names left are the ones users' machines still have: the `UseLotusIcons` config key, the old
+  uinput server cleaned up on upgrade, and the files `src/ngosen-migration.cpp` carries over.
+  Runtime names users already have change only together with a migration step.
+  `misc/check-new-names.sh` enforces this in CI.
 - **Run clang-format before pushing.** CI fails on any formatting diff, including alignment of
   neighbouring declarations.
 - **Build as C++17.** The Ubuntu 22.04 package compiles in C++17, so no `std::string::starts_with`
@@ -49,20 +49,26 @@ a careful human wrote it, and the person sending it must be able to explain ever
   reports tells it apart, and say in a comment what behaviour the name stands for.
 - **Keep fcitx5 out of the typing logic.** It lives in `src/core/`, built as `ngosen_core` with no
   fcitx5 include path, so an fcitx5 include there fails the build. Text, keys and deletions go to
-  the app through `ngosen::Host` (`src/core/ngosen-host.h`), so the same logic can later run under
-  another input method framework. Key presses arrive as `ngosen::KeyPress`
+  the app through `ngosen::Host` (`src/core/ngosen-host.h`), so tests can drive the same logic
+  through a fake app field. Key presses arrive as `ngosen::KeyPress`
   (`src/core/ngosen-key.h`). New code in `src/core/ngosen-state.cpp` calls `host_` instead of the
   `InputContext`, and checks for how an app behaves go in `src/core/ngosen-app-quirks.cpp`, reading
   the field `host_` reports. Settings and what all fields share (dictionary, macro table, custom
   keymap, emoji list) come from `engine_`, an `ngosen::EngineResources`
   (`src/core/ngosen-engine-resources.h`); a new setting is added to `ngosen::Options` and copied in
-  `LotusEngine::syncOptions`. UTF-8, the clock and logging use `src/core/ngosen-utf8.h`,
+  `NgoSenEngine::syncOptions`. UTF-8, the clock and logging use `src/core/ngosen-utf8.h`,
   `src/core/ngosen-clock.h` and `src/core/ngosen-log.h`.
 - **Never forward backspaces to SDL games.** SDL takes only commits and preedit, so forwarded
   backspaces never reach it; it needs real key presses, which only XTEST on an X11 session provides.
   When changing which frontends forward backspaces, keep the `sdlGetsNoDeletion` checks in
   `test/ibus-dbus-forward-backspaces.cpp` and the SDL case in `test/x11-xtest-replacement.cpp`
   passing.
+- **Reuse one build directory.** A full Rust or C++ build writes over 1 GB, and a new directory
+  per experiment wears out the SSD and fills it. Rebuild in one CMake build directory; make a second
+  only when two builds must exist side by side, and delete it when done. Do not share one
+  `CARGO_TARGET_DIR` between worktrees: Cargo locks it, so parallel builds wait for each other. To
+  keep Cargo's intermediate files off the disk, set `build.build-dir` (Cargo 1.91+) in
+  `~/.cargo/config.toml`, for example `"/tmp/cargo-build/{workspace-path-hash}"` on a tmpfs `/tmp`.
 
 ## Commits
 

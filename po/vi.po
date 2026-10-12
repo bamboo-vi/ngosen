@@ -1,11 +1,11 @@
-# Vietnamese translations for fcitx-lotus package.
-# Copyright (C) 2026 THE fcitx-lotus'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the fcitx-lotus package.
+# Vietnamese translations for fcitx5-ngosen.
+# Copyright (C) 2026 THE fcitx5-ngosen'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the fcitx5-ngosen package.
 # Automatically generated, 2026.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: fcitx5-lotus\n"
+"Project-Id-Version: fcitx5-ngosen\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-10 08:38+0700\n"
 "PO-Revision-Date: 2026-09-10 09:30+0700\n"
@@ -18,268 +18,268 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 3.9\n"
 
-#: src/lotus-config.h:40 src/lotus-engine.cpp:989 src/lotus-engine.cpp:1097
+#: src/ngosen-config.h:40 src/ngosen-engine.cpp:989 src/ngosen-engine.cpp:1097
 msgid "OFF"
 msgstr "Tắt"
 
-#: src/lotus-config.h:40 src/lotus-engine.cpp:983 src/lotus-engine.cpp:1091
+#: src/ngosen-config.h:40 src/ngosen-engine.cpp:983 src/ngosen-engine.cpp:1091
 msgid "Sen"
 msgstr "Gõ Sen"
 
-#: src/lotus-config.h:40 src/lotus-engine.cpp:987 src/lotus-engine.cpp:1095
+#: src/ngosen-config.h:40 src/ngosen-engine.cpp:987 src/ngosen-engine.cpp:1095
 msgid "Preedit"
 msgstr "Gạch chân"
 
-#: src/lotus-config.h:41 src/lotus-engine.cpp:988 src/lotus-engine.cpp:1096
+#: src/ngosen-config.h:41 src/ngosen-engine.cpp:988 src/ngosen-engine.cpp:1096
 msgid "Emoji Picker"
 msgstr "Chọn Emoji"
 
-#: src/lotus-config.h:58 src/lotus-config.h:69 src/lotus-config.h:81
+#: src/ngosen-config.h:58 src/ngosen-config.h:69 src/ngosen-config.h:81
 msgid "Disabled"
 msgstr "Tắt"
 
-#: src/lotus-config.h:58 src/lotus-config.h:69
+#: src/ngosen-config.h:58 src/ngosen-config.h:69
 msgid "Non-Start"
 msgstr "Không phải đầu từ"
 
-#: src/lotus-config.h:58 src/lotus-config.h:69
+#: src/ngosen-config.h:58 src/ngosen-config.h:69
 msgid "Everywhere"
 msgstr "Mọi nơi"
 
-#: src/lotus-config.h:81
+#: src/ngosen-config.h:81
 msgid "Shift"
 msgstr "Shift"
 
-#: src/lotus-config.h:81
+#: src/ngosen-config.h:81
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: src/lotus-config.h:81
+#: src/ngosen-config.h:81
 msgid "Alt"
 msgstr "Alt"
 
-#: src/lotus-config.h:92
+#: src/ngosen-config.h:92
 msgid "Auto"
 msgstr "Tự động"
 
-#: src/lotus-config.h:92
+#: src/ngosen-config.h:92
 msgid "Light"
 msgstr "Sáng"
 
-#: src/lotus-config.h:92
+#: src/ngosen-config.h:92
 msgid "Dark"
 msgstr "Tối"
 
-#: src/lotus-config.h:199
+#: src/ngosen-config.h:199
 msgid "Key"
 msgstr "Phím"
 
-#: src/lotus-config.h:199
+#: src/ngosen-config.h:199
 msgid "Value"
 msgstr "Giá trị"
 
-#: src/lotus-config.h:203 src/lotus-config.h:274 src/lotus-engine.cpp:243
-#: src/lotus-engine.cpp:383
+#: src/ngosen-config.h:203 src/ngosen-config.h:274 src/ngosen-engine.cpp:243
+#: src/ngosen-engine.cpp:383
 msgid "Macro"
 msgstr "Gõ tắt"
 
-#: src/lotus-config.h:207 src/lotus-config.h:247 src/lotus-config.h:275
+#: src/ngosen-config.h:207 src/ngosen-config.h:247 src/ngosen-config.h:275
 msgid "Custom Keymap"
 msgstr "Keymap tuỳ chỉnh"
 
-#: src/lotus-config.h:209
+#: src/ngosen-config.h:209
 msgid "App"
 msgstr "App"
 
-#: src/lotus-config.h:209 src/lotus-config.h:220
+#: src/ngosen-config.h:209 src/ngosen-config.h:220
 msgid "Mode"
-msgstr "Chế độ"
+msgstr "Chế độ gõ"
 
-#: src/lotus-config.h:212
+#: src/ngosen-config.h:212
 msgid "Rules"
 msgstr "Quy tắc"
 
-#: src/lotus-config.h:222
+#: src/ngosen-config.h:222
 msgid "Input Method"
 msgstr "Kiểu gõ"
 
-#: src/lotus-config.h:223
+#: src/ngosen-config.h:223
 msgid "Output Charset"
 msgstr "Bảng mã"
 
-#: src/lotus-config.h:225
+#: src/ngosen-config.h:225
 msgid "Mode Menu Hotkey"
 msgstr "Phím tắt menu chế độ gõ"
 
-#: src/lotus-config.h:226
+#: src/ngosen-config.h:226
 msgid "Cycle Mode Hotkey"
 msgstr "Phím tắt chuyển nhanh chế độ"
 
-#: src/lotus-config.h:227
+#: src/ngosen-config.h:227
 msgid "App Rules"
 msgstr "Quy tắc ứng dụng"
 
-#: src/lotus-config.h:228
+#: src/ngosen-config.h:228
 msgid "Type w to Produce ư"
-msgstr "Gõ w thành ư"
+msgstr "Gõ w ra ư"
 
-#: src/lotus-config.h:229
+#: src/ngosen-config.h:229
 msgid "Type [ -> ơ, ] -> ư, { -> Ơ, } -> Ư"
-msgstr "Gõ [ -> ơ, ] -> ư, { -> Ơ, } -> Ư"
+msgstr "Phím [ ] ra ơ ư"
 
-#: src/lotus-config.h:232
+#: src/ngosen-config.h:232
 msgid "Enable Spell Check Using Dictionary"
-msgstr "Bật kiểm tra chính tả bằng từ điển"
+msgstr "Kiểm tra chính tả"
 
-#: src/lotus-config.h:232
+#: src/ngosen-config.h:232
 msgid "Enable Macro"
 msgstr "Bật gõ tắt"
 
-#: src/lotus-config.h:233 src/lotus-engine.cpp:244 src/lotus-engine.cpp:384
+#: src/ngosen-config.h:233 src/ngosen-engine.cpp:244 src/ngosen-engine.cpp:384
 msgid "Capitalize Macro"
 msgstr "Gõ tắt chữ hoa"
 
-#: src/lotus-config.h:235
+#: src/ngosen-config.h:235
 msgid "Modifier to Skip Macro for Next Word"
 msgstr "Phím để bỏ qua gõ tắt cho từ hiện tại"
 
-#: src/lotus-config.h:236
+#: src/ngosen-config.h:236
 msgid "Auto capitalize after sentence-ending punctuation (. ! ? Enter)"
-msgstr "Tự động ghi hoa sau dấu câu (. ! ? Enter) (thử nghiệm)"
+msgstr "Tự viết hoa đầu câu (thử nghiệm)"
 
-#: src/lotus-config.h:237
+#: src/ngosen-config.h:237
 msgid "Double Space to Period"
-msgstr "Phím cách 2 lần để chấm câu (thử nghiệm)"
+msgstr "Hai dấu cách thành dấu chấm (thử nghiệm)"
 
-#: src/lotus-config.h:238
+#: src/ngosen-config.h:238
 msgid "Double Hyphen to Em-Dash (--)"
-msgstr "Dấu gạch ngang 2 lần để thành dấu gạch dài"
+msgstr "Hai gạch nối thành gạch dài"
 
-#: src/lotus-config.h:239 src/lotus-engine.cpp:246
+#: src/ngosen-config.h:239 src/ngosen-engine.cpp:246
 msgid "Auto Restore Invalid Words"
-msgstr "Tự động khôi phục phím với từ sai"
+msgstr "Tự khôi phục từ gõ sai"
 
-#: src/lotus-config.h:240
+#: src/ngosen-config.h:240
 msgid "Use oà, uý (Instead Of òa, úy)"
-msgstr "Sử dụng oà, uý (Thay vì òa, úy)"
+msgstr "Bỏ dấu kiểu mới (oà, uý)"
 
-#: src/lotus-config.h:241
+#: src/ngosen-config.h:241
 msgid "Allow Type With More Freedom"
-msgstr "Cho phép gõ dấu tự do"
+msgstr "Gõ tự do"
 
-#: src/lotus-config.h:242
+#: src/ngosen-config.h:242
 msgid "Allow dd To Produce đ When Auto Restore Invalid Words Is On"
-msgstr "Cho phép gõ dd thành đ khi bật Tự động khôi phục với từ sai"
+msgstr "Vẫn gõ dd ra đ khi tự khôi phục"
 
-#: src/lotus-config.h:243
+#: src/ngosen-config.h:243
 msgid "Fix Uinput Mode With Ack"
 msgstr "Sửa lỗi chế độ Uinput với Ack"
 
-#: src/lotus-config.h:244
+#: src/ngosen-config.h:244
 msgid "Use Ngó Sen Status Icons"
 msgstr "Sử dụng biểu tượng trạng thái Ngó Sen"
 
-#: src/lotus-config.h:246 src/lotus-engine.cpp:248 src/lotus-engine.cpp:386
+#: src/ngosen-config.h:246 src/ngosen-engine.cpp:248 src/ngosen-engine.cpp:386
 msgid "Custom Dictionary"
 msgstr "Từ điển tuỳ chỉnh"
 
-#: src/lotus-config.h:249
+#: src/ngosen-config.h:249
 msgid "Show Sen"
 msgstr "Hiển thị chế độ Gõ Sen"
 
-#: src/lotus-config.h:250
+#: src/ngosen-config.h:250
 msgid "Shortcut for Sen"
 msgstr "Phím tắt cho Gõ Sen"
 
-#: src/lotus-config.h:259
+#: src/ngosen-config.h:259
 msgid "Show Preedit"
 msgstr "Hiển thị chế độ Gạch chân"
 
-#: src/lotus-config.h:260
+#: src/ngosen-config.h:260
 msgid "Shortcut for Preedit"
 msgstr "Phím tắt cho Gạch chân"
 
-#: src/lotus-config.h:261
+#: src/ngosen-config.h:261
 msgid "Show Emoji Picker"
 msgstr "Hiển thị chế độ Chọn Emoji"
 
-#: src/lotus-config.h:262
+#: src/ngosen-config.h:262
 msgid "Shortcut for Emoji Picker"
 msgstr "Phím tắt cho Chọn Emoji"
 
-#: src/lotus-config.h:262
+#: src/ngosen-config.h:262
 msgid "Show OFF"
 msgstr "Hiển thị chế độ Tắt"
 
-#: src/lotus-config.h:263
+#: src/ngosen-config.h:263
 msgid "Shortcut for OFF"
 msgstr "Phím tắt cho Tắt"
 
-#: src/lotus-config.h:263
+#: src/ngosen-config.h:263
 msgid "Show Default Typing"
 msgstr "Hiển thị chế độ gõ mặc định"
 
-#: src/lotus-config.h:264
+#: src/ngosen-config.h:264
 msgid "Shortcut for Default Typing"
 msgstr "Phím tắt cho Chế độ gõ mặc định"
 
-#: src/lotus-config.h:265
+#: src/ngosen-config.h:265
 msgid "Allow Macro in Off Mode"
 msgstr "Cho phép gõ tắt trong chế độ \"Tắt\""
 
-#: src/lotus-config.h:267
+#: src/ngosen-config.h:267
 msgid "Use Surrounding Text if possible"
-msgstr "Sử dụng văn bản xung quanh nếu có thể"
+msgstr "Đọc chữ quanh con trỏ"
 
-#: src/lotus-config.h:269
+#: src/ngosen-config.h:269
 msgid "Mode Order"
 msgstr "Thứ tự chế độ"
 
-#: src/lotus-config.h:271
+#: src/ngosen-config.h:271
 msgid "Time Format ($TIME in macro)"
 msgstr "Định dạng giờ ($TIME trong gõ tắt)"
 
-#: src/lotus-config.h:272
+#: src/ngosen-config.h:272
 msgid "Date Format ($DATE in macro)"
 msgstr "Định dạng ngày ($DATE trong macro)"
 
-#: src/lotus-config.h:276
+#: src/ngosen-config.h:276
 msgid "Icon Color"
 msgstr "Màu biểu tượng"
 
-#: src/lotus-engine.cpp:215
+#: src/ngosen-engine.cpp:215
 msgid "Charset"
 msgstr "Bảng mã"
 
-#: src/lotus-engine.cpp:242 src/lotus-engine.cpp:382
+#: src/ngosen-engine.cpp:242 src/ngosen-engine.cpp:382
 msgid "Spell Check"
 msgstr "Kiểm tra chính tả"
 
-#: src/lotus-engine.cpp:246 src/lotus-engine.cpp:385
+#: src/ngosen-engine.cpp:246 src/ngosen-engine.cpp:385
 msgid "Auto Non-VN Restore"
 msgstr "Tự động khôi phục với từ không phải tiếng Việt"
 
-#: src/lotus-engine.cpp:252
+#: src/ngosen-engine.cpp:252
 msgid "Settings"
 msgstr "Cài đặt"
 
-#: src/lotus-engine.cpp:991 src/lotus-engine.cpp:1030
+#: src/ngosen-engine.cpp:991 src/ngosen-engine.cpp:1030
 msgid "Default Typing"
 msgstr "Chế độ gõ mặc định"
 
-#: src/lotus-engine.cpp:1057
+#: src/ngosen-engine.cpp:1057
 msgid "Type"
 msgstr "Gõ"
 
-#: src/lotus-engine.cpp:1074
+#: src/ngosen-engine.cpp:1074
 msgid "App: "
 msgstr "App: "
 
-#: src/lotus-engine.cpp:1099
+#: src/ngosen-engine.cpp:1099
 msgid "Unknown Mode"
 msgstr "Không rõ chế độ"
 
-#: src/lotus-engine.cpp:1204
+#: src/ngosen-engine.cpp:1204
 msgid "Ngó Sen - Off"
 msgstr "Ngó Sen - Tắt"
 
@@ -287,15 +287,15 @@ msgstr "Ngó Sen - Tắt"
 msgid "Page "
 msgstr "Trang "
 
-#: org.fcitx.Fcitx5.Addon.Lotus.metainfo.xml.in.in:7
+#: io.github.ngosen.NgoSen.metainfo.xml.in.in:7
 msgid "Ngó Sen"
 msgstr "Ngó Sen"
 
-#: org.fcitx.Fcitx5.Addon.Lotus.metainfo.xml.in.in:8
+#: io.github.ngosen.NgoSen.metainfo.xml.in.in:8
 msgid "Vietnamese input method (Ngó Sen)"
 msgstr "Bộ gõ tiếng Việt (Ngó Sen)"
 
-#: org.fcitx.Fcitx5.Addon.Lotus.metainfo.xml.in.in:10
+#: io.github.ngosen.NgoSen.metainfo.xml.in.in:10
 msgid ""
 "Ngó Sen is a Vietnamese input method for Fcitx5, supporting multiple typing "
 "modes and input methods."
@@ -326,8 +326,13 @@ msgid "Export Debug Logs"
 msgstr "Xuất nhật ký gỡ lỗi"
 
 #: settings-gui/ui/pages/about.py:148
-msgid "Based on fcitx5-lotus by"
-msgstr "Dựa trên fcitx5-lotus của"
+msgid "Developed by Nguyen Phi"
+msgstr "Phát triển bởi Nguyễn Phi"
+
+#: settings-gui/ui/pages/about.py
+#, python-brace-format
+msgid "Based on the code of {lotus} and {vmk}."
+msgstr "Dựa trên mã của {lotus} và {vmk}."
 
 #: settings-gui/ui/pages/about.py:184
 msgid "Licensed under the GNU General Public License v3.0"
@@ -867,7 +872,7 @@ msgstr ""
 "huỷ."
 
 #: settings-gui/ui/main_window.py:33
-#: settings-gui/org.fcitx.Fcitx5.Addon.Lotus.Settings.desktop.in:2
+#: settings-gui/io.github.ngosen.NgoSen.Settings.desktop.in:2
 msgid "Ngó Sen Settings"
 msgstr "Cài đặt Ngó Sen"
 
@@ -889,7 +894,7 @@ msgstr "Tổng quan"
 
 #: settings-gui/ui/main_window.py:217
 msgid "Typing"
-msgstr "Nhập liệu"
+msgstr "Gõ chữ"
 
 #: settings-gui/ui/main_window.py:220
 msgid "Dictionary"
@@ -931,7 +936,7 @@ msgstr "Lưu cài đặt thất bại. Hãy kiểm tra xem Fcitx5 có đang ch�
 msgid "Settings saved."
 msgstr "Cài đặt đã được lưu."
 
-#: settings-gui/org.fcitx.Fcitx5.Addon.Lotus.Settings.desktop.in:3
+#: settings-gui/io.github.ngosen.NgoSen.Settings.desktop.in:3
 msgid "Configure the Ngó Sen input method"
 msgstr "Tuỳ chỉnh bộ gõ Ngó Sen"
 
@@ -967,3 +972,132 @@ msgstr "Tuỳ chỉnh bộ gõ Ngó Sen"
 
 #~ msgid "Enable/disable input modes and assign single-key shortcuts."
 #~ msgstr "Bật/tắt các chế độ gõ và gán phím tắt nhanh bằng một ký tự."
+
+msgid "Save typing log"
+msgstr "Lưu nhật ký gõ"
+
+msgid "Typing log saved: "
+msgstr "Đã lưu nhật ký gõ: "
+
+msgid "Could not save the typing log to "
+msgstr "Không lưu được nhật ký gõ vào "
+
+#: settings-gui/ui/main_window.py
+msgid "Cannot reach fcitx5, so changes will not be saved."
+msgstr "Không kết nối được fcitx5 nên thay đổi sẽ không được lưu."
+
+#: settings-gui/ui/main_window.py
+msgid "&Undo"
+msgstr "&Hoàn tác"
+
+#: settings-gui/ui/main_window.py
+msgid "Defaults restored."
+msgstr "Đã đưa về mặc định."
+
+#: settings-gui/ui/main_window.py
+msgid "Saved “{}”."
+msgstr "Đã lưu “{}”."
+
+#: settings-gui/ui/main_window.py
+msgid "Saved."
+msgstr "Đã lưu."
+
+#: settings-gui/ui/main_window.py
+msgid "Could not save. Check that fcitx5 is running."
+msgstr "Không lưu được. Hãy xem fcitx5 có đang chạy không."
+
+#: settings-gui/ui/main_window.py
+msgid "Could not undo. Check that fcitx5 is running."
+msgstr "Không hoàn tác được. Hãy xem fcitx5 có đang chạy không."
+
+#: settings-gui/ui/main_window.py
+msgid "Change undone."
+msgstr "Đã hoàn tác."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tone marks"
+msgstr "Cách bỏ dấu"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Quick typing"
+msgstr "Gõ nhanh"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Hotkeys"
+msgstr "Phím tắt"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tray icon"
+msgstr "Biểu tượng khay"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Mode switching"
+msgstr "Đổi chế độ"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Try it:"
+msgstr "Gõ thử:"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Type here to test"
+msgstr "Gõ vào đây để test"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Words that are not Vietnamese get no tone marks."
+msgstr "Từ không phải tiếng Việt thì không thêm dấu."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Typing windows still gives windows."
+msgstr "Gõ windows vẫn ra windows."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tone marks can also go at the end of the word."
+msgstr "Gõ dấu ở cuối từ cũng được."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Turn this off if an app repeats letters."
+msgstr "Tắt nếu một app hay bị lặp chữ."
+
+#: settings-gui/ui/main_window.py
+msgid "&Defaults"
+msgstr "&Mặc định"
+
+#: settings-gui/ui/main_window.py
+msgid "Back &Up…"
+msgstr "Sao &lưu…"
+
+#: settings-gui/ui/main_window.py
+msgid "Res&tore…"
+msgstr "&Khôi phục…"
+
+#: settings-gui/ui/main_window.py
+msgid "Macros & Dictionary"
+msgstr "Gõ tắt & Từ điển"
+
+#: settings-gui/ui/main_window.py
+msgid "Keys"
+msgstr "Phím"
+
+#: settings-gui/ui/main_window.py
+msgid "More"
+msgstr "Khác"
+
+#: settings-gui/ui/main_window.py
+msgid "Backed up to {}."
+msgstr "Đã sao lưu vào {}."
+
+#: settings-gui/ui/main_window.py
+msgid "Restored from {}."
+msgstr "Đã khôi phục từ {}."
+
+#: settings-gui/ui/main_window.py
+msgid "Could not restore. Check that fcitx5 is running."
+msgstr "Không khôi phục được. Hãy xem fcitx5 có đang chạy không."
+
+#: settings-gui/ui/main_window.py
+msgid "Search settings"
+msgstr "Tìm cài đặt"
+
+#: settings-gui/ui/main_window.py
+msgid "No settings found"
+msgstr "Không thấy cài đặt nào"

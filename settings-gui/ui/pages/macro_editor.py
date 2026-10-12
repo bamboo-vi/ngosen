@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
-Macro Editor Page. Edits lotus-macro-table.conf.
+Macro Editor Page. Edits ngosen-macro-table.conf.
 Implements UI with row reordering and TSV import/export.
 """
 
-from core.dbus_handler import LotusDBusHandler
+from core.dbus_handler import NgoSenDBusHandler
 from i18n import _
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor, QIcon
@@ -28,14 +28,15 @@ from qtpy.QtWidgets import (
 from ui.helpers import add_help_icon
 from ui.pages.base_editor import BaseEditorPage
 from ui.pages.dynamic_settings import CardWidget
+from ui.typography import mute, page_title
 
 
 class MacroEditorPage(BaseEditorPage):
-    """UI for editing Lotus macros."""
+    """UI for editing Ngó Sen macros."""
 
     def __init__(
         self,
-        dbus_handler: LotusDBusHandler,
+        dbus_handler: NgoSenDBusHandler,
         parent=None,
     ):
         super().__init__(parent)
@@ -49,8 +50,7 @@ class MacroEditorPage(BaseEditorPage):
         main_layout.setContentsMargins(30, 20, 30, 20)
         main_layout.setSpacing(15)
 
-        title = QLabel(_("Macros"))
-        title.setObjectName("CategoryTitle")
+        title = page_title(_("Macros"))
         main_layout.addWidget(title)
 
         # Macro behavior toggles
@@ -112,7 +112,7 @@ class MacroEditorPage(BaseEditorPage):
         # Hint text
         hint_label = QLabel(_("Macros support dynamic placeholders: $TIME and $DATE."))
         hint_label.setWordWrap(True)
-        hint_label.setStyleSheet("color: gray; font-size: 13px;")
+        mute(hint_label)
         dynamic_layout.addWidget(hint_label)
 
         # Format Inputs
@@ -283,7 +283,7 @@ class MacroEditorPage(BaseEditorPage):
                     )
 
             self.table.setRowCount(0)
-            data = self.dbus.get_sub_config_list("lotus-macro", "Macro")
+            data = self.dbus.get_sub_config_list("ngosen-macro", "Macro")
             for item in data:
                 self.upsert_row(item.get("Key", ""), item.get("Value", ""), sort=False)
             self.on_search_changed()
@@ -301,6 +301,8 @@ class MacroEditorPage(BaseEditorPage):
             skip_idx = self.cb_skip_modifier.findData("Disabled")
             if skip_idx >= 0:
                 self.cb_skip_modifier.setCurrentIndex(skip_idx)
+            self.input_time_format.setCurrentIndex(self.input_time_format.findData("%H:%M"))
+            self.input_date_format.setCurrentIndex(self.input_date_format.findData("%d/%m/%Y"))
             self.table.setRowCount(0)
             self._on_item_changed()
         finally:
@@ -315,6 +317,8 @@ class MacroEditorPage(BaseEditorPage):
             or not self.cb_capitalize.isChecked()
             or self.cb_enable_off_mode.isChecked()
             or self.cb_skip_modifier.currentData() != "Disabled"
+            or self.input_time_format.currentData() != "%H:%M"
+            or self.input_date_format.currentData() != "%d/%m/%Y"
         )
 
     def is_modified(self):
@@ -370,7 +374,7 @@ class MacroEditorPage(BaseEditorPage):
                 continue
             data.append({"Key": key_item.text(), "Value": val_item.text() if val_item else ""})
 
-        if not self.dbus.set_sub_config_list("lotus-macro", "Macro", data):
+        if not self.dbus.set_sub_config_list("ngosen-macro", "Macro", data):
             return False
 
         self.initial_state = self._get_current_state()

@@ -7,8 +7,7 @@ body:
       value: |
         Cảm ơn bạn đã dành thời gian báo cáo lỗi! Vui lòng điền đầy đủ thông tin bên dưới.
 
-        Đây là nơi báo lỗi của Ngó Sen. Nếu bạn đang dùng bản gốc fcitx5-lotus, hãy báo ở
-        [kho của bản gốc](https://github.com/LotusInputMethod/fcitx5-lotus/issues).
+        Đây là nơi báo lỗi của Ngó Sen.
 
   - type: textarea
     id: description
@@ -55,7 +54,7 @@ body:
     attributes:
       label: Phiên bản Ngó Sen
       description: Số phiên bản của gói `fcitx5-ngosen` đã cài. Bản tự build thì ghi mã commit.
-      placeholder: 'ví dụ: 0.5.1-1'
+      placeholder: 'ví dụ: 1.2.2-1'
     validations:
       required: true
 
@@ -120,7 +119,7 @@ body:
     attributes:
       label: Log của fcitx5
       description: |
-        Log của fcitx5 (Chạy lệnh `fcitx5 --verbose lotus=4` ở terminal trong quá trình tái hiện lỗi)
+        Log của fcitx5 (Chạy lệnh `fcitx5 --verbose ngosen=4` ở terminal trong quá trình tái hiện lỗi)
       render: shell
 
   - type: textarea

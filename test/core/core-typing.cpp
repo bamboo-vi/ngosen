@@ -10,6 +10,7 @@
 #include "ngosen-app-quirks.h"
 #include "ngosen-globals.h"
 #include "ngosen-keysym.h"
+#include "ngosen-recorder.h"
 #include "ngosen-state.h"
 
 #include <iostream>
@@ -172,6 +173,121 @@ namespace {
         check(host->deletes().empty(), "sdl: no surrounding text deletion", std::to_string(host->deletes().size()));
     }
 
+    bool has(const std::string& text, const std::string& part) {
+        return text.find(part) != std::string::npos;
+    }
+
+    // The log a user saves after a wrong word must show the keys, what was sent and what the app said.
+    void testRecorderKeepsTheReplacement() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "firefox"));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        typeTie(state, *host, loop, true);
+        press(state, static_cast<uint32_t>('e'));
+        host->setSurrounding("ti", 2);
+        state.surroundingUpdated();
+        loop.pump(150);
+
+        const std::string log = resources.recorder().dump();
+        check(has(log, "\tfield\tfrontend=wayland program=firefox surrounding=1 preedit=1 mode=Sen\n"), "recorder: notes the field and mode", log);
+        check(has(log, "\tkey\tdown 0x0065 e\n"), "recorder: notes the key", log);
+        check(has(log, "\tforward\tBackSpace down\n"), "recorder: notes the forwarded backspace", log);
+        check(has(log, "\tapp\t\"ti|\" cursor=2 anchor=2 length=2\n"), "recorder: notes the app's report", log);
+        check(has(log, "\tcommit\t\"ê\"\n"), "recorder: notes the commit", log);
+    }
+
+    void testRecorderHidesPasswords() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop      loop;
+        FakeResources resources;
+        Field         field       = makeField("wayland", true, "firefox");
+        field.password            = true;
+        auto                owned = std::make_unique<FakeHost>(loop, field);
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        typeTie(state, *host, loop, true);
+        press(state, static_cast<uint32_t>('e'));
+        host->setSurrounding("ti", 2);
+        state.surroundingUpdated();
+        loop.pump(150);
+
+        const std::string log = resources.recorder().dump();
+        check(has(log, " password=1 ") && has(log, "\tkey\thidden\n"), "recorder: marks the password field", log);
+        check(!has(log, "0x0065") && !has(log, "\"ti") && !has(log, "\"ê\"") && !has(log, " e\n"), "recorder: keeps no password text", log);
+    }
+
+    // Focus that leaves a field which cannot report its text and comes straight back keeps the
+    // word; a real switch starts a new one.
+    void testFocusBounce() {
+        for (const bool bounce : {true, false}) {
+            realMode = ngosen::Mode::Sen;
+            FakeLoop            loop;
+            FakeResources       resources;
+            auto                owned = std::make_unique<FakeHost>(loop, makeField("xim", false));
+            ngosen::TypingState state(&resources, std::move(owned));
+
+            for (const char c : std::string("tie"))
+                press(state, static_cast<uint32_t>(c));
+            state.deactivate(true);
+            if (!bounce)
+                loop.pump(150);
+            state.activate(ngosen::Mode::Sen, true);
+            const bool taken = press(state, static_cast<uint32_t>('e'));
+            if (bounce)
+                check(taken, "focus bounce: keeps the word", "e went to the app as a plain key");
+            else
+                check(!taken, "focus switch: starts a new word", "e was taken to change the old word");
+        }
+    }
+
+    // An address bar fills in a suggestion after the cursor and selects it. Typing its next letter
+    // leaves the text as it was and moves the cursor one step, which is not a click.
+    void testTypingIntoSuggestion() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "microsoft-edge"));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        const std::string   suggestion = "ngosen.github.io";
+        host->setSurrounding("", 0);
+        state.surroundingUpdated();
+        for (unsigned int typed = 1; typed <= 3; ++typed) {
+            press(state, static_cast<uint32_t>(suggestion[typed - 1]));
+            // Later than the caret settling time, as Edge reports it.
+            loop.pump(45);
+            host->setSurrounding(suggestion, typed, static_cast<unsigned int>(suggestion.size()));
+            state.surroundingUpdated();
+        }
+        check(press(state, static_cast<uint32_t>('s')), "suggestion: ngo then s makes ngó", "s went to the app as a plain key");
+    }
+
+    void testRecorderLimits() {
+        ngosen::Recorder recorder(3);
+        for (int i = 0; i < 5; ++i)
+            recorder.add("key", std::to_string(i));
+        const std::string log = recorder.dump();
+        check(!has(log, "\t1\n") && has(log, "\t2\n") && has(log, "\t4\n"), "recorder: keeps only the last events", log);
+
+        ngosen::Recorder fields(3);
+        fields.add("field", "frontend=xim");
+        for (int i = 0; i < 5; ++i)
+            fields.add("key", std::to_string(i));
+        const std::string kept = fields.dump();
+        check(has(kept, "\tfield\tfrontend=xim\n") && has(kept, "\t4\n"), "recorder: keeps the field of the kept keys", kept);
+
+        const std::string text = std::string(100, 'a') + "ê" + std::string(30, 'b');
+        const std::string seen = ngosen::describeSurrounding(ngosen::Surrounding(text, 101, 101));
+        const std::string want = "\"…" + std::string(39, 'a') + "ê|" + std::string(10, 'b') + "…\" cursor=101 anchor=101 length=131";
+        check(seen == want, "recorder: cuts the surrounding text around the cursor", seen);
+    }
+
     void testQuirks() {
         check(ngosen::forwardsBackspaces(makeField("wayland_v2", false)), "quirks: wayland_v2 forwards backspaces", "false");
         check(ngosen::forwardsBackspaces(makeField("xim", false)), "quirks: xim forwards backspaces", "false");
@@ -193,6 +309,11 @@ int main() {
     testKeyDuringReplacement();
     testGtk4DeletesSurrounding();
     testSdlGetsNoForwardedBackspace();
+    testRecorderKeepsTheReplacement();
+    testRecorderHidesPasswords();
+    testRecorderLimits();
+    testFocusBounce();
+    testTypingIntoSuggestion();
     if (failures == 0)
         std::cout << "all core typing checks passed\n";
     return failures == 0 ? 0 : 1;

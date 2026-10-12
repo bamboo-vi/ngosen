@@ -1,36 +1,39 @@
 # Ngó Sen
 
-**Bộ gõ tiếng Việt tối ưu cho Linux.**
+**Bộ gõ tiếng Việt cho fcitx5 trên Linux.**
 
-- **Bỏ hẳn uinput server.** Ngó Sen chỉ dùng đúng quyền của fcitx5. Cài xong là gõ, không bật dịch vụ,
-  không cấp quyền thiết bị.
-- **Gõ thẳng, không gạch chân.** Chế độ Gõ Sen đưa chữ vào app ngay khi gõ. Ô gợi ý của thanh địa chỉ hay
-  ô tìm kiếm chạy theo từng phím.
-- **Một chế độ cho mọi app.** Trình duyệt, terminal, Zalo, LibreOffice đều dùng Gõ Sen. Ngó Sen tự nhận ra
+- **Không cần quyền đặc biệt.** Ngó Sen không còn uinput server, chỉ dùng đúng quyền của fcitx5. Cài
+  xong gõ được ngay, không phải bật service hay cấp quyền thiết bị.
+- **Gõ thẳng, không gạch chân.** Chế độ Gõ Sen đưa chữ vào app ngay khi gõ. Gợi ý ở thanh địa chỉ
+  hay ô tìm kiếm hiện ra theo từng phím gõ.
+- **Một chế độ cho hầu hết app.** Trình duyệt, terminal, Zalo, LibreOffice đều dùng Gõ Sen. Ngó Sen tự nhận ra
   app nhận chữ kiểu gì, không phải đổi chế độ.
 - **Lõi Rust.** Phần biến `tieengs` thành `tiếng` được viết lại bằng Rust. Gói cho Fedora, Arch, openSUSE
   và Ubuntu 24.04 trở lên dùng lõi Rust.
-- **Cài bằng một dòng lệnh** trên Fedora, Ubuntu, Debian, Arch, CachyOS, openSUSE; script kiểm hash trước
-  khi cài.
-- **Chuyển từ fcitx5-lotus không mất gì.** Gói tự thay bản cũ, giữ nguyên cấu hình, chế độ cũ tự chuyển
-  sang Gõ Sen.
+- **Cài bằng một dòng lệnh.** Có cho Fedora, Ubuntu, Debian, Arch, CachyOS và openSUSE. Script so hash
+  SHA-256 trước khi cài.
+- **Cửa sổ cài đặt theo giao diện máy.** Sáng hay tối, KDE hay GNOME, cửa sổ dùng giao diện đang có.
+  Đổi gì lưu ngay, có nút Hoàn tác.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/settings-dark.png">
+  <img alt="Cửa sổ cài đặt Ngó Sen, trang Gõ chữ, trên KDE Plasma" src="docs/screenshots/settings-light.png" width="750">
+</picture>
 
 Gặp lỗi thì báo ở mục [Issues](https://github.com/ngosen/ngosen/issues).
 
-## Roadmap
+## Chỉ cho fcitx5
 
-- **IBus:** bản cho GNOME và Ubuntu, nơi IBus là bộ gõ mặc định, không phải cài thêm fcitx5. Gói
-  `ibus-ngosen`; `install.sh` sẽ hỏi chọn bản nào.
-- **Sway, Hyprland, không cần fcitx5:** Ngó Sen chạy thẳng trên Sway, Hyprland, river, labwc, Wayfire, gọn nhẹ
-  hơn cài cả fcitx5.
+Ngó Sen chỉ làm cho fcitx5. Bản IBus và bản chạy thẳng trên Sway, Hyprland mà không qua fcitx5 đã bỏ;
+trên Sway và Hyprland vẫn gõ được qua fcitx5. Mã bản IBus vẫn còn ở nhánh `feat/ibus-engine`.
 
 ## Nên dùng chế độ nào
 
-Dùng **Gõ Sen** làm chế độ gõ chính: chọn trong cửa sổ cài đặt Ngó Sen, mục chế độ mặc định. Chế độ
-này trước tên là `Uinput`; cấu hình cũ tự chuyển sang tên mới. Chế độ Surrounding Text cũ cũng tự chuyển
-thành Gõ Sen.
+Dùng **Gõ Sen** làm chế độ gõ chính: trong cửa sổ cài đặt Ngó Sen, trang Gõ chữ, bấm nút Gõ Sen ở hàng
+Chế độ gõ. Chế độ này trước đây tên là `Uinput`; cấu hình cũ tự chuyển sang tên mới. Chế độ Surrounding
+Text cũ cũng tự chuyển thành Gõ Sen.
 
-Kiểu gõ được dùng và kiểm hằng ngày là **Telex**. VNI và các kiểu khác dùng được nhưng chưa kiểm kỹ.
+Kiểu gõ được dùng và test hằng ngày là **Telex**. VNI và các kiểu khác dùng được nhưng chưa test kỹ.
 
 ## Cài
 
@@ -41,9 +44,8 @@ curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bas
 ```
 
 Lệnh này tải gói cho đúng bản phân phối từ
-[bản phát hành mới nhất](https://github.com/ngosen/ngosen/releases/latest), hỏi lại rồi mới cài. Nếu
-máy đang có Lotus thì Ngó Sen sẽ thay nó; cấu hình cũ giữ nguyên. Muốn lên bản mới thì chạy lại đúng
-lệnh đó.
+[bản phát hành mới nhất](https://github.com/ngosen/ngosen/releases/latest), hỏi lại rồi mới cài. Muốn lên bản
+mới thì chạy lại đúng lệnh đó; cấu hình cũ giữ nguyên.
 
 Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
 [Releases](https://github.com/ngosen/ngosen/releases) rồi cài bằng tay. Muốn tự dựng từ mã thì xem
@@ -117,27 +119,27 @@ cách này thì xoá tệp `~/.local/share/applications/code_code.desktop`.
    fcitx5 -rd
    ```
 
-Cấu hình (các tệp `lotus*.conf` trong `~/.config/fcitx5/conf/`) vẫn ở lại máy, để lần cài sau dùng
-tiếp. Muốn xoá sạch thì xoá các tệp đó.
+Cấu hình (các tệp `ngosen*.conf` trong `~/.config/fcitx5/conf/`, và `lotus*.conf` nếu từng dùng bản trước
+1.1.0) vẫn ở lại máy, để lần cài sau dùng tiếp. Muốn xoá sạch thì xoá các tệp đó.
 
 ## Nguồn gốc
 
 Người giữ dự án chỉ **vibecode** dự án này: nêu việc cho trợ lý AI viết mã, rồi đo và dùng thử hằng
 ngày.
 
-Ngó Sen tách ra từ [fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus), vốn là bản fork
-của [bộ gõ VMK](https://github.com/thanhpy2009/VMK). Ngó sen là mầm mọc ra từ cây sen: cùng gốc với
-Lotus nhưng đi hướng riêng. Giấy phép vẫn là GPL-3.0-or-later.
+Dựa trên mã của [fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus) và
+[VMK](https://github.com/thanhpy2009/VMK). Giấy phép GPL-3.0-or-later.
+
+Issue và pull request trước ngày 10/10/2026 nằm ở kho lưu
+[ngosen/ngosen-fork-archive](https://github.com/ngosen/ngosen-fork-archive).
 
 ## English
 
 Ngó Sen is a Vietnamese input method for fcitx5. The maintainer only **vibecodes** this project: the
-code is written with an AI coding agent, then measured and used daily by the maintainer. It is a fork of
-[fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus), itself a fork of
-[VMK](https://github.com/thanhpy2009/VMK), under GPL-3.0-or-later, published as is with no promise of
-support.
+code is written with an AI coding agent, then measured and used daily by the maintainer. It is licensed
+under GPL-3.0-or-later and published as is, with no promise of support.
 
-Planned for 1.0: no background uinput server; two typing modes, Gõ Sen (one mode that works for fast
-typing, browsers and Electron apps) and Preedit; the Bamboo composition core ported from Go to Rust; and
-a shared core that can plug into fcitx5, IBus and Wayland compositors such as Sway and Hyprland. The rest of this page is in
-Vietnamese.
+Ngó Sen 1.0 has no background uinput server; two typing modes, Gõ Sen (one mode that works for fast
+typing, browsers and Electron apps) and Preedit; and the Bamboo composition core ported from Go to Rust.
+Ngó Sen targets fcitx5 only; the IBus engine was dropped and stays unmaintained on the
+`feat/ibus-engine` branch. The rest of this page is in Vietnamese.

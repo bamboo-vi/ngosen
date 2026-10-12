@@ -18,11 +18,26 @@ bản này mới hơn `3.5.10-4`, nên cập nhật như thường.
 
 "Chỉ dựng" nghĩa là gói dựng được và qua bộ kiểm lúc dựng, chưa ai gõ thử trên bản phân phối đó.
 
+Cột "Mức đã thử" là lần gõ thử bản 0.5. Các bản sửa bảng tính mới trong 1.0 được gõ thử trên máy ảo CachyOS
+(KDE Wayland): LibreOffice Calc, WPS Office và Google Sheets trong Firefox. Bản 1.1 đổi tên các file cài
+vào máy; lần cập nhật từ 1.0.0-1 được thử trên máy ảo Linux Mint 22 (Cinnamon X11): cấu hình cũ được chép
+sang, bộ gõ vẫn nằm trong danh sách, gõ ra đúng chữ.
+
+Bản 1.2 thay cửa sổ cài đặt. Lưu và Hoàn tác qua fcitx5 thật được thử trên máy ảo Linux Mint 22 (Cinnamon
+X11), CachyOS (KDE Wayland) và Ubuntu 26.04 (GNOME Wayland). Gõ thử bản 1.2 trên máy ảo CachyOS (KDE
+Wayland) trong GNOME Text Editor: `tieengs vieetj roofi ngafy dduowcj` ra đúng chữ. Bản sửa lỗi đảo chữ
+trong gnome-terminal được thử bằng client D-Bus giả lập và gõ tay trong gnome-terminal: không còn đảo chữ.
+
+Bản 1.2.1 chỉ bỏ trang Ứng dụng khỏi cửa sổ cài đặt, bộ gõ không đổi. Cửa sổ 4 trang được mở trên máy ảo
+CachyOS (KDE Wayland), cả giao diện sáng và tối.
+
+Bản 1.2.2 sửa nhãn cạnh con trỏ và lỗi mất dấu trên thanh địa chỉ Edge. Lỗi Edge được tái hiện bằng test
+dựng lại từ log gõ phím trên Fedora 44 (KDE Wayland), rồi gõ tay lại trên Edge sau khi sửa: ra đúng `ngó`, cạnh con trỏ hiện `vi`.
+
 Lõi ghép dấu viết bằng Rust có trong gói Fedora, Arch, openSUSE và Ubuntu 24.04 trở lên. Debian 12, 13 và
 Ubuntu 22.04 vẫn dùng lõi Go, vì Rust có sẵn ở đó quá cũ. Hai lõi gõ ra chữ như nhau.
 
-Gói này thay cho `fcitx5-lotus`; hai gói không cài chung được. Cài xong, hoặc mỗi lần cập nhật, khởi động
-lại fcitx5:
+Cài xong, hoặc mỗi lần cập nhật, khởi động lại fcitx5:
 
 ```
 fcitx5 -rd

@@ -7,51 +7,57 @@ Dynamic Settings Page with Card-based Layout matching modern guidelines.
 
 from enum import Enum
 
-from core.dbus_handler import LotusDBusHandler
-from i18n import _
+from core.dbus_handler import NgoSenDBusHandler
+from i18n import N_, _
 from qtpy.QtCore import QSize, Qt, QTimer
-from qtpy.QtGui import QIcon
+from qtpy.QtGui import QColor, QIcon, QPalette
 from qtpy.QtWidgets import (
+    QButtonGroup,
     QCheckBox,
     QComboBox,
+    QFormLayout,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPushButton,
     QScrollArea,
+    QSizePolicy,
+    QStyle,
     QVBoxLayout,
     QWidget,
 )
 
+from ui import brand
 from ui.components import (
     HotkeyEditorWidget,
     SingleKeyCaptureWidget,
 )
-from ui.helpers import add_help_icon
+from ui.typography import emphasize, mute, page_title
 
 
 class SettingsCategory(Enum):
-    GENERAL = "general"
     APPEARANCE = "appearance"
     TYPING = "typing"
     SHORTCUTS = "shortcuts"
-    INTERFACE = "interface"
 
 
-# Mapping of settings keys to categories and groups
+MODE_SWITCHING = N_("Mode switching")
+
+# Groups show in this order; the first checkbox of a group carries the group name.
 SETTINGS_MAP = {
-    SettingsCategory.GENERAL: {
-        "INPUT METHOD": ["InputMethod", "Mode", "OutputCharset"],
-        "TYPING": ["W2U", "BracketTransform"],
-    },
-    SettingsCategory.APPEARANCE: {
-        "THEME & ICONS": ["UseLotusIcons", "IconTheme"],
-    },
     SettingsCategory.TYPING: {
-        "SPELLING & CORRECTIONS": ["SpellCheck", "AutoNonVnRestore", "DdFreeStyle"],
-        "TYPING OPTIONS": [
+        N_("Typing"): ["Mode", "InputMethod", "OutputCharset"],
+        N_("Tone marks"): [
+            "SpellCheck",
+            "AutoNonVnRestore",
+            "DdFreeStyle",
             "ModernStyle",
             "FreeMarking",
+            "W2U",
+            "BracketTransform",
+        ],
+        N_("Quick typing"): [
             "DoubleSpaceToPeriod",
             "DoubleHyphenToEmDash",
             "AutoCapitalizeAfterPunctuation",
@@ -59,8 +65,8 @@ SETTINGS_MAP = {
         ],
     },
     SettingsCategory.SHORTCUTS: {
-        "MAIN SHORTCUTS": ["ModeMenuKey", "CycleModeKey"],
-        "MODE SWITCHING": [
+        N_("Hotkeys"): ["ModeMenuKey", "CycleModeKey"],
+        MODE_SWITCHING: [
             "ShortcutSen",
             "ShortcutPreedit",
             "ShortcutEmoji",
@@ -68,22 +74,32 @@ SETTINGS_MAP = {
             "ShortcutDefault",
         ],
     },
+    SettingsCategory.APPEARANCE: {
+        N_("Tray icon"): ["UseLotusIcons", "IconTheme"],
+    },
 }
 
-CATEGORY_DESCRIPTIONS = {
-    SettingsCategory.GENERAL: _("Configure basic input method settings and behaviors."),
-    SettingsCategory.APPEARANCE: _(
-        "Customize the look and feel of the Ngó Sen status icons and theme."
-    ),
-    SettingsCategory.TYPING: _("Fine-tune spelling corrections and advanced typing options."),
-    SettingsCategory.SHORTCUTS: _("Manage input mode shortcuts, display order, and fast cycling."),
+# One line under a setting, saying what the user sees.
+HINTS = {
+    "SpellCheck": N_("Words that are not Vietnamese get no tone marks."),
+    "AutoNonVnRestore": N_("Typing windows still gives windows."),
+    "FreeMarking": N_("Tone marks can also go at the end of the word."),
+    "useSurroundingTextIfPossible": N_("Turn this off if an app repeats letters."),
 }
 
-GROUP_DESCRIPTIONS = {
-    "MAIN SHORTCUTS": _(
-        "Assign hotkeys to open the mode menu or quickly cycle through enabled modes."
-    ),
+MODE_BUTTON_ORDER = ["Sen", "Preedit", "Emoji Picker", "OFF"]
+
+# What a word looks like while typing it, shown under the input method.
+TYPING_EXAMPLES = {
+    "Telex": "vieetj → việt",
+    "VNI": "vie65t → việt",
+    "VIQR": "vie^.t → việt",
+    "Telex + VNI": "vieetj → việt",
+    "Telex + VNI + VIQR": "vieetj → việt",
 }
+
+# Below this width the labels go above their fields.
+NARROW_WIDTH = 620
 
 
 MODE_SHORTCUT_TO_VISIBILITY = {
@@ -129,8 +145,8 @@ class CardWidget(QFrame):
 class DynamicSettingsPage(QWidget):
     def __init__(
         self,
-        dbus_handler: LotusDBusHandler,
-        category: SettingsCategory = SettingsCategory.GENERAL,
+        dbus_handler: NgoSenDBusHandler,
+        category: SettingsCategory = SettingsCategory.TYPING,
         parent=None,
     ):
         super().__init__(parent)
@@ -163,8 +179,8 @@ class DynamicSettingsPage(QWidget):
                 if widget:
                     h = widget.sizeHint().height()
                     item.setSizeHint(QSize(100, h))
-                    total_h += h + 4
-            lw.setFixedHeight(total_h + 15)
+                    total_h += lw.visualItemRect(item).height()
+            lw.setFixedHeight(total_h + 2 * lw.frameWidth())
             lw.update()
 
     def _setup_ui(self):
@@ -183,7 +199,8 @@ class DynamicSettingsPage(QWidget):
         self.scroll.setWidget(self.container)
         self.layout.addWidget(self.scroll)
 
-    def load_config(self):
+    def load_config(self, values=None):
+        """Shows the saved settings, or `values` as unsaved changes on top of them."""
         self.blockSignals(True)
         try:
             while self.container_layout.count():
@@ -198,10 +215,14 @@ class DynamicSettingsPage(QWidget):
 
             config_data = self.dbus.get_config()
             if not config_data:
-                self.container_layout.addWidget(QLabel(_("Failed to load configuration.")))
+                # The window already says fcitx5 cannot be reached.
                 return
 
-            self.current_values = config_data.get("values", {})
+            saved_values = config_data.get("values", {})
+            self.current_values = dict(saved_values if values is None else values)
+            self.modified_values = {
+                k: v for k, v in self.current_values.items() if saved_values.get(k) != v
+            }
             metadata_list = config_data.get("metadata", [])
             if not metadata_list:
                 return
@@ -212,68 +233,45 @@ class DynamicSettingsPage(QWidget):
                 for item in group[1]:
                     self.all_metadata[item[0]] = item
 
-            # Render based on SETTINGS_MAP
-            title_text = self.category.name.capitalize()
-            title = QLabel(_(title_text))
-            title.setObjectName("CategoryTitle")
-            self.container_layout.addWidget(title)
+            if not self.property("inTab"):
+                self.container_layout.addWidget(page_title(_(self.category.name.capitalize())))
 
-            # Add category description
-            desc_text = CATEGORY_DESCRIPTIONS.get(self.category)
-            if desc_text:
-                desc = QLabel(desc_text)
-                desc.setObjectName("CategoryDescription")
-                desc.setWordWrap(True)
-                desc.setStyleSheet("color: gray; font-size: 13px; margin-bottom: 10px;")
-                self.container_layout.addWidget(desc)
+            form_widget = QWidget()
+            self.form = QFormLayout(form_widget)
+            self.form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+            self._update_wrap_policy()
+            self.container_layout.addWidget(form_widget)
 
-            category_groups = SETTINGS_MAP.get(self.category, {})
-            for group_name, keys in category_groups.items():
-                # Convert ALL CAPS to Title Case
-                header_text = group_name.title() if group_name.isupper() else group_name
-                header = QLabel(_(header_text))
-                header.setObjectName("GroupHeader")
-                self.container_layout.addWidget(header)
-
-                if group_name == "MODE SWITCHING":
-                    # Add specific instructions for mode switching
-                    mode_info = QLabel(
-                        _(
-                            "Drag the handle on the left to reorder modes in the menu. Use checkboxes to toggle visibility, and click the buttons to reassign shortcuts."
-                        )
-                    )
-                    mode_info.setWordWrap(True)
-                    mode_info.setStyleSheet("color: gray; font-size: 13px; margin-bottom: 5px;")
-                    self.container_layout.addWidget(mode_info)
-
-                    self._render_mode_list(card_layout=self.container_layout)
+            for index, (group, keys) in enumerate(SETTINGS_MAP.get(self.category, {}).items()):
+                if index:
+                    self.form.addRow(self._separator())
+                if group == MODE_SWITCHING:
+                    self._render_mode_list(_(group) + ":")
                     continue
-
-                card = CardWidget("")
-                found_any = False
+                group_label = _(group) + ":"
                 for k in keys:
                     item = self.all_metadata.get(k)
                     if not item:
                         continue
-
-                    found_any = True
-                    type_str = item[1]
-                    if k in ["ModeMenuKey", "CycleModeKey"] or type_str == "Hotkey":
-                        self._render_hotkey(item, card.content_layout)
+                    if k in ["ModeMenuKey", "CycleModeKey"] or item[1] == "Hotkey":
+                        self._render_hotkey(item)
+                    elif k == "Mode":
+                        self._render_mode_buttons(item)
                     elif "Enum" in item[4]:
-                        self._render_combobox(item, card.content_layout)
-                    elif type_str == "Boolean":
-                        self._render_checkbox(item, card.content_layout)
-                    elif type_str == "String":
-                        self._render_string(item, card.content_layout)
+                        self._render_combobox(item)
+                    elif item[1] == "Boolean":
+                        self._render_checkbox(item, group_label)
+                        group_label = ""
 
-                if found_any:
-                    self.container_layout.addWidget(card)
+            if self.category == SettingsCategory.TYPING:
+                self.form.addRow(self._separator())
+                try_it = QLineEdit()
+                try_it.setPlaceholderText(_("Type here to test"))
+                try_it.setFont(brand.typed_font(17))
+                self.form.addRow(_("Try it:"), try_it)
 
-            if self.category == SettingsCategory.INTERFACE and not category_groups:
-                self.container_layout.addWidget(QLabel(_("No interface settings available yet.")))
-
-            self.initial_values = self.current_values.copy()
+            self.initial_values = saved_values.copy()
             self.container_layout.addStretch()
         finally:
             self.blockSignals(False)
@@ -297,41 +295,72 @@ class DynamicSettingsPage(QWidget):
         """Returns True if the current values differ from the initial loaded values."""
         return self.current_values != self.initial_values
 
-    def _render_hotkey(self, item, layout):
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._update_wrap_policy()
+
+    def _update_wrap_policy(self):
+        if getattr(self, "form", None) is None:
+            return
+        narrow = self.width() < NARROW_WIDTH
+        self.form.setRowWrapPolicy(QFormLayout.WrapAllRows if narrow else QFormLayout.DontWrapRows)
+
+    @staticmethod
+    def _separator():
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        return line
+
+    def _with_hint(self, widget, key):
+        hint_text = HINTS.get(key)
+        if not hint_text:
+            return widget
+        wrapper = QWidget()
+        layout = QVBoxLayout(wrapper)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(widget)
+        # Wrapping makes the form reserve two lines for a one-line hint.
+        hint = QLabel(_(hint_text))
+        mute(hint)
+        if isinstance(widget, QCheckBox):
+            # Line the hint up with the checkbox text, not its box.
+            style = widget.style()
+            indent = style.pixelMetric(QStyle.PM_IndicatorWidth) + style.pixelMetric(
+                QStyle.PM_CheckBoxLabelSpacing
+            )
+            hint.setContentsMargins(indent, 0, 0, 0)
+        layout.addWidget(hint)
+        return wrapper
+
+    def _render_hotkey(self, item):
         key, type_str, label, default, annotations = item
         val = self.current_values.get(key, default)
-
         hotkey_str = val.get("0", "") if isinstance(val, dict) else ""
-
-        row_layout = QHBoxLayout()
-        row_layout.addWidget(QLabel(_(label)))
-        row_layout.addStretch()
 
         hk_btn = HotkeyEditorWidget(hotkey_str)
         hk_btn.setFixedWidth(235)
-        hk_btn.textChanged.connect(lambda text, k=key: self.update_config(k, {"0": text}))
+        hk_btn.textChanged.connect(
+            lambda text, k=key: self.update_config(k, self._with_first_key(k, text))
+        )
+        self.form.addRow(_(label) + ":", self._with_hint(hk_btn, key))
 
-        row_layout.addWidget(hk_btn)
-        layout.addLayout(row_layout)
+    def _with_first_key(self, key, text):
+        # Only the first key of a list is shown; the others still work and must survive an edit.
+        val = self.current_values.get(key)
+        keys = [val[i] for i in sorted(val, key=int)] if isinstance(val, dict) else []
+        keys = ([text] if text else []) + keys[1:]
+        return {str(i): k for i, k in enumerate(keys)}
 
-    def _render_combobox(self, item, layout):
+    def _render_combobox(self, item):
         key, type_str, label, default, annotations = item
         val = str(self.current_values.get(key, default))
 
-        if "Enum" not in annotations:
-            return
-
-        row_layout = QHBoxLayout()
-        label_widget = QLabel(_(label))
-        row_layout.addWidget(label_widget)
-        add_help_icon(row_layout, key)
-        row_layout.addStretch()
-
         combo = QComboBox()
-        combo.setFixedWidth(200)
+        combo.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         enum_dict = annotations.get("Enum", {})
         sorted_keys = sorted(enum_dict.keys(), key=lambda x: int(x) if str(x).isdigit() else x)
-
         for k in sorted_keys:
             rb_text = str(enum_dict[k])
             combo.addItem(_(rb_text), rb_text)
@@ -340,29 +369,74 @@ class DynamicSettingsPage(QWidget):
         if idx >= 0:
             combo.setCurrentIndex(idx)
 
-        combo.currentTextChanged.connect(
-            lambda text, k=key: self.update_config(k, combo.currentData())
+        combo.currentIndexChanged.connect(
+            lambda _index, k=key: self.update_config(k, combo.currentData())
         )
-        row_layout.addWidget(combo)
-        layout.addLayout(row_layout)
+        field = self._with_example(combo) if key == "InputMethod" else combo
+        self.form.addRow(_(label) + ":", self._with_hint(field, key))
 
-    def _render_checkbox(self, item, layout):
+    def _with_example(self, combo):
+        wrapper = QWidget()
+        layout = QVBoxLayout(wrapper)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+        layout.addWidget(combo)
+        example = QLabel()
+        example.setObjectName("TypingExample")
+        example.setFont(brand.typed_font(16))
+        layout.addWidget(example)
+
+        def show_example():
+            text = TYPING_EXAMPLES.get(combo.currentData(), "")
+            example.setText(text)
+            example.setVisible(bool(text))
+
+        combo.currentIndexChanged.connect(lambda _index: show_example())
+        show_example()
+        return wrapper
+
+    def _render_mode_buttons(self, item):
+        key, type_str, label, default, annotations = item
+        val = str(self.current_values.get(key, default))
+        row = QWidget()
+        row.setObjectName("ModeButtons")
+        row.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        group = QButtonGroup(row)
+        modes = set(annotations.get("Enum", {}).values())
+        for mode in MODE_BUTTON_ORDER:
+            if mode not in modes:
+                continue
+            button = QPushButton(_(mode))
+            button.setCheckable(True)
+            button.setChecked(mode == val)
+            button.clicked.connect(lambda _checked=False, m=mode: self.update_config(key, m))
+            group.addButton(button)
+            layout.addWidget(button)
+        brand.follow_theme(row, self._style_mode_buttons, source=self)
+        self.button_groups.append(group)
+        self.form.addRow(_(label) + ":", row)
+
+    def _style_mode_buttons(self, row):
+        enamel = brand.pick(self, brand.ENAMEL)
+        row.setStyleSheet(
+            f"QWidget#ModeButtons QPushButton:checked {{ background: {enamel};"
+            f" color: {brand.ON_ENAMEL}; border: 1px solid {enamel}; border-radius: 4px;"
+            " padding: 4px 12px; }"
+        )
+
+    def _render_checkbox(self, item, group_label):
         key, type_str, label, default, annotations = item
         val = self.current_values.get(key, default)
 
-        row_layout = QHBoxLayout()
-        row_layout.setContentsMargins(0, 0, 0, 0)
         cb = QCheckBox(_(label))
-        is_checked = str(val).lower() == "true"
-        cb.setChecked(is_checked)
-
+        cb.setChecked(str(val).lower() == "true")
         cb.toggled.connect(
             lambda checked, k=key: self.update_config(k, "True" if checked else "False")
         )
-        row_layout.addWidget(cb)
-        add_help_icon(row_layout, key)
-        row_layout.addStretch()
-        layout.addLayout(row_layout)
+        self.form.addRow(group_label, self._with_hint(cb, key))
 
     def _render_string(self, item, layout):
         key, type_str, label, default, annotations = item
@@ -413,6 +487,7 @@ class DynamicSettingsPage(QWidget):
         if key in MODE_SHORTCUT_KEYS:
             warning = QLabel()
             warning.setObjectName("ShortcutWarning")
+            brand.follow_theme(warning, self._color_warning)
             warning.setWordWrap(True)
             warning.hide()
             wrapper.addWidget(warning)
@@ -421,22 +496,27 @@ class DynamicSettingsPage(QWidget):
 
         layout.addLayout(wrapper)
 
-    def _render_mode_list(self, card_layout):
+    def _color_warning(self, warning):
+        palette = warning.palette()
+        palette.setColor(QPalette.WindowText, QColor(brand.pick(warning, brand.ERROR_BORDER)))
+        warning.setPalette(palette)
+
+    def _render_mode_list(self, label):
         from qtpy.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
 
         card = CardWidget("")
-        card.content_layout.setContentsMargins(4, 4, 4, 4)
+        card.main_layout.setContentsMargins(0, 0, 0, 0)
+        card.content_layout.setSpacing(4)
 
         list_widget = QListWidget()
         list_widget.setDragDropMode(QAbstractItemView.InternalMove)
+        list_widget.setResizeMode(QListWidget.Adjust)
         list_widget.setSelectionMode(QAbstractItemView.SingleSelection)
         list_widget.setFocusPolicy(Qt.NoFocus)
         list_widget.setFrameShape(QFrame.NoFrame)
         list_widget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         list_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        list_widget.setStyleSheet(
-            "QListWidget { background: transparent; } QListWidget::item { margin: 2px 0; }"
-        )
+        list_widget.viewport().setAutoFillBackground(False)
 
         # Get current order from config
         order_str = self.current_values.get(
@@ -492,7 +572,7 @@ class DynamicSettingsPage(QWidget):
                 handle.setPixmap(icon.pixmap(16, 16))
             else:
                 handle.setText("☰")
-                handle.setStyleSheet("font-size: 14px; color: palette(mid); font-weight: bold;")
+                mute(handle)
 
             handle.setFixedSize(24, 24)
             handle.setAlignment(Qt.AlignCenter)
@@ -505,7 +585,7 @@ class DynamicSettingsPage(QWidget):
             # ONLY use the height from hint, use small width to let QListWidget expand it properly.
             # Large width hints from QHBoxLayout+Stretch cause overflow.
             list_item.setSizeHint(QSize(100, hint.height()))
-            total_height += hint.height() + 4  # 4 for margins/spacing
+            total_height += hint.height()
 
             list_widget.addItem(list_item)
             list_widget.setItemWidget(list_item, container)
@@ -513,11 +593,20 @@ class DynamicSettingsPage(QWidget):
             # Store internal name in the item's data for reordering
             list_item.setData(Qt.UserRole, name)
 
+        list_widget.setFixedHeight(total_height + 2 * list_widget.frameWidth())
         self.list_widgets.append(list_widget)
         list_widget.model().rowsMoved.connect(lambda *args: self._update_mode_order(list_widget))
 
         card.content_layout.addWidget(list_widget)
-        card_layout.addWidget(card)
+        instructions = QLabel(
+            _(
+                "Drag the handle on the left to reorder modes in the menu. Use checkboxes to toggle visibility, and click the buttons to reassign shortcuts."
+            )
+        )
+        instructions.setWordWrap(True)
+        mute(instructions)
+        card.content_layout.addWidget(instructions)
+        self.form.addRow(label, card)
 
     def _update_mode_order(self, list_widget):
         new_order = []
@@ -536,7 +625,7 @@ class DynamicSettingsPage(QWidget):
             if key in self.shortcut_warning_labels:
                 self.shortcut_warning_labels[key].hide()
             if key in self.shortcut_labels:
-                self.shortcut_labels[key].setStyleSheet("")
+                self.shortcut_labels[key].setFont(self.font())
 
         # Only check enabled modes
         enabled_shortcuts = {}
@@ -577,9 +666,7 @@ class DynamicSettingsPage(QWidget):
                         self.shortcut_warning_labels[key].setText(error_msg)
                         self.shortcut_warning_labels[key].show()
                     if key in self.shortcut_labels:
-                        self.shortcut_labels[key].setStyleSheet(
-                            "color: palette(highlight); font-weight: bold;"
-                        )
+                        emphasize(self.shortcut_labels[key])
 
     def load_data(self):
         """Standardized reload method (alias for load_config)."""
@@ -593,15 +680,10 @@ class DynamicSettingsPage(QWidget):
             if not config_data:
                 return
 
-            metadata_list = config_data.get("metadata", [])
-            new_values = {}
-            for group in metadata_list:
-                for item in group[1]:
-                    key, type_str, label, default, annotations = item
-                    new_values[key] = default
-            self.modified_values = new_values.copy()
-            self.current_values = new_values
-            self.load_config()
+            defaults = {
+                item[0]: item[3] for group in config_data.get("metadata", []) for item in group[1]
+            }
+            self.load_config(values=defaults)
         finally:
             self.blockSignals(False)
 
@@ -633,16 +715,21 @@ class DynamicSettingsPage(QWidget):
             return False
         return True
 
+    def change_label(self):
+        item = getattr(self, "all_metadata", {}).get(getattr(self, "_last_changed_key", None))
+        return _(item[2]) if item else None
+
     def update_config(self, key: str, new_value):
         """Updates internal state and notifies parent window of change."""
         self.modified_values[key] = new_value
         self.current_values[key] = new_value
+        self._last_changed_key = key
 
         # Real-time validation if it's a shortcut
         if key in MODE_SHORTCUT_KEYS or key in MODE_SHORTCUT_TO_VISIBILITY.values():
             self._validate_mode_shortcuts()
 
-        # Notify the parent window (LotusSettingsWindow) if it exists
+        # Notify the parent window (NgoSenSettingsWindow) if it exists
         main_win = self.window()
         if hasattr(main_win, "on_changed"):
             main_win.on_changed()

@@ -14,6 +14,7 @@
 #include "ngosen-utf8.h"
 
 #include <cstddef>
+#include <cstdio>
 #include <string>
 #include <thread>
 
@@ -23,7 +24,8 @@ namespace ngosen {
     // coming back does not mean the Left presses before it have moved the selection yet.
     constexpr uint64_t XTestSelectSettleUs = 50000;
 
-    TypingState::TypingState(ngosen::EngineResources* engine, std::unique_ptr<ngosen::Host> host) : engine_(engine), host_(std::move(host)) {
+    TypingState::TypingState(ngosen::EngineResources* engine, std::unique_ptr<ngosen::Host> host) :
+        engine_(engine), host_(ngosen::recordingHost(std::move(host), engine->recorder())) {
         setEngine();
     }
 
@@ -71,10 +73,10 @@ namespace ngosen {
     void TypingState::handlePreeditMode(ngosen::KeyPress& keyEvent, uint32_t currentSym) {
         if (EngineProcessKeyEvent(bambooEngine_.handle(), currentSym, keyEvent.states()) != 0U)
             keyEvent.accept();
-        if (auto commit = ngosen::UniqueCPtr<char>(EnginePullCommit(bambooEngine_.handle()))) {
-            if (commit && (*commit.get() != 0)) {
-                NGOSEN_INFO("Commit: " + std::string(commit.get()));
-                host_->commitText(commit.get());
+        if (auto pulled = ngosen::UniqueCPtr<char>(EnginePullCommit(bambooEngine_.handle()))) {
+            if (pulled && (*pulled.get() != 0)) {
+                NGOSEN_INFO("Commit: " + std::string(pulled.get()));
+                commit(pulled.get());
             }
         }
         host_->resetPanel();
@@ -216,7 +218,7 @@ namespace ngosen {
                     addedPart = addedPart.substr(0, addedPart.size() - 1);
 #endif
                 }
-                host_->commitText(addedPart);
+                commit(addedPart);
                 NGOSEN_INFO("Commit: " + addedPart);
                 keyEvent.accept();
             } else {
@@ -246,7 +248,7 @@ namespace ngosen {
                 if (!addedPart.empty()) {
                     oldPreBuffer_ = preeditStr;
                     if (wasAutoCapitalized || addedPart != keyUtf8) {
-                        host_->commitText(addedPart);
+                        commit(addedPart);
                         NGOSEN_INFO("Commit: " + addedPart);
                         keyEvent.accept();
                         isCommit = true;
@@ -261,7 +263,7 @@ namespace ngosen {
                     NGOSEN_ERROR("Cannot send backspaces here, commit rawkey");
                     std::string rawKey = keyEvent.name();
                     if (!rawKey.empty()) {
-                        host_->commitText(rawKey);
+                        commit(rawKey);
                     }
                     return;
                 }
@@ -277,7 +279,42 @@ namespace ngosen {
         }
     }
 
+    void TypingState::recordKey(const ngosen::KeyPress& keyEvent) {
+        static const char* const modeNames[] = {"Off", "Sen", "Preedit", "Emoji"};
+        const auto               f           = host_->field();
+        std::string field = "frontend=" + f.frontend + " program=" + f.program + " surrounding=" + (f.surroundingText ? "1" : "0") + " preedit=" + (f.preedit ? "1" : "0") +
+            (f.password ? " password=1" : "") + " mode=" + modeNames[static_cast<int>(realMode.load())];
+        auto& recorder = engine_->recorder();
+        if (field != recordedField_) {
+            recorder.add("field", field);
+            recordedField_ = std::move(field);
+        }
+        if (f.password) {
+            recorder.add("key", "hidden");
+            return;
+        }
+        char sym[16];
+        std::snprintf(sym, sizeof(sym), "0x%04x", keyEvent.sym());
+        std::string detail = std::string(keyEvent.isRelease() ? "up " : "down ") + sym;
+        if (const auto text = host_->keyText(keyEvent.sym()); !text.empty() && text != " ")
+            detail += " " + text;
+        if (keyEvent.states() != 0)
+            detail += " states=" + std::to_string(keyEvent.states());
+        if (g_mouse_clicked.load(std::memory_order_acquire))
+            detail += " after-click";
+        recorder.add("key", detail);
+    }
+
     void TypingState::keyEvent(ngosen::KeyPress& keyEvent) {
+        handleKey(keyEvent);
+        // A report with the cursor at the end of the text tells how long the text is.
+        const ngosen::Surrounding s = host_->surrounding();
+        if (ngosen::utf8::length(s.text()) == s.cursor())
+            realtextLen.store(s.cursor(), std::memory_order_release);
+    }
+
+    void TypingState::handleKey(ngosen::KeyPress& keyEvent) {
+        recordKey(keyEvent);
         if (!bambooEngine_ || skipsKey(keyEvent))
             return;
         settleBeforeKey();
@@ -440,6 +477,15 @@ namespace ngosen {
             if (surr_wait_deliver_at_ > nowUs) {
                 std::this_thread::sleep_for(std::chrono::microseconds(surr_wait_deliver_at_ - nowUs));
             }
+            // A dbus client gets the commit after this key's reply and may type a key let through
+            // first, so a typing key goes out inside the commit.
+            const bool typesText = !host_->keyText(currentSym).empty() && (keyEvent.states() & (ngosen::modifier::Ctrl | ngosen::modifier::Alt)) == 0U;
+            if (host_->field().frontend == "dbus" && typesText && buffered_keys_.size() < MAX_BUFFERED_KEYS) {
+                buffered_keys_.push_back({.sym = currentSym, .state = keyEvent.states()});
+                keyEvent.accept();
+                finishReplacement("key arrived", false);
+                return true;
+            }
             finishReplacement("key arrived", false);
         }
         if (is_deleting_.load(std::memory_order_acquire) && ngosen::key::isBackspace(currentSym) && ngosen::forwardsBackspaces(host_->field()) && surr_wait_pending_) {
@@ -516,10 +562,10 @@ namespace ngosen {
             isPrevPunctuation_ = false;
             if (realMode == ngosen::Mode::Preedit && isFocusOut) {
                 EngineCommitPreedit(bambooEngine_.handle());
-                ngosen::UniqueCPtr<char> commit(EnginePullCommit(bambooEngine_.handle()));
-                if (commit && (*commit.get() != 0)) {
-                    host_->commitText(commit.get());
-                    NGOSEN_INFO("Commit: " + std::string(commit.get()));
+                ngosen::UniqueCPtr<char> pulled(EnginePullCommit(bambooEngine_.handle()));
+                if (pulled && (*pulled.get() != 0)) {
+                    commit(pulled.get());
+                    NGOSEN_INFO("Commit: " + std::string(pulled.get()));
                 }
             }
             ResetEngine(bambooEngine_.handle());
@@ -558,9 +604,9 @@ namespace ngosen {
                 host_->resetPanel();
                 if (bambooEngine_) {
                     EngineCommitPreedit(bambooEngine_.handle());
-                    ngosen::UniqueCPtr<char> commit(EnginePullCommit(bambooEngine_.handle()));
-                    if (commit && (*commit.get() != 0))
-                        host_->commitText(commit.get());
+                    ngosen::UniqueCPtr<char> pulled(EnginePullCommit(bambooEngine_.handle()));
+                    if (pulled && (*pulled.get() != 0))
+                        commit(pulled.get());
                     ResetEngine(bambooEngine_.handle());
                 }
                 host_->refreshPanel();
