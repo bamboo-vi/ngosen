@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- Chữ V trên khay không còn màu đen chìm trên panel tối của Linux Mint, MX Linux và các desktop khác
+  có panel tối. Ngó Sen đọc màu panel của Cinnamon như đã làm với KDE và GNOME; ở desktop khác, icon
+  mặc định màu trắng. Panel sáng thì chọn "Màu biểu tượng: Sáng" trong cài đặt.
+
 ## [1.2.2-1] — 11/10/2026
 
 Bản vá nhỏ: chữ `vi` thay hình bông sen cạnh con trỏ, và hết lỗi mất dấu khi gõ trên thanh địa chỉ Edge.

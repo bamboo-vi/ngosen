@@ -75,6 +75,36 @@ namespace fcitx {
      */
     std::optional<bool> isGnomePanelDark(const GnomeShellThemeInfo& info);
 
+    struct CinnamonThemeInfo {
+        // org.cinnamon.theme name; empty or "cinnamon" means the built-in theme.
+        std::string              themeName;
+        std::string              home;
+        std::string              dataHome;
+        std::vector<std::string> dataDirs;
+    };
+
+    CinnamonThemeInfo cinnamonThemeInfoFromEnv();
+
+    /**
+     * @brief Tells whether the session is Cinnamon.
+     *
+     * fcitx5 started from the session autostart may lack XDG_CURRENT_DESKTOP,
+     * so DESKTOP_SESSION is checked too.
+     */
+    bool isCinnamonSession(const std::string& xdgCurrentDesktop, const std::string& desktopSession);
+
+    /**
+     * @brief Path of the stylesheet Cinnamon paints its panels with.
+     */
+    std::optional<std::string> cinnamonStylesheet(const CinnamonThemeInfo& info);
+
+    /**
+     * @brief Reports whether the Cinnamon panel is dark, from its "#panel" rule.
+     *
+     * Linux Mint pairs a dark panel theme with a light app theme by default.
+     */
+    std::optional<bool> isCinnamonPanelDark(const CinnamonThemeInfo& info);
+
 } // namespace fcitx
 
 #endif // _FCITX5_NGOSEN_GNOME_THEME_H_
