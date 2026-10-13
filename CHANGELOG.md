@@ -38,6 +38,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   mặc định màu trắng. Panel sáng thì chọn "Màu biểu tượng: Sáng" trong cài đặt (#44).
 - Icon trên khay nhỏ lại cho cân với các icon bên cạnh, và hết mờ trên panel Xfce. Chữ V trắng (khi tắt
   "Sử dụng biểu tượng trạng thái Ngó Sen") giờ cũng là hai cọng ngó như logo (#46).
+- Cập nhật từ bản trước 1.1.0 rồi chạy `fcitx5 -rd` như lời nhắc sau khi cài không còn làm mất Ngó Sen
+  khỏi danh sách bộ gõ (#47).
 
 ## [1.2.2-1] — 11/10/2026
 
