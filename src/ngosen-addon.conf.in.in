@@ -7,5 +7,5 @@ Library=libngosen
 Type=SharedLibrary
 OnDemand=True
 Configurable=True
-[Dependencies]
+[Addon/Dependencies]
 0=core:@REQUIRED_FCITX_VERSION@
