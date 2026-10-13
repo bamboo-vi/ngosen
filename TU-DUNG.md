@@ -58,6 +58,8 @@ bước 3, rồi khởi động lại fcitx5:
 fcitx5 -rd
 ```
 
+KDE Wayland: đăng xuất rồi đăng nhập lại, vì KDE tự mở fcitx5 và lệnh trên không thay được.
+
 ## NixOS
 
 Trên NixOS không cài vào `/usr` được, nên các bước ở trên không dùng được. Hãy dựng bằng flake trong

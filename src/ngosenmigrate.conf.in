@@ -6,5 +6,7 @@ Library=libngosenmigrate
 Type=SharedLibrary
 OnDemand=False
 Configurable=False
-[Dependencies]
+[Addon/Dependencies]
 0=core:@REQUIRED_FCITX_VERSION@
+[Addon/OptionalDependencies]
+0=dbus

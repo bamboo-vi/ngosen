@@ -36,6 +36,7 @@ namespace {
         c.setValueByPath("DateFormat", "%Y-%m-%d");
         c.setValueByPath("AutoNonVnRestore", "False");
         c.setValueByPath("DdFreeStyle", "False");
+        c.setValueByPath("BackspaceRemovesTone", "True");
         c.setValueByPath("EnableMacro", "False");
         c.setValueByPath("EnableMacroInOffMode", "True");
         c.setValueByPath("CapitalizeMacro", "False");
@@ -71,6 +72,7 @@ namespace {
         check(step + ": DateFormat", o.dateFormat == c.dateFormat.value());
         check(step + ": AutoNonVnRestore", o.autoNonVnRestore == c.autoNonVnRestore.value());
         check(step + ": DdFreeStyle", o.ddFreeStyle == c.ddFreeStyle.value());
+        check(step + ": BackspaceRemovesTone", o.backspaceRemovesTone == c.backspaceRemovesTone.value());
         check(step + ": EnableMacro", o.enableMacro == c.enableMacro.value());
         check(step + ": EnableMacroInOffMode", o.enableMacroInOffMode == c.enableMacroInOffMode.value());
         check(step + ": CapitalizeMacro", o.capitalizeMacro == c.capitalizeMacro.value());

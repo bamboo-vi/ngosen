@@ -12,6 +12,7 @@
 #include "ngosen-keysym.h"
 #include "ngosen-recorder.h"
 #include "ngosen-state.h"
+#include "ngosen-strings.h"
 
 #include <iostream>
 #include <memory>
@@ -245,6 +246,68 @@ namespace {
         }
     }
 
+    void testWithoutToneMark() {
+        check(withoutToneMark("tiếng") == "tiêng", "tone mark: tiếng loses only the sắc", withoutToneMark("tiếng"));
+        check(withoutToneMark("Đường") == "Đương", "tone mark: Đường keeps đ and the horns", withoutToneMark("Đường"));
+        check(withoutToneMark("VIỆT") == "VIÊT", "tone mark: upper case", withoutToneMark("VIỆT"));
+        check(withoutToneMark("chào") == "chao", "tone mark: huyền", withoutToneMark("chào"));
+        check(withoutToneMark("ăn") == "ăn", "tone mark: a word without one is unchanged", withoutToneMark("ăn"));
+    }
+
+    // Backspace with BackspaceRemovesTone takes the mark off the word being typed (#34).
+    void testBackspaceRemovesTone(bool enabled) {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.mutableOptions().backspaceRemovesTone = enabled;
+        // GTK4 deletes through the surrounding text, so each step lands at once.
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("dbus", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        host->setSurrounding("", 0);
+        state.surroundingUpdated();
+        const std::string shown[] = {"a", "â", "ấ"};
+        for (int i = 0; i < 3; ++i) {
+            press(state, static_cast<uint32_t>("aas"[i]));
+            loop.pump(150);
+            host->setSurrounding(shown[i], 1);
+            state.surroundingUpdated();
+            loop.pump(50);
+        }
+
+        const std::string what  = enabled ? "backspace removes tone: " : "backspace removes tone off: ";
+        const bool        taken = press(state, ngosen::key::BackSpace);
+        loop.pump(150);
+        if (enabled) {
+            check(taken, what + "backspace on ấ is taken", "went to the app");
+            check(!host->commits().empty() && host->commits().back() == "â", what + "leaves â", join(host->commits()));
+            host->setSurrounding("â", 1);
+            state.surroundingUpdated();
+            loop.pump(50);
+            check(!press(state, ngosen::key::BackSpace), what + "backspace on â deletes as usual", "was taken");
+        } else {
+            check(!taken, what + "backspace goes to the app", "was taken");
+        }
+    }
+
+    void testPreeditBackspaceRemovesTone() {
+        realMode = ngosen::Mode::Preedit;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.mutableOptions().backspaceRemovesTone = true;
+        auto                owned                       = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host                        = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        for (char c : std::string("vieetj"))
+            press(state, static_cast<uint32_t>(c));
+        press(state, ngosen::key::BackSpace);
+        check(host->preedit() == "viêt", "preedit: backspace on việt shows viêt", host->preedit());
+        press(state, static_cast<uint32_t>('s'));
+        check(host->preedit() == "viết", "preedit: a new tone mark goes on the rebuilt word", host->preedit());
+    }
+
     // An address bar fills in a suggestion after the cursor and selects it. Typing its next letter
     // leaves the text as it was and moves the cursor one step, which is not a click.
     void testTypingIntoSuggestion() {
@@ -314,6 +377,10 @@ int main() {
     testRecorderLimits();
     testFocusBounce();
     testTypingIntoSuggestion();
+    testWithoutToneMark();
+    testBackspaceRemovesTone(true);
+    testBackspaceRemovesTone(false);
+    testPreeditBackspaceRemovesTone();
     if (failures == 0)
         std::cout << "all core typing checks passed\n";
     return failures == 0 ? 0 : 1;

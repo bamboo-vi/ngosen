@@ -10,6 +10,42 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.3.0-1] — 13/10/2026
+
+Thêm tùy chọn Backspace chỉ xóa dấu thanh, icon mới hai cọng ngó sen, và sửa icon khay trên panel tối.
+Tải ở [ngosen-1.3.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.3.0-1).
+
+### Thêm
+
+- Tùy chọn "Backspace xóa dấu thanh" (trang Gõ chữ, nhóm Cách bỏ dấu, mặc định tắt): bấm Backspace lúc đang
+  gõ chữ `tiếng` thì ra `tiêng`; chữ không có dấu thanh thì Backspace xóa như thường. Khi tắt, phím `z`
+  (Telex) hay `0` (VNI) vẫn xóa dấu thanh như trước. Đề xuất ở #34 (#37).
+- [Bản thử](https://github.com/ngosen/ngosen/releases/tag/next-build) dựng tự động mỗi khi nhánh `next` thay
+  đổi, cài bằng một lệnh trong README. Số phiên bản có thêm ngày giờ và mã commit, nên cài đè lên bản chính
+  thức được, và bản chính thức sau đó vẫn tự nâng lên (#38, #41, #49).
+
+### Thay đổi
+
+- Icon mới: hai cọng ngó sen chụm thành chữ V, thay cho lát củ sen 7 lỗ. Cửa sổ cài đặt dùng bản đầy
+  đủ có đổ bóng; icon trên khay (khi bật "Sử dụng biểu tượng trạng thái Ngó Sen") dùng bản giản lược,
+  màu xám khi tắt tiếng Việt (#43).
+- Khay mặc định hiện icon Ngó Sen có nền màu, rõ trên panel sáng lẫn tối. Máy đã lưu cài đặt Ngó Sen
+  thì giữ lựa chọn cũ; muốn đổi thì bật "Sử dụng biểu tượng trạng thái Ngó Sen" trong cài đặt (#45).
+
+### Sửa
+
+- Dòng gợi ý dưới tùy chọn trong cửa sổ cài đặt tự xuống dòng khi không đủ chỗ, thay vì bị cắt và bắt cuộn
+  ngang (#39).
+- Lời nhắc sau khi cài hoặc cập nhật nói thêm: trên KDE Wayland phải đăng xuất rồi đăng nhập lại, vì
+  `fcitx5 -rd` không thay được fcitx5 do KDE mở, nên cửa sổ cài đặt chưa hiện tùy chọn mới (#42).
+- Chữ V trên khay không còn màu đen chìm trên panel tối của Linux Mint, MX Linux và các desktop khác
+  có panel tối. Ngó Sen đọc màu panel của Cinnamon như đã làm với KDE và GNOME; ở desktop khác, icon
+  mặc định màu trắng. Panel sáng thì chọn "Màu biểu tượng: Sáng" trong cài đặt (#44).
+- Icon trên khay nhỏ lại cho cân với các icon bên cạnh, và hết mờ trên panel Xfce. Chữ V trắng (khi tắt
+  "Sử dụng biểu tượng trạng thái Ngó Sen") giờ cũng là hai cọng ngó như logo (#46).
+- Cập nhật từ bản trước 1.1.0 rồi chạy `fcitx5 -rd` như lời nhắc sau khi cài không còn làm mất Ngó Sen
+  khỏi danh sách bộ gõ (#47).
+
 ## [1.2.2-1] — 11/10/2026
 
 Bản vá nhỏ: chữ `vi` thay hình bông sen cạnh con trỏ, và hết lỗi mất dấu khi gõ trên thanh địa chỉ Edge.

@@ -23,6 +23,9 @@ namespace ngosen::test {
         const Options& options() const override {
             return options_;
         }
+        Options& mutableOptions() {
+            return options_;
+        }
         std::vector<KeymapEntry> customKeymap() const override {
             return {};
         }

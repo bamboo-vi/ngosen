@@ -118,6 +118,34 @@ int main() {
     info.sessionMode   = "user";
     check("S4 plain_gnome_unknown", !fcitx::gnomeShellStylesheet(info).has_value(), "plain GNOME returned a stylesheet");
 
+    // ── Cinnamon: the panel follows the Cinnamon theme, not the GTK one ──
+    // Linux Mint 22.1 pairs Mint-Y-Dark-Aqua for the panel with Mint-Y-Aqua for
+    // apps, so the portal says light while the panel is dark.  Rules copied from it.
+    check("N1 mint", fcitx::isCinnamonSession("", "cinnamon"), "DESKTOP_SESSION=cinnamon rejected");
+    check("N2 x_cinnamon", fcitx::isCinnamonSession("X-Cinnamon", ""), "X-Cinnamon rejected");
+    check("N3 gnome", !fcitx::isCinnamonSession("ubuntu:GNOME", "ubuntu"), "GNOME taken for Cinnamon");
+
+    writeFile(root / "usr/share/themes/Mint-Y-Dark-Aqua/cinnamon/cinnamon.css",
+              "#panel {\n  font-weight: bold;\n  height: 40px;\n  color: #e1e1e1; }\n"
+              ".panel-top, .panel-bottom { color: #ffffff; background-color: rgba(29, 29, 33, 0.99); }\n");
+    writeFile(root / "home/.themes/Mint-Y-Aqua/cinnamon/cinnamon.css", "#panel {\n  font-weight: bold;\n  color: #303030; }\n");
+    writeFile(root / "usr/share/cinnamon/theme/cinnamon.css", "#panel { font-weight: bold; }\n");
+
+    fcitx::CinnamonThemeInfo mint;
+    mint.home      = info.home;
+    mint.dataHome  = info.dataHome;
+    mint.dataDirs  = info.dataDirs;
+    mint.themeName = "Mint-Y-Dark-Aqua";
+    check("N4 mint_default_dark", fcitx::isCinnamonPanelDark(mint) == std::optional<bool>(true), "Mint-Y-Dark-Aqua panel not dark");
+    mint.themeName = "Mint-Y-Aqua";
+    check("N5 light_theme_in_home", fcitx::isCinnamonPanelDark(mint) == std::optional<bool>(false), "Mint-Y-Aqua in ~/.themes not light");
+    mint.themeName = "";
+    path           = fcitx::cinnamonStylesheet(mint);
+    check("N6 builtin_theme", path && *path == (root / "usr/share/cinnamon/theme/cinnamon.css").string(), "built-in Cinnamon theme not found");
+    check("N7 builtin_says_nothing", !fcitx::isCinnamonPanelDark(mint).has_value(), "built-in theme without a panel colour gave an answer");
+    mint.themeName = "Not-Installed";
+    check("N8 missing_theme", !fcitx::isCinnamonPanelDark(mint).has_value(), "missing Cinnamon theme gave an answer");
+
     fs::remove_all(root);
 
     if (failures == 0)

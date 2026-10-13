@@ -191,6 +191,18 @@ target_link_libraries(ngosen_migration_test PRIVATE ngosen_migration)
 add_test(NAME ngosen_migration COMMAND ngosen_migration_test)
 set_tests_properties(ngosen_migration PROPERTIES LABELS "unit;config" TIMEOUT 20)
 
+# fcitx5 reads the dependencies declared in the generated addon files.
+add_executable(addon_conf_test addon-conf.cpp)
+target_link_libraries(addon_conf_test PRIVATE Fcitx5::Core Fcitx5::Config)
+target_compile_definitions(addon_conf_test PRIVATE
+    NGOSEN_ADDON_CONF="${PROJECT_BINARY_DIR}/src/ngosen-addon.conf"
+    NGOSEN_MIGRATE_CONF="${PROJECT_BINARY_DIR}/src/ngosenmigrate.conf"
+)
+# ngosen-addon.conf comes from the translation step, not from the ngosen target.
+add_dependencies(addon_conf_test ngosen-addon.conf.in-fmt ngosenmigrate)
+add_test(NAME addon_conf COMMAND addon_conf_test)
+set_tests_properties(addon_conf PROPERTIES LABELS "unit;config" TIMEOUT 20)
+
 # The Rust typing core's own tests, ported from the Go core's.
 if (NGOSEN_RUST_CORE)
     add_test(NAME bamboo_rs_cargo_test

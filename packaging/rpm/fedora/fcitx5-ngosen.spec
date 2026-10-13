@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.2.2
+Version:        1.3.0
 Release:        1%{?dist}
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -67,6 +67,7 @@ Ngó Sen is a Vietnamese input method for fcitx5.
 %{_datadir}/gnome-shell/extensions/forward-keys@ngosen.github.io/
 
 %{_datadir}/icons/hicolor/scalable/apps/*fcitx-ngosen*.svg
+%{_datadir}/icons/hicolor/scalable/apps/io.github.ngosen.NgoSen.Settings.svg
 %{_datadir}/icons/hicolor/scalable/status/fcitx-ngosen*.svg
 %{_datadir}/icons/hicolor/*/status/fcitx-ngosen*.png
 
@@ -110,9 +111,13 @@ udevadm control --reload-rules >/dev/null 2>&1 || :
 
 echo "--- Cấu hình Ngó Sen ---"
 echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen, hoặc khởi động lại fcitx5 nếu vừa cập nhật: fcitx5 -rd"
+echo "KDE Wayland: cập nhật xong thì đăng xuất rồi đăng nhập lại."
 echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
 
 %changelog
+* Tue Oct 13 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.3.0-1
+- Backspace can remove only the tone mark; new V icon; tray icon fixes on dark panels.
+
 * Sun Oct 11 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.2.2-1
 - Shows vi instead of a lotus next to the cursor; typing into Edge's address bar suggestion keeps tone marks.
 

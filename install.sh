@@ -228,6 +228,7 @@ main() {
     say ""
     say "Xong. Việc còn lại:"
     say "  1. Khởi động lại fcitx5:  fcitx5 -rd"
+    say "     KDE Wayland: đăng xuất rồi đăng nhập lại."
     say "  2. Mở 'Fcitx5 Configuration', thêm bộ gõ Ngó Sen."
     say "  3. KDE Wayland: System Settings → Virtual Keyboard → chọn 'Fcitx 5'."
 }

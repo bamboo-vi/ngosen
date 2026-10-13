@@ -9,11 +9,18 @@
 #include <fcitx-utils/log.h>
 #include <fcitx/addonfactory.h>
 #include <fcitx/addoninstance.h>
+#include <fcitx/addonmanager.h>
+#include <fcitx/instance.h>
 #if NGOSEN_USE_MODERN_FCITX_API
 #include <fcitx-utils/standardpaths.h>
 #else
 #include <fcitx-utils/standardpath.h>
 #endif
+
+#include <chrono>
+#include <thread>
+
+#include <unistd.h>
 
 namespace {
 
@@ -21,9 +28,9 @@ namespace {
     // method under its old name and the user does not have to add Ngó Sen again.
     class NgoSenMigration : public fcitx::AddonInstance {
       public:
-        NgoSenMigration() {
+        explicit NgoSenMigration(fcitx::Instance* instance) {
             copyUserFiles();
-            renameInProfile();
+            renameInProfile(instance->willTryReplace());
         }
 
       private:
@@ -43,7 +50,25 @@ namespace {
             ngosen::copyLegacyFiles(dataDir, {{"lotus/vietnamese.cm.dict", "ngosen/vietnamese.cm.dict"}});
         }
 
-        static void renameInProfile() {
+        // `fcitx5 -r` takes over from the running fcitx5, which then saves its profile, still under
+        // the old name, as it exits. That happens after this addon runs (it loads after dbus, which
+        // asks the old one to quit), so wait for it or it overwrites the rename.
+        static bool waitForPreviousInstance() {
+            using namespace std::chrono_literals;
+            const auto self   = static_cast<int>(getpid());
+            bool       waited = false;
+            for (auto deadline = std::chrono::steady_clock::now() + 3s; std::chrono::steady_clock::now() < deadline;) {
+                if (ngosen::processesNamed("/proc", "fcitx5", getuid(), self).empty()) {
+                    return waited;
+                }
+                waited = true;
+                std::this_thread::sleep_for(50ms);
+            }
+            FCITX_WARN() << "Ngó Sen: the previous fcitx5 is still running";
+            return waited;
+        }
+
+        static void renameInProfile(bool replacing) {
             // With fcitx5-lotus installed, "lotus" in the profile is that input method; leave it.
 #if NGOSEN_USE_MODERN_FCITX_API
             if (!fcitx::StandardPaths::global().locate(fcitx::StandardPathsType::PkgData, "inputmethod/lotus.conf").empty()) {
@@ -56,19 +81,32 @@ namespace {
             }
             const auto type = fcitx::StandardPath::Type::PkgConfig;
 #endif
+            const auto readRenamed = [type](fcitx::RawConfig& profile) {
+                fcitx::readAsIni(profile, type, "profile");
+                return ngosen::renameProfileInputMethod(profile, ngosen::LegacyInputMethod, ngosen::InputMethod);
+            };
             fcitx::RawConfig profile;
-            fcitx::readAsIni(profile, type, "profile");
-            if (ngosen::renameProfileInputMethod(profile, ngosen::LegacyInputMethod, ngosen::InputMethod)) {
-                fcitx::safeSaveAsIni(profile, type, "profile");
-                FCITX_INFO() << "Ngó Sen: renamed the input method in the fcitx5 profile";
+            if (!readRenamed(profile)) {
+                return;
             }
+            if (replacing && waitForPreviousInstance()) {
+                // Start again from the profile it saved on the way out.
+                fcitx::RawConfig saved;
+                if (!readRenamed(saved)) {
+                    return;
+                }
+                fcitx::safeSaveAsIni(saved, type, "profile");
+            } else {
+                fcitx::safeSaveAsIni(profile, type, "profile");
+            }
+            FCITX_INFO() << "Ngó Sen: renamed the input method in the fcitx5 profile";
         }
     };
 
     class NgoSenMigrationFactory : public fcitx::AddonFactory {
       public:
-        fcitx::AddonInstance* create(fcitx::AddonManager* /*manager*/) override {
-            return new NgoSenMigration;
+        fcitx::AddonInstance* create(fcitx::AddonManager* manager) override {
+            return new NgoSenMigration(manager->instance());
         }
     };
 

@@ -12,7 +12,7 @@ FONT_FILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fonts", "XanhMono-Regular.ttf"
 )
 TYPED_FAMILY = "Xanh Mono"
-LOGO = "fcitx-ngosen"
+LOGO = "io.github.ngosen.NgoSen.Settings"
 
 # (light, dark) pairs; dark is picked from the window background, not the desktop name.
 ENAMEL = ("#1c6b5f", "#2a8574")

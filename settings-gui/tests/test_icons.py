@@ -57,7 +57,7 @@ class LogoTest(FakeThemeTest):
         super().setUp()
         apps = os.path.join(self.dir.name, "data", "icons", "hicolor", "scalable", "apps")
         os.makedirs(apps)
-        with open(os.path.join(apps, "fcitx-ngosen.svg"), "w") as f:
+        with open(os.path.join(apps, f"{brand.LOGO}.svg"), "w") as f:
             f.write(
                 '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16"/></svg>'
             )

@@ -124,6 +124,27 @@ namespace {
         std::filesystem::remove_all(dir);
     }
 
+    // A /proc lookalike: numbered folders with a comm file, owned by the user running the test.
+    void testProcessesNamed() {
+        const auto dir = std::filesystem::temp_directory_path() / "ngosen-migration-proc";
+        std::filesystem::remove_all(dir);
+        for (const auto& [pid, comm] : {std::pair{"100", "fcitx5"}, {"101", "bash"}, {"102", "fcitx5"}, {"103", "fcitx5-remote"}}) {
+            std::filesystem::create_directories(dir / pid);
+            std::ofstream(dir / pid / "comm") << comm << '\n';
+        }
+        std::filesystem::create_directories(dir / "self");
+        std::ofstream(dir / "self" / "comm") << "fcitx5\n";
+        std::filesystem::create_directories(dir / "104");
+
+        auto pids = ngosen::processesNamed(dir, "fcitx5", getuid(), 102);
+        check("one other fcitx5 is found", pids.size() == 1 && pids.front() == 100);
+        pids = ngosen::processesNamed(dir, "fcitx5", getuid(), 1);
+        check("both fcitx5 processes are found", pids.size() == 2);
+        check("another user's processes are skipped", ngosen::processesNamed(dir, "fcitx5", getuid() + 1, 1).empty());
+        check("a missing folder finds nothing", ngosen::processesNamed(dir / "missing", "fcitx5", getuid(), 1).empty());
+        std::filesystem::remove_all(dir);
+    }
+
 } // namespace
 
 int main() {
@@ -131,6 +152,7 @@ int main() {
     testBothListed();
     testOtherGroups();
     testCopyFiles();
+    testProcessesNamed();
     if (failures == 0) {
         std::cout << "ngosen-migration: ok\n";
     }

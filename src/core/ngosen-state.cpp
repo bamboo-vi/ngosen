@@ -11,6 +11,7 @@
 #include "ngosen-clock.h"
 #include "ngosen-keysym.h"
 #include "ngosen-log.h"
+#include "ngosen-strings.h"
 #include "ngosen-utf8.h"
 
 #include <cstddef>
@@ -71,6 +72,18 @@ namespace ngosen {
     }
 
     void TypingState::handlePreeditMode(ngosen::KeyPress& keyEvent, uint32_t currentSym) {
+        if (ngosen::key::isBackspace(currentSym) && engine_->options().backspaceRemovesTone) {
+            ngosen::UniqueCPtr<char> preedit(EnginePullPreedit(bambooEngine_.handle()));
+            const std::string        shown   = preedit ? preedit.get() : "";
+            const std::string        untoned = withoutToneMark(shown);
+            if (untoned != shown) {
+                EngineRebuildFromText(bambooEngine_.handle(), untoned.c_str());
+                keyEvent.accept();
+                host_->showPreedit(untoned, false);
+                host_->refreshPreedit();
+                return;
+            }
+        }
         if (EngineProcessKeyEvent(bambooEngine_.handle(), currentSym, keyEvent.states()) != 0U)
             keyEvent.accept();
         if (auto pulled = ngosen::UniqueCPtr<char>(EnginePullCommit(bambooEngine_.handle()))) {
@@ -155,6 +168,9 @@ namespace ngosen {
             return;
         }
 
+        if (ngosen::key::isBackspace(currentSym) && engine_->options().backspaceRemovesTone && removeToneMark(keyEvent))
+            return;
+
         if (ngosen::key::isBackspace(currentSym) || currentSym == ngosen::key::Return) {
             if (ngosen::key::isBackspace(currentSym)) {
                 hasHistory_ = true;
@@ -196,6 +212,23 @@ namespace ngosen {
         }
 
         replaceFromPreedit(keyEvent, currentSym, keyUtf8);
+    }
+
+    bool TypingState::removeToneMark(ngosen::KeyPress& keyEvent) {
+        const std::string untoned = withoutToneMark(oldPreBuffer_);
+        if (untoned == oldPreBuffer_ || !canSendBackspaces())
+            return false;
+
+        std::string deletedPart;
+        std::string addedPart;
+        ngosen::utf8::compareAndSplitStrings(oldPreBuffer_, untoned, deletedPart, addedPart);
+        EngineRebuildFromText(bambooEngine_.handle(), untoned.c_str());
+        is_deleting_.store(false, std::memory_order_release);
+        hasHistory_ = true;
+        keyEvent.accept();
+        performReplacement(deletedPart, addedPart);
+        oldPreBuffer_ = untoned;
+        return true;
     }
 
     void TypingState::commitWord(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8, const std::string& commitStr) {

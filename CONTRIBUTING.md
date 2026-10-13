@@ -58,8 +58,8 @@ git remote add upstream https://github.com/ngosen/ngosen.git
 Luôn tạo nhánh mới cho mỗi tính năng hoặc sửa lỗi:
 
 ```bash
-git checkout dev
-git pull upstream dev
+git checkout next
+git pull upstream next
 git checkout -b feature/ten-tinh-nang
 # hoặc
 git checkout -b fix/ten-loi
@@ -137,13 +137,13 @@ cd build
 cmake .. && make
 ```
 
-### 3. Rebase với nhánh dev
+### 3. Rebase với nhánh next
 
 ```bash
-git checkout dev
-git pull upstream dev
+git checkout next
+git pull upstream next
 git checkout feature/ten-tinh-nang
-git rebase dev
+git rebase next
 ```
 
 ### 4. Push và tạo PR
@@ -166,27 +166,27 @@ Tạo Pull Request trên GitHub với:
 **KHÔNG BAO GIỜ tạo Pull Request vào nhánh `main`**
 
 - Nhánh `main` chỉ chứa bản release ổn định và chỉ được merge bởi maintainer
-- Tất cả Pull Request phải nhắm vào nhánh `dev`
-- Sau khi pass tất cả các bài CI/CD test và được maintainer review, code sẽ được merge vào `dev`
-- Khi đủ điều kiện, code sẽ được merge từ `dev` sang `main` bởi maintainer để bump version
+- Tất cả Pull Request phải nhắm vào nhánh `next`
+- Sau khi pass tất cả các bài CI/CD test và được maintainer review, code sẽ được merge vào `next`
+- Khi đủ điều kiện, code sẽ được merge từ `next` sang `main` bởi maintainer để bump version
 
 ### Cấu trúc nhánh
 
 ```
 main    ← Bản release ổn định (chỉ maintainer được merge)
   ↑
-dev     ← Nhánh phát triển chính (tất cả PR merge vào đây)
+next    ← Nhánh phát triển chính (tất cả PR merge vào đây)
   ↑
 feature/*, fix/*, hotfix/*  ← Nhánh cá nhân cho mỗi PR
 ```
 
 ### Quy trình merge
 
-1. Developer tạo PR vào `dev`
+1. Developer tạo PR vào `next`
 2. Code review bởi maintainer
-3. Merge vào `dev`
-4. Test trên `dev`
-5. Khi ổn định → merge `dev` → `main` (bởi maintainer)
+3. Merge vào `next`
+4. Test trên `next`
+5. Khi ổn định → merge `next` → `main` (bởi maintainer)
 
 ## Báo cáo lỗi
 

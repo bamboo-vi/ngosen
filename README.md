@@ -51,6 +51,13 @@ Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
 [Releases](https://github.com/ngosen/ngosen/releases) rồi cài bằng tay. Muốn tự dựng từ mã thì xem
 [TU-DUNG.md](TU-DUNG.md).
 
+Muốn test tính năng chưa phát hành thì cài [bản thử](https://github.com/ngosen/ngosen/releases/tag/next-build),
+dựng tự động mỗi khi nhánh `next` thay đổi:
+
+```
+curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/next/install.sh | NGOSEN_RELEASE_URL=https://github.com/ngosen/ngosen/releases/download/next-build bash
+```
+
 Trên NixOS, thêm flake của kho này vào cấu hình rồi đưa gói vào addon của fcitx5. Gói được dựng từ mã
 trong kho:
 
@@ -75,6 +82,8 @@ NixOS thật. Gặp lỗi xin mở issue. Tự dựng từ bản clone trên má
 ```
 fcitx5 -rd
 ```
+
+KDE Wayland: đăng xuất rồi đăng nhập lại, vì KDE tự mở fcitx5 và lệnh trên không thay được.
 
 ### Ubuntu 26.04: bật extension sửa lỗi gõ
 
