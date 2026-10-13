@@ -5,7 +5,10 @@
  */
 #include "ngosen-migration.h"
 
+#include <fstream>
 #include <system_error>
+
+#include <sys/stat.h>
 
 namespace ngosen {
 
@@ -98,6 +101,31 @@ namespace ngosen {
             }
         }
         return copied;
+    }
+
+    std::vector<int> processesNamed(const std::filesystem::path& procDir, const std::string& name, unsigned uid, int self) {
+        std::vector<int> pids;
+        std::error_code  ec;
+        for (const auto& entry : std::filesystem::directory_iterator(procDir, ec)) {
+            const auto file = entry.path().filename().string();
+            if (file.empty() || file.size() > 9 || file.find_first_not_of("0123456789") != std::string::npos) {
+                continue;
+            }
+            const int pid = std::stoi(file);
+            if (pid == self) {
+                continue;
+            }
+            struct stat info{};
+            if (stat(entry.path().c_str(), &info) != 0 || info.st_uid != uid) {
+                continue;
+            }
+            std::ifstream in(entry.path() / "comm");
+            std::string   comm;
+            if (std::getline(in, comm) && comm == name) {
+                pids.push_back(pid);
+            }
+        }
+        return pids;
     }
 
 } // namespace ngosen

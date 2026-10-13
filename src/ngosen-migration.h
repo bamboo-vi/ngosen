@@ -31,6 +31,9 @@ namespace ngosen {
     // going back to an earlier version keeps its settings. Returns the new names that were written.
     std::vector<std::string> copyLegacyFiles(const std::filesystem::path& dir, const std::vector<std::pair<std::string, std::string>>& names);
 
+    // PIDs under procDir (normally /proc) whose comm is `name` and that belong to `uid`, except `self`.
+    std::vector<int> processesNamed(const std::filesystem::path& procDir, const std::string& name, unsigned uid, int self);
+
 } // namespace ngosen
 
 #endif

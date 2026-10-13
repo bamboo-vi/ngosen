@@ -36,6 +36,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Chữ V trên khay không còn màu đen chìm trên panel tối của Linux Mint, MX Linux và các desktop khác
   có panel tối. Ngó Sen đọc màu panel của Cinnamon như đã làm với KDE và GNOME; ở desktop khác, icon
   mặc định màu trắng. Panel sáng thì chọn "Màu biểu tượng: Sáng" trong cài đặt (#44).
+- Cập nhật từ bản trước 1.1.0 rồi chạy `fcitx5 -rd` như lời nhắc sau khi cài không còn làm mất Ngó Sen
+  khỏi danh sách bộ gõ (#47).
 
 ## [1.2.2-1] — 11/10/2026
 
