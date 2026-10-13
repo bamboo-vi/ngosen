@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.3.0-1] — 13/10/2026
+
+Thêm tùy chọn Backspace chỉ xóa dấu thanh, icon mới hai cọng ngó sen, và sửa icon khay trên panel tối.
+Tải ở [ngosen-1.3.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.3.0-1).
+
 ### Thêm
 
 - Tùy chọn "Backspace xóa dấu thanh" (trang Gõ chữ, nhóm Cách bỏ dấu, mặc định tắt): bấm Backspace lúc đang

@@ -1,3 +1,9 @@
+fcitx5-ngosen (1:1.3.0-1) unstable; urgency=medium
+
+  * Backspace can remove only the tone mark; new V icon; tray icon fixes on dark panels.
+
+ -- Nguyen Phi <nguyenphidt@gmail.com>  Tue, 13 Oct 2026 20:00:00 +0700
+
 fcitx5-ngosen (1:1.2.2-1) unstable; urgency=medium
 
   * Shows vi instead of a lotus next to the cursor; typing into Edge's address bar suggestion keeps tone marks.
