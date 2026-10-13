@@ -58,8 +58,8 @@ git remote add upstream https://github.com/ngosen/ngosen.git
 Always create a new branch for each feature or bug fix:
 
 ```bash
-git checkout dev
-git pull upstream dev
+git checkout next
+git pull upstream next
 git checkout -b feature/feature-name
 # or
 git checkout -b fix/bug-name
@@ -137,13 +137,13 @@ cd build
 cmake .. && make
 ```
 
-### 3. Rebase with the dev branch
+### 3. Rebase with the next branch
 
 ```bash
-git checkout dev
-git pull upstream dev
+git checkout next
+git pull upstream next
 git checkout feature/feature-name
-git rebase dev
+git rebase next
 ```
 
 ### 4. Push and create PR
@@ -166,27 +166,27 @@ Create a Pull Request on GitHub with:
 **NEVER create a Pull Request into the `main` branch**
 
 - The `main` branch only contains stable releases and is only merged by the maintainer
-- All Pull Requests must target the `dev` branch
-- After passing all CI/CD tests and being reviewed by the maintainer, code will be merged into `dev`
-- When eligible, code will be merged from `dev` to `main` by the maintainer to bump the version
+- All Pull Requests must target the `next` branch
+- After passing all CI/CD tests and being reviewed by the maintainer, code will be merged into `next`
+- When eligible, code will be merged from `next` to `main` by the maintainer to bump the version
 
 ### Branch Structure
 
 ```
 main    ← Stable release (only maintainer merges)
   ↑
-dev     ← Main development branch (all PRs merge here)
+next    ← Main development branch (all PRs merge here)
   ↑
 feature/*, fix/*, hotfix/*  ← Personal branch for each PR
 ```
 
 ### Merge Process
 
-1. Developer creates PR to `dev`
+1. Developer creates PR to `next`
 2. Code review by maintainer
-3. Merge into `dev`
-4. Test on `dev`
-5. When stable → merge `dev` → `main` (by maintainer)
+3. Merge into `next`
+4. Test on `next`
+5. When stable → merge `next` → `main` (by maintainer)
 
 ## Bug Reporting
 

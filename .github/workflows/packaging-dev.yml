@@ -2,10 +2,10 @@ name: Test Packaging Build
 
 on:
   push:
-    # Tags and dev are built by the release and dev pre-release workflows, which call this one.
+    # Tags and next are built by the release and next pre-release workflows, which call this one.
     branches:
       - '**'
-      - '!dev'
+      - '!next'
   pull_request:
   workflow_call:
 
@@ -49,9 +49,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Put the commit in a dev branch build's version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
-        run: packaging/stamp-dev-version.sh
+      - name: Put the commit in a next branch build's version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/next'
+        run: packaging/stamp-next-version.sh
 
       - name: Prepare debian directory
         run: cp -r packaging/debian debian
@@ -91,9 +91,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Put the commit in a dev branch build's version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
-        run: packaging/stamp-dev-version.sh
+      - name: Put the commit in a next branch build's version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/next'
+        run: packaging/stamp-next-version.sh
 
       - name: Build Fedora RPM
         uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # v3
@@ -142,9 +142,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Put the commit in a dev branch build's version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
-        run: packaging/stamp-dev-version.sh
+      - name: Put the commit in a next branch build's version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/next'
+        run: packaging/stamp-next-version.sh
 
       - name: Build openSUSE RPM
         uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # v3
@@ -188,9 +188,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Put the commit in a dev branch build's version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
-        run: packaging/stamp-dev-version.sh
+      - name: Put the commit in a next branch build's version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/next'
+        run: packaging/stamp-next-version.sh
 
       - name: Build Arch package
         uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # v3

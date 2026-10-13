@@ -1,10 +1,10 @@
-name: Dev Pre-release
+name: Next Pre-release
 
-# Builds every push to dev and republishes the packages under one fixed pre-release, so testers
+# Builds every push to next and republishes the packages under one fixed pre-release, so testers
 # have a stable link instead of CI artifacts that need a login and expire after three days.
 on:
   push:
-    branches: [dev]
+    branches: [next]
 
 concurrency:
   group: ${{ github.workflow }}
@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/packaging-dev.yml
 
   publish:
-    name: Publish the dev-build pre-release
+    name: Publish the next-build pre-release
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -40,11 +40,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          sed "s/@SHA@/$GITHUB_SHA/g" packaging/dev-release-notes.md > notes.md
-          gh release delete dev-build --cleanup-tag --yes || true
-          gh release create dev-build dist/* \
+          sed "s/@SHA@/$GITHUB_SHA/g" packaging/next-release-notes.md > notes.md
+          gh release delete next-build --cleanup-tag --yes || true
+          gh release create next-build dist/* \
             --prerelease \
             --latest=false \
             --target "$GITHUB_SHA" \
-            --title "Ngó Sen bản thử (dev)" \
+            --title "Ngó Sen bản thử (next)" \
             --notes-file notes.md

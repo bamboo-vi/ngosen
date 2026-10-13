@@ -1,5 +1,5 @@
 #!/bin/bash
-# Gives a dev branch build a version that sorts above the release it starts from and below the
+# Gives a next branch build a version that sorts above the release it starts from and below the
 # next one, with the commit time and hash in it: 1.2.2-1 becomes 1.2.2-1.202610121530.git8cb4b89.
 # Testers can then install it over a release and get the next release as a normal upgrade.
 set -euo pipefail
