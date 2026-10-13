@@ -15,9 +15,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Tùy chọn "Backspace xóa dấu thanh" (trang Gõ chữ, nhóm Cách bỏ dấu, mặc định tắt): bấm Backspace lúc đang
   gõ chữ `tiếng` thì ra `tiêng`; chữ không có dấu thanh thì Backspace xóa như thường. Khi tắt, phím `z`
   (Telex) hay `0` (VNI) vẫn xóa dấu thanh như trước. Đề xuất ở #34 (#37).
-- [Bản thử](https://github.com/ngosen/ngosen/releases/tag/dev-build) dựng tự động mỗi khi nhánh `dev` thay
+- [Bản thử](https://github.com/ngosen/ngosen/releases/tag/next-build) dựng tự động mỗi khi nhánh `next` thay
   đổi, cài bằng một lệnh trong README. Số phiên bản có thêm ngày giờ và mã commit, nên cài đè lên bản chính
-  thức được, và bản chính thức sau đó vẫn tự nâng lên (#38, #41).
+  thức được, và bản chính thức sau đó vẫn tự nâng lên (#38, #41, #49).
 
 ### Thay đổi
 

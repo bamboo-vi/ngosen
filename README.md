@@ -51,11 +51,11 @@ Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
 [Releases](https://github.com/ngosen/ngosen/releases) rồi cài bằng tay. Muốn tự dựng từ mã thì xem
 [TU-DUNG.md](TU-DUNG.md).
 
-Muốn test tính năng chưa phát hành thì cài [bản thử](https://github.com/ngosen/ngosen/releases/tag/dev-build),
-dựng tự động mỗi khi nhánh `dev` thay đổi:
+Muốn test tính năng chưa phát hành thì cài [bản thử](https://github.com/ngosen/ngosen/releases/tag/next-build),
+dựng tự động mỗi khi nhánh `next` thay đổi:
 
 ```
-curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/dev/install.sh | NGOSEN_RELEASE_URL=https://github.com/ngosen/ngosen/releases/download/dev-build bash
+curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/next/install.sh | NGOSEN_RELEASE_URL=https://github.com/ngosen/ngosen/releases/download/next-build bash
 ```
 
 Trên NixOS, thêm flake của kho này vào cấu hình rồi đưa gói vào addon của fcitx5. Gói được dựng từ mã
