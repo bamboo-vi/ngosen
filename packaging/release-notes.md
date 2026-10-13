@@ -34,6 +34,11 @@ CachyOS (KDE Wayland), cả giao diện sáng và tối.
 Bản 1.2.2 sửa nhãn cạnh con trỏ và lỗi mất dấu trên thanh địa chỉ Edge. Lỗi Edge được tái hiện bằng test
 dựng lại từ log gõ phím trên Fedora 44 (KDE Wayland), rồi gõ tay lại trên Edge sau khi sửa: ra đúng `ngó`, cạnh con trỏ hiện `vi`.
 
+Bản 1.3.0 thêm tùy chọn Backspace xóa dấu thanh, được gõ tay trên Fedora 44 (KDE Wayland) với bản dựng từ
+nhánh `next`. Icon khay mới được xem trên máy ảo Linux Mint 22.3 (Cinnamon) và MX Linux 25.3 (Xfce). Gói
+Debian 13 được cài trên máy ảo MX Linux 25.3: Telex `vieejt` ra `việt` trong terminal GTK. Lần cập nhật từ
+1.0.0-1 rồi chạy `fcitx5 -rd` cũng được thử trên máy ảo MX Linux 25.3: Ngó Sen vẫn nằm trong danh sách bộ gõ.
+
 Lõi ghép dấu viết bằng Rust có trong gói Fedora, Arch, openSUSE và Ubuntu 24.04 trở lên. Debian 12, 13 và
 Ubuntu 22.04 vẫn dùng lõi Go, vì Rust có sẵn ở đó quá cũ. Hai lõi gõ ra chữ như nhau.
 
