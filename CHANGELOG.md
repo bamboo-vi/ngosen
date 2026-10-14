@@ -10,6 +10,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thay đổi
+
+- Thêm test tự động cho lệnh cài trên Debian, Ubuntu, Fedora; người dùng không thấy khác gì (#PR).
+
 ## [1.4.0-1] — 14/10/2026
 
 Lệnh cài một dòng tự đặt fcitx5 làm bộ gõ trên GNOME và các desktop X11 như Xfce, Cinnamon, có thêm lệnh gỡ;
