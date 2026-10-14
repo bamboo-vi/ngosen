@@ -59,7 +59,7 @@ namespace {
     }
 
     // Ngó Sen is switched on in a field that has text typed while it was off.
-    std::string offerAfter(const std::function<void(ngosen::TypingState&)>& typeWhileOff, Field field = makeField("wayland", true)) {
+    std::string offerAfter(const std::function<void(ngosen::TypingState&)>& typeWhileOff, Field field = makeField("wayland", true), const char* before = nullptr) {
         realMode = Mode::Off;
         FakeLoop      loop;
         FakeResources resources;
@@ -67,6 +67,8 @@ namespace {
         auto                owned = std::make_unique<FakeHost>(loop, field);
         FakeHost*           host  = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
+        if (before)
+            host->setSurrounding(before, static_cast<unsigned int>(std::string(before).size()));
         typeWhileOff(state);
         state.activate(Mode::Sen, false);
         state.offerRetype();
@@ -110,6 +112,28 @@ namespace {
             s.forgetKeysWhileOff();
         });
         check(offer == "(no offer)", "focus leaving the field drops the text", offer);
+
+        // Firefox resets the field after every key; the text before the cursor shows it is still there.
+        offer = offerAfter(
+            [](auto& s) {
+                for (const char c : std::string("vieetj")) {
+                    noteWhileOff(s, static_cast<uint32_t>(c));
+                    s.fieldResetWhileOff();
+                }
+            },
+            makeField("wayland", true), "vieetj");
+        check(offer == "vieetj → việt", "a reset keeps the text when the field reports it", offer);
+
+        offer = offerAfter(
+            [](auto& s) {
+                noteWhileOff(s, "vieetj");
+                s.fieldResetWhileOff();
+            },
+            makeField("xim", false));
+        check(offer == "(no offer)", "a reset drops the text when the field reports nothing", offer);
+
+        offer = offerAfter([](auto& s) { noteWhileOff(s, "vieetj"); }, makeField("wayland", true), "vieetj abc");
+        check(offer == "(no offer)", "no offer when the text before the cursor is something else", offer);
 
         // A GTK4 terminal over D-Bus: no forwarded keys, no surrounding text, and no XTEST here.
         offer = offerAfter([](auto& s) { noteWhileOff(s, "vieetj"); }, makeField("dbus", false));

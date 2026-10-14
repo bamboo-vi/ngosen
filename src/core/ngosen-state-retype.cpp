@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // TypingState: offering to retype, with marks, what was typed while another input method was on.
+#include "ngosen-app-quirks.h"
 #include "ngosen-globals.h"
 #include "ngosen-keysym.h"
 #include "ngosen-log.h"
@@ -55,6 +56,12 @@ namespace ngosen {
         typedWhileOff_.clear();
     }
 
+    void TypingState::fieldResetWhileOff() {
+        // Firefox resets after every key. Where the field reports its text, offerRetype checks it instead.
+        if (!reportsTextInTime())
+            forgetKeysWhileOff();
+    }
+
     std::string TypingState::addMarks(const std::string& typed) {
         std::string out;
         ResetEngine(bambooEngine_.handle());
@@ -74,6 +81,22 @@ namespace ngosen {
         return out;
     }
 
+    bool TypingState::reportsTextInTime() const {
+        return host_->field().surroundingText && !ngosen::surroundingTextLags(host_->field());
+    }
+
+    bool TypingState::typedBeforeCursor(const std::string& typed) const {
+        const Surrounding s = host_->surrounding();
+        if (!reportsTextInTime() || !s.isValid())
+            return true;
+        const std::string& t  = s.text();
+        auto               it = t.begin();
+        for (unsigned int i = 0; i < s.cursor() && it != t.end(); ++i)
+            it = ngosen::utf8::nextChar(it, t.end());
+        const std::string before(t.begin(), it);
+        return before.size() >= typed.size() && before.compare(before.size() - typed.size(), typed.size(), typed) == 0;
+    }
+
     void TypingState::offerRetype() {
         const std::string typed = std::move(typedWhileOff_);
         typedWhileOff_.clear();
@@ -82,6 +105,8 @@ namespace ngosen {
             return;
         // Without either, Tab could not remove what was typed.
         if (!canSendBackspaces() && !host_->field().surroundingText)
+            return;
+        if (!typedBeforeCursor(typed))
             return;
         std::string marked = addMarks(typed);
         if (marked == typed)

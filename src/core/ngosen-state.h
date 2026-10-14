@@ -96,6 +96,8 @@ namespace ngosen {
         void offerRetype();
         // The cursor left the text noted above: focus moved or the app reset the field.
         void forgetKeysWhileOff();
+        // The app reset the field while another input method was on.
+        void fieldResetWhileOff();
 
         /**
          * @brief Treats a cursor move within unchanged surrounding text, or a jump into another spreadsheet cell, as a mouse click.
@@ -165,6 +167,8 @@ namespace ngosen {
         std::string addMarks(const std::string& typed);
         void        applyRetype();
         void        dropRetype();
+        bool        reportsTextInTime() const;
+        bool        typedBeforeCursor(const std::string& typed) const;
         bool        handleRetypeKey(ngosen::KeyPress& keyEvent);
 
         // XIM, IBus and D-Bus clients queue forwarded keys, and XIM may hand one back; without a

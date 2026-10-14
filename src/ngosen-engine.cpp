@@ -252,10 +252,10 @@ namespace fcitx {
             ngosen::FcitxKeyPress press(keyEvent);
             stateFor(ic)->noteKeyWhileOff(press);
         });
-        for (const auto type : {EventType::InputContextFocusOut, EventType::InputContextReset}) {
-            leaveTextWatchers_.push_back(instance_->watchEvent(type, EventWatcherPhase::Default,
-                                                               [this](Event& event) { stateFor(static_cast<InputContextEvent&>(event).inputContext())->forgetKeysWhileOff(); }));
-        }
+        leaveTextWatchers_.push_back(instance_->watchEvent(EventType::InputContextFocusOut, EventWatcherPhase::Default,
+                                                           [this](Event& event) { stateFor(static_cast<InputContextEvent&>(event).inputContext())->forgetKeysWhileOff(); }));
+        leaveTextWatchers_.push_back(instance_->watchEvent(EventType::InputContextReset, EventWatcherPhase::Default,
+                                                           [this](Event& event) { stateFor(static_cast<InputContextEvent&>(event).inputContext())->fieldResetWhileOff(); }));
         // A ctx_ rule names a context address, which a later window may reuse.
         contextDestroyedWatcher_ = instance_->watchEvent(EventType::InputContextDestroyed, EventWatcherPhase::Default, [this](Event& event) {
             auto appName = getProgramName(static_cast<InputContextEvent&>(event).inputContext());
