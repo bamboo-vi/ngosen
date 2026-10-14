@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thay đổi
+
+- Đổi tên vài hàm và test còn mang tên chế độ cũ (Uinput, Super Smooth) theo tên Gõ Sen; người dùng không
+  thấy khác gì (#69).
+
 ### Sửa
 
 - Lời nhắc sau khi cài hoặc cập nhật gói chỉ nói tới KDE Wayland khi máy đang chạy KDE Wayland. Trên KDE

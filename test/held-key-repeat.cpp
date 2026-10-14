@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
     // the number of presses. #472 reports that it stops instead.
     if (screen.size() < 3) {
         reportFailure("held key accumulates", "at least 3 characters after " + std::to_string(sent) + " presses", "window shows '" + text + "'",
-                      "a held key never grows past the Telex cycle: handleUinputMode() resets the Bamboo engine "
+                      "a held key never grows past the Telex cycle: handleSenMode() resets the Bamboo engine "
                       "after every commit, so each repeat restarts from an empty word buffer");
         return 1;
     }

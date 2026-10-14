@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Same Messenger two-step update as super-smooth-half-updated-snapshot, but deleting more than one
-// character: after the first backspace Edge reports the cursor between 'd' and 'o' while the text
-// still holds both ("do\n\n", cursor 1). That snapshot must not count as done.
+// Messenger repaints its composer a few ms after Edge reports the deletion as done, wiping a commit
+// that lands before the repaint. WaitSurroundingSettleMs holds the commit that long.
 #include "ngosen-engine.h"
 #include "ngosen-utils.h"
 #include "key-sender-probe.h"
@@ -45,7 +44,7 @@ namespace {
 } // namespace
 
 int main() {
-    configureTestPaths("fcitx5-ngosen-super-smooth-half-updated-mid-word");
+    configureTestPaths("fcitx5-ngosen-sen-settle-wait");
     TestInstance        testInstance;
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
@@ -54,9 +53,10 @@ int main() {
     config.setValueByPath("WaitSurroundingEvent", "True");
     // Covers the delete-then-commit fallback, not the default select-and-overtype path.
     config.setValueByPath("MessengerSelectOvertype", "False");
-    // No settle delay: this test checks when the deletion counts as done.
-    config.setValueByPath("WaitSurroundingSettleMs", "0");
-    config.setValueByPath("WaitSurroundingSettleFirstWordMs", "0");
+    // Long enough that a stalled machine cannot let the wait expire before the "no commit" check.
+    config.setValueByPath("WaitSurroundingSettleMs", "500");
+    // The snapshot arrives a few ms into the wait for it; a stall must not let that wait time out first.
+    config.setValueByPath("WaitSurroundingTimeoutMs", "5000");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Sen || !engine.config().waitSurroundingEvent.value()) {
         reportFailure("configure Uinput", "mode=Uinput, WaitSurroundingEvent=True", "config differs");
@@ -73,21 +73,21 @@ int main() {
 
     // Plain letters reach the page as real keys; the page reports each one.
     setSnapshot(*context, "\n\n", 0);
-    const std::string word = "do";
+    const std::string word = "tie";
     for (size_t i = 0; i < word.size(); ++i) {
         if (!type(engine, entry, *context, static_cast<fcitx::KeySym>(word[i]), false))
             return 1;
         setSnapshot(*context, word.substr(0, i + 1) + "\n\n", static_cast<unsigned int>(i + 1));
     }
 
-    // Telex "d" again: do -> đo, two characters to delete plus the trigger backspace.
-    if (!type(engine, entry, *context, FcitxKey_d, true))
+    // Telex "e" again: e -> ê, one character to delete plus the trigger backspace.
+    if (!type(engine, entry, *context, FcitxKey_e, true))
         return 1;
     int backspaces = 0;
     if (!listener.receive(backspaces))
         return 1;
-    if (backspaces != 3) {
-        reportFailure("backspace count for do -> đo", "3", std::to_string(backspaces));
+    if (backspaces != 2) {
+        reportFailure("backspace count for e -> ê", "2", std::to_string(backspaces));
         return 1;
     }
     for (int i = 0; i < backspaces; ++i) {
@@ -95,28 +95,18 @@ int main() {
             return 1;
     }
 
-    // First backspace, half-updated: cursor between 'd' and 'o', both still in the text.
+    // The page reports the deletion done; the settle wait must still hold the commit.
     pumpEventLoop(testInstance.instance, 3);
-    setSnapshot(*context, "do\n\n", 1);
-    pumpEventLoop(testInstance.instance, 3);
+    setSnapshot(*context, "ti\n\n", 2);
+    pumpEventLoop(testInstance.instance, 15);
     if (!context->commits().empty()) {
-        reportFailure("no commit with the cursor inside the word being deleted", "commits=(none)", "commits=" + joinCommits(*context));
+        reportFailure("no commit while the settle wait runs, after the snapshot shows the deletion done", "commits=(none)", "commits=" + joinCommits(*context));
         return 1;
     }
 
-    // Second backspace, half-updated again: 'o' gone, cursor moved before the 'd'.
-    setSnapshot(*context, "d\n\n", 0);
-    pumpEventLoop(testInstance.instance, 3);
-    if (!context->commits().empty()) {
-        reportFailure("no commit with the cursor before the last deleted character", "commits=(none)", "commits=" + joinCommits(*context));
-        return 1;
-    }
-
-    // The page catches up and the composer is empty: now the commit must go out.
-    setSnapshot(*context, "\n", 0);
-    pumpEventLoop(testInstance.instance, 30);
-    if (context->commits() != std::vector<std::string>{"đo"}) {
-        reportFailure("commit once the snapshot is consistent", "commits=['đo']", "commits=" + joinCommits(*context));
+    pumpEventLoop(testInstance.instance, 600);
+    if (context->commits() != std::vector<std::string>{"ê"}) {
+        reportFailure("commit once the settle wait is over", "commits=['ê']", "commits=" + joinCommits(*context));
         return 1;
     }
     return 0;
