@@ -150,7 +150,10 @@ check_uninstalled_state() {
     check "profile still lists ngosen" has_line "$profile" 'Name=ngosen'
 }
 
-fcitx5_running() { pgrep -x -u "$user" fcitx5 >/dev/null; }
+# A container's first process may never reap the daemon, so a zombie counts as stopped.
+fcitx5_running() {
+    ps -u "$user" -o stat=,comm= | awk '$2 == "fcitx5" && $1 !~ /^Z/ { found = 1 } END { exit !found }'
+}
 
 start_fcitx5() {
     local tries=40
