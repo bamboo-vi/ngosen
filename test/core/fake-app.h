@@ -24,6 +24,7 @@ namespace ngosen::test {
         int  reportDelayMs = 0;
         bool staleReport   = false; // reports the text as it was one change earlier
         int  lagMs         = 0;     // applies commits, deletions and keys this late, in order
+        bool handsBackKeys = false; // sends forwarded keys back to the input method first, as XIM clients do
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what

@@ -137,9 +137,11 @@ namespace {
     std::string retypeInApp(const Field& field, Mode mode, const std::string& typed, const std::vector<uint32_t>& after) {
         realMode = Mode::Off;
         realtextLen.store(0);
-        FakeLoop            loop;
-        FakeResources       resources;
-        auto                owned = std::make_unique<FakeApp>(loop, field, AppQuirks{});
+        FakeLoop      loop;
+        FakeResources resources;
+        AppQuirks     quirks;
+        quirks.handsBackKeys      = field.frontend == "xim";
+        auto                owned = std::make_unique<FakeApp>(loop, field, quirks);
         FakeApp*            app   = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
         app->attach(&state);
