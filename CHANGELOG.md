@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.4.0-1] — 14/10/2026
+
+Lệnh cài một dòng tự đặt fcitx5 làm bộ gõ trên GNOME và các desktop X11 như Xfce, Cinnamon, có thêm lệnh gỡ;
+ẩn các tùy chọn thử nghiệm và bỏ code không dùng.
+Tải ở [ngosen-1.4.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.4.0-1).
+
 ### Thay đổi
 
 - Trên desktop X11 dùng im-config như Xfce, Cinnamon, MATE (MX Linux, Linux Mint), lệnh cài đặt fcitx5
