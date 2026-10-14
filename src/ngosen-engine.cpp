@@ -1137,21 +1137,8 @@ namespace fcitx {
             }
         }
 
-        // ── Cinnamon: return icon NAME (not absolute path) ──────────────────
-        // Cinnamon's tray uses XApp Status Applet (SNI).  The IconName property
-        // is sent over D-Bus and resolved via Gtk.IconTheme — which only
-        // understands theme icon names, not filesystem paths.
-        //
-        // On KDE and GNOME, absolute paths work correctly — their compositors
-        // or SNI hosts handle filesystem paths in IconName.
-        static const bool kIsCinnamon = [] {
-            std::string de = getEnv("XDG_CURRENT_DESKTOP");
-            if (de.empty())
-                de = getEnv("DESKTOP_SESSION");
-            return !de.empty() && (de == "cinnamon" || de == "X-Cinnamon");
-        }();
-
-        if (kIsCinnamon) {
+        static const bool kTrayWantsIconName = trayWantsIconName(getEnv("XDG_CURRENT_DESKTOP"), getEnv("DESKTOP_SESSION"));
+        if (kTrayWantsIconName) {
             return iconName;
         }
 
