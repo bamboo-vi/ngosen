@@ -24,12 +24,13 @@ Gặp lỗi thì báo ở mục [Issues](https://github.com/ngosen/ngosen/issues
 
 ## Chỉ cho fcitx5
 
-Ngó Sen chỉ làm cho fcitx5. Bản IBus và bản chạy thẳng trên Sway, Hyprland mà không qua fcitx5 đã bỏ;
-trên Sway và Hyprland vẫn gõ được qua fcitx5. Mã bản IBus vẫn còn ở nhánh `feat/ibus-engine`.
+Ngó Sen chỉ làm cho fcitx5. fcitx5 chạy được trên GNOME, KDE, Xfce lẫn Sway, Hyprland, có nhiều tính năng
+và nhẹ RAM. Làm cho một bộ gõ nền cũng đỡ công giữ nhiều bản. Mã bản IBus cũ vẫn còn ở nhánh
+`feat/ibus-engine`.
 
 ## Nên dùng chế độ nào
 
-Dùng **Gõ Sen** làm chế độ gõ chính: trong cửa sổ cài đặt Ngó Sen, trang Gõ chữ, bấm nút Gõ Sen ở hàng
+Dùng **Gõ Sen** làm chế độ gõ chính: trong cửa sổ cài đặt Ngó Sen, trang Gõ chữ, chọn Gõ Sen ở hàng
 Chế độ gõ. Chế độ này trước đây tên là `Uinput`; cấu hình cũ tự chuyển sang tên mới. Chế độ Surrounding
 Text cũ cũng tự chuyển thành Gõ Sen.
 
@@ -43,13 +44,13 @@ Một dòng lệnh, cho Fedora, Ubuntu, Debian, Arch, CachyOS và openSUSE Tumbl
 curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash
 ```
 
-Lệnh này tải gói cho đúng bản phân phối từ
-[bản phát hành mới nhất](https://github.com/ngosen/ngosen/releases/latest), hỏi lại rồi mới cài. Muốn lên bản
+Lệnh này tải gói cho đúng distro từ
+[bản release mới nhất](https://github.com/ngosen/ngosen/releases/latest), hỏi lại rồi mới cài. Muốn lên bản
 mới thì chạy lại đúng lệnh đó; cấu hình cũ giữ nguyên.
 
 Trên GNOME (desktop mặc định của Ubuntu), lệnh cài còn đặt fcitx5 làm bộ gõ thay cho IBus, thêm Ngó Sen vào
-danh sách bộ gõ và bật extension sửa lỗi gõ khi cần. GNOME không có khay hệ thống (như Fedora) thì lệnh cài
-thêm extension [Input Method Panel](https://extensions.gnome.org/extension/261/) để biểu tượng và menu bộ
+danh sách bộ gõ và bật extension sửa lỗi gõ khi cần. Nếu GNOME không có khay hệ thống (như trên Fedora),
+lệnh cài thêm extension [Input Method Panel](https://extensions.gnome.org/extension/261/) để biểu tượng và menu bộ
 gõ hiện trên thanh trên cùng.
 
 Trên KDE Plasma (Wayland), lệnh cài chọn fcitx5 làm bàn phím ảo của KDE (System Settings → Virtual
@@ -61,18 +62,18 @@ cùng máy thì đăng nhập vào đó rồi chạy lại lệnh cài. Muốn t
 `curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --no-setup`.
 
 Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
-[Releases](https://github.com/ngosen/ngosen/releases) rồi cài bằng tay. Muốn tự dựng từ mã thì xem
+[Releases](https://github.com/ngosen/ngosen/releases) rồi cài bằng tay. Muốn tự build từ source thì xem
 [TU-DUNG.md](TU-DUNG.md).
 
-Muốn test tính năng chưa phát hành thì cài [bản thử](https://github.com/ngosen/ngosen/releases/tag/next-build),
-dựng tự động mỗi khi nhánh `next` thay đổi:
+Muốn test tính năng chưa có trong bản release thì cài [bản thử](https://github.com/ngosen/ngosen/releases/tag/next-build),
+build tự động mỗi khi nhánh `next` thay đổi:
 
 ```
 curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/next/install.sh | NGOSEN_RELEASE_URL=https://github.com/ngosen/ngosen/releases/download/next-build bash
 ```
 
-Trên NixOS, thêm flake của kho này vào cấu hình rồi đưa gói vào addon của fcitx5. Gói được dựng từ mã
-trong kho:
+Trên NixOS, thêm flake của repo này vào cấu hình rồi đưa gói vào danh sách addon của fcitx5. Nix build gói
+từ source trong repo:
 
 ```nix
 # flake.nix
@@ -86,8 +87,8 @@ i18n.inputMethod = {
 };
 ```
 
-CI dựng gói này, chạy test và nạp nó vào fcitx5 trên một màn hình X ảo, nhưng chưa ai thử trên máy
-NixOS thật. Gặp lỗi xin mở issue. Tự dựng từ bản clone trên máy: xem mục NixOS trong
+CI build gói này, chạy test và nạp nó vào fcitx5 trên một màn hình X ảo, nhưng chưa ai test trên máy
+NixOS thật. Gặp lỗi thì mở issue. Muốn build từ bản clone trên máy: xem mục NixOS trong
 [TU-DUNG.md](TU-DUNG.md#nixos).
 
 **Mỗi lần cập nhật, và lần cài đầu trên desktop khác GNOME,** khởi động lại fcitx5:
@@ -117,8 +118,8 @@ bằng Flatpak từ [Flathub](https://flathub.org/apps/com.visualstudio.code). H
 Việt ngay, không cần chỉnh gì.
 
 Bản snap (cài từ App Center) không mang theo phần nối với fcitx5, nên gõ ra chữ Telex thô (`tieengs`).
-Nếu buộc phải dùng snap, cho nó đi qua XIM (đường nối kiểu cũ của X11) bằng cách chép lối tắt của nó
-vào thư mục nhà rồi sửa dòng mở app:
+Nếu buộc phải dùng snap, cho nó đi qua XIM (đường nối kiểu cũ của X11): chép file `.desktop` của nó vào
+thư mục nhà rồi sửa dòng mở app:
 
 ```
 cp /var/lib/snapd/desktop/applications/code_code.desktop ~/.local/share/applications/
@@ -127,7 +128,7 @@ sed -i 's|^Exec=/snap/bin/code|Exec=env GTK_IM_MODULE=xim XMODIFIERS=@im=fcitx /
 ```
 
 Tắt hẳn VS Code rồi mở lại từ menu. Qua XIM, khoảng một câu trong mười có một chữ bị sai dấu. Muốn bỏ
-cách này thì xoá tệp `~/.local/share/applications/code_code.desktop`.
+cách này thì xoá file `~/.local/share/applications/code_code.desktop`.
 
 ## Gỡ
 
@@ -139,7 +140,8 @@ curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bas
 
 Trên GNOME, lệnh này còn trả lại những gì lệnh cài đã đổi cho tài khoản đang chạy: fcitx5 thôi tự chạy
 khi đăng nhập, app dùng lại IBus, tắt extension sửa lỗi gõ và gỡ Input Method Panel nếu lệnh cài đã thêm.
-Đăng xuất rồi đăng nhập lại là GNOME dùng IBus như cũ. Tệp nào đã tự sửa thì để nguyên. fcitx5
+Đăng xuất rồi đăng nhập lại là GNOME dùng IBus như cũ. File nào đã bị sửa tay sau khi cài thì lệnh gỡ để
+nguyên. fcitx5
 vẫn còn trên máy; muốn gỡ luôn thì chạy `sudo apt autoremove` (Ubuntu, Debian) sau đó.
 
 Trên Xfce, Cinnamon, MATE, lệnh gỡ trả bộ gõ về mặc định của máy; fcitx5 còn cài thì có thể vẫn tự chạy,
@@ -159,18 +161,17 @@ Gỡ bằng tay:
    fcitx5 -rd
    ```
 
-Cấu hình (các tệp `ngosen*.conf` trong `~/.config/fcitx5/conf/`, và `lotus*.conf` nếu từng dùng bản trước
-1.1.0) vẫn ở lại máy, để lần cài sau dùng tiếp. Muốn xoá sạch thì xoá các tệp đó.
+Cấu hình (các file `ngosen*.conf` trong `~/.config/fcitx5/conf/`, và `lotus*.conf` nếu từng dùng bản trước
+1.1.0) vẫn ở lại máy, để lần cài sau dùng tiếp. Muốn xoá sạch thì xoá các file đó.
 
 ## Nguồn gốc
 
-Người giữ dự án chỉ **vibecode** dự án này: nêu việc cho trợ lý AI viết mã, rồi đo và dùng thử hằng
-ngày.
+Người giữ dự án chỉ **vibecode**: nêu việc cho trợ lý AI viết mã, rồi đo và dùng nó hằng ngày.
 
 Dựa trên mã của [fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus) và
 [VMK](https://github.com/thanhpy2009/VMK). Giấy phép GPL-3.0-or-later.
 
-Issue và pull request trước ngày 10/10/2026 nằm ở kho lưu
+Issue và pull request trước ngày 10/10/2026 nằm ở repo lưu trữ
 [ngosen/ngosen-fork-archive](https://github.com/ngosen/ngosen-fork-archive).
 
 ## English

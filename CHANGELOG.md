@@ -22,6 +22,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   Wayland, lời nhắc cập nhật bảo đăng xuất rồi đăng nhập lại thay vì chạy `fcitx5 -rd`, vì fcitx5 bật
   bằng lệnh đó không gõ được trong app Qt như Kate, Dolphin (#68).
 
+### Tài liệu
+
+- README nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, và gọi thống nhất file, repo, build, release (#PR).
+
 ## [1.4.1-1] — 14/10/2026
 
 Trên KDE Plasma (Wayland), lệnh cài tự chọn fcitx5 làm bàn phím ảo để app Qt như Kate, Dolphin gõ được tiếng
