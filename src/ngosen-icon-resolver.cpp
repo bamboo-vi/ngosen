@@ -6,21 +6,9 @@
  */
 
 #include "ngosen-icon-resolver.h"
-#include <unistd.h>
+#include "ngosen-utils.h"
 
 namespace fcitx {
-
-    static bool fileReadable(const std::string& path) {
-        return !path.empty() && access(path.c_str(), R_OK) == 0;
-    }
-
-    static std::string joinPath(const std::string& dir, const std::string& name) {
-        if (dir.empty())
-            return name;
-        if (dir.back() == '/')
-            return dir + name;
-        return dir + "/" + name;
-    }
 
     std::string resolveNgoSenIconPath(const std::vector<std::string>& names, const NgoSenIconSearchPaths& paths) {
         // 1. Probe each candidate name in each system directory.

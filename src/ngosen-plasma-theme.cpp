@@ -19,38 +19,6 @@
 
 namespace fcitx {
 
-    static std::string trim(const std::string& s) {
-        const auto begin = s.find_first_not_of(" \t\r");
-        if (begin == std::string::npos)
-            return "";
-        const auto end = s.find_last_not_of(" \t\r");
-        return s.substr(begin, end - begin + 1);
-    }
-
-    static std::string joinPath(const std::string& dir, const std::string& name) {
-        if (dir.empty())
-            return name;
-        if (dir.back() == '/')
-            return dir + name;
-        return dir + "/" + name;
-    }
-
-    static std::vector<std::string> splitPathList(const std::string& list) {
-        std::vector<std::string> result;
-        std::stringstream        ss(list);
-        std::string              item;
-        while (std::getline(ss, item, ':')) {
-            if (!item.empty())
-                result.push_back(item);
-        }
-        return result;
-    }
-
-    static std::string envOr(const std::string& name, const std::string& fallback) {
-        std::string value = getEnv(name);
-        return !value.empty() ? value : fallback;
-    }
-
     // Reads "key=value" from "[group]" of a KConfig-style INI file.
     static std::optional<std::string> readIniValue(const std::string& path, const std::string& group, const std::string& key) {
         std::ifstream file(path);
@@ -152,9 +120,9 @@ namespace fcitx {
 
         PlasmaThemeSearchPaths paths;
         paths.configHome = envOr("XDG_CONFIG_HOME", joinPath(home, ".config"));
-        paths.configDirs = splitPathList(envOr("XDG_CONFIG_DIRS", "/etc/xdg"));
+        paths.configDirs = splitList(envOr("XDG_CONFIG_DIRS", "/etc/xdg"), ':');
         paths.dataHome   = envOr("XDG_DATA_HOME", joinPath(home, ".local/share"));
-        paths.dataDirs   = splitPathList(envOr("XDG_DATA_DIRS", "/usr/local/share:/usr/share"));
+        paths.dataDirs   = splitList(envOr("XDG_DATA_DIRS", "/usr/local/share:/usr/share"), ':');
 
         // Plasma's session startup puts kdedefaults first in XDG_CONFIG_DIRS;
         // add it when fcitx5 was started with a different environment.
@@ -166,7 +134,7 @@ namespace fcitx {
     }
 
     bool isKdePlasmaSession(const std::string& xdgCurrentDesktop) {
-        const auto desktops = splitPathList(xdgCurrentDesktop);
+        const auto desktops = splitList(xdgCurrentDesktop, ':');
         return std::find(desktops.begin(), desktops.end(), "KDE") != desktops.end();
     }
 
