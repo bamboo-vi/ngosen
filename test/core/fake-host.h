@@ -126,6 +126,9 @@ namespace ngosen::test {
         const std::string& preedit() const {
             return preedit_;
         }
+        const std::vector<std::string>& labels() const {
+            return labels_;
+        }
 
       private:
         FakeLoop&                                 loop_;

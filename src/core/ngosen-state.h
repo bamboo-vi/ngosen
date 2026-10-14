@@ -89,6 +89,14 @@ namespace ngosen {
         // Called for every surrounding text report of this input context.
         void surroundingUpdated();
 
+        // A key this field got while another input method was on.
+        void noteKeyWhileOff(const ngosen::KeyPress& key);
+        // After activate(), when the panel is ready: shows what the keys noted above read as in
+        // Vietnamese, for Tab to retype them.
+        void offerRetype();
+        // The cursor left the text noted above: focus moved or the app reset the field.
+        void forgetKeysWhileOff();
+
         /**
          * @brief Treats a cursor move within unchanged surrounding text, or a jump into another spreadsheet cell, as a mouse click.
          */
@@ -145,6 +153,19 @@ namespace ngosen {
         int64_t                  deletionInterruptedAt_ = 0;     ///< when deactivate() cut an in-flight replacement (0 = none)
         bool                     tracking_modifier_tap_ = false; ///< Selected modifier held, waiting for consecutive keyup
         bool                     macro_skip_            = false; ///< Macro disabled for the current word
+
+        struct Retype {
+            std::string typed;
+            std::string marked;
+            bool        applied = false; // Tab once more puts typed back
+        };
+        std::string           typedWhileOff_;
+        std::optional<Retype> retype_;
+        // What typed reads as with this field's input method, or typed when it changes nothing.
+        std::string addMarks(const std::string& typed);
+        void        applyRetype();
+        void        dropRetype();
+        bool        handleRetypeKey(ngosen::KeyPress& keyEvent);
 
         // XIM, IBus and D-Bus clients queue forwarded keys, and XIM may hand one back; without a
         // surrounding text report the commit waits this long for them.

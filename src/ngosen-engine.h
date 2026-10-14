@@ -261,6 +261,10 @@ namespace fcitx {
         std::unique_ptr<HandlerTableEntry<EventHandler>> commitWatcher_;
         std::unique_ptr<HandlerTableEntry<EventHandler>> contextDestroyedWatcher_;
 
+        // Text typed while another input method is on, for TypingState::offerRetype.
+        std::unique_ptr<HandlerTableEntry<EventHandler>>              keyWhileOffWatcher_;
+        std::vector<std::unique_ptr<HandlerTableEntry<EventHandler>>> leaveTextWatchers_;
+
         /**
          * @brief Refreshes the bamboo engine with current settings.
          */

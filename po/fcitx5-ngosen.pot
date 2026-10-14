@@ -286,6 +286,10 @@ msgstr ""
 msgid "Page "
 msgstr ""
 
+#: src/core/ngosen-state-retype.cpp
+msgid "Tab: retype in Vietnamese, Esc: keep"
+msgstr ""
+
 #: io.github.ngosen.NgoSen.metainfo.xml.in.in:7
 msgid "Ngó Sen"
 msgstr ""
