@@ -167,6 +167,7 @@ namespace ngosen {
         std::string addMarks(const std::string& typed);
         void        applyRetype();
         void        dropRetype();
+        void        hideOffer();
         bool        reportsTextInTime() const;
         bool        typedBeforeCursor(const std::string& typed) const;
         bool        handleRetypeKey(ngosen::KeyPress& keyEvent);

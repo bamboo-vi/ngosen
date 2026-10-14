@@ -121,8 +121,7 @@ namespace ngosen {
     void TypingState::applyRetype() {
         if (!retype_)
             return;
-        host_->hideCandidates();
-        host_->refreshPanel();
+        hideOffer();
         const bool         undo = retype_->applied;
         const std::string& from = undo ? retype_->marked : retype_->typed;
         const std::string& to   = undo ? retype_->typed : retype_->marked;
@@ -139,13 +138,17 @@ namespace ngosen {
             retype_->applied = true;
     }
 
+    void TypingState::hideOffer() {
+        host_->hideCandidates();
+        host_->setStatus({});
+        host_->refreshPanel();
+    }
+
     void TypingState::dropRetype() {
         if (!retype_)
             return;
-        if (!retype_->applied) {
-            host_->hideCandidates();
-            host_->refreshPanel();
-        }
+        if (!retype_->applied)
+            hideOffer();
         retype_.reset();
     }
 

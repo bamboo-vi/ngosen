@@ -207,6 +207,23 @@ namespace {
         state.keyEvent(up);
     }
 
+    void testHintGoesAway(uint32_t sym, const std::string& what) {
+        realMode = Mode::Off;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding("vieetj", 6);
+        noteWhileOff(state, "vieetj");
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        check(!host->status().empty(), "the offer shows how to use it", "(no hint)");
+        pressInState(state, sym);
+        loop.pump(150);
+        check(host->status().empty(), "the hint goes away after " + what, host->status());
+    }
+
     // Qt reports the text after each backspace, so the deletion is seen half done.
     void testRetypeInSteppingApp() {
         AppQuirks quirks;
@@ -262,6 +279,8 @@ int main() {
     testRetypeInApp("other", true, Mode::Sen);
     testRetypeOverSelection();
     testRetypeInSteppingApp();
+    testHintGoesAway(ngosen::key::Tab, "Tab");
+    testHintGoesAway(ngosen::key::Escape, "Esc");
     if (failures == 0)
         std::cout << "all retype checks passed\n";
     return failures == 0 ? 0 : 1;
