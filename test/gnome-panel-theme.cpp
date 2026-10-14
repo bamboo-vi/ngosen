@@ -125,6 +125,10 @@ int main() {
     check("N2 x_cinnamon", fcitx::isCinnamonSession("X-Cinnamon", ""), "X-Cinnamon rejected");
     check("N3 gnome", !fcitx::isCinnamonSession("ubuntu:GNOME", "ubuntu"), "GNOME taken for Cinnamon");
 
+    check("T1 cinnamon_tray_by_name", fcitx::trayWantsIconName("", "cinnamon"), "Cinnamon tray given a path");
+    check("T2 cosmic_tray_by_name", fcitx::trayWantsIconName("COSMIC", ""), "COSMIC tray given a path");
+    check("T3 kde_tray_by_path", !fcitx::trayWantsIconName("KDE", "plasma"), "KDE tray given a name");
+
     writeFile(root / "usr/share/themes/Mint-Y-Dark-Aqua/cinnamon/cinnamon.css",
               "#panel {\n  font-weight: bold;\n  height: 40px;\n  color: #e1e1e1; }\n"
               ".panel-top, .panel-bottom { color: #ffffff; background-color: rgba(29, 29, 33, 0.99); }\n");
