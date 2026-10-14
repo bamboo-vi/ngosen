@@ -44,6 +44,12 @@ CachyOS (GNOME 51), Linux Mint (Cinnamon X11) và MX Linux 25 (Xfce X11) với b
 đăng nhập lại, Ctrl+Shift rồi Telex `tieengs vieetj` ra `tiếng việt` trong ô chữ GTK3, 3/3 lần trên mỗi máy.
 Lệnh gỡ được thử trên Ubuntu 26.04 (IBus chạy lại) và MX Linux 25.
 
+Bản 1.4.1 chỉ đổi lệnh cài, bộ gõ giữ nguyên như 1.4.0. Lệnh cài trên KDE được chạy trên máy ảo CachyOS
+(Plasma 6.7 Wayland) với tài khoản chưa cấu hình bộ gõ: sau khi đăng nhập lại, Ctrl+Shift rồi Telex
+`tieengs vieetj` ra `tiếng việt` 3/3 lần trong ô chữ Qt6 và 3/3 lần trong ô chữ GTK3; trước khi sửa, ô chữ
+Qt6 ra chữ thô. Với gói 1.4.0, Chrome 155, VS Code, Discord, Firefox và GNOME Text Editor (Flatpak) gõ đúng
+trên máy ảo Ubuntu 26.04 (GNOME Wayland); Chrome ép chạy qua XWayland sai 5/30 lần.
+
 Lõi ghép dấu viết bằng Rust có trong gói Fedora, Arch, openSUSE và Ubuntu 24.04 trở lên. Debian 12, 13 và
 Ubuntu 22.04 vẫn dùng lõi Go, vì Rust có sẵn ở đó quá cũ. Hai lõi gõ ra chữ như nhau.
 
