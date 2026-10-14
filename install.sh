@@ -171,7 +171,18 @@ install_package() {
             as_root zypper --non-interactive install --allow-unsigned-rpm "$package"
             ;;
         apt)
-            as_root apt-get install -y "$package"
+            # fcitx5 only recommends its GTK and Qt modules and im-config, and MX turns recommends
+            # off. Naming them also covers a reinstall, which apt skips along with its recommends.
+            local extra candidate
+            local -a extras=()
+            for candidate in im-config fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6; do
+                extra=$(apt-cache policy "$candidate" 2>/dev/null | grep -m1 'Candidate:' || true)
+                case "$extra" in
+                    *'(none)'* | '') ;;
+                    *) extras+=("$candidate") ;;
+                esac
+            done
+            as_root apt-get install -y "$package" "${extras[@]}"
             ;;
         pacman)
             install_with_pacman "$package"
@@ -187,6 +198,18 @@ wants_gnome_setup() {
         *:GNOME:*) return 0 ;;
     esac
     return 1
+}
+
+# Xfce, Cinnamon, MATE and the like on X11 start no input method of their own; on Debian and Ubuntu
+# im-config sets the variables and starts fcitx5 at login. KDE and Wayland compositors are left out.
+wants_x11_setup() {
+    [ "$setup_session" -eq 1 ] && [ "$(id -u)" -ne 0 ] || return 1
+    [ "${XDG_SESSION_TYPE:-}" = x11 ] || return 1
+    case ":${XDG_CURRENT_DESKTOP:-}:" in
+        *:GNOME:* | *:KDE:*) return 1 ;;
+    esac
+    # On apt im-config comes with the package, so it may not be there yet.
+    command -v im-config >/dev/null 2>&1 || command -v apt-get >/dev/null 2>&1
 }
 
 config_home() {
@@ -405,7 +428,6 @@ hide_fcitx5_launchers() {
 }
 
 setup_gnome_session() {
-    local change
     say ""
     enable_fcitx5_autostart
     set_im_environment
@@ -413,6 +435,21 @@ setup_gnome_session() {
     enable_forward_keys_extension
     install_kimpanel
     hide_fcitx5_launchers
+    report_session_changes
+}
+
+setup_x11_session() {
+    say ""
+    if ! grep -qs '^run_im fcitx5$' "$HOME/.xinputrc"; then
+        im-config -n fcitx5 >/dev/null 2>&1 || die "im-config không đặt được fcitx5"
+        session_changes+=("app dùng fcitx5, fcitx5 tự chạy khi đăng nhập")
+    fi
+    configure_fcitx5
+    report_session_changes
+}
+
+report_session_changes() {
+    local change
     if [ "${#session_changes[@]}" -eq 0 ]; then
         say "Xong. Khởi động lại fcitx5 để dùng bản mới:  fcitx5 -rd"
         return
@@ -489,18 +526,28 @@ uninstall() {
         die "không biết trình quản lý gói của máy này"
     fi
     say "Ngó Sen sẽ được gỡ bằng: ${remove[*]}"
-    wants_gnome_setup && say "Các thay đổi lệnh cài đã làm cho tài khoản này cũng được trả lại."
+    if wants_gnome_setup || wants_x11_setup; then
+        say "Các thay đổi lệnh cài đã làm cho tài khoản này cũng được trả lại."
+    fi
     confirm "Tiếp tục?" || {
         say "Đã dừng, chưa gỡ gì."
         exit 0
     }
     if wants_gnome_setup; then
         undo_gnome_session
+    elif wants_x11_setup && grep -qs '^run_im fcitx5$' "$HOME/.xinputrc"; then
+        im-config -n REMOVE >/dev/null 2>&1 || :
     fi
     as_root "${remove[@]}"
     say ""
     if wants_gnome_setup; then
         say "Xong. Đăng xuất rồi đăng nhập lại để GNOME dùng lại IBus."
+    elif wants_x11_setup && [ "$(im-config -m 2>/dev/null | sed -n 3p)" = fcitx5 ]; then
+        # The system default picks any installed input method, and fcitx5 itself stays installed.
+        say "Xong. fcitx5 vẫn còn trên máy nên vẫn tự chạy khi đăng nhập, gõ tiếng Anh như bàn phím."
+        say "Gỡ hẳn fcitx5:  sudo apt remove fcitx5"
+    elif wants_x11_setup; then
+        say "Xong. Đăng xuất rồi đăng nhập lại để bỏ hẳn fcitx5."
     else
         say "Xong. Khởi động lại fcitx5:  fcitx5 -rd"
     fi
@@ -553,6 +600,8 @@ main() {
     say "Cấu hình trong ~/.config/fcitx5 được giữ."
     if wants_gnome_setup; then
         say "Sau đó fcitx5 được đặt làm bộ gõ cho tài khoản này, thay IBus của GNOME."
+    elif wants_x11_setup; then
+        say "Sau đó fcitx5 được đặt làm bộ gõ cho tài khoản này."
     fi
     confirm "Tiếp tục?" || {
         say "Đã dừng, chưa cài gì."
@@ -568,6 +617,10 @@ main() {
     install_package "$workdir/$file"
     if wants_gnome_setup; then
         setup_gnome_session
+        return
+    fi
+    if wants_x11_setup; then
+        setup_x11_session
         return
     fi
 

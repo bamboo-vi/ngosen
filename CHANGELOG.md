@@ -12,6 +12,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thay đổi
 
+- Trên desktop X11 dùng im-config như Xfce, Cinnamon, MATE (MX Linux, Linux Mint), lệnh cài đặt fcitx5
+  làm bộ gõ cho tài khoản (app dùng fcitx5, fcitx5 tự chạy khi đăng nhập), thêm Ngó Sen và đặt phím
+  Ctrl+Shift như trên GNOME. Trên Debian/Ubuntu, lệnh cài luôn kéo theo `im-config` và các gói giúp app
+  GTK, Qt gõ được qua fcitx5, kể cả trên máy tắt cài gói đi kèm như MX. `--uninstall` trả lại lựa chọn
+  bộ gõ cũ (#PR).
 - Bỏ mục "Đọc chữ quanh con trỏ" (`useSurroundingTextIfPossible`) ở trang Gõ chữ. Mục này mặc định tắt,
   là cách chữa tạm lỗi gõ trên Messenger từ trước khi Ngó Sen có cách sửa riêng. Ai từng bật nó thì giờ
   gõ như mọi người khác; LibreOffice vẫn xoá chữ theo cách riêng của nó như trước (#59).
