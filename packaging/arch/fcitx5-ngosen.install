@@ -24,19 +24,29 @@ _remove_uinput_server() {
     udevadm control --reload-rules >/dev/null 2>&1 || :
 }
 
+# KWin starts fcitx5 itself there, and one started with fcitx5 -rd cannot serve Qt apps.
+_kde_wayland() {
+    pgrep -x kwin_wayland >/dev/null 2>&1
+}
+
 post_install() {
     # A fork of fcitx5-lotus may have left its server behind.
     _remove_uinput_server
 
     echo "--- Cấu hình Ngó Sen ---"
     echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen."
-    echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
+    if _kde_wayland; then
+        echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
+    fi
 }
 
 post_upgrade() {
     _remove_uinput_server
 
     echo "--- Cấu hình Ngó Sen ---"
-    echo "Khởi động lại fcitx5 để dùng bản mới: fcitx5 -rd"
-    echo "KDE Wayland: đăng xuất rồi đăng nhập lại."
+    if _kde_wayland; then
+        echo "Đăng xuất rồi đăng nhập lại để dùng bản mới."
+    else
+        echo "Khởi động lại fcitx5 để dùng bản mới: fcitx5 -rd"
+    fi
 }

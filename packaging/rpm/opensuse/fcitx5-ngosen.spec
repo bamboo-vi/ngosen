@@ -110,9 +110,14 @@ fi
 udevadm control --reload-rules >/dev/null 2>&1 || :
 
 echo "--- Cấu hình Ngó Sen ---"
-echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen, hoặc khởi động lại fcitx5 nếu vừa cập nhật: fcitx5 -rd"
-echo "KDE Wayland: cập nhật xong thì đăng xuất rồi đăng nhập lại."
-echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
+# posttrans cannot tell an install from an upgrade. KWin starts fcitx5 itself on KDE Wayland, and
+# one started with fcitx5 -rd cannot serve Qt apps.
+if pgrep -x kwin_wayland >/dev/null 2>&1; then
+    echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen, hoặc đăng xuất rồi đăng nhập lại nếu vừa cập nhật."
+    echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
+else
+    echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen, hoặc khởi động lại fcitx5 nếu vừa cập nhật: fcitx5 -rd"
+fi
 
 %changelog
 * Wed Oct 14 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.4.1-1
