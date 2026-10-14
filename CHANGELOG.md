@@ -24,7 +24,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Tài liệu
 
-- README nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, và gọi thống nhất file, repo, build, release (#PR).
+- README nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, và gọi thống nhất file, repo, build, release (#73).
 
 ## [1.4.1-1] — 14/10/2026
 
