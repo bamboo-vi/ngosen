@@ -10,6 +10,13 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thêm
+
+- Quên bật tiếng Việt mà đã gõ `tieengs vieetj`: bấm phím chuyển sang Ngó Sen (vd. Ctrl+Shift) thì cạnh con
+  trỏ hiện `tieengs vieetj → tiếng việt`. Bấm Tab để gõ lại có dấu, Tab lần nữa để trả lại như cũ, Esc hoặc
+  phím khác để bỏ qua. Không ghi nhớ trong ô mật khẩu; bấm chuột, Enter, phím mũi tên hay chuyển ô thì đoạn
+  đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ, như terminal Ptyxis trên GNOME (#71).
+
 ### Thay đổi
 
 - Test tự động của lệnh cài chạy thêm trên Fedora 44 với KDE; người dùng không thấy khác gì (#70).

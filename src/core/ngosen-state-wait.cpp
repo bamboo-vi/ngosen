@@ -50,8 +50,11 @@ namespace ngosen {
         }
         const std::string before(t.begin(), it);
         auto              endsWith = [](const std::string& a, const std::string& b) { return a.size() >= b.size() && a.compare(a.size() - b.size(), b.size(), b) == 0; };
-        if (!surr_wait_deleted_.empty() && endsWith(before, surr_wait_prefix_ + surr_wait_deleted_)) {
-            return false; // stale snapshot: the text to delete is still there
+        // Stale or half done: some of the text to delete is still there. Qt reports after each backspace.
+        for (auto d = surr_wait_deleted_.begin(); d != surr_wait_deleted_.end();) {
+            d = ngosen::utf8::nextChar(d, surr_wait_deleted_.end());
+            if (endsWith(before, surr_wait_prefix_ + std::string(surr_wait_deleted_.begin(), d)))
+                return false;
         }
         // Messenger moves the cursor before it removes the text, so a snapshot can look done while
         // deleted chars still follow the cursor. Treat that as in progress (#267).
