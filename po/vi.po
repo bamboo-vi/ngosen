@@ -287,6 +287,10 @@ msgstr "Ngó Sen - Tắt"
 msgid "Page "
 msgstr "Trang "
 
+#: src/core/ngosen-state-retype.cpp
+msgid "Tab: retype in Vietnamese, Esc: keep"
+msgstr "Tab: gõ lại thành tiếng Việt, Esc: giữ nguyên"
+
 #: io.github.ngosen.NgoSen.metainfo.xml.in.in:7
 msgid "Ngó Sen"
 msgstr "Ngó Sen"

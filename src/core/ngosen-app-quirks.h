@@ -18,6 +18,10 @@ namespace ngosen {
     // True for GTK4 clients, whose IM modules drop forwarded keys; delete through surrounding text there.
     bool ignoresForwardedKeys(const Field& field);
 
+    // True for VTE terminals under GTK4 (Ptyxis): they take neither forwarded keys nor surrounding
+    // text, but pass committed text to the shell as is, so a DEL in it erases like Backspace.
+    bool erasesWithCommittedDel(const Field& field);
+
     // True for Chromium-based browsers on the D-Bus and fcitx4 frontends: they take forwarded keys but
     // report no surrounding text, and their address bar selects an inline autocompletion after the typed text.
     bool selectsOverAutocompletion(const Field& field);

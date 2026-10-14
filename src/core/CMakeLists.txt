@@ -6,6 +6,7 @@ add_library(ngosen_core STATIC
     ngosen-state-focus.cpp
     ngosen-state-macro.cpp
     ngosen-state-replace.cpp
+    ngosen-state-retype.cpp
     ngosen-state-wait.cpp
     ngosen-app-quirks.cpp
     ngosen-globals.cpp
