@@ -18,6 +18,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Trên COSMIC, biểu tượng Ngó Sen ở khay hiện đúng chữ V có màu thay vì một ô vuông trắng (#75).
 - Lời nhắc sau khi cài hoặc cập nhật gói chỉ nói tới KDE Wayland khi máy đang chạy KDE Wayland. Trên KDE
   Wayland, lời nhắc cập nhật bảo đăng xuất rồi đăng nhập lại thay vì chạy `fcitx5 -rd`, vì fcitx5 bật
   bằng lệnh đó không gõ được trong app Qt như Kate, Dolphin (#68).
