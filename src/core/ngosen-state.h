@@ -328,6 +328,7 @@ namespace ngosen {
         bool deletesThroughSurrounding(const ngosen::Surrounding& surrounding);
         void replaceThroughSurrounding(const std::string& addedPart);
         void replaceThroughForwardedKeys();
+        void replaceThroughCommittedDel();
 
         /**
          * @brief Handles the double space to period replacement.

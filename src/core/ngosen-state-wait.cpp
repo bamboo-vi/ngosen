@@ -230,7 +230,7 @@ namespace ngosen {
     }
 
     bool TypingState::canSendBackspaces() const {
-        return ngosen::forwardsBackspaces(host_->field()) || xtestAvailable();
+        return ngosen::forwardsBackspaces(host_->field()) || ngosen::erasesWithCommittedDel(host_->field()) || xtestAvailable();
     }
 
     void TypingState::deferTimedCommit(uint64_t deliverAtUs) {
