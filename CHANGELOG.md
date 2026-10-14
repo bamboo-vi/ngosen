@@ -21,8 +21,8 @@ Tải ở [ngosen-1.4.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 - Trên desktop X11 dùng im-config như Xfce, Cinnamon, MATE (MX Linux, Linux Mint), lệnh cài đặt fcitx5
   làm bộ gõ cho tài khoản (app dùng fcitx5, fcitx5 tự chạy khi đăng nhập), thêm Ngó Sen và đặt phím
   Ctrl+Shift như trên GNOME. Trên Debian/Ubuntu, lệnh cài luôn kéo theo `im-config` và các gói giúp app
-  GTK, Qt gõ được qua fcitx5, kể cả trên máy tắt cài gói đi kèm như MX. `--uninstall` trả lại lựa chọn
-  bộ gõ cũ (#61).
+  GTK, Qt gõ được qua fcitx5, kể cả trên máy tắt cài gói đi kèm như MX. `--uninstall` trả bộ gõ về
+  mặc định của máy; fcitx5 vẫn còn cài nên có thể vẫn tự chạy, gỡ hẳn bằng `sudo apt remove fcitx5` (#61).
 - Bỏ mục "Đọc chữ quanh con trỏ" (`useSurroundingTextIfPossible`) ở trang Gõ chữ. Mục này mặc định tắt,
   là cách chữa tạm lỗi gõ trên Messenger từ trước khi Ngó Sen có cách sửa riêng. Ai từng bật nó thì giờ
   gõ như mọi người khác; LibreOffice vẫn xoá chữ theo cách riêng của nó như trước (#59).
