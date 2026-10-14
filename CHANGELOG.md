@@ -12,6 +12,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thay đổi
 
+- Lệnh cài có thêm `--uninstall`: gỡ gói Ngó Sen và trả lại những gì lệnh cài đã đổi trên GNOME, để
+  lần đăng nhập sau GNOME dùng lại IBus. Trên GNOME, lệnh cài đặt phím bật/tắt tiếng Việt là Ctrl+Shift
+  thay cho Ctrl+Space, vì Ctrl+Space là phím gợi ý code của VS Code; ai đã tự chọn phím thì giữ nguyên.
+  Cài xong, lệnh nhắc tài khoản khác trên máy phải tự chạy lại lệnh cài (#PR).
 - Trên GNOME không có khay hệ thống (như Fedora), lệnh cài thêm extension Input Method Panel từ
   extensions.gnome.org, để biểu tượng và menu của bộ gõ hiện trên thanh trên cùng. Ubuntu đã có khay nên
   không cài thêm (#54).
