@@ -22,8 +22,7 @@ namespace ngosen {
     bool TypingState::activate(ngosen::Mode targetMode, bool isFocusIn) {
         const int64_t     now    = nowMs();
         const Surrounding s      = host_->surrounding();
-        const bool        back   = lastDeactivateTime_ > 0 && now - lastDeactivateTime_ < FocusBounceMs;
-        const bool        bounce = targetMode == ngosen::Mode::Sen && back;
+        const bool        bounce = targetMode == ngosen::Mode::Sen && lastDeactivateTime_ > 0 && now - lastDeactivateTime_ < FocusBounceMs;
         const bool        resume = bounce && deletionInterruptedAt_ > 0 && is_deleting_.load();
         deletionInterruptedAt_   = 0;
         if (!resume)
@@ -43,9 +42,7 @@ namespace ngosen {
         if (!resume)
             is_deleting_.store(false);
         needEngineReset.store(false);
-        // Chromium on X11 bounces focus right after our commit; Tab must still put the text back.
-        if (!back)
-            retype_.reset();
+        retype_.reset();
         if (isFocusIn)
             forgetKeysWhileOff();
         return bounce;
@@ -72,6 +69,7 @@ namespace ngosen {
             is_deleting_.store(false);
         }
         needEngineReset.store(false);
+        retype_.reset();
         host_->resetPanel();
         host_->refreshPanel();
         if (realMode == ngosen::Mode::Preedit || realMode == ngosen::Mode::Emoji)

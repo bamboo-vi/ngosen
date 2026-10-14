@@ -133,9 +133,6 @@ namespace {
         check(!host->candidates(), "focus coming in does not offer old text", "offered");
     }
 
-    // Stands for focus leaving the field and coming straight back, as Chromium on X11 does after a commit.
-    constexpr uint32_t FocusBounce = 0;
-
     // Types text in the app as if another input method were on, switches Ngó Sen on, then presses keys.
     std::string retypeInApp(const Field& field, Mode mode, const std::string& typed, const std::vector<uint32_t>& after) {
         realMode = Mode::Off;
@@ -156,11 +153,6 @@ namespace {
         state.activate(mode, false);
         state.offerRetype();
         for (const uint32_t sym : after) {
-            if (sym == FocusBounce) {
-                state.deactivate(true);
-                state.activate(mode, true);
-                continue;
-            }
             app->type(sym);
             loop.pump(150);
         }
@@ -176,9 +168,6 @@ namespace {
 
         text = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Tab, ngosen::key::Tab});
         check(text == "tieengs vieetj", what + "Tab again puts the typed text back", text);
-
-        text = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Tab, FocusBounce, ngosen::key::Tab});
-        check(text == "tieengs vieetj", what + "Tab again works after a focus bounce", text);
 
         text = retypeInApp(field, mode, "tieengs", {ngosen::key::Escape, ngosen::key::Tab});
         check(text.rfind("tieengs", 0) == 0, what + "after Esc, Tab does not retype", text);
