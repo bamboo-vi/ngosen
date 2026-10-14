@@ -60,14 +60,6 @@ namespace fcitx {
     class NgoSenEngine final : public InputMethodEngineV2, public ngosen::EngineResources {
       public:
         /**
-         * @brief Gets the fcitx instance.
-         * @return Pointer to the fcitx instance.
-         */
-        Instance* instance() const {
-            return instance_;
-        }
-
-        /**
          * @brief Constructs the engine.
          * @param instance Pointer to fcitx instance.
          */

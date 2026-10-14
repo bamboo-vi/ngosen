@@ -111,7 +111,6 @@ pub struct BambooEngine {
     pub(crate) spell_check_with_dicts: bool,
     pub(crate) preedit_text: String,
     pub(crate) commit_text: String,
-    pub(crate) should_restore_key_strokes: bool,
     pub(crate) output_charset: String,
     pub(crate) time_format: String,
     pub(crate) date_format: String,
@@ -134,7 +133,6 @@ impl BambooEngine {
             spell_check_with_dicts: true,
             preedit_text: String::new(),
             commit_text: String::new(),
-            should_restore_key_strokes: false,
             output_charset: "Unicode".to_string(),
             time_format: "%H:%M".to_string(),
             date_format: "%d/%m/%Y".to_string(),
@@ -329,13 +327,6 @@ impl BambooEngine {
     /// The text after `key_val`, and whether it ends the word.
     fn get_commit_text(&mut self, key_val: u32, state: u32, old_text: &str) -> (String, bool) {
         let key = key_char(key_val);
-        // Shift + Space gives back the keys typed for the word.
-        if self.should_restore_key_strokes {
-            self.should_restore_key_strokes = false;
-            self.preeditor
-                .restore_last_word(!has_any_vietnamese_rune(old_text));
-            return (self.get_preedit_string(), false);
-        }
         let can_process = self.preeditor.can_process_key(key);
         if can_process || (self.macro_enabled && key.is_ascii_digit()) {
             return self.composing_key_text(key, state, old_text);
@@ -438,12 +429,11 @@ impl BambooEngine {
     pub fn process_key_event(&mut self, key_val: u32, state: u32) -> bool {
         let has_preedit = !self.preedit_text.is_empty();
         // Commit and pass the key on, which Chrome's address bar and Google Sheets need.
-        if !self.should_restore_key_strokes
-            && (!Self::is_valid_state(state)
-                || !self.can_process_key(key_val)
-                || (!self.macro_enabled
-                    && !has_preedit
-                    && !self.preeditor.can_process_key(key_char(key_val))))
+        if !Self::is_valid_state(state)
+            || !self.can_process_key(key_val)
+            || (!self.macro_enabled
+                && !has_preedit
+                && !self.preeditor.can_process_key(key_char(key_val)))
         {
             if has_preedit {
                 let preedit = self.get_preedit_string();

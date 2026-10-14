@@ -17,22 +17,21 @@ import (
 )
 
 type FcitxBambooEngine struct {
-	preeditor               bamboo.IEngine
-	macroTable              *MacroTable
-	dictionary              map[string]bool
-	autoNonVnRestore        bool
-	ddFreeStyle             bool
-	macroEnabled            bool
-	autoCapitalizeMacro     bool
-	lastKeyWithShift        bool
-	spellCheckWithDicts     bool
-	preeditText             string
-	commitText              string
-	shouldRestoreKeyStrokes bool
-	outputCharset           string
-	w2u                     bool
-	timeFormat              string
-	dateFormat              string
+	preeditor           bamboo.IEngine
+	macroTable          *MacroTable
+	dictionary          map[string]bool
+	autoNonVnRestore    bool
+	ddFreeStyle         bool
+	macroEnabled        bool
+	autoCapitalizeMacro bool
+	lastKeyWithShift    bool
+	spellCheckWithDicts bool
+	preeditText         string
+	commitText          string
+	outputCharset       string
+	w2u                 bool
+	timeFormat          string
+	dateFormat          string
 }
 
 const (
@@ -187,10 +186,6 @@ func (e *FcitxBambooEngine) getProcessedString(mode bamboo.Mode) string {
 	return e.preeditor.GetProcessedString(mode)
 }
 
-func (e *FcitxBambooEngine) getRawKeyLen() int {
-	return len(e.getProcessedString(bamboo.EnglishMode | bamboo.FullText))
-}
-
 func (e *FcitxBambooEngine) getPreeditString() string {
 	if e.shouldFallbackToEnglish(true) {
 		return e.getProcessedString(bamboo.EnglishMode | bamboo.FullText)
@@ -276,12 +271,6 @@ func getLastRune(s string) rune {
 
 func (e *FcitxBambooEngine) getCommitText(keyVal, state uint32, oldText string) (string, bool) {
 	var keyRune = rune(keyVal)
-	// restore key strokes by pressing Shift + Space
-	if e.shouldRestoreKeyStrokes {
-		e.shouldRestoreKeyStrokes = false
-		e.preeditor.RestoreLastWord(!bamboo.HasAnyVietnameseRune(oldText))
-		return e.getPreeditString(), false
-	}
 	canProcess := e.preeditor.CanProcessKey(keyRune)
 	if canProcess || (e.macroEnabled && keyRune >= '0' && keyRune <= '9') {
 		if !canProcess && e.shouldFallbackToEnglish(true) {
@@ -398,14 +387,12 @@ func (e *FcitxBambooEngine) preeditProcessKeyEvent(keyVal uint32, state uint32) 
 	var hasPreedit = len(e.preeditText) > 0
 
 	// workaround for chrome's address bar and Google SpreadSheets
-	if !e.shouldRestoreKeyStrokes {
-		if !e.isValidState(state) || !e.canProcessKey(keyVal) ||
-			(!e.macroEnabled && !hasPreedit && !e.preeditor.CanProcessKey(keyRune)) {
-			if hasPreedit {
-				e.commitPreeditAndReset(e.getPreeditString())
-			}
-			return false
+	if !e.isValidState(state) || !e.canProcessKey(keyVal) ||
+		(!e.macroEnabled && !hasPreedit && !e.preeditor.CanProcessKey(keyRune)) {
+		if hasPreedit {
+			e.commitPreeditAndReset(e.getPreeditString())
 		}
+		return false
 	}
 
 	if keyVal == FcitxBackSpace {

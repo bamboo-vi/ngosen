@@ -245,11 +245,7 @@ namespace ngosen {
                 // Prevent auto-capitalized character replacement from stripping out Vietnamese chars
                 if (addedPart.size() > 1 && addedPart.back() == ' ') {
                     // Stripping the trigger key (space) from addedPart
-#if __cplusplus >= 202002L
-                    addedPart.resize(addedPart.size() - 1);
-#else
-                    addedPart = addedPart.substr(0, addedPart.size() - 1);
-#endif
+                    addedPart.pop_back();
                 }
                 commit(addedPart);
                 NGOSEN_INFO("Commit: " + addedPart);

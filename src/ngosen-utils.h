@@ -34,20 +34,6 @@ using KeySym = uint32_t;
 int64_t now_ms();
 
 /**
- * @brief Whether a mode delivers text through the uinput (fake backspace) path.
- * @param mode Mode to check.
- * @return True for Sen.
- */
-bool isUinputMode(fcitx::NgoSenMode mode);
-
-/**
- * @brief Get the frontend name from the input context.
- * @param ic Input context.
- * @return Frontend name.
- */
-std::string getFrontendName(fcitx::InputContext* ic);
-
-/**
  * @brief Drop surrounding text the client cannot have sent.
  *
  * GNOME Shell multiplexes every window through one IBus input context, and

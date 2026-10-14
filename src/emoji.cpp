@@ -151,7 +151,3 @@ std::vector<EmojiEntry> EmojiLoader::search(const std::string& prefix) {
     }
     return finalResults;
 }
-
-size_t EmojiLoader::size() const {
-    return emojiList.size();
-}

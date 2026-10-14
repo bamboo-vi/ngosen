@@ -130,11 +130,6 @@ pub extern "C" fn EngineProcessKeyEvent(engine: usize, key_val: u32, state: u32)
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn EngineSetRestoreKeyStroke(engine: usize) {
-    handles::with_engine(engine, |e| e.should_restore_key_strokes = true);
-}
-
-#[unsafe(no_mangle)]
 pub extern "C" fn EnginePullPreedit(engine: usize) -> *mut c_char {
     handles::with_engine(engine, |e| c_string(&e.preedit_text)).unwrap_or(std::ptr::null_mut())
 }
