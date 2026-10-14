@@ -43,9 +43,10 @@ fetch() {
 }
 
 usage() {
-    say "Cách dùng: install.sh [--yes] [--no-setup]"
-    say "  --yes        không hỏi lại trước khi cài"
+    say "Cách dùng: install.sh [--yes] [--no-setup | --uninstall]"
+    say "  --yes        không hỏi lại trước khi cài hay gỡ"
     say "  --no-setup   chỉ cài gói, không tự đặt fcitx5 làm bộ gõ trên GNOME"
+    say "  --uninstall  gỡ Ngó Sen và trả lại những gì lệnh cài đã đổi"
 }
 
 # Sets manager and pattern; pattern is a regular expression for the package's file name.
@@ -244,14 +245,18 @@ stop_fcitx5() {
     done
 }
 
-# fcitx5 writes its profile back when it exits, so it is stopped before the profile is edited.
+has_ngosen_in_profile() {
+    grep -qs '^Name=ngosen$' "$(config_home)/fcitx5/profile"
+}
+
+has_trigger_keys() {
+    grep -qs '^\[Hotkey/TriggerKeys\]' "$(config_home)/fcitx5/config"
+}
+
 add_ngosen_to_profile() {
-    local profile layout items was_running=0
+    local profile layout items
     profile="$(config_home)/fcitx5/profile"
-    if grep -qs '^Name=ngosen$' "$profile"; then
-        return 0
-    fi
-    stop_fcitx5 && was_running=1
+    has_ngosen_in_profile && return 0
     if [ -f "$profile" ]; then
         items=$(grep -c '^\[Groups/0/Items/' "$profile" || true)
         printf '\n[Groups/0/Items/%s]\nName=ngosen\nLayout=\n' "$items" >>"$profile"
@@ -277,10 +282,30 @@ Layout=
 0=Default
 EOF
     fi
+    session_changes+=("thêm Ngó Sen vào danh sách bộ gõ")
+}
+
+# fcitx5's default Ctrl+Space is the completion key in VS Code and other IDEs, and GNOME keeps
+# Super+Space for itself. Ctrl+Shift is what Unikey users already know. A key the user chose stays.
+set_trigger_keys() {
+    local config
+    config="$(config_home)/fcitx5/config"
+    has_trigger_keys && return 0
+    mkdir -p "$(dirname "$config")"
+    printf '\n[Hotkey/TriggerKeys]\n0=Control+Shift_L\n1=Control+Shift_R\n2=Shift+Control_L\n3=Shift+Control_R\n' >>"$config"
+    session_changes+=("bật/tắt tiếng Việt bằng Ctrl+Shift")
+}
+
+# fcitx5 writes its profile and config back when it exits, so it is stopped before either is edited.
+configure_fcitx5() {
+    local was_running=0
+    has_ngosen_in_profile && has_trigger_keys && return 0
+    stop_fcitx5 && was_running=1
+    add_ngosen_to_profile
+    set_trigger_keys
     if [ "$was_running" -eq 1 ]; then
         fcitx5 -d >/dev/null 2>&1 || :
     fi
-    session_changes+=("thêm Ngó Sen vào danh sách bộ gõ")
 }
 
 # Adds an extension to GNOME's list; it starts at the next login. Returns 1 when it is already
@@ -343,21 +368,31 @@ install_kimpanel() {
     fi
 }
 
+FCITX5_LAUNCHERS=(org.fcitx.Fcitx5.desktop org.fcitx.fcitx5-migrator.desktop fcitx5-configtool.desktop)
+
+applications_dir() {
+    printf '%s' "${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+}
+
+hidden_launcher_entry() {
+    printf '[Desktop Entry]\nType=Application\nName=%s\nNoDisplay=true\n' "${1%.desktop}"
+}
+
 # A user entry with the same id overrides the system one, so this hides it for this user only.
 hide_launcher() {
     local id=$1 dir
-    dir="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+    dir=$(applications_dir)
     [ -e "/usr/share/applications/$id" ] || return 1
     [ -e "$dir/$id" ] && return 1
     mkdir -p "$dir"
-    printf '[Desktop Entry]\nType=Application\nName=%s\nNoDisplay=true\n' "${id%.desktop}" >"$dir/$id"
+    hidden_launcher_entry "$id" >"$dir/$id"
 }
 
 # Autostart replaces the "Fcitx 5" launcher and nobody here migrates from fcitx4. The settings
 # launcher goes only when the tray or the Input Method Panel menu opens the same settings.
 hide_fcitx5_launchers() {
     local hidden=0 id
-    local -a ids=(org.fcitx.Fcitx5.desktop org.fcitx.fcitx5-migrator.desktop)
+    local -a ids=("${FCITX5_LAUNCHERS[@]:0:2}")
     if has_tray || gsettings get org.gnome.shell enabled-extensions 2>/dev/null | grep -q "'kimpanel@kde.org'"; then
         ids+=(fcitx5-configtool.desktop)
     fi
@@ -374,7 +409,7 @@ setup_gnome_session() {
     say ""
     enable_fcitx5_autostart
     set_im_environment
-    add_ngosen_to_profile
+    configure_fcitx5
     enable_forward_keys_extension
     install_kimpanel
     hide_fcitx5_launchers
@@ -388,14 +423,96 @@ setup_gnome_session() {
     done
     say ""
     say "Xong. Đăng xuất rồi đăng nhập lại là gõ được tiếng Việt."
-    say "Bấm Ctrl+Space để chuyển qua lại tiếng Việt và tiếng Anh."
+    if grep -qs '^0=Control+Shift_L$' "$(config_home)/fcitx5/config"; then
+        say "Bấm Ctrl+Shift để chuyển qua lại tiếng Việt và tiếng Anh."
+    fi
+    say "Tài khoản khác trên máy này: đăng nhập vào tài khoản đó rồi chạy lại lệnh cài."
+}
+
+# Removes from GNOME's list; returns 1 when it was not there.
+disable_shell_extension() {
+    local uuid=$1 enabled updated pattern
+    enabled=$(gsettings get org.gnome.shell enabled-extensions 2>/dev/null) || return 1
+    pattern="'${uuid//./\\.}'"
+    updated=$(printf '%s' "$enabled" | sed -e "s/$pattern, //; s/, $pattern//; s/$pattern//")
+    [ "$updated" = "$enabled" ] && return 1
+    [ "$updated" = "[]" ] && updated="@as []"
+    gsettings set org.gnome.shell enabled-extensions "$updated"
+}
+
+# Undoes setup_gnome_session. Files are removed only when they still hold what the setup wrote,
+# so anything the user changed stays. fcitx5's own profile and keys stay too: without autostart
+# fcitx5 no longer runs, and GNOME starts IBus again at the next login.
+undo_gnome_session() {
+    local config data id autostart
+    local -a undone=()
+    config=$(config_home)
+    data=$(applications_dir)
+    if [ -e "$config/environment.d/90-ngosen.conf" ]; then
+        rm -f "$config/environment.d/90-ngosen.conf"
+        undone+=("app dùng lại IBus")
+    fi
+    if grep -qs '^run_im fcitx5$' "$HOME/.xinputrc" && command -v im-config >/dev/null 2>&1; then
+        im-config -n REMOVE >/dev/null 2>&1 || :
+    fi
+    autostart="$config/autostart/org.fcitx.Fcitx5.desktop"
+    if cmp -s /usr/share/applications/org.fcitx.Fcitx5.desktop "$autostart"; then
+        rm -f "$autostart"
+        undone+=("fcitx5 thôi tự chạy khi đăng nhập")
+    fi
+    for id in "${FCITX5_LAUNCHERS[@]}"; do
+        if [ -e "$data/$id" ] && [ "$(cat "$data/$id")" = "$(hidden_launcher_entry "$id")" ]; then
+            rm -f "$data/$id"
+        fi
+    done
+    disable_shell_extension forward-keys@ngosen.github.io || :
+    if disable_shell_extension kimpanel@kde.org; then
+        gnome-extensions uninstall kimpanel@kde.org >/dev/null 2>&1 || :
+        undone+=("gỡ extension Input Method Panel")
+    fi
+    for id in "${undone[@]}"; do
+        say "  - $id"
+    done
+}
+
+uninstall() {
+    local -a remove
+    if command -v apt-get >/dev/null 2>&1; then
+        remove=(apt-get remove -y fcitx5-ngosen)
+    elif command -v dnf >/dev/null 2>&1; then
+        remove=(dnf remove -y fcitx5-ngosen)
+    elif command -v zypper >/dev/null 2>&1; then
+        remove=(zypper --non-interactive remove fcitx5-ngosen)
+    elif command -v pacman >/dev/null 2>&1; then
+        remove=(pacman -R --noconfirm fcitx5-ngosen)
+    else
+        die "không biết trình quản lý gói của máy này"
+    fi
+    say "Ngó Sen sẽ được gỡ bằng: ${remove[*]}"
+    wants_gnome_setup && say "Các thay đổi lệnh cài đã làm cho tài khoản này cũng được trả lại."
+    confirm "Tiếp tục?" || {
+        say "Đã dừng, chưa gỡ gì."
+        exit 0
+    }
+    if wants_gnome_setup; then
+        undo_gnome_session
+    fi
+    as_root "${remove[@]}"
+    say ""
+    if wants_gnome_setup; then
+        say "Xong. Đăng xuất rồi đăng nhập lại để GNOME dùng lại IBus."
+    else
+        say "Xong. Khởi động lại fcitx5:  fcitx5 -rd"
+    fi
 }
 
 main() {
+    local remove_package=0
     while [ $# -gt 0 ]; do
         case "$1" in
             -y | --yes) assume_yes=1 ;;
             --no-setup) setup_session=0 ;;
+            --uninstall) remove_package=1 ;;
             -h | --help)
                 usage
                 exit 0
@@ -404,6 +521,11 @@ main() {
         esac
         shift
     done
+
+    if [ "$remove_package" -eq 1 ]; then
+        uninstall
+        return
+    fi
 
     case "$RELEASE_URL" in
         https://* | file:///*) ;;

@@ -50,8 +50,10 @@ mới thì chạy lại đúng lệnh đó; cấu hình cũ giữ nguyên.
 Trên GNOME (desktop mặc định của Ubuntu), lệnh cài còn đặt fcitx5 làm bộ gõ thay cho IBus, thêm Ngó Sen vào
 danh sách bộ gõ và bật extension sửa lỗi gõ khi cần. GNOME không có khay hệ thống (như Fedora) thì lệnh cài
 thêm extension [Input Method Panel](https://extensions.gnome.org/extension/261/) để biểu tượng và menu bộ
-gõ hiện trên thanh trên cùng. Cài xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Space để bật
-tiếng Việt. Muốn tự làm các bước đó thì cài bằng
+gõ hiện trên thanh trên cùng. Cài xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Shift để bật
+tiếng Việt (nếu trước đó chưa tự chọn phím khác cho fcitx5). Các bước này chỉ áp dụng cho tài
+khoản đang chạy lệnh; tài khoản khác trên cùng máy thì đăng nhập vào đó rồi chạy lại lệnh cài. Muốn tự
+làm các bước đó thì cài bằng
 `curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --no-setup`.
 
 Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
@@ -124,6 +126,19 @@ Tắt hẳn VS Code rồi mở lại từ menu. Qua XIM, khoảng một câu tro
 cách này thì xoá tệp `~/.local/share/applications/code_code.desktop`.
 
 ## Gỡ
+
+Một dòng lệnh, hỏi lại rồi mới gỡ:
+
+```
+curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --uninstall
+```
+
+Trên GNOME, lệnh này còn trả lại những gì lệnh cài đã đổi cho tài khoản đang chạy: fcitx5 thôi tự chạy
+khi đăng nhập, app dùng lại IBus, tắt extension sửa lỗi gõ và gỡ Input Method Panel nếu lệnh cài đã thêm.
+Đăng xuất rồi đăng nhập lại là GNOME dùng IBus như cũ. Tệp nào đã tự sửa thì để nguyên. fcitx5
+vẫn còn trên máy; muốn gỡ luôn thì chạy `sudo apt autoremove` (Ubuntu, Debian) sau đó.
+
+Gỡ bằng tay:
 
 1. Bỏ Ngó Sen khỏi danh sách bộ gõ trong "Fcitx5 Configuration".
 2. Gỡ gói rồi khởi động lại fcitx5:
