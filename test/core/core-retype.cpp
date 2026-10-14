@@ -135,13 +135,12 @@ namespace {
     }
 
     // Types text in the app as if another input method were on, switches Ngó Sen on, then presses keys.
-    std::string retypeInApp(const Field& field, Mode mode, const std::string& typed, const std::vector<uint32_t>& after) {
+    std::string retypeInApp(const Field& field, Mode mode, const std::string& typed, const std::vector<uint32_t>& after, AppQuirks quirks = {}) {
         realMode = Mode::Off;
         realtextLen.store(0);
         FakeLoop      loop;
         FakeResources resources;
-        AppQuirks     quirks;
-        quirks.handsBackKeys      = field.frontend == "xim";
+        quirks.handsBackKeys      = quirks.handsBackKeys || field.frontend == "xim";
         auto                owned = std::make_unique<FakeApp>(loop, field, quirks);
         FakeApp*            app   = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
@@ -182,6 +181,14 @@ namespace {
         state.keyEvent(down);
         FakeKey up(sym, true, states);
         state.keyEvent(up);
+    }
+
+    // Qt reports the text after each backspace, so the deletion is seen half done.
+    void testRetypeInSteppingApp() {
+        AppQuirks quirks;
+        quirks.keyStepMs       = 2;
+        const std::string text = retypeInApp(makeField("wayland", true), Mode::Sen, "tieengs vieetj", {ngosen::key::Tab}, quirks);
+        check(text == "tiếng việt", "stepping app: Tab waits for every backspace", text);
     }
 
     // Chromium replaces by selecting with Shift+Left through XTEST, and those keys come back to us.
@@ -230,6 +237,7 @@ int main() {
     // Deletes through the surrounding text where forwarded keys do not work.
     testRetypeInApp("other", true, Mode::Sen);
     testRetypeOverSelection();
+    testRetypeInSteppingApp();
     if (failures == 0)
         std::cout << "all retype checks passed\n";
     return failures == 0 ? 0 : 1;
