@@ -12,6 +12,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thay đổi
 
+- Gom các hàm xử lý đường dẫn và chuỗi bị chép ba nơi (đọc giao diện GNOME, KDE và tìm biểu tượng) về
+  một chỗ; cửa sổ cài đặt thôi tự đổi tên chế độ cũ vì bộ gõ đã làm việc đó. Người dùng không thấy khác
+  gì (#PR).
 - Bỏ code không còn dùng, người dùng không thấy khác gì: đường "Shift+Space trả lại phím gõ" trong
   hai lõi (không chỗ nào bật), công cụ so lõi `misc/core-compare`, script `translate.sh` (chạy nhầm sẽ
   ghi đè bản dịch), vài hàm và nhánh không ai gọi trong bộ gõ và cửa sổ cài đặt (#57).

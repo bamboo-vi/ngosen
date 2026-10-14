@@ -522,17 +522,8 @@ class DynamicSettingsPage(QWidget):
             "ModeOrder",
             "Sen,Preedit,Emoji,Off,Default",
         )
-        # Sen was called Uinput, and before that Smooth, Super Smooth and Minecraft; Surrounding Text was
-        # merged into it.
-        order = []
-        for name in order_str.split(","):
-            name = (
-                "Sen"
-                if name in ("Uinput", "Smooth", "SuperSmooth", "Minecraft", "SurroundingText")
-                else name
-            )
-            if name not in order:
-                order.append(name)
+        # The addon renames old mode names before it hands the config out.
+        order = list(dict.fromkeys(order_str.split(",")))
 
         # Ensure all modes are present
         all_internal_names = list(MODE_KEY_TO_INTERNAL_NAME.values())
