@@ -12,7 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thay đổi
 
-- Thêm test tự động cho lệnh cài trên Debian, Ubuntu, Fedora; người dùng không thấy khác gì (#PR).
+- Thêm test tự động cho lệnh cài trên Debian, Ubuntu, Fedora; người dùng không thấy khác gì (#65).
 
 ## [1.4.0-1] — 14/10/2026
 
