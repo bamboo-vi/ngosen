@@ -17,6 +17,9 @@
 #include <fcitx-utils/log.h>
 #include <fcitx/inputcontext.h>
 
+#include <string>
+#include <vector>
+
 #include "ngosen-config.h"
 #include "ngosen-globals.h"
 #include "ngosen-log.h"
@@ -32,20 +35,6 @@ using KeySym = uint32_t;
  * @return Timestamp in milliseconds.
  */
 int64_t now_ms();
-
-/**
- * @brief Whether a mode delivers text through the uinput (fake backspace) path.
- * @param mode Mode to check.
- * @return True for Sen.
- */
-bool isUinputMode(fcitx::NgoSenMode mode);
-
-/**
- * @brief Get the frontend name from the input context.
- * @param ic Input context.
- * @return Frontend name.
- */
-std::string getFrontendName(fcitx::InputContext* ic);
 
 /**
  * @brief Drop surrounding text the client cannot have sent.
@@ -65,5 +54,20 @@ bool dropStaleSurroundingText(fcitx::InputContext* ic);
  * @return Value of the variable.
  */
 std::string getEnv(const std::string& name);
+
+/** @brief The value of an environment variable, or @p fallback when it is unset or empty. */
+std::string envOr(const std::string& name, const std::string& fallback);
+
+/** @brief @p s without leading and trailing spaces, tabs and line breaks. */
+std::string trim(const std::string& s);
+
+/** @brief @p dir and @p name joined with one slash. */
+std::string joinPath(const std::string& dir, const std::string& name);
+
+/** @brief The non-empty items of @p list separated by @p sep. */
+std::vector<std::string> splitList(const std::string& list, char sep);
+
+/** @brief Whether the current user can read the file at @p path. */
+bool fileReadable(const std::string& path);
 
 #endif // _FCITX5_NGOSEN_UTILS_H_

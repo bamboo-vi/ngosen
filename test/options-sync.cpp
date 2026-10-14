@@ -44,7 +44,6 @@ namespace {
         c.setValueByPath("AutoCapitalizeAfterPunctuation", "True");
         c.setValueByPath("DoubleSpaceToPeriod", "True");
         c.setValueByPath("DoubleHyphenToEmDash", "True");
-        c.setValueByPath("useSurroundingTextIfPossible", "True");
         c.setValueByPath("MessengerSelectOvertype", "False");
         c.setValueByPath("WaitSurroundingEvent", "False");
         c.setValueByPath("WaitSurroundingMinPerKeyMs", "11");
@@ -79,7 +78,6 @@ namespace {
         check(step + ": AutoCapitalizeAfterPunctuation", o.autoCapitalizeAfterPunctuation == c.autoCapitalizeAfterPunctuation.value());
         check(step + ": DoubleSpaceToPeriod", o.doubleSpaceToPeriod == c.doubleSpaceToPeriod.value());
         check(step + ": DoubleHyphenToEmDash", o.doubleHyphenToEmDash == c.doubleHyphenToEmDash.value());
-        check(step + ": useSurroundingTextIfPossible", o.useSurroundingTextIfPossible == c.useSurroundingTextIfPossible.value());
         check(step + ": MessengerSelectOvertype", o.messengerSelectOvertype == c.messengerSelectOvertype.value());
         check(step + ": WaitSurroundingEvent", o.waitSurroundingEvent == c.waitSurroundingEvent.value());
         check(step + ": WaitSurroundingMinPerKeyMs", o.waitSurroundingMinPerKeyMs == c.waitSurroundingMinPerKeyMs.value());

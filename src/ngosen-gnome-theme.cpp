@@ -20,42 +20,6 @@ namespace fcitx {
 
     namespace {
 
-        std::string trim(const std::string& s) {
-            const auto begin = s.find_first_not_of(" \t\r\n");
-            if (begin == std::string::npos)
-                return "";
-            const auto end = s.find_last_not_of(" \t\r\n");
-            return s.substr(begin, end - begin + 1);
-        }
-
-        std::string joinPath(const std::string& dir, const std::string& name) {
-            if (dir.empty())
-                return name;
-            if (dir.back() == '/')
-                return dir + name;
-            return dir + "/" + name;
-        }
-
-        std::vector<std::string> splitList(const std::string& list, char sep) {
-            std::vector<std::string> result;
-            std::stringstream        ss(list);
-            std::string              item;
-            while (std::getline(ss, item, sep)) {
-                if (!item.empty())
-                    result.push_back(item);
-            }
-            return result;
-        }
-
-        std::string envOr(const std::string& name, const std::string& fallback) {
-            std::string value = getEnv(name);
-            return !value.empty() ? value : fallback;
-        }
-
-        bool readable(const std::string& path) {
-            return access(path.c_str(), R_OK) == 0;
-        }
-
         std::optional<std::string> readFile(const std::string& path) {
             std::ifstream file(path);
             if (!file.is_open())
@@ -255,12 +219,12 @@ namespace fcitx {
                 dirs.push_back(joinPath(dir, "themes"));
             for (const auto& dir : dirs) {
                 const std::string path = joinPath(dir, info.userThemeName + "/gnome-shell/gnome-shell.css");
-                if (readable(path))
+                if (fileReadable(path))
                     return path;
             }
             for (const auto& dir : info.dataDirs) {
                 const std::string path = joinPath(dir, "gnome-shell/theme/" + info.userThemeName + ".css");
-                if (readable(path))
+                if (fileReadable(path))
                     return path;
             }
         }
@@ -284,7 +248,7 @@ namespace fcitx {
             const std::string name = json->substr(open + 1, close - open - 1);
             for (const auto& themeDir : info.dataDirs) {
                 const std::string path = joinPath(themeDir, "gnome-shell/theme/" + name);
-                if (readable(path))
+                if (fileReadable(path))
                     return path;
             }
             return std::nullopt;
@@ -325,7 +289,7 @@ namespace fcitx {
         if (info.themeName.empty() || info.themeName == "cinnamon") {
             for (const auto& dir : info.dataDirs) {
                 const std::string path = joinPath(dir, "cinnamon/theme/cinnamon.css");
-                if (readable(path))
+                if (fileReadable(path))
                     return path;
             }
             return std::nullopt;
@@ -336,7 +300,7 @@ namespace fcitx {
             dirs.push_back(joinPath(dir, "themes"));
         for (const auto& dir : dirs) {
             const std::string path = joinPath(dir, info.themeName + "/cinnamon/cinnamon.css");
-            if (readable(path))
+            if (fileReadable(path))
                 return path;
         }
         return std::nullopt;

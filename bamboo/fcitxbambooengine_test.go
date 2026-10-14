@@ -279,22 +279,6 @@ func TestToUpper(t *testing.T) {
 	}
 }
 
-func TestShiftSpaceRestoreKeyStrokes(t *testing.T) {
-	e := newTestEngine(nil, false)
-	typeKeys(e, "aw")
-	if got := e.preeditText; got != "ă" {
-		t.Fatalf("preedit got [%s] expected [ă]", got)
-	}
-	e.shouldRestoreKeyStrokes = true
-	e.preeditProcessKeyEvent(FcitxSpace, 0)
-	if e.shouldRestoreKeyStrokes {
-		t.Errorf("shouldRestoreKeyStrokes not consumed")
-	}
-	if got := e.preeditText; got != "aw" {
-		t.Errorf("preedit after shift+space got [%s] expected [aw] (raw keystrokes)", got)
-	}
-}
-
 func TestBackspace(t *testing.T) {
 	// single rune -> commit empty and reset
 	e := newTestEngine(nil, false)

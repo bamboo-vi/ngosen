@@ -55,12 +55,6 @@ class EmojiLoader {
         return historyList;
     }
 
-    /**
-     * @brief Gets total emoji count.
-     * @return Number of emojis loaded.
-     */
-    size_t size() const;
-
   private:
     std::vector<EmojiEntry> historyList;   ///< Recently used emojis
     std::vector<EmojiEntry> emojiList;     ///< Internal emoji storage

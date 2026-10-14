@@ -10,6 +10,52 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.4.0-1] — 14/10/2026
+
+Lệnh cài một dòng tự đặt fcitx5 làm bộ gõ trên GNOME và các desktop X11 như Xfce, Cinnamon, có thêm lệnh gỡ;
+ẩn các tùy chọn thử nghiệm và bỏ code không dùng.
+Tải ở [ngosen-1.4.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.4.0-1).
+
+### Thay đổi
+
+- Trên desktop X11 dùng im-config như Xfce, Cinnamon, MATE (MX Linux, Linux Mint), lệnh cài đặt fcitx5
+  làm bộ gõ cho tài khoản (app dùng fcitx5, fcitx5 tự chạy khi đăng nhập), thêm Ngó Sen và đặt phím
+  Ctrl+Shift như trên GNOME. Trên Debian/Ubuntu, lệnh cài luôn kéo theo `im-config` và các gói giúp app
+  GTK, Qt gõ được qua fcitx5, kể cả trên máy tắt cài gói đi kèm như MX. `--uninstall` trả bộ gõ về
+  mặc định của máy; fcitx5 vẫn còn cài nên có thể vẫn tự chạy, gỡ hẳn bằng `sudo apt remove fcitx5` (#61).
+- Bỏ mục "Đọc chữ quanh con trỏ" (`useSurroundingTextIfPossible`) ở trang Gõ chữ. Mục này mặc định tắt,
+  là cách chữa tạm lỗi gõ trên Messenger từ trước khi Ngó Sen có cách sửa riêng. Ai từng bật nó thì giờ
+  gõ như mọi người khác; LibreOffice vẫn xoá chữ theo cách riêng của nó như trước (#59).
+- Gom các hàm xử lý đường dẫn và chuỗi bị chép ba nơi (đọc giao diện GNOME, KDE và tìm biểu tượng) về
+  một chỗ; cửa sổ cài đặt thôi tự đổi tên chế độ cũ vì bộ gõ đã làm việc đó. Người dùng không thấy khác
+  gì (#58).
+- Bỏ code không còn dùng, người dùng không thấy khác gì: đường "Shift+Space trả lại phím gõ" trong
+  hai lõi (không chỗ nào bật), công cụ so lõi `misc/core-compare`, script `translate.sh` (chạy nhầm sẽ
+  ghi đè bản dịch), vài hàm và nhánh không ai gọi trong bộ gõ và cửa sổ cài đặt (#57).
+- Cửa sổ cấu hình chung của fcitx5 không còn hiện 10 mục "Experiment" (thời gian chờ khi xoá chữ, gõ
+  đè trong ô chat Messenger). Giá trị vẫn giữ nguyên và vẫn chỉnh được trong `ngosen.conf` khi cần dò
+  lỗi (#56).
+- Lệnh cài có thêm `--uninstall`: gỡ gói Ngó Sen và trả lại những gì lệnh cài đã đổi trên GNOME, để
+  lần đăng nhập sau GNOME dùng lại IBus. Trên GNOME, lệnh cài đặt phím bật/tắt tiếng Việt là Ctrl+Shift
+  thay cho Ctrl+Space, vì Ctrl+Space là phím gợi ý code của VS Code; ai đã tự chọn phím thì giữ nguyên.
+  Cài xong, lệnh nhắc tài khoản khác trên máy phải tự chạy lại lệnh cài (#55).
+- Trên GNOME không có khay hệ thống (như Fedora), lệnh cài thêm extension Input Method Panel từ
+  extensions.gnome.org, để biểu tượng và menu của bộ gõ hiện trên thanh trên cùng. Ubuntu đã có khay nên
+  không cài thêm (#54).
+- Trên GNOME, lệnh cài một dòng tự đặt fcitx5 làm bộ gõ thay IBus (tự chạy khi đăng nhập, đặt biến
+  môi trường cho app), thêm Ngó Sen vào danh sách bộ gõ, ẩn các biểu tượng fcitx5 thừa trong danh sách
+  app và bật extension sửa lỗi gõ trên GNOME 50.0 đến 50.3. Cài xong chỉ cần đăng xuất rồi đăng nhập lại.
+  Thêm `--no-setup` để chỉ cài gói như trước (#52).
+
+### Sửa
+
+- Gỡ rồi cài lại trên GNOME không còn làm mất Ngó Sen khỏi danh sách bộ gõ. Nếu fcitx5 đang chạy mà
+  không có Ngó Sen, nó ghi đè danh sách khi tắt; lệnh cài giờ tắt fcitx5 trước khi đọc danh sách (#60).
+- Dựng gói lại được: kho `LotusInputMethod/bamboo-core` (lõi Go) đã bị xoá nên mọi lượt dựng đều hỏng
+  ngay bước tải mã. Lõi Go giờ lấy từ bản sao
+  [ngosen/bamboo-go-core](https://github.com/ngosen/bamboo-go-core), cùng đúng bản code như trước. Lõi
+  Rust vẫn lấy từ `nguyen10t2/bamboo_core` (#53).
+
 ## [1.3.0-1] — 13/10/2026
 
 Thêm tùy chọn Backspace chỉ xóa dấu thanh, icon mới hai cọng ngó sen, và sửa icon khay trên panel tối.

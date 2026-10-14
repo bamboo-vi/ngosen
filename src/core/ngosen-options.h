@@ -41,7 +41,6 @@ namespace ngosen {
         bool         doubleHyphenToEmDash           = false;
 
         // How old text is replaced in the app.
-        bool useSurroundingTextIfPossible     = false;
         bool messengerSelectOvertype          = false;
         bool waitSurroundingEvent             = false;
         int  waitSurroundingMinPerKeyMs       = 0;
