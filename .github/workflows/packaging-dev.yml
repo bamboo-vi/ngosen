@@ -220,3 +220,42 @@ jobs:
           name: arch-pkg
           path: output/*.pkg.tar.zst
           retention-days: 3
+
+  # Runs install.sh on this run's packages, laid out as in a release, so the test covers this
+  # change rather than the last published build.
+  install-test:
+    name: Installer [${{ matrix.name }}]
+    needs: [build-deb, build-rpm-fedora, build-rpm-opensuse, build-arch]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: debian-13, X11, no recommends
+            image: debian:13
+            args: --no-recommends x11
+          - name: ubuntu-24.04, X11
+            image: ubuntu:24.04
+            args: x11
+          - name: ubuntu-26.04, GNOME
+            image: ubuntu:26.04
+            args: gnome
+          - name: fedora-44, GNOME
+            image: fedora:44
+            args: gnome
+
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts/
+
+      - name: Collect release files
+        run: packaging/collect-release-files.sh artifacts dist
+
+      - name: Install, uninstall and reinstall
+        run: test/install-smoke.sh ${{ matrix.args }} dist
