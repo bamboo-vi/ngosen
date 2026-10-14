@@ -39,6 +39,11 @@ nhánh `next`. Icon khay mới được xem trên máy ảo Linux Mint 22.3 (Cin
 Debian 13 được cài trên máy ảo MX Linux 25.3: Telex `vieejt` ra `việt` trong terminal GTK. Lần cập nhật từ
 1.0.0-1 rồi chạy `fcitx5 -rd` cũng được thử trên máy ảo MX Linux 25.3: Ngó Sen vẫn nằm trong danh sách bộ gõ.
 
+Bản 1.4.0 chủ yếu đổi lệnh cài một dòng. Lệnh cài được chạy trên máy ảo Ubuntu 26.04 (GNOME Wayland),
+CachyOS (GNOME 51), Linux Mint (Cinnamon X11) và MX Linux 25 (Xfce X11) với bản dựng từ nhánh `next`: sau khi
+đăng nhập lại, Ctrl+Shift rồi Telex `tieengs vieetj` ra `tiếng việt` trong ô chữ GTK3, 3/3 lần trên mỗi máy.
+Lệnh gỡ được thử trên Ubuntu 26.04 (IBus chạy lại) và MX Linux 25.
+
 Lõi ghép dấu viết bằng Rust có trong gói Fedora, Arch, openSUSE và Ubuntu 24.04 trở lên. Debian 12, 13 và
 Ubuntu 22.04 vẫn dùng lõi Go, vì Rust có sẵn ở đó quá cũ. Hai lõi gõ ra chữ như nhau.
 

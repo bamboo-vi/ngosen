@@ -1,3 +1,9 @@
+fcitx5-ngosen (1:1.4.0-1) unstable; urgency=medium
+
+  * One-line installer sets up fcitx5 on GNOME and X11 desktops and can uninstall; hidden experiment options.
+
+ -- Nguyen Phi <nguyenphidt@gmail.com>  Wed, 14 Oct 2026 20:00:00 +0700
+
 fcitx5-ngosen (1:1.3.0-1) unstable; urgency=medium
 
   * Backspace can remove only the tone mark; new V icon; tray icon fixes on dark panels.
