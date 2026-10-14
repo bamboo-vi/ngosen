@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.4.1-1] — 14/10/2026
+
+Trên KDE Plasma (Wayland), lệnh cài tự chọn fcitx5 làm bàn phím ảo để app Qt như Kate, Dolphin gõ được tiếng
+Việt; lệnh cài có test tự động. Bộ gõ không đổi so với 1.4.0.
+Tải ở [ngosen-1.4.1-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.4.1-1).
+
 ### Thay đổi
 
 - Thêm test tự động cho lệnh cài trên Debian, Ubuntu, Fedora; người dùng không thấy khác gì (#65).

@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.4.0
+Version:        1.4.1
 Release:        1
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -115,6 +115,9 @@ echo "KDE Wayland: cập nhật xong thì đăng xuất rồi đăng nhập lạ
 echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
 
 %changelog
+* Wed Oct 14 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.4.1-1
+- The installer makes fcitx5 the KDE input method on Plasma Wayland; CI runs the installer.
+
 * Wed Oct 14 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.4.0-1
 - One-line installer sets up fcitx5 on GNOME and X11 desktops and can uninstall; hidden experiment options.
 
