@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Messenger repaints its composer a few ms after Edge reports the deletion as done, wiping a commit
-// that lands before the repaint. WaitSurroundingSettleMs holds the commit that long.
+// Messenger in Edge (Wayland) answers a uinput backspace with two surrounding-text updates: first the
+// cursor moves back ("tie\n\n", cursor 2), then the text catches up ("ti\n\n", cursor 2). A commit
+// sent between the two is dropped by the page, so the first one must not count as done (#267).
 #include "ngosen-engine.h"
 #include "ngosen-utils.h"
 #include "key-sender-probe.h"
@@ -44,7 +45,7 @@ namespace {
 } // namespace
 
 int main() {
-    configureTestPaths("fcitx5-ngosen-super-smooth-settle-wait-immediate");
+    configureTestPaths("fcitx5-ngosen-sen-half-updated-snapshot");
     TestInstance        testInstance;
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
@@ -53,8 +54,9 @@ int main() {
     config.setValueByPath("WaitSurroundingEvent", "True");
     // Covers the delete-then-commit fallback, not the default select-and-overtype path.
     config.setValueByPath("MessengerSelectOvertype", "False");
-    // Long enough that a stalled machine cannot let the wait expire before the "no commit" check.
-    config.setValueByPath("WaitSurroundingSettleMs", "500");
+    // No settle delay: this test checks when the deletion counts as done.
+    config.setValueByPath("WaitSurroundingSettleMs", "0");
+    config.setValueByPath("WaitSurroundingSettleFirstWordMs", "0");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Sen || !engine.config().waitSurroundingEvent.value()) {
         reportFailure("configure Uinput", "mode=Uinput, WaitSurroundingEvent=True", "config differs");
@@ -88,23 +90,25 @@ int main() {
         reportFailure("backspace count for e -> ê", "2", std::to_string(backspaces));
         return 1;
     }
-    // The page already reports the deletion done when the trigger backspace arrives
-    // (the "ngay" branch); the settle wait must still hold the commit.
     for (int i = 0; i < backspaces; ++i) {
-        if (i + 1 == backspaces)
-            setSnapshot(*context, "ti\n\n", 2);
         if (!type(engine, entry, *context, FcitxKey_BackSpace, i + 1 == backspaces))
             return 1;
     }
-    pumpEventLoop(testInstance.instance, 15);
+
+    // Half-updated snapshot: cursor already moved back, the 'e' is still in the text.
+    pumpEventLoop(testInstance.instance, 3);
+    setSnapshot(*context, "tie\n\n", 2);
+    pumpEventLoop(testInstance.instance, 3);
     if (!context->commits().empty()) {
-        reportFailure("no commit while the settle wait runs, after the snapshot shows the deletion done", "commits=(none)", "commits=" + joinCommits(*context));
+        reportFailure("no commit on a half-updated snapshot (cursor moved, text not yet)", "commits=(none)", "commits=" + joinCommits(*context));
         return 1;
     }
 
-    pumpEventLoop(testInstance.instance, 600);
+    // The page catches up: now the commit must go out.
+    setSnapshot(*context, "ti\n\n", 2);
+    pumpEventLoop(testInstance.instance, 30);
     if (context->commits() != std::vector<std::string>{"ê"}) {
-        reportFailure("commit once the settle wait is over", "commits=['ê']", "commits=" + joinCommits(*context));
+        reportFailure("commit once the snapshot is consistent", "commits=['ê']", "commits=" + joinCommits(*context));
         return 1;
     }
     return 0;

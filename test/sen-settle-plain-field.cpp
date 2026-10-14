@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// When the only word in the Messenger composer is replaced, Edge reports the emptied composer as a
-// single "\n". It has no "\n\n" after the cursor, yet it still repaints: the settle wait must apply.
+// WaitSurroundingSettleMs is for the Messenger composer only: its snapshot keeps "\n\n" right after
+// the cursor. A plain field (no "\n\n" after the cursor) must get the commit as soon as the
+// snapshot shows the deletion done, or every app pays the Messenger wait on each replacement.
 #include "ngosen-engine.h"
 #include "ngosen-utils.h"
 #include "key-sender-probe.h"
@@ -44,19 +45,14 @@ namespace {
 } // namespace
 
 int main() {
-    configureTestPaths("fcitx5-ngosen-super-smooth-settle-empty-composer");
+    configureTestPaths("fcitx5-ngosen-sen-settle-plain-field");
     TestInstance        testInstance;
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Sen");
     config.setValueByPath("InputMethod", "Telex");
     config.setValueByPath("WaitSurroundingEvent", "True");
-    // Covers the delete-then-commit fallback, not the default select-and-overtype path.
-    config.setValueByPath("MessengerSelectOvertype", "False");
-    // Long enough that a stalled machine cannot let the wait expire before the "no commit" check.
-    config.setValueByPath("WaitSurroundingSettleMs", "500");
-    // The snapshot arrives a few ms into the wait for it; a stall must not let that wait time out first.
-    config.setValueByPath("WaitSurroundingTimeoutMs", "5000");
+    config.setValueByPath("WaitSurroundingSettleMs", "40");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Sen || !engine.config().waitSurroundingEvent.value()) {
         reportFailure("configure Uinput", "mode=Uinput, WaitSurroundingEvent=True", "config differs");
@@ -72,15 +68,15 @@ int main() {
     engine.activate(entry, focus);
 
     // Plain letters reach the page as real keys; the page reports each one.
-    setSnapshot(*context, "\n\n", 0);
-    const std::string word = "e";
+    setSnapshot(*context, "", 0);
+    const std::string word = "tie";
     for (size_t i = 0; i < word.size(); ++i) {
         if (!type(engine, entry, *context, static_cast<fcitx::KeySym>(word[i]), false))
             return 1;
-        setSnapshot(*context, word.substr(0, i + 1) + "\n\n", static_cast<unsigned int>(i + 1));
+        setSnapshot(*context, word.substr(0, i + 1), static_cast<unsigned int>(i + 1));
     }
 
-    // Telex "e" again: e -> ê, the only character to delete plus the trigger backspace.
+    // Telex "e" again: e -> ê, one character to delete plus the trigger backspace.
     if (!type(engine, entry, *context, FcitxKey_e, true))
         return 1;
     int backspaces = 0;
@@ -95,18 +91,12 @@ int main() {
             return 1;
     }
 
-    // The page reports the composer emptied; the settle wait must still hold the commit.
+    // A plain field reports the deletion done: commit now, WaitSurroundingSettleMs does not apply.
     pumpEventLoop(testInstance.instance, 3);
-    setSnapshot(*context, "\n", 0);
+    setSnapshot(*context, "ti", 2);
     pumpEventLoop(testInstance.instance, 15);
-    if (!context->commits().empty()) {
-        reportFailure("no commit while the settle wait runs, after the snapshot shows the deletion done", "commits=(none)", "commits=" + joinCommits(*context));
-        return 1;
-    }
-
-    pumpEventLoop(testInstance.instance, 600);
     if (context->commits() != std::vector<std::string>{"ê"}) {
-        reportFailure("commit once the settle wait is over", "commits=['ê']", "commits=" + joinCommits(*context));
+        reportFailure("commit within 15 ms in a field without the Messenger snapshot shape", "commits=['ê']", "commits=" + joinCommits(*context));
         return 1;
     }
     return 0;

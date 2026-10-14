@@ -162,7 +162,7 @@ namespace ngosen {
         return false;
     }
 
-    void TypingState::handleUinputMode(ngosen::KeyPress& keyEvent, uint32_t currentSym) {
+    void TypingState::handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym) {
         if (checkForwardSpecialKey(keyEvent, currentSym)) {
             keyEvent.passToApp();
             return;
@@ -355,7 +355,7 @@ namespace ngosen {
             case ngosen::Mode::Sen: {
                 live_key_ = KeyEntry{.sym = currentSym, .state = keyEvent.states()};
                 passed_key_.reset();
-                handleUinputMode(keyEvent, currentSym);
+                handleSenMode(keyEvent, currentSym);
                 live_key_.reset();
                 break;
             }
@@ -527,7 +527,7 @@ namespace ngosen {
         if (ngosen::key::isBackspace(currentSym)) {
             if (realtextLen.load(std::memory_order_acquire) > 0)
                 realtextLen.fetch_sub(1, std::memory_order_acq_rel);
-            handleUInputKeyPress(keyEvent, currentSym, 4);
+            handleReplacementBackspace(keyEvent, currentSym, 4);
         } else {
             std::string keyUtf8Check = host_->keyText(currentSym);
             if (!keyUtf8Check.empty() && buffered_keys_.size() < MAX_BUFFERED_KEYS) {

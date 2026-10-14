@@ -50,7 +50,7 @@ namespace {
 } // namespace
 
 int main() {
-    configureTestPaths("fcitx5-ngosen-super-smooth-messenger-select-overtype");
+    configureTestPaths("fcitx5-ngosen-sen-messenger-select-overtype");
     TestInstance        testInstance;
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;

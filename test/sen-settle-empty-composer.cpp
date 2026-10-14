@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Messenger in Edge (Wayland) answers a uinput backspace with two surrounding-text updates: first the
-// cursor moves back ("tie\n\n", cursor 2), then the text catches up ("ti\n\n", cursor 2). A commit
-// sent between the two is dropped by the page, so the first one must not count as done (#267).
+// When the only word in the Messenger composer is replaced, Edge reports the emptied composer as a
+// single "\n". It has no "\n\n" after the cursor, yet it still repaints: the settle wait must apply.
 #include "ngosen-engine.h"
 #include "ngosen-utils.h"
 #include "key-sender-probe.h"
@@ -45,7 +44,7 @@ namespace {
 } // namespace
 
 int main() {
-    configureTestPaths("fcitx5-ngosen-super-smooth-half-updated-snapshot");
+    configureTestPaths("fcitx5-ngosen-sen-settle-empty-composer");
     TestInstance        testInstance;
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
@@ -54,9 +53,10 @@ int main() {
     config.setValueByPath("WaitSurroundingEvent", "True");
     // Covers the delete-then-commit fallback, not the default select-and-overtype path.
     config.setValueByPath("MessengerSelectOvertype", "False");
-    // No settle delay: this test checks when the deletion counts as done.
-    config.setValueByPath("WaitSurroundingSettleMs", "0");
-    config.setValueByPath("WaitSurroundingSettleFirstWordMs", "0");
+    // Long enough that a stalled machine cannot let the wait expire before the "no commit" check.
+    config.setValueByPath("WaitSurroundingSettleMs", "500");
+    // The snapshot arrives a few ms into the wait for it; a stall must not let that wait time out first.
+    config.setValueByPath("WaitSurroundingTimeoutMs", "5000");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Sen || !engine.config().waitSurroundingEvent.value()) {
         reportFailure("configure Uinput", "mode=Uinput, WaitSurroundingEvent=True", "config differs");
@@ -73,14 +73,14 @@ int main() {
 
     // Plain letters reach the page as real keys; the page reports each one.
     setSnapshot(*context, "\n\n", 0);
-    const std::string word = "tie";
+    const std::string word = "e";
     for (size_t i = 0; i < word.size(); ++i) {
         if (!type(engine, entry, *context, static_cast<fcitx::KeySym>(word[i]), false))
             return 1;
         setSnapshot(*context, word.substr(0, i + 1) + "\n\n", static_cast<unsigned int>(i + 1));
     }
 
-    // Telex "e" again: e -> ê, one character to delete plus the trigger backspace.
+    // Telex "e" again: e -> ê, the only character to delete plus the trigger backspace.
     if (!type(engine, entry, *context, FcitxKey_e, true))
         return 1;
     int backspaces = 0;
@@ -95,20 +95,18 @@ int main() {
             return 1;
     }
 
-    // Half-updated snapshot: cursor already moved back, the 'e' is still in the text.
+    // The page reports the composer emptied; the settle wait must still hold the commit.
     pumpEventLoop(testInstance.instance, 3);
-    setSnapshot(*context, "tie\n\n", 2);
-    pumpEventLoop(testInstance.instance, 3);
+    setSnapshot(*context, "\n", 0);
+    pumpEventLoop(testInstance.instance, 15);
     if (!context->commits().empty()) {
-        reportFailure("no commit on a half-updated snapshot (cursor moved, text not yet)", "commits=(none)", "commits=" + joinCommits(*context));
+        reportFailure("no commit while the settle wait runs, after the snapshot shows the deletion done", "commits=(none)", "commits=" + joinCommits(*context));
         return 1;
     }
 
-    // The page catches up: now the commit must go out.
-    setSnapshot(*context, "ti\n\n", 2);
-    pumpEventLoop(testInstance.instance, 30);
+    pumpEventLoop(testInstance.instance, 600);
     if (context->commits() != std::vector<std::string>{"ê"}) {
-        reportFailure("commit once the snapshot is consistent", "commits=['ê']", "commits=" + joinCommits(*context));
+        reportFailure("commit once the settle wait is over", "commits=['ê']", "commits=" + joinCommits(*context));
         return 1;
     }
     return 0;

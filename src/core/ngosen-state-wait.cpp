@@ -70,7 +70,7 @@ namespace ngosen {
         return endsWith(before, surr_wait_prefix_);
     }
 
-    bool TypingState::handleUInputKeyPress(ngosen::KeyPress& event, uint32_t currentSym, int sleepTime) {
+    bool TypingState::handleReplacementBackspace(ngosen::KeyPress& event, uint32_t currentSym, int sleepTime) {
         if (!is_deleting_.load()) {
             return false;
         }
