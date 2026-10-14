@@ -50,10 +50,14 @@ mới thì chạy lại đúng lệnh đó; cấu hình cũ giữ nguyên.
 Trên GNOME (desktop mặc định của Ubuntu), lệnh cài còn đặt fcitx5 làm bộ gõ thay cho IBus, thêm Ngó Sen vào
 danh sách bộ gõ và bật extension sửa lỗi gõ khi cần. GNOME không có khay hệ thống (như Fedora) thì lệnh cài
 thêm extension [Input Method Panel](https://extensions.gnome.org/extension/261/) để biểu tượng và menu bộ
-gõ hiện trên thanh trên cùng. Cài xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Shift để bật
-tiếng Việt (nếu trước đó chưa tự chọn phím khác cho fcitx5). Các bước này chỉ áp dụng cho tài
-khoản đang chạy lệnh; tài khoản khác trên cùng máy thì đăng nhập vào đó rồi chạy lại lệnh cài. Muốn tự
-làm các bước đó thì cài bằng
+gõ hiện trên thanh trên cùng.
+
+Trên KDE Plasma (Wayland), lệnh cài chọn fcitx5 làm bàn phím ảo của KDE (System Settings → Virtual
+Keyboard), để app Qt như Kate, Dolphin cũng gõ được. Trên Xfce, Cinnamon, MATE (X11, Debian và Ubuntu), lệnh
+cài dùng im-config đặt fcitx5 làm bộ gõ. Ở mọi desktop trên, lệnh cài thêm Ngó Sen vào danh sách bộ gõ; cài
+xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Shift để bật tiếng Việt (nếu trước đó chưa tự
+chọn phím khác cho fcitx5). Các bước này chỉ áp dụng cho tài khoản đang chạy lệnh; tài khoản khác trên
+cùng máy thì đăng nhập vào đó rồi chạy lại lệnh cài. Muốn tự làm các bước đó thì cài bằng
 `curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --no-setup`.
 
 Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
@@ -137,6 +141,10 @@ Trên GNOME, lệnh này còn trả lại những gì lệnh cài đã đổi ch
 khi đăng nhập, app dùng lại IBus, tắt extension sửa lỗi gõ và gỡ Input Method Panel nếu lệnh cài đã thêm.
 Đăng xuất rồi đăng nhập lại là GNOME dùng IBus như cũ. Tệp nào đã tự sửa thì để nguyên. fcitx5
 vẫn còn trên máy; muốn gỡ luôn thì chạy `sudo apt autoremove` (Ubuntu, Debian) sau đó.
+
+Trên Xfce, Cinnamon, MATE, lệnh gỡ trả bộ gõ về mặc định của máy; fcitx5 còn cài thì có thể vẫn tự chạy,
+gỡ hẳn bằng `sudo apt remove fcitx5`. Trên KDE, fcitx5 vẫn là bàn phím ảo, vì có thể đang dùng cho bộ gõ
+khác; muốn bỏ thì chọn None ở System Settings → Virtual Keyboard.
 
 Gỡ bằng tay:
 

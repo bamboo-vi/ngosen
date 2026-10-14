@@ -212,6 +212,18 @@ wants_x11_setup() {
     command -v im-config >/dev/null 2>&1 || command -v apt-get >/dev/null 2>&1
 }
 
+# Plasma's autostart also starts fcitx5, but only one that KWin starts gets the Wayland input-method
+# protocol, which Qt apps type through.
+wants_kde_setup() {
+    [ "$setup_session" -eq 1 ] && [ "$(id -u)" -ne 0 ] || return 1
+    [ "${XDG_SESSION_TYPE:-}" = wayland ] || return 1
+    case ":${XDG_CURRENT_DESKTOP:-}:" in
+        *:KDE:*) ;;
+        *) return 1 ;;
+    esac
+    command -v kwriteconfig6 >/dev/null 2>&1 && command -v kreadconfig6 >/dev/null 2>&1
+}
+
 config_home() {
     printf '%s' "${XDG_CONFIG_HOME:-$HOME/.config}"
 }
@@ -448,6 +460,21 @@ setup_x11_session() {
     report_session_changes
 }
 
+setup_kde_session() {
+    local launcher=/usr/share/applications/org.fcitx.Fcitx5.desktop
+    say ""
+    if [ "$(kreadconfig6 --file kwinrc --group Wayland --key InputMethod)" != "$launcher" ]; then
+        kwriteconfig6 --file kwinrc --group Wayland --key InputMethod "$launcher"
+        session_changes+=("KDE tự chạy fcitx5 làm bộ gõ (Virtual Keyboard: Fcitx 5)")
+    fi
+    configure_fcitx5
+    if [ "${#session_changes[@]}" -eq 0 ]; then
+        say "Xong. Đăng xuất rồi đăng nhập lại để dùng bản mới."
+        return
+    fi
+    report_session_changes
+}
+
 report_session_changes() {
     local change
     if [ "${#session_changes[@]}" -eq 0 ]; then
@@ -548,6 +575,10 @@ uninstall() {
         say "Gỡ hẳn fcitx5:  sudo apt remove fcitx5"
     elif wants_x11_setup; then
         say "Xong. Đăng xuất rồi đăng nhập lại để bỏ hẳn fcitx5."
+    elif wants_kde_setup; then
+        # fcitx5 may serve other input methods, so KDE keeps it.
+        say "Xong. Đăng xuất rồi đăng nhập lại. fcitx5 vẫn là bộ gõ của KDE, gõ tiếng Anh như bàn phím."
+        say "Bỏ fcitx5: System Settings → Virtual Keyboard (Bàn phím ảo) → None."
     else
         say "Xong. Khởi động lại fcitx5:  fcitx5 -rd"
     fi
@@ -600,6 +631,8 @@ main() {
     say "Cấu hình trong ~/.config/fcitx5 được giữ."
     if wants_gnome_setup; then
         say "Sau đó fcitx5 được đặt làm bộ gõ cho tài khoản này, thay IBus của GNOME."
+    elif wants_kde_setup; then
+        say "Sau đó fcitx5 được đặt làm bộ gõ của KDE cho tài khoản này."
     elif wants_x11_setup; then
         say "Sau đó fcitx5 được đặt làm bộ gõ cho tài khoản này."
     fi
@@ -617,6 +650,10 @@ main() {
     install_package "$workdir/$file"
     if wants_gnome_setup; then
         setup_gnome_session
+        return
+    fi
+    if wants_kde_setup; then
+        setup_kde_session
         return
     fi
     if wants_x11_setup; then
