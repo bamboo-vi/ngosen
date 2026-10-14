@@ -10,6 +10,13 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thay đổi
+
+- Trên GNOME, lệnh cài một dòng tự đặt fcitx5 làm bộ gõ thay IBus (tự chạy khi đăng nhập, đặt biến
+  môi trường cho app), thêm Ngó Sen vào danh sách bộ gõ, ẩn các biểu tượng fcitx5 thừa trong danh sách
+  app và bật extension sửa lỗi gõ trên GNOME 50.0 đến 50.3. Cài xong chỉ cần đăng xuất rồi đăng nhập lại.
+  Thêm `--no-setup` để chỉ cài gói như trước (#52).
+
 ### Sửa
 
 - Dựng gói lại được: kho `LotusInputMethod/bamboo-core` (lõi Go) đã bị xoá nên mọi lượt dựng đều hỏng

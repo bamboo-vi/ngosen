@@ -47,6 +47,11 @@ Lệnh này tải gói cho đúng bản phân phối từ
 [bản phát hành mới nhất](https://github.com/ngosen/ngosen/releases/latest), hỏi lại rồi mới cài. Muốn lên bản
 mới thì chạy lại đúng lệnh đó; cấu hình cũ giữ nguyên.
 
+Trên GNOME (desktop mặc định của Ubuntu), lệnh cài còn đặt fcitx5 làm bộ gõ thay cho IBus, thêm Ngó Sen vào
+danh sách bộ gõ và bật extension sửa lỗi gõ khi cần. Cài xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó
+bấm Ctrl+Space để bật tiếng Việt. Muốn tự làm các bước đó thì cài bằng
+`curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --no-setup`.
+
 Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
 [Releases](https://github.com/ngosen/ngosen/releases) rồi cài bằng tay. Muốn tự dựng từ mã thì xem
 [TU-DUNG.md](TU-DUNG.md).
@@ -77,7 +82,7 @@ CI dựng gói này, chạy test và nạp nó vào fcitx5 trên một màn hìn
 NixOS thật. Gặp lỗi xin mở issue. Tự dựng từ bản clone trên máy: xem mục NixOS trong
 [TU-DUNG.md](TU-DUNG.md#nixos).
 
-**Cài xong, hoặc mỗi lần cập nhật,** khởi động lại fcitx5:
+**Mỗi lần cập nhật, và lần cài đầu trên desktop khác GNOME,** khởi động lại fcitx5:
 
 ```
 fcitx5 -rd
@@ -85,9 +90,10 @@ fcitx5 -rd
 
 KDE Wayland: đăng xuất rồi đăng nhập lại, vì KDE tự mở fcitx5 và lệnh trên không thay được.
 
-### Ubuntu 26.04: bật extension sửa lỗi gõ
+### Ubuntu 26.04: extension sửa lỗi gõ
 
-Có từ bản `0.5.0-1`. Cài xong, đăng xuất rồi đăng nhập lại, sau đó chạy một lần:
+Có từ bản `0.5.0-1`. Lệnh cài ở trên tự bật extension này trên GNOME 50.0 đến 50.3. Nếu cài gói bằng tay,
+đăng xuất rồi đăng nhập lại, sau đó chạy một lần:
 
 ```
 gnome-extensions enable forward-keys@ngosen.github.io
