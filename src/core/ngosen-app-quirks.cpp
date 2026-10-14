@@ -39,6 +39,13 @@ namespace ngosen {
         return field.frontend == "dbus" && !field.keyEventOrderFix && field.surroundingText;
     }
 
+    bool erasesWithCommittedDel(const Field& field) {
+        if (field.frontend != "dbus" || field.keyEventOrderFix || field.surroundingText)
+            return false;
+        // fcitx5-gtk4 does not pass on the terminal input purpose VTE sets.
+        return stripDesktopSuffix(field.program) == "ptyxis";
+    }
+
     bool selectsOverAutocompletion(const Field& field) {
         if ((field.frontend != "dbus" && field.frontend != "fcitx4") || !forwardsBackspaces(field) || field.surroundingText)
             return false;

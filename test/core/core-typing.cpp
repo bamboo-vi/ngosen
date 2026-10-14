@@ -178,6 +178,35 @@ namespace {
         return text.find(part) != std::string::npos;
     }
 
+    // Types "tiee" in Sen mode and returns what was committed, with DEL shown as <DEL>.
+    std::string commitsForTiee(const std::string& program, bool& eTaken) {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("dbus", false, program));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        for (char c : std::string("tie"))
+            press(state, static_cast<uint32_t>(c));
+        eTaken = press(state, static_cast<uint32_t>('e'));
+        loop.pump(100);
+        std::string out = join(host->commits());
+        for (size_t at = out.find('\x7f'); at != std::string::npos; at = out.find('\x7f', at))
+            out.replace(at, 1, "<DEL>");
+        return out;
+    }
+
+    void testTerminalErasesWithCommittedDel() {
+        bool              taken = false;
+        const std::string vte   = commitsForTiee("ptyxis", taken);
+        check(taken, "ptyxis: e -> ê takes the key", "not accepted");
+        check(vte == "['<DEL>ê']", "ptyxis: one commit erases e and types ê", vte);
+
+        const std::string sdl = commitsForTiee("Medieval2", taken);
+        check(!has(sdl, "<DEL>"), "dbus sdl: never gets DEL", sdl);
+    }
+
     // The log a user saves after a wrong word must show the keys, what was sent and what the app said.
     void testRecorderKeepsTheReplacement() {
         realMode = ngosen::Mode::Sen;
@@ -372,6 +401,7 @@ int main() {
     testKeyDuringReplacement();
     testGtk4DeletesSurrounding();
     testSdlGetsNoForwardedBackspace();
+    testTerminalErasesWithCommittedDel();
     testRecorderKeepsTheReplacement();
     testRecorderHidesPasswords();
     testRecorderLimits();
