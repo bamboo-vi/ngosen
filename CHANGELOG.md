@@ -13,8 +13,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Sửa
 
 - Dựng gói lại được: kho `LotusInputMethod/bamboo-core` (lõi Go) đã bị xoá nên mọi lượt dựng đều hỏng
-  ngay bước tải mã. Lõi Go giờ lấy từ bản sao [ngosen/bamboo-core](https://github.com/ngosen/bamboo-core),
-  cùng đúng bản code như trước. Lõi Rust vẫn lấy từ `nguyen10t2/bamboo_core`.
+  ngay bước tải mã. Lõi Go giờ lấy từ bản sao
+  [ngosen/bamboo-go-core](https://github.com/ngosen/bamboo-go-core), cùng đúng bản code như trước. Lõi
+  Rust vẫn lấy từ `nguyen10t2/bamboo_core` (#53).
 
 ## [1.3.0-1] — 13/10/2026
 
