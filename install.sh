@@ -11,6 +11,8 @@ RELEASE_URL=${NGOSEN_RELEASE_URL:-https://github.com/ngosen/ngosen/releases/late
 SOURCE_GUIDE="https://github.com/ngosen/ngosen/blob/main/TU-DUNG.md"
 
 assume_yes=0
+setup_session=1
+session_changes=()
 manager=
 pattern=
 workdir=
@@ -41,8 +43,9 @@ fetch() {
 }
 
 usage() {
-    say "Cách dùng: install.sh [--yes]"
-    say "  --yes   không hỏi lại trước khi cài"
+    say "Cách dùng: install.sh [--yes] [--no-setup]"
+    say "  --yes        không hỏi lại trước khi cài"
+    say "  --no-setup   chỉ cài gói, không tự đặt fcitx5 làm bộ gõ trên GNOME"
 }
 
 # Sets manager and pattern; pattern is a regular expression for the package's file name.
@@ -175,10 +178,158 @@ install_package() {
     esac
 }
 
+# The session setup below changes only the invoking user's files, so it runs without sudo and
+# only on GNOME, which starts IBus by default and needs every one of these steps.
+wants_gnome_setup() {
+    [ "$setup_session" -eq 1 ] && [ "$(id -u)" -ne 0 ] || return 1
+    case ":${XDG_CURRENT_DESKTOP:-}:" in
+        *:GNOME:*) return 0 ;;
+    esac
+    return 1
+}
+
+config_home() {
+    printf '%s' "${XDG_CONFIG_HOME:-$HOME/.config}"
+}
+
+enable_fcitx5_autostart() {
+    local dir
+    dir="$(config_home)/autostart"
+    [ -e /etc/xdg/autostart/org.fcitx.Fcitx5.desktop ] && return 0
+    [ -e "$dir/org.fcitx.Fcitx5.desktop" ] && return 0
+    mkdir -p "$dir"
+    cp /usr/share/applications/org.fcitx.Fcitx5.desktop "$dir/"
+    session_changes+=("fcitx5 tự chạy khi đăng nhập")
+}
+
+# GNOME offers fcitx5 no Wayland input-method protocol, so apps have to load fcitx5's own modules.
+set_im_environment() {
+    local dir file
+    dir="$(config_home)/environment.d"
+    file="$dir/90-ngosen.conf"
+    [ -e "$file" ] && return 0
+    if grep -qs '^GTK_IM_MODULE=' "$dir"/*.conf; then
+        say "Giữ nguyên biến bộ gõ đã đặt trong $dir."
+        return 0
+    fi
+    mkdir -p "$dir"
+    cat >"$file" <<'EOF'
+GTK_IM_MODULE=fcitx
+QT_IM_MODULE=fcitx
+XMODIFIERS=@im=fcitx
+SDL_IM_MODULE=fcitx
+EOF
+    # Debian's im-config otherwise picks IBus for X11 sessions and overrides the variables above.
+    if command -v im-config >/dev/null 2>&1; then
+        im-config -n fcitx5 >/dev/null 2>&1 || :
+    fi
+    session_changes+=("app dùng fcitx5 thay IBus")
+}
+
+# Prints the fcitx5 name of the first GNOME keyboard layout, e.g. "us" or "fr-azerty".
+gnome_layout() {
+    local sources layout
+    sources=$(gsettings get org.gnome.desktop.input-sources sources 2>/dev/null || true)
+    layout=$(printf '%s' "$sources" | grep -o "('xkb', '[^']*')" | head -n 1 | cut -d"'" -f4 || true)
+    layout=${layout:-us}
+    printf '%s' "${layout/+/-}"
+}
+
+stop_fcitx5() {
+    pkill -x fcitx5 || return 1
+    local tries=10
+    while [ "$tries" -gt 0 ] && pgrep -x fcitx5 >/dev/null; do
+        sleep 0.5
+        tries=$((tries - 1))
+    done
+}
+
+# fcitx5 writes its profile back when it exits, so it is stopped before the profile is edited.
+add_ngosen_to_profile() {
+    local profile layout items was_running=0
+    profile="$(config_home)/fcitx5/profile"
+    if grep -qs '^Name=ngosen$' "$profile"; then
+        return 0
+    fi
+    stop_fcitx5 && was_running=1
+    if [ -f "$profile" ]; then
+        items=$(grep -c '^\[Groups/0/Items/' "$profile" || true)
+        printf '\n[Groups/0/Items/%s]\nName=ngosen\nLayout=\n' "$items" >>"$profile"
+        sed -i 's/^DefaultIM=keyboard-.*/DefaultIM=ngosen/' "$profile"
+    else
+        layout=$(gnome_layout)
+        mkdir -p "$(dirname "$profile")"
+        cat >"$profile" <<EOF
+[Groups/0]
+Name=Default
+Default Layout=$layout
+DefaultIM=ngosen
+
+[Groups/0/Items/0]
+Name=keyboard-$layout
+Layout=
+
+[Groups/0/Items/1]
+Name=ngosen
+Layout=
+
+[GroupOrder]
+0=Default
+EOF
+    fi
+    if [ "$was_running" -eq 1 ]; then
+        fcitx5 -d >/dev/null 2>&1 || :
+    fi
+    session_changes+=("thêm Ngó Sen vào danh sách bộ gõ")
+}
+
+# GNOME 50.0 to 50.3 drop keys an input method forwards; the packaged extension delivers them.
+enable_forward_keys_extension() {
+    local uuid=forward-keys@ngosen.github.io version enabled
+    [ -d "/usr/share/gnome-shell/extensions/$uuid" ] || return 0
+    version=$(gnome-shell --version 2>/dev/null | grep -o '[0-9][0-9]*\.[0-9][0-9]*' | head -n 1 || true)
+    case "$version" in
+        50.0 | 50.1 | 50.2 | 50.3) ;;
+        *) return 0 ;;
+    esac
+    enabled=$(gsettings get org.gnome.shell enabled-extensions 2>/dev/null) || {
+        say "Chưa bật được extension sửa lỗi gõ; sau khi đăng nhập lại chạy: gnome-extensions enable $uuid"
+        return 0
+    }
+    case "$enabled" in
+        *"'$uuid'"*) return 0 ;;
+        "@as []" | "[]") enabled="['$uuid']" ;;
+        *) enabled="${enabled%]}, '$uuid']" ;;
+    esac
+    gsettings set org.gnome.shell enabled-extensions "$enabled"
+    session_changes+=("bật extension sửa lỗi gõ của GNOME $version")
+}
+
+setup_gnome_session() {
+    local change
+    say ""
+    enable_fcitx5_autostart
+    set_im_environment
+    add_ngosen_to_profile
+    enable_forward_keys_extension
+    if [ "${#session_changes[@]}" -eq 0 ]; then
+        say "Xong. Khởi động lại fcitx5 để dùng bản mới:  fcitx5 -rd"
+        return
+    fi
+    say "Đã đặt fcitx5 và Ngó Sen làm bộ gõ:"
+    for change in "${session_changes[@]}"; do
+        say "  - $change"
+    done
+    say ""
+    say "Xong. Đăng xuất rồi đăng nhập lại là gõ được tiếng Việt."
+    say "Bấm Ctrl+Space để chuyển qua lại tiếng Việt và tiếng Anh."
+}
+
 main() {
     while [ $# -gt 0 ]; do
         case "$1" in
             -y | --yes) assume_yes=1 ;;
+            --no-setup) setup_session=0 ;;
             -h | --help)
                 usage
                 exit 0
@@ -212,6 +363,9 @@ main() {
     say "Ngó Sen sẽ được cài bằng $manager từ gói:"
     say "  $RELEASE_URL/$file"
     say "Cấu hình trong ~/.config/fcitx5 được giữ."
+    if wants_gnome_setup; then
+        say "Sau đó fcitx5 được đặt làm bộ gõ cho tài khoản này, thay IBus của GNOME."
+    fi
     confirm "Tiếp tục?" || {
         say "Đã dừng, chưa cài gì."
         exit 0
@@ -224,6 +378,10 @@ main() {
 
     download_package "$hash" "$file"
     install_package "$workdir/$file"
+    if wants_gnome_setup; then
+        setup_gnome_session
+        return
+    fi
 
     say ""
     say "Xong. Việc còn lại:"
