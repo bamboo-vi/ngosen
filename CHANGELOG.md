@@ -15,6 +15,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Bỏ code không còn dùng, người dùng không thấy khác gì: đường "Shift+Space trả lại phím gõ" trong
   hai lõi (không chỗ nào bật), công cụ so lõi `misc/core-compare`, script `translate.sh` (chạy nhầm sẽ
   ghi đè bản dịch), vài hàm và nhánh không ai gọi trong bộ gõ và cửa sổ cài đặt (#57).
+- Cửa sổ cấu hình chung của fcitx5 không còn hiện 11 mục "Experiment" (thời gian chờ khi xoá chữ, gõ
+  đè trong ô chat Messenger). Giá trị vẫn giữ nguyên và vẫn chỉnh được trong `ngosen.conf` khi cần dò
+  lỗi (#56).
 - Lệnh cài có thêm `--uninstall`: gỡ gói Ngó Sen và trả lại những gì lệnh cài đã đổi trên GNOME, để
   lần đăng nhập sau GNOME dùng lại IBus. Trên GNOME, lệnh cài đặt phím bật/tắt tiếng Việt là Ctrl+Shift
   thay cho Ctrl+Space, vì Ctrl+Space là phím gợi ý code của VS Code; ai đã tự chọn phím thì giữ nguyên.
