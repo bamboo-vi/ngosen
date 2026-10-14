@@ -299,7 +299,7 @@ set_trigger_keys() {
 # fcitx5 writes its profile and config back when it exits, so it is stopped before either is edited.
 configure_fcitx5() {
     local was_running=0
-    has_ngosen_in_profile && has_trigger_keys && return 0
+    # Stopped before the check too: one running without the addon has already dropped ngosen.
     stop_fcitx5 && was_running=1
     add_ngosen_to_profile
     set_trigger_keys

@@ -21,7 +21,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Bỏ code không còn dùng, người dùng không thấy khác gì: đường "Shift+Space trả lại phím gõ" trong
   hai lõi (không chỗ nào bật), công cụ so lõi `misc/core-compare`, script `translate.sh` (chạy nhầm sẽ
   ghi đè bản dịch), vài hàm và nhánh không ai gọi trong bộ gõ và cửa sổ cài đặt (#57).
-- Cửa sổ cấu hình chung của fcitx5 không còn hiện 11 mục "Experiment" (thời gian chờ khi xoá chữ, gõ
+- Cửa sổ cấu hình chung của fcitx5 không còn hiện 10 mục "Experiment" (thời gian chờ khi xoá chữ, gõ
   đè trong ô chat Messenger). Giá trị vẫn giữ nguyên và vẫn chỉnh được trong `ngosen.conf` khi cần dò
   lỗi (#56).
 - Lệnh cài có thêm `--uninstall`: gỡ gói Ngó Sen và trả lại những gì lệnh cài đã đổi trên GNOME, để
@@ -38,6 +38,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Gỡ rồi cài lại trên GNOME không còn làm mất Ngó Sen khỏi danh sách bộ gõ. Nếu fcitx5 đang chạy mà
+  không có Ngó Sen, nó ghi đè danh sách khi tắt; lệnh cài giờ tắt fcitx5 trước khi đọc danh sách (#PR).
 - Dựng gói lại được: kho `LotusInputMethod/bamboo-core` (lõi Go) đã bị xoá nên mọi lượt dựng đều hỏng
   ngay bước tải mã. Lõi Go giờ lấy từ bản sao
   [ngosen/bamboo-go-core](https://github.com/ngosen/bamboo-go-core), cùng đúng bản code như trước. Lõi
