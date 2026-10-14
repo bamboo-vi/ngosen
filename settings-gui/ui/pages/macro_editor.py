@@ -54,7 +54,7 @@ class MacroEditorPage(BaseEditorPage):
         main_layout.addWidget(title)
 
         # Macro behavior toggles
-        toggles_card = CardWidget("")
+        toggles_card = CardWidget()
         toggles_layout = QHBoxLayout()
         self.cb_enable = QCheckBox(_("Enable Macro"))
         self.cb_capitalize = QCheckBox(_("Capitalize Macro"))
@@ -100,13 +100,13 @@ class MacroEditorPage(BaseEditorPage):
         main_layout.addWidget(toggles_card)
 
         # Main content area
-        editor_card = CardWidget("")
+        editor_card = CardWidget()
         content_layout = QVBoxLayout()
         editor_card.content_layout.addLayout(content_layout)
         main_layout.addWidget(editor_card)
 
         # Dynamic Macro Settings (Moved below the macro table)
-        dynamic_card = CardWidget("")
+        dynamic_card = CardWidget()
         dynamic_layout = QVBoxLayout()
 
         # Hint text

@@ -11,7 +11,6 @@ from ui.components import HelpIcon
 
 # Tooltip text for specific settings keys
 HELPERS = {
-    "ShortcutSen": N_("Text goes straight into the field, without an underline."),
     "CapitalizeMacro": N_(
         "Automatically match expansion case to trigger key case.\n\n"
         "Example if 'kg' is 'Khô gà':\n"
@@ -30,20 +29,8 @@ HELPERS = {
 }
 
 
-def add_help_icon(layout, key, clear_existing=False):
-    """
-    Utility to add a HelpIcon to a layout based on a setting key.
-    Optionally clears existing HelpIcons from the layout first.
-    """
-    if clear_existing:
-        # Avoid duplicate icons by removing existing ones in the layout cleanly
-        for i in reversed(range(layout.count())):
-            item = layout.itemAt(i)
-            if item and item.widget() and isinstance(item.widget(), HelpIcon):
-                widget = layout.takeAt(i).widget()
-                if widget:
-                    widget.deleteLater()
-
+def add_help_icon(layout, key):
+    """Adds a HelpIcon for a setting key that has help text."""
     # Only add if we have a mapped helper text
     helper_text = HELPERS.get(key)
     if helper_text:

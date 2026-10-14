@@ -144,18 +144,13 @@ MODE_SHORTCUT_KEYS = list(MODE_SHORTCUT_TO_VISIBILITY.keys())
 class CardWidget(QFrame):
     """A visual container (Card) for grouping related settings."""
 
-    def __init__(self, title: str, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("SettingCard")
 
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(16, 16, 16, 16)
         self.main_layout.setSpacing(12)
-
-        if title:
-            title_label = QLabel(title)
-            title_label.setObjectName("CardTitle")
-            self.main_layout.addWidget(title_label)
 
         self.content_layout = QVBoxLayout()
         self.content_layout.setSpacing(10)
@@ -469,49 +464,34 @@ class DynamicSettingsPage(QWidget):
         row_layout.setContentsMargins(0, 0, 0, 0)
         row_layout.setSpacing(8)
 
-        # If it's a shortcut key, add the corresponding visibility checkbox
-        if key in MODE_SHORTCUT_TO_VISIBILITY:
-            visibility_key = MODE_SHORTCUT_TO_VISIBILITY[key]
-            visibility_val = self.current_values.get(visibility_key, "True")
-
-            cb = QCheckBox()
-            cb.setChecked(str(visibility_val).lower() == "true")
-            cb.toggled.connect(
-                lambda checked, k=visibility_key: self.update_config(
-                    k, "True" if checked else "False"
-                )
-            )
-            row_layout.addWidget(cb)
+        visibility_key = MODE_SHORTCUT_TO_VISIBILITY[key]
+        visibility_val = self.current_values.get(visibility_key, "True")
+        cb = QCheckBox()
+        cb.setChecked(str(visibility_val).lower() == "true")
+        cb.toggled.connect(
+            lambda checked, k=visibility_key: self.update_config(k, "True" if checked else "False")
+        )
+        row_layout.addWidget(cb)
 
         label_widget = QLabel(_(label))
         row_layout.addWidget(label_widget)
         row_layout.addStretch()
 
-        if key in MODE_SHORTCUT_KEYS:
-            # Use single key capture for shortcuts
-            capture_btn = SingleKeyCaptureWidget(val)
-            capture_btn.setFixedWidth(100)
-            capture_btn.textChanged.connect(lambda text, k=key: self.update_config(k, text))
-            row_layout.addWidget(capture_btn)
-        else:
-            edit = QLineEdit(val)
-            edit.setFixedWidth(56)
-            edit.setMaxLength(1)
-            edit.setPlaceholderText("-")
-            edit.textChanged.connect(lambda text, k=key: self.update_config(k, text))
-            row_layout.addWidget(edit)
+        capture_btn = SingleKeyCaptureWidget(val)
+        capture_btn.setFixedWidth(100)
+        capture_btn.textChanged.connect(lambda text, k=key: self.update_config(k, text))
+        row_layout.addWidget(capture_btn)
 
         wrapper.addLayout(row_layout)
 
-        if key in MODE_SHORTCUT_KEYS:
-            warning = QLabel()
-            warning.setObjectName("ShortcutWarning")
-            brand.follow_theme(warning, self._color_warning)
-            warning.setWordWrap(True)
-            warning.hide()
-            wrapper.addWidget(warning)
-            self.shortcut_labels[key] = label_widget
-            self.shortcut_warning_labels[key] = warning
+        warning = QLabel()
+        warning.setObjectName("ShortcutWarning")
+        brand.follow_theme(warning, self._color_warning)
+        warning.setWordWrap(True)
+        warning.hide()
+        wrapper.addWidget(warning)
+        self.shortcut_labels[key] = label_widget
+        self.shortcut_warning_labels[key] = warning
 
         layout.addLayout(wrapper)
 
@@ -523,7 +503,7 @@ class DynamicSettingsPage(QWidget):
     def _render_mode_list(self, label):
         from qtpy.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
 
-        card = CardWidget("")
+        card = CardWidget()
         card.main_layout.setContentsMargins(0, 0, 0, 0)
         card.content_layout.setSpacing(4)
 

@@ -219,7 +219,7 @@ class KeymapEditorPage(BaseEditorPage):
         main_layout.addWidget(title)
 
         # Configuration card
-        config_card = CardWidget("")
+        config_card = CardWidget()
         config_layout = QVBoxLayout()
 
         # Row 1: Enable checkbox and Search
@@ -255,7 +255,7 @@ class KeymapEditorPage(BaseEditorPage):
         main_layout.addWidget(config_card)
 
         # Editor card
-        editor_card = CardWidget("")
+        editor_card = CardWidget()
         editor_layout = QVBoxLayout()
         editor_card.content_layout.addLayout(editor_layout)
         main_layout.addWidget(editor_card)

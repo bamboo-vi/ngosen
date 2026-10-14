@@ -25,17 +25,6 @@ int64_t now_ms() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
-bool isUinputMode(fcitx::NgoSenMode mode) {
-    return mode == fcitx::NgoSenMode::Sen;
-}
-
-std::string getFrontendName(fcitx::InputContext* ic) {
-    if (ic == nullptr) {
-        return "unknown";
-    }
-    return ic->frontend();
-}
-
 bool dropStaleSurroundingText(fcitx::InputContext* ic) {
     if (ic == nullptr || ic->capabilityFlags().test(fcitx::CapabilityFlag::SurroundingText) || !ic->surroundingText().isValid()) {
         return false;

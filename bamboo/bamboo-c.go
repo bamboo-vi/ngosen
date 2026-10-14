@@ -55,15 +55,6 @@ func EngineProcessKeyEvent(engine uintptr, keyVal, state uint32) bool {
 	return bambooEngine.preeditProcessKeyEvent(keyVal, state)
 }
 
-//export EngineSetRestoreKeyStroke
-func EngineSetRestoreKeyStroke(engine uintptr) {
-	bambooEngine, ok := engineFromHandle(engine)
-	if !ok {
-		return
-	}
-	bambooEngine.shouldRestoreKeyStrokes = true
-}
-
 //export EnginePullPreedit
 func EnginePullPreedit(engine uintptr) *C.char {
 	bambooEngine, ok := engineFromHandle(engine)
@@ -161,21 +152,20 @@ func NewEngine(name *C.cchar, dictHandle uintptr, tableHandle uintptr) uintptr {
 	imName := C.GoString(name)
 
 	var engine = &FcitxBambooEngine{
-		preeditor:               bamboo.NewEngine(bamboo.ParseInputMethod(bamboo.InputMethodDefinitions, imName), bamboo.EstdFlags),
-		macroTable:              table,
-		dictionary:              dictionary,
-		autoNonVnRestore:        true,
-		ddFreeStyle:             true,
-		macroEnabled:            false,
-		autoCapitalizeMacro:     false,
-		lastKeyWithShift:        false,
-		spellCheckWithDicts:     true,
-		preeditText:             "",
-		commitText:              "",
-		shouldRestoreKeyStrokes: false,
-		outputCharset:           "Unicode",
-		timeFormat:              "%H:%M",
-		dateFormat:              "%d/%m/%Y",
+		preeditor:           bamboo.NewEngine(bamboo.ParseInputMethod(bamboo.InputMethodDefinitions, imName), bamboo.EstdFlags),
+		macroTable:          table,
+		dictionary:          dictionary,
+		autoNonVnRestore:    true,
+		ddFreeStyle:         true,
+		macroEnabled:        false,
+		autoCapitalizeMacro: false,
+		lastKeyWithShift:    false,
+		spellCheckWithDicts: true,
+		preeditText:         "",
+		commitText:          "",
+		outputCharset:       "Unicode",
+		timeFormat:          "%H:%M",
+		dateFormat:          "%d/%m/%Y",
 	}
 	return uintptr(cgo.NewHandle(engine))
 }
@@ -204,21 +194,20 @@ func NewCustomEngine(definition **C.char, dictHandle uintptr, tableHandle uintpt
 	}
 
 	var engine = &FcitxBambooEngine{
-		preeditor:               bamboo.NewEngine(bamboo.ParseInputMethod(definitions, "Custom"), bamboo.EstdFlags),
-		macroTable:              table,
-		dictionary:              dictionary,
-		autoNonVnRestore:        true,
-		ddFreeStyle:             true,
-		macroEnabled:            false,
-		autoCapitalizeMacro:     false,
-		lastKeyWithShift:        false,
-		spellCheckWithDicts:     false,
-		preeditText:             "",
-		commitText:              "",
-		shouldRestoreKeyStrokes: false,
-		outputCharset:           "Unicode",
-		timeFormat:              "%H:%M",
-		dateFormat:              "%d/%m/%Y",
+		preeditor:           bamboo.NewEngine(bamboo.ParseInputMethod(definitions, "Custom"), bamboo.EstdFlags),
+		macroTable:          table,
+		dictionary:          dictionary,
+		autoNonVnRestore:    true,
+		ddFreeStyle:         true,
+		macroEnabled:        false,
+		autoCapitalizeMacro: false,
+		lastKeyWithShift:    false,
+		spellCheckWithDicts: false,
+		preeditText:         "",
+		commitText:          "",
+		outputCharset:       "Unicode",
+		timeFormat:          "%H:%M",
+		dateFormat:          "%d/%m/%Y",
 	}
 
 	return uintptr(cgo.NewHandle(engine))

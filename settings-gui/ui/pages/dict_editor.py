@@ -10,6 +10,7 @@ import os
 import tempfile
 
 from core.dbus_handler import NgoSenDBusHandler
+from core.settings_snapshot import local_dict_path
 from i18n import _
 from qtpy.QtCore import QItemSelectionModel, QSize, QStringListModel, Qt
 from qtpy.QtGui import QColor, QIcon
@@ -67,10 +68,6 @@ class DictEditorPage(BaseEditorPage):
         self._load_failed = False
         self._setup_ui()
 
-    def _get_local_dict_path(self) -> str:
-        xdg_data_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
-        return os.path.join(xdg_data_home, "fcitx5/ngosen/vietnamese.cm.dict")
-
     def _get_global_dict_path(self) -> str:
         # Common locations for fcitx5 pkgdata
         paths = [
@@ -100,7 +97,7 @@ class DictEditorPage(BaseEditorPage):
         main_layout.addWidget(explanation)
 
         # Dictionary behavior toggles
-        toggles_card = CardWidget("")
+        toggles_card = CardWidget()
         toggles_layout = QHBoxLayout()
         self.cb_enable = QCheckBox(_("Custom Dictionary"))
         self.cb_enable.toggled.connect(self._on_item_changed)
@@ -119,7 +116,7 @@ class DictEditorPage(BaseEditorPage):
         main_layout.addWidget(toggles_card)
 
         # Main content area
-        editor_card = CardWidget("")
+        editor_card = CardWidget()
         content_layout = QVBoxLayout()
         editor_card.content_layout.addLayout(content_layout)
         main_layout.addWidget(editor_card)
@@ -193,7 +190,7 @@ class DictEditorPage(BaseEditorPage):
                 )
 
             self.words = []
-            local_path = self._get_local_dict_path()
+            local_path = local_dict_path()
             path_to_read = (
                 local_path if os.path.exists(local_path) else self._get_global_dict_path()
             )
@@ -305,7 +302,7 @@ class DictEditorPage(BaseEditorPage):
         elif not self.dbus.iface:
             return False
 
-        local_path = self._get_local_dict_path()
+        local_path = local_dict_path()
         try:
             if sorted(self.words) == sorted(self._bundled_words()):
                 # A copy of the bundled words would hide later updates to them.

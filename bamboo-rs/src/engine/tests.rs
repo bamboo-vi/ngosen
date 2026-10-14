@@ -207,17 +207,6 @@ fn test_to_upper() {
 }
 
 #[test]
-fn test_shift_space_restore_key_strokes() {
-    let mut e = new_test_engine(&[], false);
-    type_keys(&mut e, "aw");
-    assert_eq!(e.preedit_text, "ă");
-    e.should_restore_key_strokes = true;
-    e.process_key_event(KEY_SPACE, 0);
-    assert!(!e.should_restore_key_strokes);
-    assert_eq!(e.preedit_text, "aw");
-}
-
-#[test]
 fn test_backspace() {
     let mut e = new_test_engine(&[], false);
     type_keys(&mut e, "aw");
