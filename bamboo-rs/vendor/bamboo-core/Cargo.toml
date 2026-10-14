@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.88"
 name = "bamboo-core"
-version = "0.3.26"
+version = "0.4.1"
 build = false
 include = [
     "src/**",
@@ -41,7 +41,7 @@ keywords = [
 ]
 categories = ["text-processing"]
 license = "MIT"
-repository = "https://github.com/nguyen10t2/bamboo_core"
+repository = "https://github.com/bamboo-vi/bamboo-core"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -98,6 +98,10 @@ path = "tests/horn_placement.rs"
 [[test]]
 name = "keystroke_verification"
 path = "tests/keystroke_verification.rs"
+
+[[test]]
+name = "preedit_overflow"
+path = "tests/preedit_overflow.rs"
 
 [[test]]
 name = "property_tests"
