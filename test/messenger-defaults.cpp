@@ -7,6 +7,7 @@
 #include "ngosen-engine.h"
 #include "test-input-context.h"
 
+#include <functional>
 #include <iostream>
 #include <string>
 
@@ -34,6 +35,21 @@ int main() {
     check("MessengerSelectOvertype defaults to on", config.messengerSelectOvertype.value());
     check("WaitSurroundingSettleMs defaults to 40", config.waitSurroundingSettleMs.value() == 40);
     check("WaitSurroundingSettleFirstWordMs defaults to 60", config.waitSurroundingSettleFirstWordMs.value() == 60);
+
+    // The config window lists what the description holds; the timing values must not show there.
+    fcitx::RawConfig description;
+    config.dumpDescription(description);
+    std::string                                  names;
+    std::function<void(const fcitx::RawConfig&)> collect = [&](const fcitx::RawConfig& node) {
+        for (const auto& name : node.subItems()) {
+            names += name + '\n';
+            collect(*node.get(name));
+        }
+    };
+    collect(description);
+    check("SpellCheck shows in the config window", names.find("SpellCheck\n") != std::string::npos);
+    check("WaitSurroundingEvent is hidden from the config window", names.find("WaitSurroundingEvent\n") == std::string::npos);
+    check("SurrCommitSleepMs is hidden from the config window", names.find("SurrCommitSleepMs\n") == std::string::npos);
 
     return failures == 0 ? 0 : 1;
 }

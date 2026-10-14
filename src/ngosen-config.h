@@ -235,19 +235,22 @@ namespace fcitx {
         Option<bool> freeMarking{this, "FreeMarking", _("Allow Type With More Freedom"), true};
         Option<bool> ddFreeStyle{this, "DdFreeStyle", _("Allow dd To Produce đ When Auto Restore Invalid Words Is On"), true};
         Option<bool> backspaceRemovesTone{this, "BackspaceRemovesTone", _("Backspace Removes the Tone Mark"), false};
-        Option<bool> waitSurroundingEvent{this, "WaitSurroundingEvent", _("Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping"), true};
-        Option<int>  waitSurroundingTimeoutMs{this, "WaitSurroundingTimeoutMs", _("Experiment: timeout (ms) for that wait"), 50};
-        Option<int>  waitSurroundingShortMs{this, "WaitSurroundingShortMs", _("Experiment: shorter timeout (ms) used after two consecutive timeouts without a matching event"), 40};
-        Option<int>  waitSurroundingProbeEvery{this, "WaitSurroundingProbeEvery",
-                                               _("Experiment: when the app's snapshot is frozen during deletion, stop waiting and re-probe once every N replacements"), 4};
-        Option<int>  waitSurroundingSettleMs{this, "WaitSurroundingSettleMs", _("Experiment: extra ms to wait after the deletion shows done, Messenger composer only"), 40};
-        Option<bool> messengerSelectOvertype{this, "MessengerSelectOvertype", _("Experiment: select with Shift+Left and type over it in the Messenger composer"), true};
-        Option<int>  waitSurroundingSettleFirstWordMs{this, "WaitSurroundingSettleFirstWordMs",
-                                                      _("Experiment: settle wait for the first word of a Messenger message (composer still loading)"), 60};
-        Option<int>  waitSurroundingMinPerKeyMs{this, "WaitSurroundingMinPerKeyMs",
-                                                _("Experiment: a snapshot identical to the one at send time counts as done only after this many ms per backspace"), 8};
-        Option<int>  surrDeleteSleepMs{this, "SurrDeleteSleepMs", _("Experiment: ms per deleted char to sleep after deleteSurroundingText"), 4};
-        Option<int>  surrCommitSleepMs{this, "SurrCommitSleepMs", _("Experiment: ms per committed char to sleep after commitString on the surrounding-text path"), 3};
+        // Timing for deleting through the app. Hidden from the config window; tests and bug reports
+        // still set them in ngosen.conf.
+        HiddenOption<bool> waitSurroundingEvent{this, "WaitSurroundingEvent", _("Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping"),
+                                                true};
+        HiddenOption<int> waitSurroundingTimeoutMs{this, "WaitSurroundingTimeoutMs", _("Experiment: timeout (ms) for that wait"), 50}; HiddenOption<int> waitSurroundingShortMs{
+            this, "WaitSurroundingShortMs", _("Experiment: shorter timeout (ms) used after two consecutive timeouts without a matching event"), 40};
+        HiddenOption<int>  waitSurroundingProbeEvery{this, "WaitSurroundingProbeEvery",
+                                                     _("Experiment: when the app's snapshot is frozen during deletion, stop waiting and re-probe once every N replacements"), 4};
+        HiddenOption<int>  waitSurroundingSettleMs{this, "WaitSurroundingSettleMs", _("Experiment: extra ms to wait after the deletion shows done, Messenger composer only"), 40};
+        HiddenOption<bool> messengerSelectOvertype{this, "MessengerSelectOvertype", _("Experiment: select with Shift+Left and type over it in the Messenger composer"), true};
+        HiddenOption<int>  waitSurroundingSettleFirstWordMs{this, "WaitSurroundingSettleFirstWordMs",
+                                                            _("Experiment: settle wait for the first word of a Messenger message (composer still loading)"), 60};
+        HiddenOption<int>  waitSurroundingMinPerKeyMs{this, "WaitSurroundingMinPerKeyMs",
+                                                      _("Experiment: a snapshot identical to the one at send time counts as done only after this many ms per backspace"), 8};
+        HiddenOption<int>  surrDeleteSleepMs{this, "SurrDeleteSleepMs", _("Experiment: ms per deleted char to sleep after deleteSurroundingText"), 4};
+        HiddenOption<int>  surrCommitSleepMs{this, "SurrCommitSleepMs", _("Experiment: ms per committed char to sleep after commitString on the surrounding-text path"), 3};
         // The key keeps its old name so saved settings still load.
         Option<bool> useNgoSenIcons{this, "UseLotusIcons", _("Use Ngó Sen Status Icons"), true};
 
