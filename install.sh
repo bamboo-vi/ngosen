@@ -305,6 +305,32 @@ enable_forward_keys_extension() {
     session_changes+=("bật extension sửa lỗi gõ của GNOME $version")
 }
 
+# A user entry with the same id overrides the system one, so this hides it for this user only.
+hide_launcher() {
+    local id=$1 dir
+    dir="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+    [ -e "/usr/share/applications/$id" ] || return 1
+    [ -e "$dir/$id" ] && return 1
+    mkdir -p "$dir"
+    printf '[Desktop Entry]\nType=Application\nName=%s\nNoDisplay=true\n' "${id%.desktop}" >"$dir/$id"
+}
+
+# Autostart replaces the "Fcitx 5" launcher and nobody here migrates from fcitx4. The settings
+# launcher goes only when a tray icon offers the same settings, which stock GNOME lacks.
+hide_fcitx5_launchers() {
+    local hidden=0 id
+    local -a ids=(org.fcitx.Fcitx5.desktop org.fcitx.fcitx5-migrator.desktop)
+    if gnome-extensions list --enabled 2>/dev/null | grep -q appindicator; then
+        ids+=(fcitx5-configtool.desktop)
+    fi
+    for id in "${ids[@]}"; do
+        hide_launcher "$id" && hidden=$((hidden + 1))
+    done
+    if [ "$hidden" -gt 0 ]; then
+        session_changes+=("ẩn $hidden biểu tượng fcitx5 thừa trong danh sách app")
+    fi
+}
+
 setup_gnome_session() {
     local change
     say ""
@@ -312,6 +338,7 @@ setup_gnome_session() {
     set_im_environment
     add_ngosen_to_profile
     enable_forward_keys_extension
+    hide_fcitx5_launchers
     if [ "${#session_changes[@]}" -eq 0 ]; then
         say "Xong. Khởi động lại fcitx5 để dùng bản mới:  fcitx5 -rd"
         return
