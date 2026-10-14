@@ -11,6 +11,7 @@
 #include "ngosen-globals.h"
 #include "ngosen-keysym.h"
 #include "ngosen-state.h"
+#include "ngosen-xtest.h"
 
 #include <functional>
 #include <iostream>
@@ -176,6 +177,48 @@ namespace {
         check(text == "tieengs a ", what + "another key leaves the text as typed", text);
     }
 
+    void pressInState(ngosen::TypingState& state, uint32_t sym, uint32_t states = 0) {
+        FakeKey down(sym, false, states);
+        state.keyEvent(down);
+        FakeKey up(sym, true, states);
+        state.keyEvent(up);
+    }
+
+    // Chromium replaces by selecting with Shift+Left through XTEST, and those keys come back to us.
+    void testRetypeOverSelection() {
+        constexpr uint32_t ShiftMask = 1U << 0;
+        realMode                     = Mode::Off;
+        FakeLoop      loop;
+        FakeResources resources;
+        Field         field       = makeField("dbus", false);
+        field.program             = "google-chrome";
+        field.keyEventOrderFix    = true;
+        auto                owned = std::make_unique<FakeHost>(loop, field);
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSystemKeysWork(true);
+        setXTestSenderForTest([](int) { return true; });
+
+        noteWhileOff(state, "tieengs vieetj");
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        pressInState(state, ngosen::key::Tab);
+        FakeKey shiftDown(ngosen::key::Shift_R);
+        state.keyEvent(shiftDown);
+        for (int i = 0; i < 14; ++i)
+            pressInState(state, ngosen::key::Left, ShiftMask);
+        FakeKey shiftUp(ngosen::key::Shift_R, true, ShiftMask);
+        state.keyEvent(shiftUp);
+        loop.pump(150);
+        const std::string commits = host->commits().empty() ? "(none)" : host->commits().back();
+        check(commits == "tiếng việt", "selection: Tab types the retyped text over the selection", commits);
+
+        pressInState(state, ngosen::key::Tab);
+        loop.pump(20);
+        check(host->systemKeys().size() == 2, "selection: Tab again selects the retyped text", std::to_string(host->systemKeys().size()) + " selections");
+        setXTestSenderForTest(nullptr);
+    }
+
 } // namespace
 
 int main() {
@@ -186,6 +229,7 @@ int main() {
     testRetypeInApp("wayland", true, Mode::Preedit);
     // Deletes through the surrounding text where forwarded keys do not work.
     testRetypeInApp("other", true, Mode::Sen);
+    testRetypeOverSelection();
     if (failures == 0)
         std::cout << "all retype checks passed\n";
     return failures == 0 ? 0 : 1;

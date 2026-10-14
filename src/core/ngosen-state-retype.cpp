@@ -135,8 +135,9 @@ namespace ngosen {
                 applyRetype();
             return true;
         }
-        // XIM clients hand our own forwarded backspaces back; they are not the user moving on.
-        if (is_deleting_.load(std::memory_order_acquire) && ngosen::key::isBackspace(sym))
+        // Keys arriving mid-replacement are our own: backspaces an XIM client hands back, or the
+        // Shift+Left that selects text in Chromium. They are not the user moving on.
+        if (is_deleting_.load(std::memory_order_acquire))
             return false;
         if (sym == ngosen::key::Escape && !retype_->applied) {
             keyEvent.accept();
