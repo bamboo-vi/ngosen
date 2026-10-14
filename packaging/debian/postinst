@@ -31,12 +31,18 @@ if [ "$1" = "configure" ]; then
     remove_uinput_server
 
     echo "--- Cấu hình Ngó Sen ---"
+    # KWin starts fcitx5 itself there, and one started with fcitx5 -rd cannot serve Qt apps.
+    kde_wayland=0
+    pgrep -x kwin_wayland >/dev/null 2>&1 && kde_wayland=1
     if [ -z "$2" ]; then
         echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen."
-        echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
+        if [ "$kde_wayland" -eq 1 ]; then
+            echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
+        fi
+    elif [ "$kde_wayland" -eq 1 ]; then
+        echo "Đăng xuất rồi đăng nhập lại để dùng bản mới."
     else
         echo "Khởi động lại fcitx5 để dùng bản mới: fcitx5 -rd"
-        echo "KDE Wayland: đăng xuất rồi đăng nhập lại."
     fi
 fi
 
