@@ -10,6 +10,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thay đổi
+
+- Test tự động của lệnh cài chạy thêm trên Fedora 44 với KDE; người dùng không thấy khác gì (#PR).
+
 ## [1.4.1-1] — 14/10/2026
 
 Trên KDE Plasma (Wayland), lệnh cài tự chọn fcitx5 làm bàn phím ảo để app Qt như Kate, Dolphin gõ được tiếng

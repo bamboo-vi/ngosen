@@ -242,6 +242,9 @@ jobs:
           - name: fedora-44, GNOME
             image: fedora:44
             args: gnome
+          - name: fedora-44, KDE
+            image: fedora:44
+            args: kde
 
     runs-on: ubuntu-latest
     container: ${{ matrix.image }}
