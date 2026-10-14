@@ -231,10 +231,6 @@ msgstr "Phím tắt cho Chế độ gõ mặc định"
 msgid "Allow Macro in Off Mode"
 msgstr "Cho phép gõ tắt trong chế độ \"Tắt\""
 
-#: src/ngosen-config.h:267
-msgid "Use Surrounding Text if possible"
-msgstr "Đọc chữ quanh con trỏ"
-
 #: src/ngosen-config.h:269
 msgid "Mode Order"
 msgstr "Thứ tự chế độ"
@@ -1061,10 +1057,6 @@ msgstr "Gõ dấu ở cuối từ cũng được."
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
 msgstr "Kể cả khi tắt mục này, phím z (Telex) hay 0 (VNI) vẫn xóa dấu thanh. Chữ không có dấu thanh thì Backspace xóa chữ như thường."
-
-#: settings-gui/ui/pages/dynamic_settings.py
-msgid "Turn this off if an app repeats letters."
-msgstr "Tắt nếu một app hay bị lặp chữ."
 
 #: settings-gui/ui/main_window.py
 msgid "&Defaults"
