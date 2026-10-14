@@ -12,6 +12,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thay đổi
 
+- Trên GNOME không có khay hệ thống (như Fedora), lệnh cài thêm extension Input Method Panel từ
+  extensions.gnome.org, để biểu tượng và menu của bộ gõ hiện trên thanh trên cùng. Ubuntu đã có khay nên
+  không cài thêm.
 - Trên GNOME, lệnh cài một dòng tự đặt fcitx5 làm bộ gõ thay IBus (tự chạy khi đăng nhập, đặt biến
   môi trường cho app), thêm Ngó Sen vào danh sách bộ gõ, ẩn các biểu tượng fcitx5 thừa trong danh sách
   app và bật extension sửa lỗi gõ trên GNOME 50.0 đến 50.3. Cài xong chỉ cần đăng xuất rồi đăng nhập lại.
