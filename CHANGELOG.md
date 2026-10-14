@@ -10,6 +10,13 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thay đổi
+
+- Trên KDE Plasma (Wayland), lệnh cài chọn fcitx5 làm bàn phím ảo của KDE (System Settings → Virtual
+  Keyboard), thêm Ngó Sen và đặt phím Ctrl+Shift như trên GNOME. Trước đây fcitx5 vẫn tự chạy nhưng app Qt
+  như Kate, Dolphin không gõ được tiếng Việt cho tới khi tự chọn mục đó. Lệnh gỡ để nguyên lựa chọn này,
+  vì fcitx5 có thể đang dùng cho bộ gõ khác (#PR).
+
 ## [1.4.0-1] — 14/10/2026
 
 Lệnh cài một dòng tự đặt fcitx5 làm bộ gõ trên GNOME và các desktop X11 như Xfce, Cinnamon, có thêm lệnh gỡ;
