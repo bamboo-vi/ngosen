@@ -12,6 +12,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thay đổi
 
+- Lệnh cài không đổi phím bật/tắt tiếng Việt nữa: dùng phím mặc định của fcitx5 là Ctrl+Space, muốn
+  đổi thì vào cài đặt của fcitx5. Máy đã được đặt Ctrl+Shift vẫn giữ nguyên (#76).
 - Test tự động của lệnh cài chạy thêm trên Fedora 44 với KDE; người dùng không thấy khác gì (#70).
 - Đổi tên vài hàm và test còn mang tên chế độ cũ (Uinput, Super Smooth) theo tên Gõ Sen; người dùng không
   thấy khác gì (#69).
