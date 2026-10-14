@@ -266,8 +266,6 @@ namespace fcitx {
         Option<std::string>                                      shortcutDefault{this, "ShortcutDefault", _("Shortcut for Default Typing"), "r"};
         Option<bool>                                             enableMacroInOffMode{this, "EnableMacroInOffMode", _("Allow Macro in Off Mode"), false};
 
-        Option<bool>                                             useSurroundingTextIfPossible{this, "useSurroundingTextIfPossible", _("Use Surrounding Text if possible"), false};
-
         Option<std::string>                                      modeOrder{this, "ModeOrder", _("Mode Order"), "Sen,Preedit,Emoji,Off,Default"};
 
         OptionWithAnnotation<std::string, TimeFormatAnnotation>  timeFormat{this, "TimeFormat", _("Time Format ($TIME in macro)"), "%H:%M", {}, {}, TimeFormatAnnotation()};

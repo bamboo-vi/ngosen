@@ -62,7 +62,6 @@ SETTINGS_MAP = {
             "DoubleSpaceToPeriod",
             "DoubleHyphenToEmDash",
             "AutoCapitalizeAfterPunctuation",
-            "useSurroundingTextIfPossible",
         ],
     },
     SettingsCategory.SHORTCUTS: {
@@ -88,7 +87,6 @@ HINTS = {
     "BackspaceRemovesTone": N_(
         "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
     ),
-    "useSurroundingTextIfPossible": N_("Turn this off if an app repeats letters."),
 }
 
 MODE_BUTTON_ORDER = ["Sen", "Preedit", "Emoji Picker", "OFF"]

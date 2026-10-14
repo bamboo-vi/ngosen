@@ -12,6 +12,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thay đổi
 
+- Bỏ mục "Đọc chữ quanh con trỏ" (`useSurroundingTextIfPossible`) ở trang Gõ chữ. Mục này mặc định tắt,
+  là cách chữa tạm lỗi gõ trên Messenger từ trước khi Ngó Sen có cách sửa riêng. Ai từng bật nó thì giờ
+  gõ như mọi người khác; LibreOffice vẫn xoá chữ theo cách riêng của nó như trước (#59).
 - Gom các hàm xử lý đường dẫn và chuỗi bị chép ba nơi (đọc giao diện GNOME, KDE và tìm biểu tượng) về
   một chỗ; cửa sổ cài đặt thôi tự đổi tên chế độ cũ vì bộ gõ đã làm việc đó. Người dùng không thấy khác
   gì (#58).

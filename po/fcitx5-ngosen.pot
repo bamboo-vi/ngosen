@@ -230,10 +230,6 @@ msgstr ""
 msgid "Allow Macro in Off Mode"
 msgstr ""
 
-#: src/ngosen-config.h:267
-msgid "Use Surrounding Text if possible"
-msgstr ""
-
 #: src/ngosen-config.h:269
 msgid "Mode Order"
 msgstr ""
@@ -992,10 +988,6 @@ msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
-msgstr ""
-
-#: settings-gui/ui/pages/dynamic_settings.py
-msgid "Turn this off if an app repeats letters."
 msgstr ""
 
 #: settings-gui/ui/main_window.py
