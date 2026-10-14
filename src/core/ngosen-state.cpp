@@ -344,7 +344,7 @@ namespace ngosen {
 
     void TypingState::handleKey(ngosen::KeyPress& keyEvent) {
         recordKey(keyEvent);
-        if (!bambooEngine_ || skipsKey(keyEvent))
+        if (!bambooEngine_ || (retype_ && handleRetypeKey(keyEvent)) || skipsKey(keyEvent))
             return;
         settleBeforeKey();
         const uint32_t currentSym = trackCapitalization(keyEvent);

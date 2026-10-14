@@ -24,6 +24,8 @@ namespace ngosen::test {
         int  reportDelayMs = 0;
         bool staleReport   = false; // reports the text as it was one change earlier
         int  lagMs         = 0;     // applies commits, deletions and keys this late, in order
+        bool handsBackKeys = false; // sends forwarded keys back to the input method first, as XIM clients do
+        int  keyStepMs     = 0;     // applies forwarded backspaces one per step, reporting after each
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -90,7 +92,8 @@ namespace ngosen::test {
         FakeLoop&                           loop_;
         Field                               field_;
         AppQuirks                           quirks_;
-        TypingState*                        state_ = nullptr;
+        TypingState*                        state_      = nullptr;
+        int                                 queuedKeys_ = 0;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
         std::u32string                      previousText_;

@@ -86,11 +86,13 @@ namespace ngosen::test {
         std::optional<CandidatePage> candidates() const override {
             return candidates_;
         }
-        void        highlightCandidate(int index) override;
-        void        nextCandidatePage() override {}
-        void        prevCandidatePage() override {}
-        void        pickCandidate(int index) override;
-        void        setStatus(const std::string& /*text*/) override {}
+        void highlightCandidate(int index) override;
+        void nextCandidatePage() override {}
+        void prevCandidatePage() override {}
+        void pickCandidate(int index) override;
+        void setStatus(const std::string& text) override {
+            status_ = text;
+        }
         std::string translate(const char* text) const override {
             return text;
         }
@@ -126,6 +128,12 @@ namespace ngosen::test {
         const std::string& preedit() const {
             return preedit_;
         }
+        const std::string& status() const {
+            return status_;
+        }
+        const std::vector<std::string>& labels() const {
+            return labels_;
+        }
 
       private:
         FakeLoop&                                 loop_;
@@ -137,6 +145,7 @@ namespace ngosen::test {
         std::vector<std::pair<int, unsigned int>> deletes_;
         std::vector<int>                          systemKeys_;
         std::string                               preedit_;
+        std::string                               status_;
         std::optional<CandidatePage>              candidates_;
         std::vector<std::string>                  labels_;
         std::function<void(size_t)>               onPick_;

@@ -398,6 +398,10 @@ namespace ngosen {
             selectAndOvertype(addedPart, static_cast<int>(ngosen::utf8::length(deletedPart)));
             return;
         }
+        if (ngosen::erasesWithCommittedDel(host_->field())) {
+            replaceThroughCommittedDel();
+            return;
+        }
         const bool isSurrText = deletesThroughSurrounding(surrounding);
         is_deleting_.store(true, std::memory_order_release);
         if (isSurrText) {
@@ -472,6 +476,16 @@ namespace ngosen {
         pending_commit_string_.clear();
         is_deleting_.store(false);
         replayBufferedKeys();
+    }
+
+    void TypingState::replaceThroughCommittedDel() {
+        NGOSEN_INFO("Erase " + std::to_string(expected_backspaces_) + " characters with DEL");
+        std::string out(static_cast<size_t>(expected_backspaces_), '\x7f');
+        out += pending_commit_string_;
+        expected_backspaces_     = 0;
+        current_backspace_count_ = 0;
+        pending_commit_string_.clear();
+        replayBufferedKeys(std::move(out));
     }
 
     void TypingState::replaceThroughForwardedKeys() {

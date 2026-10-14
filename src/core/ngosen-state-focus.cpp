@@ -42,6 +42,9 @@ namespace ngosen {
         if (!resume)
             is_deleting_.store(false);
         needEngineReset.store(false);
+        retype_.reset();
+        if (isFocusIn)
+            forgetKeysWhileOff();
         return bounce;
     }
 
@@ -66,6 +69,7 @@ namespace ngosen {
             is_deleting_.store(false);
         }
         needEngineReset.store(false);
+        retype_.reset();
         host_->resetPanel();
         host_->refreshPanel();
         if (realMode == ngosen::Mode::Preedit || realMode == ngosen::Mode::Emoji)

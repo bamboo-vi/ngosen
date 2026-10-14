@@ -23,3 +23,9 @@ set_tests_properties(core_replay_slow_app PROPERTIES LABELS "unit;core" TIMEOUT 
 add_test(NAME core_symbol_names
     COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} -DLIB=$<TARGET_FILE:ngosen_core> -P ${CMAKE_CURRENT_SOURCE_DIR}/core-symbol-names.cmake)
 set_tests_properties(core_symbol_names PROPERTIES LABELS "unit;core" TIMEOUT 60)
+
+add_executable(core_retype core-retype.cpp fake-app.cpp fake-host.cpp fake-engine.cpp)
+target_compile_definitions(core_retype PRIVATE NGOSEN_TEST_DICTIONARY="${PROJECT_SOURCE_DIR}/data/dictionaries/vietnamese.cm.dict")
+target_link_libraries(core_retype PRIVATE ngosen_core)
+add_test(NAME core_retype COMMAND core_retype)
+set_tests_properties(core_retype PROPERTIES LABELS "unit;core" TIMEOUT 60)

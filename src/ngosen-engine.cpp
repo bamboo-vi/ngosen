@@ -242,6 +242,20 @@ namespace fcitx {
             auto& commit = static_cast<CommitStringEvent&>(event);
             stateFor(commit.inputContext())->noteCommit(commit.text());
         });
+        // Keys reach this watcher whichever input method is on, so text typed before switching to
+        // Ngó Sen can be retyped with marks.
+        keyWhileOffWatcher_ = instance_->watchEvent(EventType::InputContextKeyEvent, EventWatcherPhase::PreInputMethod, [this](Event& event) {
+            auto& keyEvent = static_cast<KeyEvent&>(event);
+            auto* ic       = keyEvent.inputContext();
+            if (instance_->inputMethod(ic) == "ngosen")
+                return;
+            ngosen::FcitxKeyPress press(keyEvent);
+            stateFor(ic)->noteKeyWhileOff(press);
+        });
+        leaveTextWatchers_.push_back(instance_->watchEvent(EventType::InputContextFocusOut, EventWatcherPhase::Default,
+                                                           [this](Event& event) { stateFor(static_cast<InputContextEvent&>(event).inputContext())->forgetKeysWhileOff(); }));
+        leaveTextWatchers_.push_back(instance_->watchEvent(EventType::InputContextReset, EventWatcherPhase::Default,
+                                                           [this](Event& event) { stateFor(static_cast<InputContextEvent&>(event).inputContext())->fieldResetWhileOff(); }));
         // A ctx_ rule names a context address, which a later window may reuse.
         contextDestroyedWatcher_ = instance_->watchEvent(EventType::InputContextDestroyed, EventWatcherPhase::Default, [this](Event& event) {
             auto appName = getProgramName(static_cast<InputContextEvent&>(event).inputContext());
@@ -543,6 +557,7 @@ namespace fcitx {
         for (const auto& action : toggleActions_) {
             statusArea.addAction(StatusGroup::InputMethod, action);
         }
+        state->offerRetype();
     }
 
     void NgoSenEngine::keyEvent(const InputMethodEntry& /*entry*/, KeyEvent& keyEvent) {
