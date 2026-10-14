@@ -283,26 +283,64 @@ EOF
     session_changes+=("thêm Ngó Sen vào danh sách bộ gõ")
 }
 
-# GNOME 50.0 to 50.3 drop keys an input method forwards; the packaged extension delivers them.
-enable_forward_keys_extension() {
-    local uuid=forward-keys@ngosen.github.io version enabled
-    [ -d "/usr/share/gnome-shell/extensions/$uuid" ] || return 0
-    version=$(gnome-shell --version 2>/dev/null | grep -o '[0-9][0-9]*\.[0-9][0-9]*' | head -n 1 || true)
-    case "$version" in
-        50.0 | 50.1 | 50.2 | 50.3) ;;
-        *) return 0 ;;
-    esac
-    enabled=$(gsettings get org.gnome.shell enabled-extensions 2>/dev/null) || {
-        say "Chưa bật được extension sửa lỗi gõ; sau khi đăng nhập lại chạy: gnome-extensions enable $uuid"
-        return 0
-    }
+# Adds an extension to GNOME's list; it starts at the next login. Returns 1 when it is already
+# listed and 2 when the setting cannot be read.
+enable_shell_extension() {
+    local uuid=$1 enabled
+    enabled=$(gsettings get org.gnome.shell enabled-extensions 2>/dev/null) || return 2
     case "$enabled" in
-        *"'$uuid'"*) return 0 ;;
+        *"'$uuid'"*) return 1 ;;
         "@as []" | "[]") enabled="['$uuid']" ;;
         *) enabled="${enabled%]}, '$uuid']" ;;
     esac
     gsettings set org.gnome.shell enabled-extensions "$enabled"
-    session_changes+=("bật extension sửa lỗi gõ của GNOME $version")
+}
+
+shell_version() {
+    gnome-shell --version 2>/dev/null | grep -o '[0-9][0-9]*\.[0-9][0-9]*' | head -n 1 || true
+}
+
+has_tray() {
+    gnome-extensions list --enabled 2>/dev/null | grep -q appindicator
+}
+
+# GNOME 50.0 to 50.3 drop keys an input method forwards; the packaged extension delivers them.
+enable_forward_keys_extension() {
+    local uuid=forward-keys@ngosen.github.io version rc=0
+    [ -d "/usr/share/gnome-shell/extensions/$uuid" ] || return 0
+    version=$(shell_version)
+    case "$version" in
+        50.0 | 50.1 | 50.2 | 50.3) ;;
+        *) return 0 ;;
+    esac
+    enable_shell_extension "$uuid" || rc=$?
+    case "$rc" in
+        0) session_changes+=("bật extension sửa lỗi gõ của GNOME $version") ;;
+        2) say "Chưa bật được extension sửa lỗi gõ; sau khi đăng nhập lại chạy: gnome-extensions enable $uuid" ;;
+    esac
+}
+
+# Stock GNOME has no tray, so fcitx5's status icon and menu need the Input Method Panel extension,
+# which is published only on extensions.gnome.org.
+install_kimpanel() {
+    local uuid=kimpanel@kde.org major info url rc=0
+    has_tray && return 0
+    if ! gnome-extensions list 2>/dev/null | grep -qx "$uuid"; then
+        major=$(shell_version)
+        major=${major%%.*}
+        [ -n "$major" ] || return 0
+        info=$(fetch -sS "https://extensions.gnome.org/extension-info/?uuid=$uuid&shell_version=$major" 2>/dev/null) || info=
+        url=$(printf '%s' "$info" | grep -o '"download_url": *"/[^"]*"' | cut -d'"' -f4 || true)
+        if [ -z "$url" ] || ! fetch -sS -o "$workdir/kimpanel.zip" "https://extensions.gnome.org$url" 2>/dev/null ||
+            ! gnome-extensions install --force "$workdir/kimpanel.zip" >/dev/null 2>&1; then
+            say "Chưa cài được extension Input Method Panel; cài tay ở https://extensions.gnome.org/extension/261/"
+            return 0
+        fi
+    fi
+    enable_shell_extension "$uuid" || rc=$?
+    if [ "$rc" -eq 0 ]; then
+        session_changes+=("cài extension Input Method Panel: biểu tượng bộ gõ trên thanh trên cùng")
+    fi
 }
 
 # A user entry with the same id overrides the system one, so this hides it for this user only.
@@ -316,11 +354,11 @@ hide_launcher() {
 }
 
 # Autostart replaces the "Fcitx 5" launcher and nobody here migrates from fcitx4. The settings
-# launcher goes only when a tray icon offers the same settings, which stock GNOME lacks.
+# launcher goes only when the tray or the Input Method Panel menu opens the same settings.
 hide_fcitx5_launchers() {
     local hidden=0 id
     local -a ids=(org.fcitx.Fcitx5.desktop org.fcitx.fcitx5-migrator.desktop)
-    if gnome-extensions list --enabled 2>/dev/null | grep -q appindicator; then
+    if has_tray || gsettings get org.gnome.shell enabled-extensions 2>/dev/null | grep -q "'kimpanel@kde.org'"; then
         ids+=(fcitx5-configtool.desktop)
     fi
     for id in "${ids[@]}"; do
@@ -338,6 +376,7 @@ setup_gnome_session() {
     set_im_environment
     add_ngosen_to_profile
     enable_forward_keys_extension
+    install_kimpanel
     hide_fcitx5_launchers
     if [ "${#session_changes[@]}" -eq 0 ]; then
         say "Xong. Khởi động lại fcitx5 để dùng bản mới:  fcitx5 -rd"

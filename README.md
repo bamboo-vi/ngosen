@@ -48,8 +48,10 @@ Lệnh này tải gói cho đúng bản phân phối từ
 mới thì chạy lại đúng lệnh đó; cấu hình cũ giữ nguyên.
 
 Trên GNOME (desktop mặc định của Ubuntu), lệnh cài còn đặt fcitx5 làm bộ gõ thay cho IBus, thêm Ngó Sen vào
-danh sách bộ gõ và bật extension sửa lỗi gõ khi cần. Cài xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó
-bấm Ctrl+Space để bật tiếng Việt. Muốn tự làm các bước đó thì cài bằng
+danh sách bộ gõ và bật extension sửa lỗi gõ khi cần. GNOME không có khay hệ thống (như Fedora) thì lệnh cài
+thêm extension [Input Method Panel](https://extensions.gnome.org/extension/261/) để biểu tượng và menu bộ
+gõ hiện trên thanh trên cùng. Cài xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Space để bật
+tiếng Việt. Muốn tự làm các bước đó thì cài bằng
 `curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --no-setup`.
 
 Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
