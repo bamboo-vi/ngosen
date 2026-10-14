@@ -45,7 +45,7 @@ namespace {
 } // namespace
 
 int main() {
-    configureTestPaths("fcitx5-ngosen-super-smooth-settle-first-word");
+    configureTestPaths("fcitx5-ngosen-sen-settle-first-word");
     TestInstance        testInstance;
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;

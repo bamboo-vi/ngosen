@@ -171,7 +171,7 @@ namespace ngosen {
         void onWaitSurroundingUpdated();
         void onOvertypeSurroundingUpdated();
 
-        // --- Sen mode: wait for the app instead of sleeping (see handleUInputKeyPress) ---
+        // --- Sen mode: wait for the app instead of sleeping (see handleReplacementBackspace) ---
         std::unique_ptr<ngosen::Timer> surr_wait_timer_;
         bool                           surr_wait_watching_ = false; ///< reports go to onWaitSurroundingUpdated once a wait has started
         std::unique_ptr<ngosen::Timer> xim_forward_timer_;          ///< forwards after the XIM sync reply
@@ -297,13 +297,14 @@ namespace ngosen {
         void updateEmojiPreedit();
 
         /**
-         * @brief Handles key press in Sen mode.
+         * @brief Counts a backspace that comes back while Sen mode replaces a word; the last one
+         *        waits for the app to apply them, then commits the new text.
          * @param event The key event.
          * @param currentSym Current key symbol.
          * @param sleepTime Delay in microseconds.
          * @return True if event was handled.
          */
-        bool handleUInputKeyPress(ngosen::KeyPress& event, uint32_t currentSym, int sleepTime);
+        bool handleReplacementBackspace(ngosen::KeyPress& event, uint32_t currentSym, int sleepTime);
         bool waitForDeletion(ngosen::KeyPress* event, int sleepTime);
         // Commits once the app reports the deletion, or at a timeout.
         bool startSurroundingWait(ngosen::KeyPress* event);
@@ -353,7 +354,7 @@ namespace ngosen {
          * @param currentSym Current key symbol.
          * @param sleepTime Delay in microseconds.
          */
-        void handleUinputMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
+        void handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         // Backspace on a word with a tone mark: take off only the mark. False leaves the key as is.
         bool removeToneMark(ngosen::KeyPress& keyEvent);
         // The engine finished a word: send what differs from the text already typed.
