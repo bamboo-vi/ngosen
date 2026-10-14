@@ -39,7 +39,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Sửa
 
 - Gỡ rồi cài lại trên GNOME không còn làm mất Ngó Sen khỏi danh sách bộ gõ. Nếu fcitx5 đang chạy mà
-  không có Ngó Sen, nó ghi đè danh sách khi tắt; lệnh cài giờ tắt fcitx5 trước khi đọc danh sách (#PR).
+  không có Ngó Sen, nó ghi đè danh sách khi tắt; lệnh cài giờ tắt fcitx5 trước khi đọc danh sách (#60).
 - Dựng gói lại được: kho `LotusInputMethod/bamboo-core` (lõi Go) đã bị xoá nên mọi lượt dựng đều hỏng
   ngay bước tải mã. Lõi Go giờ lấy từ bản sao
   [ngosen/bamboo-go-core](https://github.com/ngosen/bamboo-go-core), cùng đúng bản code như trước. Lõi
