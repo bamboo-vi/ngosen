@@ -32,6 +32,14 @@ namespace {
         }
     }
 
+    // The key watcher sees the switch key like any other key.
+    void pressSwitchKey(TestInputContext& context, const char* key = "Control+space") {
+        fcitx::KeyEvent down(&context, fcitx::Key(key), false);
+        context.keyEvent(down);
+        fcitx::KeyEvent up(&context, fcitx::Key(key), true);
+        context.keyEvent(up);
+    }
+
     std::string switchToNgosen(fcitx::NgoSenEngine& engine, const fcitx::InputMethodEntry& entry, TestInputContext& context) {
         fcitx::InputContextEvent event(&context, fcitx::EventType::InputContextSwitchInputMethod);
         engine.activate(entry, event);
@@ -62,6 +70,21 @@ int main() {
     check(offer == "abc tieengs vieetj → abc tiếng việt", "switching on offers the text typed before", offer);
 
     fcitx::InputContextEvent away(context.get(), fcitx::EventType::InputContextSwitchInputMethod);
+    engine.deactivate(entry, away);
+    typeWhileOff(*context, "abc tieengs vieetj");
+    pressSwitchKey(*context);
+    offer = switchToNgosen(engine, entry, *context);
+    check(offer == "abc tieengs vieetj → abc tiếng việt", "the switch key keeps the text typed before", offer);
+
+    fcitx::RawConfig hotkeys;
+    hotkeys.setValueByPath("Hotkey/TriggerKeys/0", "Super+space");
+    testInstance.instance.globalConfig().load(hotkeys, true);
+    engine.deactivate(entry, away);
+    typeWhileOff(*context, "abc tieengs vieetj");
+    pressSwitchKey(*context, "Super+space");
+    offer = switchToNgosen(engine, entry, *context);
+    check(offer == "abc tieengs vieetj → abc tiếng việt", "a switch key set in fcitx5 keeps the text typed before", offer);
+
     engine.deactivate(entry, away);
     typeWhileOff(*context, "vieetj");
     context->focusOut();
