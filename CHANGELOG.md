@@ -42,8 +42,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
-- Gõ Sen làm mất chữ khi gõ `dd`, `ow`… làm chữ đầu tiên trong ô trống của Zed (khung chat AI): ô bị xoá trống
-  thì mất focus một lúc, chữ gửi lúc đó bị bỏ. Giờ Ngó Sen chờ ô có focus lại rồi mới gửi.
+- Gõ Sen làm mất chữ khi gõ `dd`, `ow`… làm chữ đầu tiên trong ô trống của Zed: ô bị xoá trống thì mất focus
+  một lúc, chữ gửi lúc đó bị bỏ. Giờ Ngó Sen chờ ô có focus lại rồi mới gửi (#94).
 - Bật kiểm chính tả bằng từ điển thì vài chữ đúng bị trả về phím đã gõ khi kiểu đặt dấu khác cách từ điển ghi:
   `chói loas` thay cho `chói lóa` (kiểu cũ), `nhoes` thay cho `nhoé` (kiểu mới). Từ điển giờ khớp cả hai kiểu (#92).
 - Trên Sway, chữ có dấu trong app GTK và Firefox bị mất khi gõ Gõ Sen (gõ `đường` ra `ường`) (#87).
