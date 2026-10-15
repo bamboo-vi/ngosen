@@ -1127,3 +1127,52 @@ msgstr ""
 #: settings-gui/core/system_check.py
 msgid "Qt 5 apps have no input method"
 msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Test an app"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "Open the app, switch to Ngó Sen and type “{sample}” ({telex} in Telex). Then choose “Save typing log” in the Ngó Sen menu and read the log here."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Read typing log"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "It typed right"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "It typed wrong"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} got the sample right."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} got the sample wrong."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} does not tell Ngó Sen its text. Did the sample come out right?"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "The app shows: {}"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "No typing log found. Save one from the Ngó Sen menu first."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "The log has no typing in it. Type the sample, then save the log again."
+msgstr ""

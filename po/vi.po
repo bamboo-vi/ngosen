@@ -1195,3 +1195,52 @@ msgstr "KDE Wayland không cần hai biến này, và khung gợi ý có thể n
 #: settings-gui/core/system_check.py
 msgid "Qt 5 apps have no input method"
 msgstr "App Qt 5 không có bộ gõ"
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Test an app"
+msgstr "Test một app"
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "Open the app, switch to Ngó Sen and type “{sample}” ({telex} in Telex). Then choose “Save typing log” in the Ngó Sen menu and read the log here."
+msgstr "Mở app, chuyển sang Ngó Sen và gõ “{sample}” (Telex: {telex}). Sau đó chọn “Lưu nhật ký gõ” trong menu Ngó Sen rồi đọc nhật ký ở đây."
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Read typing log"
+msgstr "Đọc nhật ký gõ"
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "It typed right"
+msgstr "Gõ đúng"
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "It typed wrong"
+msgstr "Gõ sai"
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} got the sample right."
+msgstr "{app} nhận đúng câu mẫu."
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} got the sample wrong."
+msgstr "{app} nhận sai câu mẫu."
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} does not tell Ngó Sen its text. Did the sample come out right?"
+msgstr "{app} không báo chữ cho Ngó Sen. Câu mẫu có hiện đúng không?"
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "The app shows: {}"
+msgstr "App đang hiện: {}"
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "No typing log found. Save one from the Ngó Sen menu first."
+msgstr "Chưa có nhật ký gõ. Hãy lưu nhật ký từ menu Ngó Sen trước."
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "The log has no typing in it. Type the sample, then save the log again."
+msgstr "Nhật ký chưa ghi lần gõ nào. Gõ câu mẫu rồi lưu lại nhật ký."
