@@ -49,9 +49,19 @@ usage() {
     say "  --uninstall  gỡ Ngó Sen và trả lại những gì lệnh cài đã đổi"
 }
 
+x86_64_only() {
+    [ "$2" = x86_64 ] || unsupported "$1 trên máy $2"
+}
+
 # Sets manager and pattern; pattern is a regular expression for the package's file name.
 detect_distribution() {
-    [ "$(uname -m)" = x86_64 ] || unsupported "máy $(uname -m)"
+    local machine deb_arch
+    machine=$(uname -m)
+    case "$machine" in
+        x86_64) deb_arch=amd64 ;;
+        aarch64) deb_arch=arm64 ;;
+        *) unsupported "máy $machine" ;;
+    esac
     [ -r /etc/os-release ] || die "không đọc được /etc/os-release"
 
     local id like codename version
@@ -71,15 +81,17 @@ detect_distribution() {
                 *) unsupported "Fedora ${version:-không rõ phiên bản}" ;;
             esac
             manager=dnf
-            pattern="fcitx5-ngosen-[0-9][^ /]*\\.fc${version}\\.x86_64\\.rpm"
+            pattern="fcitx5-ngosen-[0-9][^ /]*\\.fc${version}\\.${machine}\\.rpm"
             return
             ;;
         opensuse-tumbleweed)
+            x86_64_only "openSUSE" "$machine"
             manager=zypper
             pattern='fcitx5-ngosen-[0-9][^ /]*\.opensuse-tumbleweed\.x86_64\.rpm'
             return
             ;;
         arch | cachyos | endeavouros)
+            x86_64_only "$id" "$machine"
             manager=pacman
             pattern='fcitx5-ngosen-[0-9][^ /]*-x86_64\.pkg\.tar\.zst'
             return
@@ -88,6 +100,7 @@ detect_distribution() {
 
     case " $like " in
         *" arch "*)
+            x86_64_only "$id" "$machine"
             manager=pacman
             pattern='fcitx5-ngosen-[0-9][^ /]*-x86_64\.pkg\.tar\.zst'
             return
@@ -100,7 +113,7 @@ detect_distribution() {
         case "$codename" in
             bookworm | trixie | forky | jammy | noble | resolute)
                 manager=apt
-                pattern="fcitx5-ngosen_[0-9][^ /]*_${codename}_amd64\\.deb"
+                pattern="fcitx5-ngosen_[0-9][^ /]*_${codename}_${deb_arch}\\.deb"
                 return
                 ;;
         esac
