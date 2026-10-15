@@ -69,6 +69,8 @@ prepare_system() {
         # im-config 1.1 exits without a dialog program; every Debian install but a container has whiptail.
         DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends \
             sudo curl ca-certificates procps dbus dbus-bin whiptail
+        # Like a fresh Kali image, so the installer has to fetch the lists itself.
+        rm -rf /var/lib/apt/lists/*
     else
         dnf install -y -q sudo curl procps-ng dbus-daemon dbus-tools shadow-utils
         # The installer recognises KDE by kreadconfig6 and kwriteconfig6.

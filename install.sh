@@ -177,6 +177,8 @@ install_package() {
             # off. Naming them also covers a reinstall, which apt skips along with its recommends.
             local extra candidate
             local -a extras=()
+            # Kali's images ship without package lists, and old lists name versions the mirror dropped.
+            as_root apt-get update
             for candidate in im-config fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6; do
                 extra=$(apt-cache policy "$candidate" 2>/dev/null | grep -m1 'Candidate:' || true)
                 case "$extra" in
