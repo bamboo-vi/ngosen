@@ -23,6 +23,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thay đổi
 
+- README ghi công Đào Trọng Nguyên, tác giả lõi gõ Rust bamboo-core mà các gói cài đang dùng (#89).
 - Dữ liệu test của cửa sổ cài đặt dùng đường dẫn addon `ngosen` thay cho tên cũ `lotus`; người dùng không
   thấy khác gì (#79).
 - Lệnh cài không đổi phím bật/tắt tiếng Việt nữa: dùng phím mặc định của fcitx5 là Ctrl+Space, muốn
