@@ -102,7 +102,7 @@
     "App Rules",
     "",
     {
-     "External": "fcitx://config/addon/lotus/app_rules",
+     "External": "fcitx://config/addon/ngosen/app_rules",
      "LaunchSubConfig": "True"
     }
    ],
@@ -460,7 +460,7 @@
     "Macro",
     "",
     {
-     "External": "fcitx://config/addon/lotus/lotus-macro",
+     "External": "fcitx://config/addon/ngosen/ngosen-macro",
      "LaunchSubConfig": "True"
     }
    ],
@@ -470,7 +470,7 @@
     "Custom Keymap",
     "",
     {
-     "External": "fcitx://config/addon/lotus/custom_keymap",
+     "External": "fcitx://config/addon/ngosen/custom_keymap",
      "LaunchSubConfig": "True"
     }
    ],
