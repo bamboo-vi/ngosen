@@ -15,7 +15,9 @@ use bamboo_core::advanced::encode;
 use bamboo_core::{Config, Engine, InputMethod, InputMethodPreset, Mode, OutputOptions, W2uMode};
 
 use crate::macro_table::MacroTable;
-use crate::text::{has_any_vietnamese_rune, has_any_vietnamese_vowel, is_word_break_symbol};
+use crate::text::{
+    has_any_vietnamese_rune, has_any_vietnamese_vowel, is_word_break_symbol, without_tone_position,
+};
 use crate::time_format::format_time;
 
 #[cfg(test)]
@@ -46,7 +48,26 @@ pub const INPUT_METHOD_NAMES: [&str; 7] = [
     "VNI Bàn phím tiếng Pháp",
 ];
 
-pub type Dictionary = HashSet<String>;
+/// Words for spell checking, matched whatever tone style the user picked.
+#[derive(Debug, Default)]
+pub struct Dictionary(HashSet<String>);
+
+impl Dictionary {
+    pub fn contains(&self, word: &str) -> bool {
+        self.0.contains(&without_tone_position(word))
+    }
+}
+
+impl FromIterator<String> for Dictionary {
+    fn from_iter<I: IntoIterator<Item = String>>(words: I) -> Self {
+        Self(
+            words
+                .into_iter()
+                .map(|w| without_tone_position(&w))
+                .collect(),
+        )
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MacroCase {

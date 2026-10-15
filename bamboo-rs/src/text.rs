@@ -42,6 +42,24 @@ pub fn has_any_vietnamese_vowel(word: &str) -> bool {
     word.chars().any(|c| vowel_position(lower(c)).is_some())
 }
 
+/// The word with its tones moved to the end, so `hoà` and `hòa` compare equal whichever tone
+/// style typed them.
+pub fn without_tone_position(word: &str) -> String {
+    let mut letters = String::with_capacity(word.len());
+    let mut tones = String::new();
+    for c in word.chars() {
+        let lower_c = lower(c);
+        match vowel_position(lower_c) {
+            Some(pos) if pos % 6 != 0 => {
+                letters.extend(VOWELS.chars().nth(pos - pos % 6));
+                tones.extend(char::from_digit((pos % 6) as u32, 10));
+            }
+            _ => letters.push(lower_c),
+        }
+    }
+    letters + &tones
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
