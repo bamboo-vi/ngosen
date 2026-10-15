@@ -12,8 +12,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thêm
 
-- Quên bật tiếng Việt mà đã gõ `tieengs vieetj`: bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì cạnh con
-  trỏ hiện `tieengs vieetj → tiếng việt`. Bấm Tab để gõ lại có dấu, Tab lần nữa để trả lại như cũ, Esc hoặc
+- Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
+  cạnh con trỏ hiện `tieengs vieetj → tiếng việt` kèm dòng "Cứu chữ: Tab để đổi, Esc để giữ nguyên" (#).
+  Bấm Tab để gõ lại có dấu, Tab lần nữa để trả lại như cũ, Esc hoặc
   phím khác để bỏ qua. Không ghi nhớ trong ô mật khẩu; bấm chuột, Enter, phím mũi tên hay chuyển ô thì đoạn
   đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ, như terminal Ptyxis trên GNOME (#71).
 
