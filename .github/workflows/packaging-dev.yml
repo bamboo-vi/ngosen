@@ -233,6 +233,9 @@ jobs:
           - name: debian-13, X11, no recommends
             image: debian:13
             args: --no-recommends x11
+          - name: kali-rolling, X11
+            image: kalilinux/kali-rolling
+            args: x11
           - name: ubuntu-24.04, X11
             image: ubuntu:24.04
             args: x11
