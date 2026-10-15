@@ -159,6 +159,10 @@ namespace ngosen {
         if (surr_wait_timer_only_) {
             return;
         }
+        // Committing now would be lost; a field that empties itself refocuses within a few ms (#93).
+        if (ngosen::dropsCommitsWithoutFocus(host_->field())) {
+            return;
+        }
         finishReplacement("focus lost", false);
     }
 

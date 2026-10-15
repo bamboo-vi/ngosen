@@ -110,7 +110,7 @@ namespace ngosen::test {
     }
 
     void FakeApp::commitText(const std::string& text) {
-        if (quirks_.dropsCommitsInReport && inReport_)
+        if ((quirks_.dropsCommitsInReport && inReport_) || !focused_)
             return;
         later(quirks_.lagMs, [this, text] { insert(utf8::decode(text)); });
     }
@@ -175,6 +175,16 @@ namespace ngosen::test {
         previousCursor_ = cursor_;
         text_.erase(cursor_ - count, count);
         cursor_ -= count;
+        if (text_.empty() && quirks_.refocusWhenEmptiedMs > 0) {
+            focused_ = false;
+            state_->deactivate(true);
+            later(quirks_.refocusWhenEmptiedMs, [this] {
+                focused_ = true;
+                state_->activate(Mode::Sen, true);
+                changed();
+            });
+            return;
+        }
         changed();
     }
 
