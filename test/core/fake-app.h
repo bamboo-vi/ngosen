@@ -25,6 +25,7 @@ namespace ngosen::test {
         bool staleReport          = false; // reports the text as it was one change earlier
         int  lagMs                = 0;     // applies commits, deletions and keys this late, in order
         bool dropsCommitsInReport = false; // drops commits sent while its report is handled, as wlroots does
+        int  refocusWhenEmptiedMs = 0;     // leaves focus this long when its text becomes empty, as Zed does
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -52,7 +53,7 @@ namespace ngosen::test {
             return field_;
         }
         bool hasFocus() const override {
-            return true;
+            return focused_;
         }
 
         void                         showPreedit(const std::string& /*text*/, bool /*underline*/) override {}
@@ -93,6 +94,7 @@ namespace ngosen::test {
         AppQuirks                           quirks_;
         TypingState*                        state_    = nullptr;
         bool                                inReport_ = false;
+        bool                                focused_  = true;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
         std::u32string                      previousText_;

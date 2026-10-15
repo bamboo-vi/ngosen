@@ -31,6 +31,9 @@ namespace ngosen {
     // surrounding text tens of milliseconds late and often one edit behind.
     bool surroundingTextLags(const Field& field);
 
+    // Wayland text input delivers a commit only to the field that has focus.
+    bool dropsCommitsWithoutFocus(const Field& field);
+
     // LibreOffice runs Backspace as an async shortcut, so committed text overtakes it.
     bool appliesBackspacesLate(const Field& field);
 

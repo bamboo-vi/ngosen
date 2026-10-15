@@ -70,6 +70,10 @@ namespace ngosen {
         return field.frontend == "ibus";
     }
 
+    bool dropsCommitsWithoutFocus(const Field& field) {
+        return field.frontend == "wayland" || field.frontend == "wayland_v2";
+    }
+
     bool appliesBackspacesLate(const Field& field) {
         return stripDesktopSuffix(field.program) == "soffice";
     }
