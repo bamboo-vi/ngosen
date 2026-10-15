@@ -320,24 +320,12 @@ EOF
     session_changes+=("thêm Ngó Sen vào danh sách bộ gõ")
 }
 
-# fcitx5's default Ctrl+Space is the completion key in VS Code and other IDEs, and GNOME keeps
-# Super+Space for itself. Ctrl+Shift is what Unikey users already know. A key the user chose stays.
-set_trigger_keys() {
-    local config
-    config="$(config_home)/fcitx5/config"
-    has_trigger_keys && return 0
-    mkdir -p "$(dirname "$config")"
-    printf '\n[Hotkey/TriggerKeys]\n0=Control+Shift_L\n1=Control+Shift_R\n2=Shift+Control_L\n3=Shift+Control_R\n' >>"$config"
-    session_changes+=("bật/tắt tiếng Việt bằng Ctrl+Shift")
-}
-
-# fcitx5 writes its profile and config back when it exits, so it is stopped before either is edited.
+# fcitx5 writes its profile back when it exits, so it is stopped before the profile is edited.
 configure_fcitx5() {
     local was_running=0
     # Stopped before the check too: one running without the addon has already dropped ngosen.
     stop_fcitx5 && was_running=1
     add_ngosen_to_profile
-    set_trigger_keys
     if [ "$was_running" -eq 1 ]; then
         fcitx5 -d >/dev/null 2>&1 || :
     fi
@@ -487,8 +475,8 @@ report_session_changes() {
     done
     say ""
     say "Xong. Đăng xuất rồi đăng nhập lại là gõ được tiếng Việt."
-    if grep -qs '^0=Control+Shift_L$' "$(config_home)/fcitx5/config"; then
-        say "Bấm Ctrl+Shift để chuyển qua lại tiếng Việt và tiếng Anh."
+    if ! has_trigger_keys; then
+        say "Bấm Ctrl+Space để chuyển qua lại tiếng Việt và tiếng Anh."
     fi
     say "Tài khoản khác trên máy này: đăng nhập vào tài khoản đó rồi chạy lại lệnh cài."
 }

@@ -12,7 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thêm
 
-- Quên bật tiếng Việt mà đã gõ `tieengs vieetj`: bấm phím chuyển sang Ngó Sen (vd. Ctrl+Shift) thì cạnh con
+- Quên bật tiếng Việt mà đã gõ `tieengs vieetj`: bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì cạnh con
   trỏ hiện `tieengs vieetj → tiếng việt`. Bấm Tab để gõ lại có dấu, Tab lần nữa để trả lại như cũ, Esc hoặc
   phím khác để bỏ qua. Không ghi nhớ trong ô mật khẩu; bấm chuột, Enter, phím mũi tên hay chuyển ô thì đoạn
   đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ, như terminal Ptyxis trên GNOME (#71).
@@ -21,12 +21,16 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - Dữ liệu test của cửa sổ cài đặt dùng đường dẫn addon `ngosen` thay cho tên cũ `lotus`; người dùng không
   thấy khác gì (#79).
+- Lệnh cài không đổi phím bật/tắt tiếng Việt nữa: dùng phím mặc định của fcitx5 là Ctrl+Space, muốn
+  đổi thì vào cài đặt của fcitx5. Máy đã được đặt Ctrl+Shift vẫn giữ nguyên (#76).
 - Test tự động của lệnh cài chạy thêm trên Fedora 44 với KDE; người dùng không thấy khác gì (#70).
 - Đổi tên vài hàm và test còn mang tên chế độ cũ (Uinput, Super Smooth) theo tên Gõ Sen; người dùng không
   thấy khác gì (#69).
 
 ### Sửa
 
+- Lõi gõ Rust lên bamboo-core 0.4.1: gõ từ dài hơn 16 phím khi đang bật tiếng Việt (như tên biến
+  `getUserNameByIdentifier`) không còn bị cắt hay mất phím; `tuowf` ra `tườ` thay vì `từơ` (#78).
 - Trên COSMIC, biểu tượng Ngó Sen ở khay hiện đúng chữ V có màu thay vì một ô vuông trắng (#75).
 - Gõ Sen trong Ptyxis (terminal mặc định của Ubuntu 26.04 và Fedora) ra chữ lặp (`tieengs` thành
   `tieeenngss`) rồi đứng. Giờ gõ đúng dấu như ở app khác (#74).

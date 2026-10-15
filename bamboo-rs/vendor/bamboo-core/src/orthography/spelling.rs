@@ -1,244 +1,61 @@
 //! Vietnamese spelling validation logic based on CVC (Consonant-Vowel-Consonant) structure.
 
-// Static token representation: (chars, length)
-type Token = ([char; 4], u8);
+#[cfg(test)]
+use super::packing::strip_mark;
+use super::packing::{
+    CV_OK, FC_PACKED_ROWS, LC_PACKED_ROWS, PackedToken, VC_OK, VO_PACKED_ROWS, lane_eq,
+};
+#[cfg(test)]
+use super::tables::{FC_ROWS, LC_ROWS, Token, VC_ALLOWED_MASKS, VO_ROWS};
 
-/// Strips diacritic marks from a character (mark 0 = canonical base).
-/// Used in the innermost token-match loop — must be faster than a PHF lookup.
-#[inline(always)]
-const fn strip_mark(c: char) -> char {
-    match c {
-        'ă' | 'â' => 'a',
-        'ê' => 'e',
-        'ô' | 'ơ' => 'o',
-        'ư' => 'u',
-        'đ' => 'd',
-        _ => c,
-    }
-}
-
-// Any known onset may pair with any rime; only the rime itself is constrained.
-static FC: &[Token] = &[
-    (['b', '\0', '\0', '\0'], 1),
-    (['c', '\0', '\0', '\0'], 1),
-    (['c', 'h', '\0', '\0'], 2),
-    (['d', '\0', '\0', '\0'], 1),
-    (['đ', '\0', '\0', '\0'], 1),
-    (['g', '\0', '\0', '\0'], 1),
-    (['g', 'h', '\0', '\0'], 2),
-    (['g', 'i', '\0', '\0'], 2),
-    (['h', '\0', '\0', '\0'], 1),
-    (['k', '\0', '\0', '\0'], 1),
-    (['k', 'h', '\0', '\0'], 2),
-    (['k', 'r', '\0', '\0'], 2),
-    (['l', '\0', '\0', '\0'], 1),
-    (['m', '\0', '\0', '\0'], 1),
-    (['n', '\0', '\0', '\0'], 1),
-    (['n', 'g', '\0', '\0'], 2),
-    (['n', 'g', 'h', '\0'], 3),
-    (['n', 'h', '\0', '\0'], 2),
-    (['p', '\0', '\0', '\0'], 1),
-    (['p', 'h', '\0', '\0'], 2),
-    (['q', 'u', '\0', '\0'], 2),
-    (['r', '\0', '\0', '\0'], 1),
-    (['s', '\0', '\0', '\0'], 1),
-    (['t', '\0', '\0', '\0'], 1),
-    (['t', 'h', '\0', '\0'], 2),
-    (['t', 'r', '\0', '\0'], 2),
-    (['v', '\0', '\0', '\0'], 1),
-    (['x', '\0', '\0', '\0'], 1),
-    (['z', '\0', '\0', '\0'], 1),
-];
-
-static FC_ROWS: &[&[Token]] = &[FC];
-
-static VO_0: &[Token] = &[
-    (['ê', '\0', '\0', '\0'], 1),
-    (['i', '\0', '\0', '\0'], 1),
-    (['u', 'a', '\0', '\0'], 2),
-    (['u', 'ê', '\0', '\0'], 2),
-    (['u', 'y', '\0', '\0'], 2),
-    (['y', '\0', '\0', '\0'], 1),
-];
-static VO_1: &[Token] = &[
-    (['a', '\0', '\0', '\0'], 1),
-    (['i', 'ê', '\0', '\0'], 2),
-    (['o', 'a', '\0', '\0'], 2),
-    (['u', 'y', 'ê', '\0'], 3),
-    (['y', 'ê', '\0', '\0'], 2),
-];
-static VO_2: &[Token] = &[
-    (['â', '\0', '\0', '\0'], 1),
-    (['ă', '\0', '\0', '\0'], 1),
-    (['e', '\0', '\0', '\0'], 1),
-    (['o', '\0', '\0', '\0'], 1),
-    (['o', 'o', '\0', '\0'], 2),
-    (['ô', '\0', '\0', '\0'], 1),
-    (['ơ', '\0', '\0', '\0'], 1),
-    (['o', 'e', '\0', '\0'], 2),
-    (['u', '\0', '\0', '\0'], 1),
-    (['ư', '\0', '\0', '\0'], 1),
-    (['u', 'â', '\0', '\0'], 2),
-    (['u', 'ô', '\0', '\0'], 2),
-    (['ư', 'ơ', '\0', '\0'], 2),
-];
-static VO_3: &[Token] = &[(['o', 'ă', '\0', '\0'], 2)];
-static VO_4: &[Token] = &[(['u', 'ơ', '\0', '\0'], 2)];
-static VO_5: &[Token] = &[
-    (['a', 'i', '\0', '\0'], 2),
-    (['a', 'o', '\0', '\0'], 2),
-    (['a', 'u', '\0', '\0'], 2),
-    (['â', 'u', '\0', '\0'], 2),
-    (['a', 'y', '\0', '\0'], 2),
-    (['â', 'y', '\0', '\0'], 2),
-    (['e', 'o', '\0', '\0'], 2),
-    (['ê', 'u', '\0', '\0'], 2),
-    (['i', 'a', '\0', '\0'], 2),
-    (['i', 'ê', 'u', '\0'], 3),
-    (['i', 'u', '\0', '\0'], 2),
-    (['o', 'a', 'i', '\0'], 3),
-    (['o', 'a', 'o', '\0'], 3),
-    (['o', 'a', 'y', '\0'], 3),
-    (['o', 'e', 'o', '\0'], 3),
-    (['o', 'i', '\0', '\0'], 2),
-    (['ô', 'i', '\0', '\0'], 2),
-    (['ơ', 'i', '\0', '\0'], 2),
-    (['ư', 'a', '\0', '\0'], 2),
-    (['u', 'â', 'y', '\0'], 3),
-    (['u', 'i', '\0', '\0'], 2),
-    (['ư', 'i', '\0', '\0'], 2),
-    (['u', 'ô', 'i', '\0'], 3),
-    (['ư', 'ơ', 'i', '\0'], 3),
-    (['ư', 'ơ', 'u', '\0'], 3),
-    (['ư', 'u', '\0', '\0'], 2),
-    (['u', 'y', 'a', '\0'], 3),
-    (['u', 'y', 'u', '\0'], 3),
-    (['u', 'ê', 'u', '\0'], 3),
-    (['y', 'ê', 'u', '\0'], 3),
-];
-static VO_6: &[Token] = &[(['ă', '\0', '\0', '\0'], 1), (['u', '\0', '\0', '\0'], 1)];
-static VO_7: &[Token] = &[(['i', '\0', '\0', '\0'], 1)];
-
-static VO_ROWS: &[&[Token]] = &[VO_0, VO_1, VO_2, VO_3, VO_4, VO_5, VO_6, VO_7];
-
-static LC_0: &[Token] = &[(['c', 'h', '\0', '\0'], 2), (['n', 'h', '\0', '\0'], 2)];
-static LC_1: &[Token] = &[(['c', '\0', '\0', '\0'], 1), (['n', 'g', '\0', '\0'], 2)];
-static LC_2: &[Token] = &[
-    (['m', '\0', '\0', '\0'], 1),
-    (['n', '\0', '\0', '\0'], 1),
-    (['p', '\0', '\0', '\0'], 1),
-    (['t', '\0', '\0', '\0'], 1),
-];
-static LC_3: &[Token] = &[(['k', '\0', '\0', '\0'], 1)];
-static LC_4: &[Token] = &[(['c', '\0', '\0', '\0'], 1)];
-
-static LC_ROWS: &[&[Token]] = &[LC_0, LC_1, LC_2, LC_3, LC_4];
-
-const VC_ALLOWED_MASKS: [u16; 8] = [
-    (1 << 0) | (1 << 2),
-    (1 << 0) | (1 << 1) | (1 << 2),
-    (1 << 1) | (1 << 2),
-    (1 << 1) | (1 << 2),
-    (1 << 1) | (1 << 2) | (1 << 4),
-    0,
-    1 << 3,
-    1 << 4,
-];
-
-#[inline(always)]
 fn lookup_mask_optimized(
-    rows: &[&[Token]],
+    rows: &[&[PackedToken]],
     input: &[char],
     input_is_full: bool,
     input_is_complete: bool,
 ) -> u16 {
-    let input_len = input.len() as u8;
-    if input_len == 0 {
+    let input_len = input.len();
+    // No token exceeds 3 chars, so longer inputs match nothing. Astral input
+    // chars exceed the u16 lanes yet can never equal a BMP token lane, so an
+    // input containing one matches nothing either (both verified by parity).
+    if input_len == 0 || input_len > 3 || input.iter().any(|&c| (c as u32) > 0xFFFF) {
         return 0;
     }
+    let incomplete = !input_is_complete;
+    let mut packed = [0u16; 3];
+    for (k, &c) in input.iter().enumerate() {
+        packed[k] = c as u16;
+    }
+    let need = input_len as u8;
     let mut ret = 0u16;
-
-    if input_len == 1 {
-        let ic0 = input[0];
-        for (index, tokens) in rows.iter().enumerate() {
-            for (t_chars, t_len) in *tokens {
-                if *t_len < 1 || (input_is_full && *t_len > 1) {
-                    continue;
-                }
-                let tc0 = t_chars[0];
-                let is_match = ic0 == tc0 || (!input_is_complete && strip_mark(tc0) == ic0);
-                if is_match {
-                    ret |= 1u16 << index;
-                    break;
-                }
-            }
-        }
-        return ret;
-    }
-
-    if input_len == 2 {
-        let ic0 = input[0];
-        let ic1 = input[1];
-        for (index, tokens) in rows.iter().enumerate() {
-            for (t_chars, t_len) in *tokens {
-                if *t_len < 2 || (input_is_full && *t_len > 2) {
-                    continue;
-                }
-                let tc0 = t_chars[0];
-                let tc1 = t_chars[1];
-                let m0 = ic0 == tc0 || (!input_is_complete && strip_mark(tc0) == ic0);
-                let m1 = ic1 == tc1 || (!input_is_complete && strip_mark(tc1) == ic1);
-                if m0 && m1 {
-                    ret |= 1u16 << index;
-                    break;
-                }
-            }
-        }
-        return ret;
-    }
-
     for (index, tokens) in rows.iter().enumerate() {
-        for (t_chars, t_len) in *tokens {
-            if *t_len < input_len || (input_is_full && *t_len > input_len) {
+        for t in *tokens {
+            if t.len < need || (input_is_full && t.len != need) {
                 continue;
             }
-
-            let is_match = input
-                .iter()
-                .zip(t_chars.iter())
-                .all(|(&ic, &tc)| ic == tc || (!input_is_complete && strip_mark(tc) == ic));
-
-            if is_match {
+            // Branchless lanes; a single branch per token keeps the early
+            // exit that pays off on the dominant valid-syllable path.
+            let mut hit = true;
+            for (k, &in_lane) in packed[..input_len].iter().enumerate() {
+                hit &= lane_eq(in_lane, t.raw[k], t.stripped[k], incomplete);
+            }
+            if hit {
                 ret |= 1u16 << index;
                 break;
             }
         }
     }
-
     ret
 }
 
-#[inline(always)]
 const fn is_valid_vc(vo_mask: u16, lc_mask: u16) -> bool {
-    let mut mask = vo_mask;
-    while mask != 0 {
-        let idx = mask.trailing_zeros() as usize;
-        if idx < VC_ALLOWED_MASKS.len() && (VC_ALLOWED_MASKS[idx] & lc_mask) != 0 {
-            return true;
-        }
-        mask &= mask - 1;
-    }
-    false
+    (VC_OK[(vo_mask & 0xFF) as usize] & lc_mask) != 0
 }
 
-/// Validates a Vietnamese syllable based on its Consonant-Vowel-Consonant (CVC) structure.
-///
-/// # Arguments
-///
-/// * `fc` - First consonant(s).
-/// * `vo` - Vowel(s).
-/// * `lc` - Last consonant(s).
-/// * `full` - Whether the input is considered complete (affects strictness of matching).
+const fn is_valid_cv(fc_mask: u16, vo_mask: u16) -> bool {
+    (CV_OK[(fc_mask & 0x1F) as usize] & vo_mask) != 0
+}
+
 pub fn is_valid_cvc(fc: &str, vo: &str, lc: &str, full: bool) -> bool {
     let mut fc_chars = ['\0'; 8];
     let mut vo_chars = ['\0'; 8];
@@ -266,7 +83,7 @@ pub fn is_valid_cvc(fc: &str, vo: &str, lc: &str, full: bool) -> bool {
 /// Low-level variant of [`is_valid_cvc`] that works directly with character slices.
 pub fn is_valid_cvc_chars(fc: &[char], vo: &[char], lc: &[char], full: bool) -> bool {
     let fc_mask = if !fc.is_empty() {
-        let m = lookup_mask_optimized(FC_ROWS, fc, full || !vo.is_empty(), true);
+        let m = lookup_mask_optimized(FC_PACKED_ROWS, fc, full || !vo.is_empty(), true);
         if m == 0 {
             return false;
         }
@@ -276,7 +93,7 @@ pub fn is_valid_cvc_chars(fc: &[char], vo: &[char], lc: &[char], full: bool) -> 
     };
 
     let vo_mask = if !vo.is_empty() {
-        let m = lookup_mask_optimized(VO_ROWS, vo, full || !lc.is_empty(), full);
+        let m = lookup_mask_optimized(VO_PACKED_ROWS, vo, full || !lc.is_empty(), full);
         if m == 0 {
             return false;
         }
@@ -286,7 +103,7 @@ pub fn is_valid_cvc_chars(fc: &[char], vo: &[char], lc: &[char], full: bool) -> 
     };
 
     let lc_mask = if !lc.is_empty() {
-        let m = lookup_mask_optimized(LC_ROWS, lc, full, true);
+        let m = lookup_mask_optimized(LC_PACKED_ROWS, lc, full, true);
         if m == 0 {
             return false;
         }
@@ -304,6 +121,10 @@ pub fn is_valid_cvc_chars(fc: &[char], vo: &[char], lc: &[char], full: bool) -> 
         {
             return true;
         }
+        return false;
+    }
+
+    if fc_mask != 0 && !is_valid_cv(fc_mask, vo_mask) {
         return false;
     }
 
@@ -353,6 +174,201 @@ mod tests {
         assert!(is_valid_cvc("", "a", "n", true));
         assert!(is_valid_cvc("", "e", "m", true));
         assert!(is_valid_cvc("", "oi", "", false));
+    }
+
+    /// Frozen copies of the pre-packed implementations, kept as the oracle
+    /// for the packed-token rewrite. Do NOT rewire these to tables/packing.
+    mod legacy {
+        use super::{Token, VC_ALLOWED_MASKS};
+
+        pub fn strip_mark(c: char) -> char {
+            match c {
+                'ă' | 'â' => 'a',
+                'ê' => 'e',
+                'ô' | 'ơ' => 'o',
+                'ư' => 'u',
+                'đ' => 'd',
+                _ => c,
+            }
+        }
+
+        pub fn lookup_mask(
+            rows: &[&[Token]],
+            input: &[char],
+            input_is_full: bool,
+            input_is_complete: bool,
+        ) -> u16 {
+            let input_len = input.len() as u8;
+            if input_len == 0 {
+                return 0;
+            }
+            let mut ret = 0u16;
+            for (index, tokens) in rows.iter().enumerate() {
+                for (t_chars, t_len) in *tokens {
+                    if *t_len < input_len || (input_is_full && *t_len > input_len) {
+                        continue;
+                    }
+                    let hit = input
+                        .iter()
+                        .zip(t_chars.iter())
+                        .all(|(&ic, &tc)| ic == tc || (!input_is_complete && strip_mark(tc) == ic));
+                    if hit {
+                        ret |= 1u16 << index;
+                        break;
+                    }
+                }
+            }
+            ret
+        }
+
+        pub const fn is_valid_vc(vo_mask: u16, lc_mask: u16) -> bool {
+            let mut mask = vo_mask;
+            let mut ok = false;
+            while mask != 0 {
+                let idx = mask.trailing_zeros() as usize;
+                if idx < VC_ALLOWED_MASKS.len() && (VC_ALLOWED_MASKS[idx] & lc_mask) != 0 {
+                    ok = true;
+                }
+                mask &= mask - 1;
+            }
+            ok
+        }
+    }
+
+    /// Frozen copy of the pre-table `strip_mark` match, kept as the oracle
+    /// for the table rewrite. Only the 7 bare marked chars strip; toned
+    /// variants (e.g. 'ầ') are identity.
+    fn legacy_strip_mark(c: char) -> char {
+        legacy::strip_mark(c)
+    }
+
+    /// Parity: table-backed `strip_mark` must match the legacy match chain,
+    /// including the exact-match-only semantics for toned variants.
+    #[test]
+    fn strip_mark_matches_legacy() {
+        use crate::phonetics::VOWELS;
+        let mut inputs: Vec<char> = (' '..='~').collect();
+        for &c in VOWELS {
+            inputs.push(c);
+        }
+        inputs.extend(['đ', '中', '–']);
+        inputs.push('\u{8E2}');
+        for c in inputs {
+            assert_eq!(strip_mark(c), legacy_strip_mark(c), "strip_mark({c:?})");
+        }
+    }
+
+    /// Parity: packed lookup must answer exactly like the legacy per-char
+    /// matcher on every input shape, including mixed raw/stripped lanes,
+    /// astral chars (never match BMP tokens), and over-long inputs.
+    ///
+    /// Characterization harness for a behavior-preserving rewrite: passes on
+    /// the current code (validating the harness) and must stay green after
+    /// the packing.
+    #[test]
+    fn packed_matches_legacy_lookup() {
+        const SET: [char; 12] = ['a', 'n', 'g', 'â', 'ê', 'ô', 'ơ', 'ư', 'đ', 'o', 'u', 'e'];
+        let packed_groups: &[&[&[PackedToken]]] = &[FC_PACKED_ROWS, VO_PACKED_ROWS, LC_PACKED_ROWS];
+        let groups: &[&[&[Token]]] = &[FC_ROWS, VO_ROWS, LC_ROWS];
+        // Length 1..=3 exhaustive over SET x {full, complete} x row groups.
+        for len in 1..=3usize {
+            let mut idx = vec![0usize; len];
+            loop {
+                let input: Vec<char> = idx.iter().map(|&k| SET[k]).collect();
+                for full in [false, true] {
+                    for complete in [false, true] {
+                        for (packed_rows, rows) in packed_groups.iter().zip(groups.iter()) {
+                            assert_eq!(
+                                lookup_mask_optimized(packed_rows, &input, full, complete),
+                                legacy::lookup_mask(rows, &input, full, complete),
+                                "lookup {input:?} full={full} complete={complete}"
+                            );
+                        }
+                    }
+                }
+                let mut pos = 0;
+                loop {
+                    idx[pos] += 1;
+                    if idx[pos] < SET.len() {
+                        break;
+                    }
+                    idx[pos] = 0;
+                    pos += 1;
+                    if pos >= len {
+                        break;
+                    }
+                }
+                if pos >= len {
+                    break;
+                }
+            }
+        }
+
+        // Explicit mixed-lane case: token ('u','â','y') matches ['u','a','y']
+        // only via the stripped middle lane when incomplete.
+        let mixed = ['u', 'a', 'y'];
+        let hit = lookup_mask_optimized(VO_PACKED_ROWS, &mixed, false, false);
+        assert_eq!(hit, legacy::lookup_mask(VO_ROWS, &mixed, false, false));
+        assert_ne!(hit & (1u16 << 5), 0, "VO_5 mixed row must hit");
+        let hit_complete = lookup_mask_optimized(VO_PACKED_ROWS, &mixed, false, true);
+        assert_eq!(hit_complete, legacy::lookup_mask(VO_ROWS, &mixed, false, true));
+        assert_eq!(hit_complete & (1u16 << 5), 0, "VO_5 must miss when complete");
+
+        // Astral chars never match BMP tokens (both sides must agree on 0
+        // for any length; guards future packing truncation).
+        for astral in ['\u{10061}', '\u{10437}', '\u{1F600}'] {
+            for input in [&[astral][..], &[astral, 'i'][..], &['a', astral][..]] {
+                for (packed_rows, rows) in packed_groups.iter().zip(groups.iter()) {
+                    assert_eq!(
+                        lookup_mask_optimized(packed_rows, input, false, false),
+                        0,
+                        "astral {input:?} must match nothing"
+                    );
+                    assert_eq!(
+                        legacy::lookup_mask(rows, input, false, false),
+                        0,
+                        "legacy astral {input:?} must match nothing"
+                    );
+                }
+            }
+        }
+
+        // Over-long inputs match nothing (all tokens are shorter).
+        for input in [&['a', 'b', 'c', 'd'][..], &['ư', 'ơ', 'i', 'a', 'b'][..]] {
+            for (packed_rows, rows) in packed_groups.iter().zip(groups.iter()) {
+                assert_eq!(lookup_mask_optimized(packed_rows, input, false, false), 0);
+                assert_eq!(legacy::lookup_mask(rows, input, false, false), 0);
+            }
+        }
+
+        // VC table parity over the full u8 vo-mask space x lc samples.
+        for vo in 0..=255u16 {
+            for lc in [0u16, 1, 3, 7, 15, 31, 63, 255, 0xFFFF] {
+                assert_eq!(is_valid_vc(vo, lc), legacy::is_valid_vc(vo, lc), "vc vo={vo} lc={lc}");
+            }
+        }
+    }
+
+    /// Guards the packing preconditions for future token edits: every token
+    /// is 1..=3 chars, in-lane chars are non-NUL BMP, padding lanes are NUL.
+    #[test]
+    fn packed_token_tables_wellformed() {
+        let groups: &[&[&[Token]]] = &[FC_ROWS, VO_ROWS, LC_ROWS];
+        for rows in groups {
+            for tokens in *rows {
+                for (chars, len) in *tokens {
+                    assert!((1..=3u8).contains(len), "token len {len} out of range");
+                    for (k, &c) in chars.iter().enumerate() {
+                        if (k as u8) < *len {
+                            assert_ne!(c, '\0', "in-lane NUL");
+                            assert!((c as u32) <= 0xFFFF, "non-BMP token char {c:?}");
+                        } else {
+                            assert_eq!(c, '\0', "padding lane must be NUL");
+                        }
+                    }
+                }
+            }
+        }
     }
 
     #[test]
