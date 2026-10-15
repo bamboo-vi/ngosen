@@ -171,8 +171,9 @@ ngày.
 Dựa trên mã của [fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus) và
 [VMK](https://github.com/thanhpy2009/VMK). Giấy phép GPL-3.0-or-later.
 
-Lõi gõ bản Rust mà các gói cài đang dùng là [bamboo-core](https://github.com/bamboo-vi/bamboo-core)
-của Đào Trọng Nguyên ([@nguyen10t2](https://github.com/nguyen10t2)), giấy phép MIT.
+Lõi gõ có hai bản, đều giấy phép MIT: bản Rust mà các gói cài đang dùng là
+[bamboo-core](https://github.com/bamboo-vi/bamboo-core) của [@nguyen10t2](https://github.com/nguyen10t2);
+bản Go là [bamboo-core](https://github.com/BambooEngine/bamboo-core) của [@t1ld3x](https://github.com/t1ld3x).
 
 Issue và pull request trước ngày 10/10/2026 nằm ở kho lưu
 [ngosen/ngosen-fork-archive](https://github.com/ngosen/ngosen-fork-archive).
@@ -185,7 +186,8 @@ under GPL-3.0-or-later and published as is, with no promise of support.
 
 Ngó Sen 1.0 has no background uinput server; two typing modes, Gõ Sen (one mode that works for fast
 typing, browsers and Electron apps) and Preedit; and the Bamboo composition core ported from Go to Rust.
-The Rust core used by the packages is [bamboo-core](https://github.com/bamboo-vi/bamboo-core) by
-Đào Trọng Nguyên ([@nguyen10t2](https://github.com/nguyen10t2)), MIT licensed.
+Both cores are MIT licensed: the Rust one used by the packages is
+[bamboo-core](https://github.com/bamboo-vi/bamboo-core) by [@nguyen10t2](https://github.com/nguyen10t2), and the Go one is
+[bamboo-core](https://github.com/BambooEngine/bamboo-core) by [@t1ld3x](https://github.com/t1ld3x).
 Ngó Sen targets fcitx5 only; the IBus engine was dropped and stays unmaintained on the
 `feat/ibus-engine` branch. The rest of this page is in Vietnamese.
