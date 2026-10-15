@@ -110,6 +110,8 @@ namespace ngosen::test {
     }
 
     void FakeApp::commitText(const std::string& text) {
+        if (quirks_.dropsCommitsInReport && inReport_)
+            return;
         later(quirks_.lagMs, [this, text] { insert(utf8::decode(text)); });
     }
 
@@ -178,7 +180,11 @@ namespace ngosen::test {
 
     void FakeApp::changed() {
         if (field_.surroundingText && quirks_.reports)
-            later(quirks_.reportDelayMs, [this] { state_->surroundingUpdated(); });
+            later(quirks_.reportDelayMs, [this] {
+                inReport_ = true;
+                state_->surroundingUpdated();
+                inReport_ = false;
+            });
     }
 
     void FakeApp::later(int ms, std::function<void()> action) {
