@@ -16,6 +16,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   danh sách bộ gõ không, các biến `GTK_IM_MODULE`, `QT_IM_MODULE`, `XMODIFIERS`, IBus có chạy song song không, và
   trên KDE Wayland thì fcitx5 có được chọn làm bàn phím ảo không. Mỗi lỗi kèm cách sửa; nút "Báo cáo lỗi…" mở
   trang báo lỗi trên GitHub đã điền sẵn kết quả, không tự gửi gì (#88).
+- "Kiểm tra máy tôi" thêm mục test một app: gõ `Tieengs Vieetj cos daaus` trong app, chọn "Lưu nhật ký gõ" ở
+  menu Ngó Sen, rồi bấm "Đọc nhật ký gõ". App có báo chữ cho bộ gõ thì tự biết gõ đúng hay sai; app không báo
+  thì bạn tự chọn. Kết quả, cùng cách app nhận chữ và cách bộ gõ xoá chữ, được đưa vào báo lỗi (#).
 - Gói cài cho máy ARM 64-bit (aarch64): Debian, Ubuntu, Kali và Fedora 43/44; lệnh cài nhanh tự chọn gói theo máy (#86).
 - Lệnh cài nhanh chạy được trên Kali Linux: nó lấy gói dựng cho Debian testing, bản Kali dựa theo (#85).
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
