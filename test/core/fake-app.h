@@ -28,6 +28,7 @@ namespace ngosen::test {
         int  keyStepMs            = 0;     // applies forwarded backspaces one per step, reporting after each
         int  switchBusyMs         = 0;     // drops forwarded keys this long after a switch key, as Qt does
         bool dropsCommitsInReport = false; // drops commits sent while its report is handled, as wlroots does
+        int  refocusWhenEmptiedMs = 0;     // leaves focus this long when its text becomes empty, as Zed does
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -57,7 +58,7 @@ namespace ngosen::test {
             return field_;
         }
         bool hasFocus() const override {
-            return true;
+            return focused_;
         }
 
         void                         showPreedit(const std::string& /*text*/, bool /*underline*/) override {}
@@ -99,6 +100,7 @@ namespace ngosen::test {
         TypingState*                        state_       = nullptr;
         int                                 queuedKeys_  = 0;
         bool                                inReport_    = false;
+        bool                                focused_     = true;
         uint64_t                            busyUntilUs_ = 0;
         std::u32string                      text_;
         size_t                              cursor_ = 0;

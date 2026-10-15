@@ -133,6 +133,16 @@ namespace {
         check(text == "đường", "sway: commits go out after the app's report", text);
     }
 
+    // Zed leaves focus for a moment when a deletion empties its field; a commit sent then is lost (#93).
+    void testCommitAfterFieldRefocus() {
+        Field                   field = makeField("wayland", true);
+        ngosen::test::AppQuirks quirks;
+        quirks.refocusWhenEmptiedMs = 13;
+        const std::vector<uint32_t> keys{'d', 'd', 'o', 'w', 'n'};
+        const std::string           text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
+        check(text == "đơn", "emptied field: commit after focus comes back", text);
+    }
+
     // A key typed while the app has not yet applied the backspaces waits and goes out with the
     // replacement in one commit.
     void testKeyDuringReplacement() {
@@ -418,6 +428,7 @@ int main() {
     testSenForwards("xim", false);
     testKeyDuringReplacement();
     testCommitAfterTheReport();
+    testCommitAfterFieldRefocus();
     testGtk4DeletesSurrounding();
     testSdlGetsNoForwardedBackspace();
     testTerminalErasesWithCommittedDel();
