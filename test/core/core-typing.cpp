@@ -179,11 +179,11 @@ namespace {
     }
 
     // Types "tiee" in Sen mode and returns what was committed, with DEL shown as <DEL>.
-    std::string commitsForTiee(const std::string& program, bool& eTaken) {
+    std::string commitsForTiee(const std::string& program, bool& eTaken, const std::string& frontend = "dbus") {
         realMode = ngosen::Mode::Sen;
         FakeLoop            loop;
         FakeResources       resources;
-        auto                owned = std::make_unique<FakeHost>(loop, makeField("dbus", false, program));
+        auto                owned = std::make_unique<FakeHost>(loop, makeField(frontend, false, program));
         FakeHost*           host  = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
 
@@ -205,6 +205,9 @@ namespace {
 
         const std::string console = commitsForTiee("kgx", taken);
         check(console == "['<DEL>ê']", "kgx: one commit erases e and types ê", console);
+
+        const std::string viaIbus = commitsForTiee("gtk4-im:ptyxis", taken, "ibus");
+        check(viaIbus == "['<DEL>ê']", "ibus ptyxis: one commit erases e and types ê", viaIbus);
 
         const std::string sdl = commitsForTiee("Medieval2", taken);
         check(!has(sdl, "<DEL>"), "dbus sdl: never gets DEL", sdl);
