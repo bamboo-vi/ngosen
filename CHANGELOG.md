@@ -12,6 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thêm
 
+- Lệnh cài nhanh chạy được trên Kali Linux: nó lấy gói dựng cho Debian testing, bản Kali dựa theo (#85).
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
   chữ đổi luôn thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ" (#82). Nếu có chữ không đổi
   khi thêm dấu (như `abc tieengs`), thường là tiếng Anh gõ có chủ ý, thì chỉ hiện gợi ý
@@ -31,6 +32,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Lệnh cài nhanh dừng với "im-config không đặt được fcitx5" trên máy X11 dùng im-config 1.1 (Debian testing, Kali),
+  và lệnh gỡ không trả lại bộ gõ cũ ở đó (#85).
+- Lệnh cài nhanh báo không tìm thấy fcitx5 trên máy chưa từng chạy `apt update`, như máy ảo Kali dựng sẵn (#85).
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
 - Gõ Sen trong GNOME Console trên GNOME ra chữ lặp (`ddwowngf` thành `ddduuwwoowwnnggff`) rồi đứng, giống
