@@ -139,6 +139,10 @@ namespace {
         offer = offerAfter([](auto& s) { noteWhileOff(s, "vieetj"); }, makeField("wayland", true), "vieetj abc");
         check(offer == "(no offer)", "no offer when the text before the cursor is something else", offer);
 
+        // kitty declares surrounding text but always sends it empty.
+        offer = offerAfter([](auto& s) { noteWhileOff(s, "vieetj"); }, makeField("wayland", true), "");
+        check(offer == "(retyped)", "an empty surrounding text does not hide the typed text", offer);
+
         // A GTK4 terminal over D-Bus: no forwarded keys, no surrounding text, and no XTEST here.
         offer = offerAfter([](auto& s) { noteWhileOff(s, "vieetj"); }, makeField("dbus", false));
         check(offer == "(no offer)", "no offer where the text cannot be deleted", offer);
