@@ -261,8 +261,9 @@ namespace ngosen {
         }
         // A previous replacement still waiting for its turn goes out first, keeping the text in order.
         flushDeferredCommit();
+        // wlroots drops a commit sent while the app's report is still arriving, as answering an old state.
         // Focus loss is not inside a key event, and the field is going away, so it commits at once.
-        const bool defer = host_->field().frontend == "dbus" && std::string(reason) != "focus lost";
+        const bool defer = (host_->field().frontend == "dbus" || std::string(reason) == "event") && std::string(reason) != "focus lost";
         if (defer) {
             deferred_commit_text_    = pending_commit_string_;
             deferred_commit_pending_ = true;

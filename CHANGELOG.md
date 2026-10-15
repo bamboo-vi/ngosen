@@ -33,6 +33,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Trên Sway, chữ có dấu trong app GTK và Firefox bị mất khi gõ Gõ Sen (gõ `đường` ra `ường`) (#87).
 - Lệnh cài nhanh dừng với "im-config không đặt được fcitx5" trên máy X11 dùng im-config 1.1 (Debian testing, Kali),
   và lệnh gỡ không trả lại bộ gõ cũ ở đó (#85).
 - Lệnh cài nhanh báo không tìm thấy fcitx5 trên máy chưa từng chạy `apt update`, như máy ảo Kali dựng sẵn (#85).

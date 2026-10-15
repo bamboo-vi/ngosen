@@ -20,13 +20,14 @@ namespace ngosen::test {
 
     // Ways a real app's field departs from an ideal one.
     struct AppQuirks {
-        bool reports       = true; // tells the input method when its text changes
-        int  reportDelayMs = 0;
-        bool staleReport   = false; // reports the text as it was one change earlier
-        int  lagMs         = 0;     // applies commits, deletions and keys this late, in order
-        bool handsBackKeys = false; // sends forwarded keys back to the input method first, as XIM clients do
-        int  keyStepMs     = 0;     // applies forwarded backspaces one per step, reporting after each
-        int  switchBusyMs  = 0;     // drops forwarded keys this long after a switch key, as Qt does
+        bool reports              = true; // tells the input method when its text changes
+        int  reportDelayMs        = 0;
+        bool staleReport          = false; // reports the text as it was one change earlier
+        int  lagMs                = 0;     // applies commits, deletions and keys this late, in order
+        bool handsBackKeys        = false; // sends forwarded keys back to the input method first, as XIM clients do
+        int  keyStepMs            = 0;     // applies forwarded backspaces one per step, reporting after each
+        int  switchBusyMs         = 0;     // drops forwarded keys this long after a switch key, as Qt does
+        bool dropsCommitsInReport = false; // drops commits sent while its report is handled, as wlroots does
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -97,6 +98,7 @@ namespace ngosen::test {
         AppQuirks                           quirks_;
         TypingState*                        state_       = nullptr;
         int                                 queuedKeys_  = 0;
+        bool                                inReport_    = false;
         uint64_t                            busyUntilUs_ = 0;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
