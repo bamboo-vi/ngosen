@@ -5,6 +5,7 @@
  */
 // TypingState: offering to retype, with marks, what was typed while another input method was on.
 #include "ngosen-app-quirks.h"
+#include "ngosen-clock.h"
 #include "ngosen-globals.h"
 #include "ngosen-keysym.h"
 #include "ngosen-log.h"
@@ -18,8 +19,10 @@ namespace ngosen {
     namespace {
         // Enough for a sentence; older text is dropped a word at a time.
         constexpr size_t MaxTypedWhileOff = 200;
+        // Qt drops backspaces forwarded while it is still handling the switch key.
+        constexpr uint64_t RetypeDelayUs = 100000;
 
-        bool             isPrintableAscii(uint32_t sym) {
+        bool               isPrintableAscii(uint32_t sym) {
             return sym >= 0x20 && sym <= 0x7e;
         }
 
@@ -81,6 +84,23 @@ namespace ngosen {
         return out;
     }
 
+    bool TypingState::everyWordTakesMarks(const std::string& typed) {
+        size_t words = 0;
+        for (size_t start = 0; start < typed.size();) {
+            size_t end = typed.find(' ', start);
+            if (end == std::string::npos)
+                end = typed.size();
+            if (end > start) {
+                const std::string word = typed.substr(start, end - start);
+                if (addMarks(word) == word)
+                    return false;
+                ++words;
+            }
+            start = end + 1;
+        }
+        return words > 0;
+    }
+
     bool TypingState::reportsTextInTime() const {
         return host_->field().surroundingText && !ngosen::surroundingTextLags(host_->field());
     }
@@ -111,6 +131,20 @@ namespace ngosen {
         std::string marked = addMarks(typed);
         if (marked == typed)
             return;
+        // A word Telex leaves alone is likely English typed on purpose, so then only offer.
+        if (everyWordTakesMarks(typed)) {
+            NGOSEN_INFO("Retype: " + typed + " -> " + marked);
+            retype_       = Retype{.typed = typed, .marked = marked, .atOnce = true};
+            retype_timer_ = host_->startTimer(ngosen::monotonicUs() + RetypeDelayUs, 0, [this](ngosen::Timer&) {
+                if (retype_ && retype_->atOnce && !retype_->applied) {
+                    applyRetype();
+                    host_->setStatus(host_->translate("Esc: put back what was typed"));
+                    host_->refreshPanel();
+                }
+                return false;
+            });
+            return;
+        }
         NGOSEN_INFO("Offer retype: " + typed + " -> " + marked);
         retype_ = Retype{.typed = typed, .marked = marked};
         host_->showCandidates({typed + " → " + marked}, 1, [this](size_t) { applyRetype(); });
@@ -147,15 +181,30 @@ namespace ngosen {
     void TypingState::dropRetype() {
         if (!retype_)
             return;
-        if (!retype_->applied)
+        if (!retype_->applied || retype_->atOnce)
             hideOffer();
         retype_.reset();
+        retype_timer_.reset();
     }
 
     bool TypingState::handleRetypeKey(ngosen::KeyPress& keyEvent) {
         if (keyEvent.isRelease() || keyEvent.isModifier())
             return false;
         const uint32_t sym = keyEvent.sym();
+        if (retype_->atOnce) {
+            if (is_deleting_.load(std::memory_order_acquire))
+                return false;
+            if (sym == ngosen::key::Escape && !keyEvent.hasModifier()) {
+                keyEvent.accept();
+                if (retype_->applied)
+                    applyRetype();
+                else
+                    dropRetype();
+                return true;
+            }
+            dropRetype();
+            return false;
+        }
         if (sym == ngosen::key::Tab && !keyEvent.hasModifier()) {
             keyEvent.accept();
             // Tab again before the first retype reaches the app would delete the wrong text.

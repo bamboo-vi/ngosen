@@ -57,9 +57,9 @@ int main() {
     // Like a GTK field: Ngó Sen can delete through the surrounding text.
     context->setCapabilityFlags(fcitx::CapabilityFlag::SurroundingText);
     context->focusIn();
-    typeWhileOff(*context, "tieengs vieetj");
+    typeWhileOff(*context, "abc tieengs vieetj");
     std::string offer = switchToNgosen(engine, entry, *context);
-    check(offer == "tieengs vieetj → tiếng việt", "switching on offers the text typed before", offer);
+    check(offer == "abc tieengs vieetj → abc tiếng việt", "switching on offers the text typed before", offer);
 
     fcitx::InputContextEvent away(context.get(), fcitx::EventType::InputContextSwitchInputMethod);
     engine.deactivate(entry, away);

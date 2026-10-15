@@ -13,10 +13,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Thêm
 
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
-  cạnh con trỏ hiện `tieengs vieetj → tiếng việt` kèm dòng "Cứu chữ: Tab để đổi, Esc để giữ nguyên" (#80).
-  Bấm Tab để gõ lại có dấu, Tab lần nữa để trả lại như cũ, Esc hoặc
-  phím khác để bỏ qua. Không ghi nhớ trong ô mật khẩu; bấm chuột, Enter, phím mũi tên hay chuyển ô thì đoạn
-  đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ (#71).
+  chữ đổi luôn thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ". Nếu có chữ không đổi
+  khi thêm dấu (như `abc tieengs`), thường là tiếng Anh gõ có chủ ý, thì chỉ hiện gợi ý
+  `abc tieengs → abc tiếng` kèm dòng "Cứu chữ: Tab để đổi, Esc để giữ nguyên" (#80). Bấm Tab để gõ lại có dấu,
+  Tab lần nữa để trả lại như cũ, Esc hoặc phím khác để bỏ qua. Không ghi nhớ trong ô mật khẩu; bấm chuột,
+  Enter, phím mũi tên hay chuyển ô thì đoạn đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ (#71).
 
 ### Thay đổi
 

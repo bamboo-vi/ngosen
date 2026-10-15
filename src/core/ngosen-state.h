@@ -160,11 +160,14 @@ namespace ngosen {
             std::string typed;
             std::string marked;
             bool        applied = false; // Tab once more puts typed back
+            bool        atOnce  = false; // retyped on switching on; only Esc undoes it
         };
-        std::string           typedWhileOff_;
-        std::optional<Retype> retype_;
+        std::string                    typedWhileOff_;
+        std::optional<Retype>          retype_;
+        std::unique_ptr<ngosen::Timer> retype_timer_;
         // What typed reads as with this field's input method, or typed when it changes nothing.
         std::string addMarks(const std::string& typed);
+        bool        everyWordTakesMarks(const std::string& typed);
         void        applyRetype();
         void        dropRetype();
         void        hideOffer();
