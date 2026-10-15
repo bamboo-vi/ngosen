@@ -72,14 +72,18 @@ namespace {
         typeWhileOff(state);
         state.activate(Mode::Sen, false);
         state.offerRetype();
+        loop.pump(150);
         if (!host->candidates())
-            return "(no offer)";
+            return host->status().empty() ? "(no offer)" : "(retyped)";
         return host->labels().empty() ? "(empty)" : host->labels()[0];
     }
 
     void testOffer() {
         auto offer = offerAfter([](auto& s) { noteWhileOff(s, "tieengs vieetj"); });
-        check(offer == "tieengs vieetj → tiếng việt", "offer shows the typed text and the retyped one", offer);
+        check(offer == "(retyped)", "text where every word takes marks is retyped at once", offer);
+
+        offer = offerAfter([](auto& s) { noteWhileOff(s, "abc tieengs vieetj"); });
+        check(offer == "abc tieengs vieetj → abc tiếng việt", "a word without marks makes it an offer", offer);
 
         offer = offerAfter([](auto& s) { noteWhileOff(s, "Vieetj Nam"); });
         check(offer == "Vieetj Nam → Việt Nam", "capitals keep their case", offer);
@@ -91,21 +95,21 @@ namespace {
             noteWhileOff(s, "vieetjx");
             noteWhileOff(s, ngosen::key::BackSpace);
         });
-        check(offer == "vieetj → việt", "backspace removes the last noted character", offer);
+        check(offer == "(retyped)", "backspace removes the last noted character", offer);
 
         offer = offerAfter([](auto& s) {
             noteWhileOff(s, "abcd ");
             noteWhileOff(s, 'a', ngosen::modifier::Ctrl);
             noteWhileOff(s, "vieetj");
         });
-        check(offer == "vieetj → việt", "a shortcut starts the text over", offer);
+        check(offer == "(retyped)", "a shortcut starts the text over", offer);
 
         offer = offerAfter([](auto& s) {
             noteWhileOff(s, "abcd ");
             noteWhileOff(s, ngosen::key::Left);
             noteWhileOff(s, "vieetj");
         });
-        check(offer == "vieetj → việt", "moving the cursor starts the text over", offer);
+        check(offer == "(retyped)", "moving the cursor starts the text over", offer);
 
         offer = offerAfter([](auto& s) {
             noteWhileOff(s, "vieetj");
@@ -122,7 +126,7 @@ namespace {
                 }
             },
             makeField("wayland", true), "vieetj");
-        check(offer == "vieetj → việt", "a reset keeps the text when the field reports it", offer);
+        check(offer == "(retyped)", "a reset keeps the text when the field reports it", offer);
 
         offer = offerAfter(
             [](auto& s) {
@@ -174,8 +178,11 @@ namespace {
             app->type(static_cast<uint32_t>(c));
             loop.pump(5);
         }
+        app->pressSwitchKey();
         state.activate(mode, false);
         state.offerRetype();
+        // The next key comes well after the switch key, once a retype at once has gone through.
+        loop.pump(150);
         for (const uint32_t sym : after) {
             app->type(sym);
             loop.pump(150);
@@ -187,17 +194,26 @@ namespace {
     void testRetypeInApp(const std::string& frontend, bool surroundingText, Mode mode) {
         const Field       field = makeField(frontend, surroundingText);
         const std::string what  = frontend + (mode == Mode::Sen ? " sen: " : " preedit: ");
-        std::string       text  = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Tab});
-        check(text == "tiếng việt", what + "Tab retypes the text with marks", text);
+        std::string       text  = retypeInApp(field, mode, "tieengs vieetj", {});
+        check(text == "tiếng việt", what + "switching on retypes the text with marks", text);
 
-        text = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Tab, ngosen::key::Tab});
-        check(text == "tieengs vieetj", what + "Tab again puts the typed text back", text);
-
-        text = retypeInApp(field, mode, "tieengs", {ngosen::key::Escape, ngosen::key::Tab});
-        check(text.rfind("tieengs", 0) == 0, what + "after Esc, Tab does not retype", text);
+        text = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Escape});
+        check(text == "tieengs vieetj", what + "Esc puts the typed text back", text);
 
         text = retypeInApp(field, mode, "tieengs ", {'a', ngosen::key::space});
-        check(text == "tieengs a ", what + "another key leaves the text as typed", text);
+        check(text == "tiếng a ", what + "typing on keeps the retyped text", text);
+
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Tab});
+        check(text == "abc tiếng", what + "Tab retypes the offered text", text);
+
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Tab, ngosen::key::Tab});
+        check(text == "abc tieengs", what + "Tab again puts the typed text back", text);
+
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Escape, ngosen::key::Tab});
+        check(text.rfind("abc tieengs", 0) == 0, what + "after Esc, Tab does not retype", text);
+
+        text = retypeInApp(field, mode, "abc tieengs ", {'a', ngosen::key::space});
+        check(text == "abc tieengs a ", what + "another key leaves the offered text as typed", text);
     }
 
     void pressInState(ngosen::TypingState& state, uint32_t sym, uint32_t states = 0) {
@@ -218,6 +234,7 @@ namespace {
         noteWhileOff(state, "vieetj");
         state.activate(Mode::Sen, false);
         state.offerRetype();
+        loop.pump(150);
         check(!host->status().empty(), "the offer shows how to use it", "(no hint)");
         pressInState(state, sym);
         loop.pump(150);
@@ -228,8 +245,15 @@ namespace {
     void testRetypeInSteppingApp() {
         AppQuirks quirks;
         quirks.keyStepMs       = 2;
-        const std::string text = retypeInApp(makeField("wayland", true), Mode::Sen, "tieengs vieetj", {ngosen::key::Tab}, quirks);
-        check(text == "tiếng việt", "stepping app: Tab waits for every backspace", text);
+        const std::string text = retypeInApp(makeField("wayland", true), Mode::Sen, "tieengs vieetj", {}, quirks);
+        check(text == "tiếng việt", "stepping app: the retype waits for every backspace", text);
+    }
+
+    void testRetypeAfterSwitchKey() {
+        AppQuirks quirks;
+        quirks.switchBusyMs    = 50;
+        const std::string text = retypeInApp(makeField("wayland", true), Mode::Sen, "tieengs vieetj", {}, quirks);
+        check(text == "tiếng việt", "busy app: the retype waits until the switch key is handled", text);
     }
 
     // Chromium replaces by selecting with Shift+Left through XTEST, and those keys come back to us.
@@ -250,7 +274,7 @@ namespace {
         noteWhileOff(state, "tieengs vieetj");
         state.activate(Mode::Sen, false);
         state.offerRetype();
-        pressInState(state, ngosen::key::Tab);
+        loop.pump(150);
         FakeKey shiftDown(ngosen::key::Shift_R);
         state.keyEvent(shiftDown);
         for (int i = 0; i < 14; ++i)
@@ -259,11 +283,11 @@ namespace {
         state.keyEvent(shiftUp);
         loop.pump(150);
         const std::string commits = host->commits().empty() ? "(none)" : host->commits().back();
-        check(commits == "tiếng việt", "selection: Tab types the retyped text over the selection", commits);
+        check(commits == "tiếng việt", "selection: the retyped text goes over the selection", commits);
 
-        pressInState(state, ngosen::key::Tab);
+        pressInState(state, ngosen::key::Escape);
         loop.pump(20);
-        check(host->systemKeys().size() == 2, "selection: Tab again selects the retyped text", std::to_string(host->systemKeys().size()) + " selections");
+        check(host->systemKeys().size() == 2, "selection: Esc selects the retyped text", std::to_string(host->systemKeys().size()) + " selections");
         setXTestSenderForTest(nullptr);
     }
 
@@ -279,6 +303,7 @@ int main() {
     testRetypeInApp("other", true, Mode::Sen);
     testRetypeOverSelection();
     testRetypeInSteppingApp();
+    testRetypeAfterSwitchKey();
     testHintGoesAway(ngosen::key::Tab, "Tab");
     testHintGoesAway(ngosen::key::Escape, "Esc");
     if (failures == 0)
