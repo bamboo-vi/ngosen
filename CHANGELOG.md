@@ -31,8 +31,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Sửa
 
 - Gõ Sen trong GNOME Console trên GNOME ra chữ lặp (`ddwowngf` thành `ddduuwwoowwnnggff`) rồi đứng, giống
-  lỗi Ptyxis ở #74. Ptyxis trên KDE Plasma khi máy có cài IBus cũng sai dấu như vậy. Giờ cả hai gõ đúng
-  dấu (#81).
+  lỗi Ptyxis ở #74. Ptyxis trên phiên X11 (như KDE Plasma X11) khi máy có cài IBus cũng sai dấu như vậy. Giờ
+  cả hai gõ đúng dấu (#81).
 - Lõi gõ Rust lên bamboo-core 0.4.1: gõ từ dài hơn 16 phím khi đang bật tiếng Việt (như tên biến
   `getUserNameByIdentifier`) không còn bị cắt hay mất phím; `tuowf` ra `tườ` thay vì `từơ` (#78).
 - Trên COSMIC, biểu tượng Ngó Sen ở khay hiện đúng chữ V có màu thay vì một ô vuông trắng (#75).
