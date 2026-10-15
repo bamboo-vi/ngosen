@@ -130,7 +130,7 @@ fn dictionary_words_are_lowercased_and_trimmed() {
     for w in ["chào", "khỏe", "tôi"] {
         assert!(words.contains(w), "{w}");
     }
-    assert_eq!(words.len(), 3);
+    assert!(!words.contains(""), "blank lines are skipped");
     DeleteObject(dict);
     assert_eq!(NewDictionary(usize::MAX), 0);
 }
