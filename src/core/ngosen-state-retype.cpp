@@ -107,7 +107,8 @@ namespace ngosen {
 
     bool TypingState::typedBeforeCursor(const std::string& typed) const {
         const Surrounding s = host_->surrounding();
-        if (!reportsTextInTime() || !s.isValid())
+        // Some apps (kitty, Konsole) declare surrounding text but always send it empty.
+        if (!reportsTextInTime() || !s.isValid() || s.text().empty())
             return true;
         const std::string& t  = s.text();
         auto               it = t.begin();

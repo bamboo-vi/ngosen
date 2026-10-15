@@ -21,6 +21,7 @@
 #include <utility>
 
 #include <fcitx-config/iniparser.h>
+#include <fcitx/globalconfig.h>
 #include <fcitx/menu.h>
 #include <fcitx/userinterfacemanager.h>
 #include <fcitx-utils/event.h>
@@ -109,6 +110,15 @@ namespace fcitx {
             migrateLegacyModeOrder(config);
             moveOption(config, "ShowModeUinput", "ShowModeSen");
             moveOption(config, "ShortcutUinput", "ShortcutSen");
+        }
+
+        bool isSwitchKey(const GlobalConfig& config, const Key& key) {
+            for (const auto* keys : {&config.triggerKeys(), &config.altTriggerKeys(), &config.activateKeys(), &config.deactivateKeys(), &config.enumerateForwardKeys(),
+                                     &config.enumerateBackwardKeys(), &config.enumerateGroupForwardKeys(), &config.enumerateGroupBackwardKeys()}) {
+                if (key.checkKeyList(*keys))
+                    return true;
+            }
+            return false;
         }
     } // namespace
 
@@ -247,7 +257,8 @@ namespace fcitx {
         keyWhileOffWatcher_ = instance_->watchEvent(EventType::InputContextKeyEvent, EventWatcherPhase::PreInputMethod, [this](Event& event) {
             auto& keyEvent = static_cast<KeyEvent&>(event);
             auto* ic       = keyEvent.inputContext();
-            if (instance_->inputMethod(ic) == "ngosen")
+            // The switch key is usually Ctrl+Space; as a shortcut it would wipe the text it is about to offer.
+            if (instance_->inputMethod(ic) == "ngosen" || isSwitchKey(instance_->globalConfig(), keyEvent.rawKey()))
                 return;
             ngosen::FcitxKeyPress press(keyEvent);
             stateFor(ic)->noteKeyWhileOff(press);
