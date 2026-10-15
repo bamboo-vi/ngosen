@@ -42,8 +42,9 @@ namespace ngosen {
     bool erasesWithCommittedDel(const Field& field) {
         if (field.frontend != "dbus" || field.keyEventOrderFix || field.surroundingText)
             return false;
-        // fcitx5-gtk4 does not pass on the terminal input purpose VTE sets.
-        return stripDesktopSuffix(field.program) == "ptyxis";
+        // fcitx5-gtk4 does not pass on the terminal input purpose VTE sets; these are the GTK4 VTE terminals.
+        const std::string program = stripDesktopSuffix(field.program);
+        return program == "ptyxis" || program == "kgx";
     }
 
     bool selectsOverAutocompletion(const Field& field) {

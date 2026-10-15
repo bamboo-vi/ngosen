@@ -203,6 +203,9 @@ namespace {
         check(taken, "ptyxis: e -> ê takes the key", "not accepted");
         check(vte == "['<DEL>ê']", "ptyxis: one commit erases e and types ê", vte);
 
+        const std::string console = commitsForTiee("kgx", taken);
+        check(console == "['<DEL>ê']", "kgx: one commit erases e and types ê", console);
+
         const std::string sdl = commitsForTiee("Medieval2", taken);
         check(!has(sdl, "<DEL>"), "dbus sdl: never gets DEL", sdl);
     }
