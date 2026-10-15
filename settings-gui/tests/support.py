@@ -51,3 +51,9 @@ class FakeDBusHandler:
     def reload_addon_config(self):
         self.reloads.append("ngosen")
         return True
+
+    def input_method_names(self):
+        return ["keyboard-us", "ngosen"]
+
+    def debug_info(self):
+        return "Group [wayland:] has 1 InputContext(s)\n  IC [1] program:kate frontend:wayland cap:72 focus:1\n"

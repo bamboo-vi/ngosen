@@ -291,7 +291,7 @@ class NgoSenSettingsWindow(QMainWindow):
         def create_about():
             from ui.pages.about import AboutPage
 
-            return AboutPage()
+            return AboutPage(self.dbus_handler)
 
         self._add_page(_("Typing"), "input-keyboard", (None, create_typing))
         self._add_page(
