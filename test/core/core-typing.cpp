@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // The typing logic run against a fake app field, with no fcitx5 at all.
+#include "fake-app.h"
 #include "fake-engine.h"
 #include "fake-host.h"
 
@@ -119,6 +120,17 @@ namespace {
         }
         loop.pump(150);
         check(join(host->commits()) == "['ê']", what + "commits ê", join(host->commits()));
+    }
+
+    // Sway (wlroots) reports the text and then a done event; a commit sent before the done carries a
+    // stale serial and is dropped.
+    void testCommitAfterTheReport() {
+        Field                   field = makeField("wayland_v2", true);
+        ngosen::test::AppQuirks quirks;
+        quirks.dropsCommitsInReport = true;
+        const std::vector<uint32_t> keys{'d', 'd', 'w', 'o', 'w', 'n', 'g', 'f'};
+        const std::string           text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
+        check(text == "đường", "sway: commits go out after the app's report", text);
     }
 
     // A key typed while the app has not yet applied the backspaces waits and goes out with the
@@ -405,6 +417,7 @@ int main() {
     testSenForwards("wayland_v2", true);
     testSenForwards("xim", false);
     testKeyDuringReplacement();
+    testCommitAfterTheReport();
     testGtk4DeletesSurrounding();
     testSdlGetsNoForwardedBackspace();
     testTerminalErasesWithCommittedDel();

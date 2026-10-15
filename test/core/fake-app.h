@@ -20,10 +20,11 @@ namespace ngosen::test {
 
     // Ways a real app's field departs from an ideal one.
     struct AppQuirks {
-        bool reports       = true; // tells the input method when its text changes
-        int  reportDelayMs = 0;
-        bool staleReport   = false; // reports the text as it was one change earlier
-        int  lagMs         = 0;     // applies commits, deletions and keys this late, in order
+        bool reports              = true; // tells the input method when its text changes
+        int  reportDelayMs        = 0;
+        bool staleReport          = false; // reports the text as it was one change earlier
+        int  lagMs                = 0;     // applies commits, deletions and keys this late, in order
+        bool dropsCommitsInReport = false; // drops commits sent while its report is handled, as wlroots does
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -90,7 +91,8 @@ namespace ngosen::test {
         FakeLoop&                           loop_;
         Field                               field_;
         AppQuirks                           quirks_;
-        TypingState*                        state_ = nullptr;
+        TypingState*                        state_    = nullptr;
+        bool                                inReport_ = false;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
         std::u32string                      previousText_;
