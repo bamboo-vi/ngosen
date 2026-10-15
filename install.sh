@@ -238,6 +238,17 @@ enable_fcitx5_autostart() {
     session_changes+=("fcitx5 tự chạy khi đăng nhập")
 }
 
+# im-config 1.1 replaced -n with -w and -m with -r.
+im_config_set() {
+    im-config -n "$1" >/dev/null 2>&1 || im-config -w "$1" >/dev/null 2>&1
+}
+
+# Prints the input method im-config starts when the user has picked none.
+im_config_auto() {
+    im-config -m 2>/dev/null | sed -n 3p | grep . ||
+        im-config -r 2>/dev/null | sed -n 's/^IM framework (auto): //p'
+}
+
 # GNOME offers fcitx5 no Wayland input-method protocol, so apps have to load fcitx5's own modules.
 set_im_environment() {
     local dir file
@@ -257,7 +268,7 @@ SDL_IM_MODULE=fcitx
 EOF
     # Debian's im-config otherwise picks IBus for X11 sessions and overrides the variables above.
     if command -v im-config >/dev/null 2>&1; then
-        im-config -n fcitx5 >/dev/null 2>&1 || :
+        im_config_set fcitx5 || :
     fi
     session_changes+=("app dùng fcitx5 thay IBus")
 }
@@ -441,7 +452,7 @@ setup_gnome_session() {
 setup_x11_session() {
     say ""
     if ! grep -qs '^run_im fcitx5$' "$HOME/.xinputrc"; then
-        im-config -n fcitx5 >/dev/null 2>&1 || die "im-config không đặt được fcitx5"
+        im_config_set fcitx5 || die "im-config không đặt được fcitx5"
         session_changes+=("app dùng fcitx5, fcitx5 tự chạy khi đăng nhập")
     fi
     configure_fcitx5
@@ -505,7 +516,7 @@ undo_gnome_session() {
         undone+=("app dùng lại IBus")
     fi
     if grep -qs '^run_im fcitx5$' "$HOME/.xinputrc" && command -v im-config >/dev/null 2>&1; then
-        im-config -n REMOVE >/dev/null 2>&1 || :
+        im_config_set REMOVE || :
     fi
     autostart="$config/autostart/org.fcitx.Fcitx5.desktop"
     if cmp -s /usr/share/applications/org.fcitx.Fcitx5.desktop "$autostart"; then
@@ -551,13 +562,13 @@ uninstall() {
     if wants_gnome_setup; then
         undo_gnome_session
     elif wants_x11_setup && grep -qs '^run_im fcitx5$' "$HOME/.xinputrc"; then
-        im-config -n REMOVE >/dev/null 2>&1 || :
+        im_config_set REMOVE || :
     fi
     as_root "${remove[@]}"
     say ""
     if wants_gnome_setup; then
         say "Xong. Đăng xuất rồi đăng nhập lại để GNOME dùng lại IBus."
-    elif wants_x11_setup && [ "$(im-config -m 2>/dev/null | sed -n 3p)" = fcitx5 ]; then
+    elif wants_x11_setup && [ "$(im_config_auto)" = fcitx5 ]; then
         # The system default picks any installed input method, and fcitx5 itself stays installed.
         say "Xong. fcitx5 vẫn còn trên máy nên vẫn tự chạy khi đăng nhập, gõ tiếng Anh như bàn phím."
         say "Gỡ hẳn fcitx5:  sudo apt remove fcitx5"
