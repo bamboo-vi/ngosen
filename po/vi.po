@@ -289,7 +289,7 @@ msgstr "Trang "
 
 #: src/core/ngosen-state-retype.cpp
 msgid "Tab: retype in Vietnamese, Esc: keep"
-msgstr "Tab: gõ lại thành tiếng Việt, Esc: giữ nguyên"
+msgstr "Cứu chữ: Tab để đổi, Esc để giữ nguyên"
 
 #: io.github.ngosen.NgoSen.metainfo.xml.in.in:7
 msgid "Ngó Sen"
