@@ -95,8 +95,10 @@ detect_distribution() {
     esac
 
     if command -v apt-get >/dev/null 2>&1; then
+        # Kali Rolling is built from Debian testing.
+        [ "$id" = kali ] && codename=forky
         case "$codename" in
-            bookworm | trixie | jammy | noble | resolute)
+            bookworm | trixie | forky | jammy | noble | resolute)
                 manager=apt
                 pattern="fcitx5-ngosen_[0-9][^ /]*_${codename}_amd64\\.deb"
                 return

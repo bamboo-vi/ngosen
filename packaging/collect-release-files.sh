@@ -1,7 +1,8 @@
 #!/bin/bash
 # Picks the packages a release publishes out of the CI artifacts and names them so the installer
-# can tell which one belongs to which distribution. Development targets (Debian testing and
-# unstable, Fedora Rawhide) and debug packages are built by CI but not published.
+# can tell which one belongs to which distribution. Development targets (Debian unstable, Fedora
+# Rawhide) and debug packages are built by CI but not published. Debian testing is published
+# because Kali Rolling follows it.
 set -euo pipefail
 
 src=${1:?usage: collect-release-files.sh <artifacts-dir> <output-dir>}
@@ -19,7 +20,7 @@ only() {
     printf '%s\n' "$found"
 }
 
-for codename in bookworm trixie jammy noble resolute; do
+for codename in bookworm trixie forky jammy noble resolute; do
     deb=$(only "$src/deb-$codename" 'fcitx5-ngosen_*_amd64.deb')
     cp "$deb" "$out/$(basename "$deb" _amd64.deb)_${codename}_amd64.deb"
 done
