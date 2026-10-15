@@ -56,6 +56,28 @@ class NgoSenDBusHandler:
             print(f"Failed to reload addon config: {e}")
             return False
 
+    def input_method_names(self):
+        """Input methods of the current group, or None when fcitx5 does not answer."""
+        if not self.iface:
+            return None
+        try:
+            group = self.iface.CurrentInputMethodGroup()
+            items = self.iface.FullInputMethodGroupInfo(group)[4]
+            return [str(item[0]) for item in items]
+        except Exception as e:
+            print(f"Failed to read the input method group: {e}")
+            return None
+
+    def debug_info(self) -> str:
+        """fcitx5's list of connected input contexts, with each one's program and frontend."""
+        if not self.iface:
+            return ""
+        try:
+            return str(self.iface.DebugInfo())
+        except Exception as e:
+            print(f"Failed to read fcitx5 debug info: {e}")
+            return ""
+
     def get_sub_config_list(self, path: str, root_key: str) -> list:
         """Get sub config list from Fcitx5 and convert to Python list."""
         if not self.iface:

@@ -25,9 +25,21 @@ except ImportError:
 
 
 class AboutPage(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, dbus_handler=None, parent=None):
         super().__init__(parent)
+        self.dbus_handler = dbus_handler
+        self.check_dialog = None
         self._setup_ui()
+
+    def open_system_check(self):
+        from ui.system_check_dialog import SystemCheckDialog
+
+        if self.check_dialog is None:
+            self.check_dialog = SystemCheckDialog(self.dbus_handler, __version__, self)
+        else:
+            self.check_dialog.run()
+        self.check_dialog.show()
+        self.check_dialog.raise_()
 
     def _setup_ui(self):
         # Root layout for this widget
@@ -102,6 +114,14 @@ class AboutPage(QWidget):
                 QUrl("https://github.com/ngosen/ngosen/issues/new?template=feature_request.yml")
             )
         )
+
+        # Its own row: three buttons do not fit the narrowest window, and checking comes before reporting.
+        btn_check = QPushButton(_("Check my machine…"))
+        btn_check.setObjectName("SystemCheck")
+        btn_check.setFixedWidth(200)
+        btn_check.setEnabled(self.dbus_handler is not None)
+        btn_check.clicked.connect(self.open_system_check)
+        layout.addWidget(btn_check, alignment=Qt.AlignCenter)
 
         support_layout.addWidget(btn_bug)
         support_layout.addWidget(btn_feature)
