@@ -20,6 +20,24 @@ fn telex_horn_on_o_when_nothing_follows_uo() {
 }
 
 #[test]
+fn telex_uow_spreads_both_horns_for_onsets_that_forbid_uơ() {
+    // Go's cvMatrix allows the rime `uơ` only after the `c h k kh qu th`
+    // onset class, so `khuơ` is complete and keeps one horn, while `duơ` is
+    // incomplete and spreads the second horn (`dươ`) — matching Go bamboo-core.
+    check(
+        InputMethod::telex(),
+        &[("duow", "dươ"), ("dduow", "đươ"), ("tuow", "tươ"), ("nguow", "ngươ")],
+    );
+}
+
+#[test]
+fn telex_tone_lands_on_ơ_after_both_horns() {
+    // Go's findToneTarget prefers the vowel carrying ơ/ê for the tone, coda
+    // or not: `tuowf` is `tườ`, not `từơ` (bench-fcitx5 report #578/#579).
+    check(InputMethod::telex(), &[("tuowf", "tườ"), ("tuowfj", "tượ")]);
+}
+
+#[test]
 fn telex_horn_spreads_to_u_when_letter_follows() {
     check(InputMethod::telex(), &[("huouw", "hươu"), ("thuoiwx", "thưỡi")]);
 }

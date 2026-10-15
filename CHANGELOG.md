@@ -27,6 +27,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Lõi gõ Rust lên bamboo-core 0.4.1: gõ từ dài hơn 16 phím khi đang bật tiếng Việt (như tên biến
+  `getUserNameByIdentifier`) không còn bị cắt hay mất phím; `tuowf` ra `tườ` thay vì `từơ` (#78).
 - Trên COSMIC, biểu tượng Ngó Sen ở khay hiện đúng chữ V có màu thay vì một ô vuông trắng (#75).
 - Gõ Sen trong Ptyxis (terminal mặc định của Ubuntu 26.04 và Fedora) ra chữ lặp (`tieengs` thành
   `tieeenngss`) rồi đứng. Giờ gõ đúng dấu như ở app khác (#74).
