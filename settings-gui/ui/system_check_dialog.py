@@ -9,14 +9,16 @@ from qtpy.QtGui import QDesktopServices, QGuiApplication
 from qtpy.QtWidgets import (
     QDialog,
     QDialogButtonBox,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
+    QPushButton,
     QStyle,
     QVBoxLayout,
     QWidget,
 )
 
-from core import system_check
+from core import system_check, typing_log
 from ui.typography import mute
 
 ICONS = {
@@ -54,6 +56,7 @@ class SystemCheckDialog(QDialog):
         self.apps.setWordWrap(True)
         mute(self.apps)
         layout.addWidget(self.apps)
+        layout.addWidget(self._app_test_box())
         layout.addStretch()
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
@@ -79,7 +82,75 @@ class SystemCheckDialog(QDialog):
             self.apps.setText("")
         # The layout picks up the new rows only on the next event loop pass; resizing now would
         # use the old height and clip the rows.
-        QTimer.singleShot(0, self.adjustSize)
+        QTimer.singleShot(0, self._fit)
+
+    def _app_test_box(self):
+        self.app_test = None
+        box = QGroupBox(_("Test an app"))
+        box_layout = QVBoxLayout(box)
+        steps = QLabel(
+            _(
+                "Open the app, switch to Ngó Sen and type “{sample}” ({telex} in Telex). Then "
+                "choose “Save typing log” in the Ngó Sen menu and read the log here."
+            ).format(sample=typing_log.SAMPLE, telex=typing_log.SAMPLE_TELEX)
+        )
+        steps.setWordWrap(True)
+        box_layout.addWidget(steps)
+
+        row = QHBoxLayout()
+        self.read_log_btn = QPushButton(_("Read typing log"))
+        self.read_log_btn.clicked.connect(self.read_typing_log)
+        row.addWidget(self.read_log_btn)
+        self.right_btn = QPushButton(_("It typed right"))
+        self.wrong_btn = QPushButton(_("It typed wrong"))
+        self.right_btn.clicked.connect(lambda: self._set_verdict(typing_log.RIGHT))
+        self.wrong_btn.clicked.connect(lambda: self._set_verdict(typing_log.WRONG))
+        for btn in (self.right_btn, self.wrong_btn):
+            btn.hide()
+            row.addWidget(btn)
+        row.addStretch()
+        box_layout.addLayout(row)
+
+        self.app_result = QLabel()
+        self.app_result.setObjectName("AppTestResult")
+        self.app_result.setWordWrap(True)
+        self.app_result.hide()
+        box_layout.addWidget(self.app_result)
+        return box
+
+    def read_typing_log(self):
+        self.app_test = typing_log.read_latest()
+        asking = self.app_test is not None and self.app_test.verdict == typing_log.UNKNOWN
+        self.right_btn.setVisible(asking)
+        self.wrong_btn.setVisible(asking)
+        self._show_app_test()
+
+    def _set_verdict(self, verdict):
+        self.app_test.verdict = verdict
+        self.right_btn.hide()
+        self.wrong_btn.hide()
+        self._show_app_test()
+
+    def _show_app_test(self):
+        test = self.app_test
+        if test is None:
+            text = _("No typing log found. Save one from the Ngó Sen menu first.")
+        elif not test.program and not test.frontend:
+            text = _("The log has no typing in it. Type the sample, then save the log again.")
+        else:
+            app = f"{test.program or '?'} ({test.frontend})"
+            text = {
+                typing_log.RIGHT: _("{app} got the sample right."),
+                typing_log.WRONG: _("{app} got the sample wrong."),
+                typing_log.UNKNOWN: _(
+                    "{app} does not tell Ngó Sen its text. Did the sample come out right?"
+                ),
+            }[test.verdict].format(app=app)
+            if test.verdict == typing_log.WRONG and test.app_text:
+                text += " " + _("The app shows: {}").format(test.app_text.replace("|", ""))
+        self.app_result.setText(text)
+        self.app_result.show()
+        QTimer.singleShot(0, self._fit)
 
     def _show_findings(self):
         while self.results.count():
@@ -112,8 +183,13 @@ class SystemCheckDialog(QDialog):
         box.addLayout(text, 1)
         return row
 
+    def _fit(self):
+        self.adjustSize()
+        # The size hint wraps text at a narrower width than the dialog has, leaving a gap.
+        self.resize(self.width(), self.layout().totalHeightForWidth(self.width()))
+
     def report_text(self):
-        return system_check.report(self.facts, self.findings)
+        return system_check.report(self.facts, self.findings, self.app_test)
 
     def copy_report(self):
         QGuiApplication.clipboard().setText(self.report_text())

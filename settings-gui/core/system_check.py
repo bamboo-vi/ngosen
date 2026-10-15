@@ -137,7 +137,7 @@ def _desktop_findings(facts):
     return _needs(facts, "QT_IM_MODULE", WARN, _("Qt 5 apps have no input method"))
 
 
-def report(facts, findings):
+def report(facts, findings, app_test=None):
     """Plain text for the bug report; it lists app names, so the user reviews it before sending."""
     marks = {OK: "OK", WARN: "!", FAIL: "X"}
     desktop = ":".join(facts.desktops) or "?"
@@ -152,6 +152,8 @@ def report(facts, findings):
     lines += [f"[{marks[f.level]}] {f.title}" for f in findings] or ["[OK] no setup problem found"]
     if facts.apps:
         lines += ["", "Apps: " + ", ".join(f"{p} ({fe})" for p, fe in facts.apps)]
+    if app_test:
+        lines += ["", "App test: " + app_test.summary()]
     return "\n".join(lines)
 
 
