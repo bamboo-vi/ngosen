@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   build-deb:
-    name: DEB [${{ matrix.codename }}]
+    name: DEB [${{ matrix.codename }}${{ matrix.arch == 'arm64' && ', arm64' || '' }}]
     strategy:
       fail-fast: false
       matrix:
@@ -41,8 +41,30 @@ jobs:
           - distro: ubuntu:26.04
             codename: resolute
             rust: true
+          # arm64 only for the published targets.
+          - distro: debian:12
+            codename: bookworm
+            arch: arm64
+          - distro: debian:13
+            codename: trixie
+            arch: arm64
+          - distro: debian:testing
+            codename: forky
+            rust: true
+            arch: arm64
+          - distro: ubuntu:22.04
+            codename: jammy
+            arch: arm64
+          - distro: ubuntu:24.04
+            codename: noble
+            rust: true
+            arch: arm64
+          - distro: ubuntu:26.04
+            codename: resolute
+            rust: true
+            arch: arm64
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
 
     steps:
       - uses: actions/checkout@v7
@@ -67,12 +89,12 @@ jobs:
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v7
         with:
-          name: deb-${{ matrix.codename }}
+          name: deb-${{ matrix.codename }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}
           path: debian/artifacts/*.deb
           retention-days: 3
 
   build-rpm-fedora:
-    name: RPM [fedora-${{ matrix.releasever }}]
+    name: RPM [fedora-${{ matrix.releasever }}${{ matrix.arch == 'arm64' && ', arm64' || '' }}]
     strategy:
       fail-fast: false
       matrix:
@@ -83,8 +105,14 @@ jobs:
             releasever: 44
           - distro: fedora:rawhide
             releasever: rawhide
+          - distro: fedora:43
+            releasever: 43
+            arch: arm64
+          - distro: fedora:44
+            releasever: 44
+            arch: arm64
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
 
     steps:
       - uses: actions/checkout@v7
@@ -122,7 +150,7 @@ jobs:
       - name: Upload RPM artifact
         uses: actions/upload-artifact@v7
         with:
-          name: rpm-fedora-${{ matrix.releasever }}
+          name: rpm-fedora-${{ matrix.releasever }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}
           path: output/*.rpm
           retention-days: 3
 
@@ -239,6 +267,10 @@ jobs:
           - name: ubuntu-24.04, X11
             image: ubuntu:24.04
             args: x11
+          - name: ubuntu-24.04, X11, arm64
+            image: ubuntu:24.04
+            args: x11
+            arch: arm64
           - name: ubuntu-26.04, GNOME
             image: ubuntu:26.04
             args: gnome
@@ -246,7 +278,7 @@ jobs:
             image: fedora:44
             args: gnome
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     container: ${{ matrix.image }}
 
     steps:

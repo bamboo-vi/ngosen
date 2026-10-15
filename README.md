@@ -37,7 +37,8 @@ Kiểu gõ được dùng và test hằng ngày là **Telex**. VNI và các ki�
 
 ## Cài
 
-Một dòng lệnh, cho Fedora, Ubuntu, Debian, Arch, CachyOS và openSUSE Tumbleweed (máy x86_64):
+Một dòng lệnh, cho Fedora, Ubuntu, Debian, Kali, Arch, CachyOS và openSUSE Tumbleweed trên máy x86_64; Fedora,
+Ubuntu, Debian và Kali có cả gói cho máy ARM 64-bit (aarch64):
 
 ```
 curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash
