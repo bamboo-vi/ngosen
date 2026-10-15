@@ -18,8 +18,9 @@ namespace ngosen {
     // True for GTK4 clients, whose IM modules drop forwarded keys; delete through surrounding text there.
     bool ignoresForwardedKeys(const Field& field);
 
-    // True for VTE terminals under GTK4 (Ptyxis): they take neither forwarded keys nor surrounding
-    // text, but pass committed text to the shell as is, so a DEL in it erases like Backspace.
+    // True for VTE terminals under GTK4 (Ptyxis, GNOME Console), through fcitx5-gtk4 or IBus: they take neither
+    // forwarded keys nor surrounding text, but pass committed text to the shell as is, so a DEL in it erases like
+    // Backspace.
     bool erasesWithCommittedDel(const Field& field);
 
     // True for Chromium-based browsers on the D-Bus and fcitx4 frontends: they take forwarded keys but

@@ -16,7 +16,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   cạnh con trỏ hiện `tieengs vieetj → tiếng việt` kèm dòng "Cứu chữ: Tab để đổi, Esc để giữ nguyên" (#80).
   Bấm Tab để gõ lại có dấu, Tab lần nữa để trả lại như cũ, Esc hoặc
   phím khác để bỏ qua. Không ghi nhớ trong ô mật khẩu; bấm chuột, Enter, phím mũi tên hay chuyển ô thì đoạn
-  đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ, như terminal Ptyxis trên GNOME (#71).
+  đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ (#71).
 
 ### Thay đổi
 
@@ -30,6 +30,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Gõ Sen trong GNOME Console trên GNOME ra chữ lặp (`ddwowngf` thành `ddduuwwoowwnnggff`) rồi đứng, giống
+  lỗi Ptyxis ở #74. Ptyxis trên phiên X11 (như KDE Plasma X11) khi máy có cài IBus cũng sai dấu như vậy. Giờ
+  cả hai gõ đúng dấu (#81).
 - Lõi gõ Rust lên bamboo-core 0.4.1: gõ từ dài hơn 16 phím khi đang bật tiếng Việt (như tên biến
   `getUserNameByIdentifier`) không còn bị cắt hay mất phím; `tuowf` ra `tườ` thay vì `từơ` (#78).
 - Trên COSMIC, biểu tượng Ngó Sen ở khay hiện đúng chữ V có màu thay vì một ô vuông trắng (#75).
