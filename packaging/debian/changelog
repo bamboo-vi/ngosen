@@ -1,3 +1,9 @@
+fcitx5-ngosen (1:1.4.2-1) unstable; urgency=medium
+
+  * Fix lost letters with Sen mode on Sway and in empty Wayland fields; add arm64 packages and Kali install.
+
+ -- Nguyen Phi <nguyenphidt@gmail.com>  Fri, 16 Oct 2026 18:00:00 +0700
+
 fcitx5-ngosen (1:1.4.1-1) unstable; urgency=medium
 
   * The installer makes fcitx5 the KDE input method on Plasma Wayland; CI runs the installer.
