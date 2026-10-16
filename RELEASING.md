@@ -26,10 +26,12 @@ The release is `X.Y.Z-N` (`N` is the packaging revision) with epoch 1, tagged `n
    - `.github/ISSUE_TEMPLATE/bug_report.yml` (example version)
 
    `packaging/check-version.sh X.Y.Z-N` must print no `MISMATCH`.
+
 2. `CHANGELOG.md`: turn `## [Chưa phát hành]` into `## [X.Y.Z-N] — DD/MM/YYYY` with a one-line summary and a
    link to the release, and start a new empty `## [Chưa phát hành]`.
-3. `packaging/release-notes.md`: update the "Mức đã thử" column to what was actually typed on each system
-   for this version. Untested systems stay "chỉ dựng".
+3. `packaging/release-notes.md`: the first paragraph says what this version fixes or adds (the CHANGELOG
+   summary), and "Đã test những gì" lists only what was typed on this version. Systems not tested this time
+   stay under "đã được gõ thử ở các version trước" or "chỉ được build".
 4. Merge the PR once CI passes, then tag the merge commit on `main` through the API, not from a local
    checkout, where a stale local tag can point at the wrong commit:
 
@@ -38,6 +40,7 @@ The release is `X.Y.Z-N` (`N` is the packaging revision) with epoch 1, tagged `n
    ```
 
    The release workflow refuses a tag that is not on `main` or that disagrees with the packaging files.
+
 5. Check the draft release before publishing:
    - all packages and `SHA256SUMS` are attached, and the sums match;
    - every package reports `1:X.Y.Z-N`;
