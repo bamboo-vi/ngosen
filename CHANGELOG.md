@@ -13,7 +13,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Tài liệu
 
 - README trên trang chính khớp version 1.4.2: nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, ghi công tác giả hai lõi gõ,
-  và dùng version, file, repo, build, release như CHANGELOG.
+  và dùng version, file, repo, build, release như CHANGELOG (#104).
 
 ## [1.4.2-1] — 16/10/2026
 
