@@ -14,10 +14,12 @@
 #include "ngosen-recorder.h"
 #include "ngosen-state.h"
 #include "ngosen-strings.h"
+#include "ngosen-utf8.h"
 
 #include <iostream>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using ngosen::Field;
@@ -309,6 +311,23 @@ namespace {
         check(withoutToneMark("VIỆT") == "VIÊT", "tone mark: upper case", withoutToneMark("VIỆT"));
         check(withoutToneMark("chào") == "chao", "tone mark: huyền", withoutToneMark("chào"));
         check(withoutToneMark("ăn") == "ăn", "tone mark: a word without one is unchanged", withoutToneMark("ăn"));
+        // Every row keeps its base when the tone is taken off, so a table rewrite cannot drift.
+        const char* rows[] = {
+            "aáàảãạ", "ăắằẳẵặ", "âấầẩẫậ", "eéèẻẽẹ", "êếềểễệ", "iíìỉĩị", "oóòỏõọ", "ôốồổỗộ", "ơớờởỡợ", "uúùủũụ", "ưứừửữự", "yýỳỷỹỵ",
+            "AÁÀẢÃẠ", "ĂẮẰẲẴẶ", "ÂẤẦẨẪẬ", "EÉÈẺẼẸ", "ÊẾỀỂỄỆ", "IÍÌỈĨỊ", "OÓÒỎÕỌ", "ÔỐỒỔỖỘ", "ƠỚỜỞỠỢ", "UÚÙỦŨỤ", "ƯỨỪỬỮỰ", "YÝỲỶỸỴ",
+        };
+        for (const char* row : rows) {
+            const std::string_view view      = row;
+            const size_t           baseBytes = ngosen::utf8::charBytes(view);
+            const std::string      base(view.substr(0, baseBytes));
+            for (size_t i = baseBytes; i < view.size();) {
+                const size_t      bytes = ngosen::utf8::charBytes(view.substr(i));
+                const std::string toned(view.substr(i, bytes));
+                check(withoutToneMark(toned) == base, "tone mark: table row keeps its base", withoutToneMark(toned));
+                i += bytes;
+            }
+        }
+        check(withoutToneMark("tiếng Việt 123!") == "tiêng Viêt 123!", "tone mark: mixed sentence", withoutToneMark("tiếng Việt 123!"));
     }
 
     // Backspace with BackspaceRemovesTone takes the mark off the word being typed (#34).
