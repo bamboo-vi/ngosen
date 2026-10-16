@@ -1,8 +1,5 @@
 Thay đổi của bản này: xem [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
-Từ bản `0.5.0` Ngó Sen đánh số riêng, không theo số `3.5.10` của bản gốc nữa. Trình quản lý gói vẫn coi
-bản này mới hơn `3.5.10-4`, nên cập nhật như thường.
-
 ## Chọn tệp theo bản phân phối
 
 | Bản phân phối           | Tệp                                              | Mức đã thử                                                                   |
