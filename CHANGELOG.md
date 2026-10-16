@@ -68,7 +68,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - README nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, và gọi thống nhất file, repo, build, release (#73).
 - Hướng dẫn đóng góp có thêm nhánh `patch`: PR sửa lỗi của bản đang phát hành gửi vào đó, tính năng vẫn gửi
-  vào `next`.
+  vào `next` (#101).
 
 ## [1.4.1-1] — 14/10/2026
 
