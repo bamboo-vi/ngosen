@@ -12,7 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Tài liệu
 
-- Trang tải mỗi version không còn đoạn giải thích cách đánh số từ `0.5.0`; phần này vẫn có ở đầu nhật ký thay đổi.
+- Trang tải mỗi version không còn đoạn giải thích cách đánh số từ `0.5.0`; phần này vẫn có ở đầu nhật ký thay đổi (#102).
 
 ## [1.4.2-1] — 16/10/2026
 
