@@ -51,15 +51,18 @@ mới thì chạy lại đúng lệnh đó; cấu hình cũ giữ nguyên.
 
 Trên GNOME (desktop mặc định của Ubuntu), lệnh cài còn đặt fcitx5 làm bộ gõ thay cho IBus, thêm Ngó Sen vào
 danh sách bộ gõ và bật extension sửa lỗi gõ khi cần. Nếu GNOME không có khay hệ thống (như trên Fedora),
-lệnh cài thêm extension [Input Method Panel](https://extensions.gnome.org/extension/261/) để biểu tượng và menu bộ
+lệnh cài thêm extension [Input Method Panel](https://extensions.gnome.org/extension/261/) để icon và menu bộ
 gõ hiện trên thanh trên cùng.
 
 Trên KDE Plasma (Wayland), lệnh cài chọn fcitx5 làm bàn phím ảo của KDE (System Settings → Virtual
 Keyboard), để app Qt như Kate, Dolphin cũng gõ được. Trên Xfce, Cinnamon, MATE (X11, Debian và Ubuntu), lệnh
-cài dùng im-config đặt fcitx5 làm bộ gõ. Ở mọi desktop trên, lệnh cài thêm Ngó Sen vào danh sách bộ gõ; cài
-xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Space (phím mặc định của
-fcitx5) để bật tiếng Việt. Các bước này chỉ áp dụng cho tài khoản đang chạy lệnh; tài khoản khác trên
-cùng máy thì đăng nhập vào đó rồi chạy lại lệnh cài. Muốn tự làm các bước đó thì cài bằng
+cài dùng im-config đặt fcitx5 làm bộ gõ.
+
+Ở mọi desktop trên, lệnh cài thêm Ngó Sen vào danh sách bộ gõ. Cài xong chỉ cần đăng xuất rồi đăng nhập
+lại, sau đó bấm Ctrl+Space (phím mặc định của fcitx5) để bật tiếng Việt. Các bước này chỉ áp dụng cho tài
+khoản đang chạy lệnh; tài khoản khác trên cùng máy thì đăng nhập vào đó rồi chạy lại lệnh cài.
+
+Muốn tự làm các bước đó thì cài bằng
 `curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --no-setup`.
 
 Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
@@ -92,13 +95,14 @@ CI build gói này, chạy test và nạp nó vào fcitx5 trên một màn hình
 NixOS thật. Gặp lỗi thì mở issue. Muốn build từ bản clone trên máy: xem mục NixOS trong
 [TU-DUNG.md](TU-DUNG.md#nixos).
 
-**Mỗi lần cập nhật, và lần cài đầu trên desktop khác GNOME,** khởi động lại fcitx5:
+**Mỗi lần cập nhật, và khi cài bằng `--no-setup` hay cài gói bằng tay,** khởi động lại fcitx5:
 
 ```
 fcitx5 -rd
 ```
 
-KDE Wayland: đăng xuất rồi đăng nhập lại, vì KDE tự mở fcitx5 và lệnh trên không thay được.
+KDE Wayland: đăng xuất rồi đăng nhập lại thay cho lệnh trên, vì fcitx5 bật bằng `fcitx5 -rd` không gõ
+được trong app Qt như Kate, Dolphin.
 
 ### Ubuntu 26.04: extension sửa lỗi gõ
 
@@ -186,8 +190,8 @@ Ngó Sen is a Vietnamese input method for fcitx5. The maintainer only **vibecode
 code is written with an AI coding agent, then measured and used daily by the maintainer. It is licensed
 under GPL-3.0-or-later and published as is, with no promise of support.
 
-Ngó Sen 1.0 has no background uinput server; two typing modes, Gõ Sen (one mode that works for fast
-typing, browsers and Electron apps) and Preedit; and the Bamboo composition core ported from Go to Rust.
+Since 1.0, Ngó Sen has no background uinput server; two typing modes, Gõ Sen (one mode that works for
+fast typing, browsers and Electron apps) and Preedit; and the Bamboo composition core ported from Go to Rust.
 Both cores are MIT licensed: the Rust [bamboo-core](https://github.com/bamboo-vi/bamboo-core) by
 [@nguyen10t2](https://github.com/nguyen10t2), used by most packages, and the Go
 [bamboo-core](https://github.com/BambooEngine/bamboo-core) by [@t1ld3x](https://github.com/t1ld3x), used by the Debian 12
