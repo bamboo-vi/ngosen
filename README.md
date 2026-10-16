@@ -46,7 +46,7 @@ curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bas
 ```
 
 Lệnh này tải gói cho đúng distro từ
-[bản release mới nhất](https://github.com/ngosen/ngosen/releases/latest), hỏi lại rồi mới cài. Muốn lên bản
+[release mới nhất](https://github.com/ngosen/ngosen/releases/latest), hỏi lại rồi mới cài. Muốn lên version
 mới thì chạy lại đúng lệnh đó; cấu hình cũ giữ nguyên.
 
 Trên GNOME (desktop mặc định của Ubuntu), lệnh cài còn đặt fcitx5 làm bộ gõ thay cho IBus, thêm Ngó Sen vào
@@ -69,7 +69,7 @@ Không muốn chạy lệnh tải từ mạng thì tải gói ở trang
 [Releases](https://github.com/ngosen/ngosen/releases) rồi cài bằng tay. Muốn tự build từ source thì xem
 [TU-DUNG.md](TU-DUNG.md).
 
-Muốn test tính năng chưa có trong bản release thì cài [bản thử](https://github.com/ngosen/ngosen/releases/tag/next-build),
+Muốn test tính năng chưa có trong release thì cài [version thử](https://github.com/ngosen/ngosen/releases/tag/next-build),
 build tự động mỗi khi nhánh `next` thay đổi:
 
 ```
@@ -106,7 +106,7 @@ KDE Wayland: đăng xuất rồi đăng nhập lại thay cho lệnh trên, vì 
 
 ### Ubuntu 26.04: extension sửa lỗi gõ
 
-Có từ bản `0.5.0-1`. Lệnh cài ở trên tự bật extension này trên GNOME 50.0 đến 50.3. Nếu cài gói bằng tay,
+Có từ version `0.5.0-1`. Lệnh cài ở trên tự bật extension này trên GNOME 50.0 đến 50.3. Nếu cài gói bằng tay,
 đăng xuất rồi đăng nhập lại, sau đó chạy một lần:
 
 ```
@@ -166,7 +166,7 @@ Gỡ bằng tay:
    fcitx5 -rd
    ```
 
-Cấu hình (các file `ngosen*.conf` trong `~/.config/fcitx5/conf/`, và `lotus*.conf` nếu từng dùng bản trước
+Cấu hình (các file `ngosen*.conf` trong `~/.config/fcitx5/conf/`, và `lotus*.conf` nếu từng dùng version trước
 1.1.0) vẫn ở lại máy, để lần cài sau dùng tiếp. Muốn xoá sạch thì xoá các file đó.
 
 ## Nguồn gốc
