@@ -46,7 +46,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Tài liệu
 
 - README nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, và gọi thống nhất file, repo, build, release (#73).
-- CHANGELOG viết "version 1.2" thay cho "bản 1.2", và dùng file, repo, build, uinput server, forward key như README.
+- CHANGELOG viết "version 1.2" thay cho "bản 1.2", và dùng file, repo, build, uinput server, forward key như README (#103).
 
 ## [1.4.2-1] — 16/10/2026
 
