@@ -161,32 +161,33 @@ Create a Pull Request on GitHub with:
 
 ## Important Notes on Branching
 
-### IMPORTANT: ALL PRs MERGE INTO THE DEV BRANCH
+### PRs go into `next` or `patch`, never `main`
 
-**NEVER create a Pull Request into the `main` branch**
-
-- The `main` branch only contains stable releases and is only merged by the maintainer
-- All Pull Requests must target the `next` branch
-- After passing all CI/CD tests and being reviewed by the maintainer, code will be merged into `next`
-- When eligible, code will be merged from `next` to `main` by the maintainer to bump the version
+- The `main` branch only holds releases and only the maintainer merges into it. The installer downloads
+  `install.sh` from `main`, so whatever lands there runs on users' machines at once.
+- New features and everything else: PR into `next`.
+- A fix for a bug in the current release: PR into `patch`. The maintainer ships bug-fix releases (e.g.
+  1.4.2 → 1.4.3) from `patch`, then merges `patch` into `next`.
+- Not sure? Send it to `next`; the maintainer will move it if needed.
 
 ### Branch Structure
 
 ```
-main    ← Stable release (only maintainer merges)
-  ↑
-next    ← Main development branch (all PRs merge here)
-  ↑
-feature/*, fix/*, hotfix/*  ← Personal branch for each PR
+main    ← Releases (only the maintainer merges)
+  ↑            ↑
+next          patch
+(features)    (fixes for the current release)
+  ↑            ↑
+feature/*, fix/*  ← Personal branch for each PR
 ```
 
 ### Merge Process
 
-1. Developer creates PR to `next`
+1. Developer creates a PR to `next` (feature) or `patch` (fix)
 2. Code review by maintainer
-3. Merge into `next`
-4. Test on `next`
-5. When stable → merge `next` → `main` (by maintainer)
+3. Merge, then test with the `next-build` pre-release
+4. Bug-fix release: `patch` → `main`, then `patch` → `next`. Feature release: `next` → `main`, then reset
+   `patch` to `main`
 
 ## Bug Reporting
 

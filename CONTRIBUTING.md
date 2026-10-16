@@ -99,7 +99,7 @@ CPP_FILES=$(git diff --cached --name-only --diff-filter=ACMR \vert{} grep -E '\.
 if [ -n "$CPP_FILES" ]; then
     for file in $CPP_FILES; do
         clang-format -i "$file"
-        git add "$file" 
+        git add "$file"
     done
 fi
 
@@ -161,32 +161,33 @@ Tạo Pull Request trên GitHub với:
 
 ## Lưu ý quan trọng về nhánh
 
-### QUAN TRỌNG: TẤT CẢ PR MERGE VÀO NHÁNH DEV
+### PR vào `next` hoặc `patch`, không bao giờ vào `main`
 
-**KHÔNG BAO GIỜ tạo Pull Request vào nhánh `main`**
-
-- Nhánh `main` chỉ chứa bản release ổn định và chỉ được merge bởi maintainer
-- Tất cả Pull Request phải nhắm vào nhánh `next`
-- Sau khi pass tất cả các bài CI/CD test và được maintainer review, code sẽ được merge vào `next`
-- Khi đủ điều kiện, code sẽ được merge từ `next` sang `main` bởi maintainer để bump version
+- Nhánh `main` chỉ chứa bản release và chỉ được merge bởi maintainer. Lệnh cài tải `install.sh` từ `main`,
+  nên thứ gì vào `main` là chạy ngay trên máy người dùng.
+- Tính năng mới và mọi thay đổi khác: PR vào `next`.
+- Sửa lỗi của bản đang phát hành: PR vào `patch`. Maintainer ra bản sửa lỗi (vd. 1.4.2 → 1.4.3) từ `patch`,
+  rồi merge `patch` sang `next`.
+- Không chắc thì gửi vào `next`; maintainer sẽ chuyển nếu cần.
 
 ### Cấu trúc nhánh
 
 ```
-main    ← Bản release ổn định (chỉ maintainer được merge)
-  ↑
-next    ← Nhánh phát triển chính (tất cả PR merge vào đây)
-  ↑
-feature/*, fix/*, hotfix/*  ← Nhánh cá nhân cho mỗi PR
+main    ← Bản release (chỉ maintainer được merge)
+  ↑            ↑
+next          patch
+(tính năng)   (sửa lỗi bản đang phát hành)
+  ↑            ↑
+feature/*, fix/*  ← Nhánh cá nhân cho mỗi PR
 ```
 
 ### Quy trình merge
 
-1. Developer tạo PR vào `next`
+1. Developer tạo PR vào `next` (tính năng) hoặc `patch` (sửa lỗi)
 2. Code review bởi maintainer
-3. Merge vào `next`
-4. Test trên `next`
-5. Khi ổn định → merge `next` → `main` (bởi maintainer)
+3. Merge, rồi test trên bản thử `next-build`
+4. Bản sửa lỗi: `patch` → `main`, rồi `patch` → `next`. Bản tính năng: `next` → `main`, rồi đưa `patch`
+   về bằng `main`
 
 ## Báo cáo lỗi
 
