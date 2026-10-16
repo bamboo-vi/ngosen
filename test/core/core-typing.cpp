@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // The typing logic run against a fake app field, with no fcitx5 at all.
+#include "fake-app.h"
 #include "fake-engine.h"
 #include "fake-host.h"
 
@@ -121,6 +122,27 @@ namespace {
         check(join(host->commits()) == "['ê']", what + "commits ê", join(host->commits()));
     }
 
+    // Sway (wlroots) reports the text and then a done event; a commit sent before the done carries a
+    // stale serial and is dropped.
+    void testCommitAfterTheReport() {
+        Field                   field = makeField("wayland_v2", true);
+        ngosen::test::AppQuirks quirks;
+        quirks.dropsCommitsInReport = true;
+        const std::vector<uint32_t> keys{'d', 'd', 'w', 'o', 'w', 'n', 'g', 'f'};
+        const std::string           text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
+        check(text == "đường", "sway: commits go out after the app's report", text);
+    }
+
+    // Zed leaves focus for a moment when a deletion empties its field; a commit sent then is lost (#93).
+    void testCommitAfterFieldRefocus() {
+        Field                   field = makeField("wayland", true);
+        ngosen::test::AppQuirks quirks;
+        quirks.refocusWhenEmptiedMs = 13;
+        const std::vector<uint32_t> keys{'d', 'd', 'o', 'w', 'n'};
+        const std::string           text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
+        check(text == "đơn", "emptied field: commit after focus comes back", text);
+    }
+
     // A key typed while the app has not yet applied the backspaces waits and goes out with the
     // replacement in one commit.
     void testKeyDuringReplacement() {
@@ -176,6 +198,41 @@ namespace {
 
     bool has(const std::string& text, const std::string& part) {
         return text.find(part) != std::string::npos;
+    }
+
+    // Types "tiee" in Sen mode and returns what was committed, with DEL shown as <DEL>.
+    std::string commitsForTiee(const std::string& program, bool& eTaken, const std::string& frontend = "dbus") {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField(frontend, false, program));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        for (char c : std::string("tie"))
+            press(state, static_cast<uint32_t>(c));
+        eTaken = press(state, static_cast<uint32_t>('e'));
+        loop.pump(100);
+        std::string out = join(host->commits());
+        for (size_t at = out.find('\x7f'); at != std::string::npos; at = out.find('\x7f', at))
+            out.replace(at, 1, "<DEL>");
+        return out;
+    }
+
+    void testTerminalErasesWithCommittedDel() {
+        bool              taken = false;
+        const std::string vte   = commitsForTiee("ptyxis", taken);
+        check(taken, "ptyxis: e -> ê takes the key", "not accepted");
+        check(vte == "['<DEL>ê']", "ptyxis: one commit erases e and types ê", vte);
+
+        const std::string console = commitsForTiee("kgx", taken);
+        check(console == "['<DEL>ê']", "kgx: one commit erases e and types ê", console);
+
+        const std::string viaIbus = commitsForTiee("gtk4-im:ptyxis", taken, "ibus");
+        check(viaIbus == "['<DEL>ê']", "ibus ptyxis: one commit erases e and types ê", viaIbus);
+
+        const std::string sdl = commitsForTiee("Medieval2", taken);
+        check(!has(sdl, "<DEL>"), "dbus sdl: never gets DEL", sdl);
     }
 
     // The log a user saves after a wrong word must show the keys, what was sent and what the app said.
@@ -370,8 +427,11 @@ int main() {
     testSenForwards("wayland_v2", true);
     testSenForwards("xim", false);
     testKeyDuringReplacement();
+    testCommitAfterTheReport();
+    testCommitAfterFieldRefocus();
     testGtk4DeletesSurrounding();
     testSdlGetsNoForwardedBackspace();
+    testTerminalErasesWithCommittedDel();
     testRecorderKeepsTheReplacement();
     testRecorderHidesPasswords();
     testRecorderLimits();

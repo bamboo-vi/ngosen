@@ -38,7 +38,8 @@ Kiểu gõ được dùng và test hằng ngày là **Telex**. VNI và các ki�
 
 ## Cài
 
-Một dòng lệnh, cho Fedora, Ubuntu, Debian, Arch, CachyOS và openSUSE Tumbleweed (máy x86_64):
+Một dòng lệnh, cho Fedora, Ubuntu, Debian, Kali, Arch, CachyOS và openSUSE Tumbleweed trên máy x86_64; Fedora,
+Ubuntu, Debian và Kali có cả gói cho máy ARM 64-bit (aarch64):
 
 ```
 curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash
@@ -56,8 +57,8 @@ gõ hiện trên thanh trên cùng.
 Trên KDE Plasma (Wayland), lệnh cài chọn fcitx5 làm bàn phím ảo của KDE (System Settings → Virtual
 Keyboard), để app Qt như Kate, Dolphin cũng gõ được. Trên Xfce, Cinnamon, MATE (X11, Debian và Ubuntu), lệnh
 cài dùng im-config đặt fcitx5 làm bộ gõ. Ở mọi desktop trên, lệnh cài thêm Ngó Sen vào danh sách bộ gõ; cài
-xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Shift để bật tiếng Việt (nếu trước đó chưa tự
-chọn phím khác cho fcitx5). Các bước này chỉ áp dụng cho tài khoản đang chạy lệnh; tài khoản khác trên
+xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Space (phím mặc định của
+fcitx5) để bật tiếng Việt. Các bước này chỉ áp dụng cho tài khoản đang chạy lệnh; tài khoản khác trên
 cùng máy thì đăng nhập vào đó rồi chạy lại lệnh cài. Muốn tự làm các bước đó thì cài bằng
 `curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --no-setup`.
 
@@ -171,6 +172,11 @@ Người giữ dự án chỉ **vibecode**: nêu việc cho trợ lý AI viết 
 Dựa trên mã của [fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus) và
 [VMK](https://github.com/thanhpy2009/VMK). Giấy phép GPL-3.0-or-later.
 
+Lõi gõ có hai bản, đều giấy phép MIT: bản Rust là [bamboo-core](https://github.com/bamboo-vi/bamboo-core)
+của [@nguyen10t2](https://github.com/nguyen10t2), dùng trong mọi gói trừ gói cho Debian 12; bản Go là
+[bamboo-core](https://github.com/BambooEngine/bamboo-core) của [@t1ld3x](https://github.com/t1ld3x), dùng trong gói
+cho Debian 12.
+
 Issue và pull request trước ngày 10/10/2026 nằm ở repo lưu trữ
 [ngosen/ngosen-fork-archive](https://github.com/ngosen/ngosen-fork-archive).
 
@@ -182,5 +188,9 @@ under GPL-3.0-or-later and published as is, with no promise of support.
 
 Ngó Sen 1.0 has no background uinput server; two typing modes, Gõ Sen (one mode that works for fast
 typing, browsers and Electron apps) and Preedit; and the Bamboo composition core ported from Go to Rust.
+Both cores are MIT licensed: the Rust [bamboo-core](https://github.com/bamboo-vi/bamboo-core) by
+[@nguyen10t2](https://github.com/nguyen10t2), used by most packages, and the Go
+[bamboo-core](https://github.com/BambooEngine/bamboo-core) by [@t1ld3x](https://github.com/t1ld3x), used by the Debian 12
+package.
 Ngó Sen targets fcitx5 only; the IBus engine was dropped and stays unmaintained on the
 `feat/ibus-engine` branch. The rest of this page is in Vietnamese.

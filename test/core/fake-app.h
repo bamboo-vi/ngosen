@@ -20,10 +20,15 @@ namespace ngosen::test {
 
     // Ways a real app's field departs from an ideal one.
     struct AppQuirks {
-        bool reports       = true; // tells the input method when its text changes
-        int  reportDelayMs = 0;
-        bool staleReport   = false; // reports the text as it was one change earlier
-        int  lagMs         = 0;     // applies commits, deletions and keys this late, in order
+        bool reports              = true; // tells the input method when its text changes
+        int  reportDelayMs        = 0;
+        bool staleReport          = false; // reports the text as it was one change earlier
+        int  lagMs                = 0;     // applies commits, deletions and keys this late, in order
+        bool handsBackKeys        = false; // sends forwarded keys back to the input method first, as XIM clients do
+        int  keyStepMs            = 0;     // applies forwarded backspaces one per step, reporting after each
+        int  switchBusyMs         = 0;     // drops forwarded keys this long after a switch key, as Qt does
+        bool dropsCommitsInReport = false; // drops commits sent while its report is handled, as wlroots does
+        int  refocusWhenEmptiedMs = 0;     // leaves focus this long when its text becomes empty, as Zed does
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -36,7 +41,9 @@ namespace ngosen::test {
             state_ = state;
         }
         // Presses and releases a key; the app inserts it when the input method lets it through.
-        void        type(uint32_t sym);
+        void type(uint32_t sym);
+        // The user pressed the key that switches input methods.
+        void        pressSwitchKey();
         std::string text() const;
 
         void        commitText(const std::string& text) override;
@@ -51,7 +58,7 @@ namespace ngosen::test {
             return field_;
         }
         bool hasFocus() const override {
-            return true;
+            return focused_;
         }
 
         void                         showPreedit(const std::string& /*text*/, bool /*underline*/) override {}
@@ -90,7 +97,11 @@ namespace ngosen::test {
         FakeLoop&                           loop_;
         Field                               field_;
         AppQuirks                           quirks_;
-        TypingState*                        state_ = nullptr;
+        TypingState*                        state_       = nullptr;
+        int                                 queuedKeys_  = 0;
+        bool                                inReport_    = false;
+        bool                                focused_     = true;
+        uint64_t                            busyUntilUs_ = 0;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
         std::u32string                      previousText_;

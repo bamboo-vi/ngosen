@@ -285,6 +285,11 @@ namespace fcitx {
         return xdgCurrentDesktop.empty() && desktopSession.rfind("cinnamon", 0) == 0;
     }
 
+    bool trayWantsIconName(const std::string& xdgCurrentDesktop, const std::string& desktopSession) {
+        const auto desktops = splitList(xdgCurrentDesktop, ':');
+        return isCinnamonSession(xdgCurrentDesktop, desktopSession) || std::find(desktops.begin(), desktops.end(), "COSMIC") != desktops.end();
+    }
+
     std::optional<std::string> cinnamonStylesheet(const CinnamonThemeInfo& info) {
         if (info.themeName.empty() || info.themeName == "cinnamon") {
             for (const auto& dir : info.dataDirs) {

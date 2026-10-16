@@ -61,6 +61,7 @@ add_ngosen_headless_test(preedit_lifecycle preedit-lifecycle.cpp "integration;pr
 add_ngosen_headless_test(app_rule_reset app-rule-reset.cpp "integration;apprule")
 add_ngosen_headless_test(ctx_rule_cleanup ctx-rule-cleanup.cpp "integration;apprule")
 add_ngosen_headless_test(mode_menu_keys mode-menu-keys.cpp "integration;apprule")
+add_ngosen_headless_test(retype_after_switch retype-after-switch.cpp "integration;retype")
 add_ngosen_headless_test(gnome_shared_ibus_context gnome-shared-ibus-context.cpp "integration;apprule;gnome")
 add_ngosen_headless_test(mode_name_migration mode-name-migration.cpp "integration;mode")
 add_ngosen_headless_test(messenger_defaults messenger-defaults.cpp "integration;mode")

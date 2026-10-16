@@ -101,18 +101,32 @@ namespace ngosen::test {
         state_->keyEvent(up);
     }
 
+    void FakeApp::pressSwitchKey() {
+        busyUntilUs_ = monotonicUs() + static_cast<uint64_t>(quirks_.switchBusyMs) * 1000;
+    }
+
     std::string FakeApp::text() const {
         return encode(text_);
     }
 
     void FakeApp::commitText(const std::string& text) {
+        if ((quirks_.dropsCommitsInReport && inReport_) || !focused_)
+            return;
         later(quirks_.lagMs, [this, text] { insert(utf8::decode(text)); });
     }
 
     void FakeApp::forwardKey(EditKey key, bool release) {
-        if (key != EditKey::BackSpace || release)
+        if (key != EditKey::BackSpace || release || monotonicUs() < busyUntilUs_)
             return;
-        later(quirks_.lagMs, [this] { eraseBefore(1); });
+        if (quirks_.keyStepMs > 0) {
+            later(quirks_.keyStepMs * ++queuedKeys_, [this] {
+                --queuedKeys_;
+                eraseBefore(1);
+            });
+        } else if (quirks_.handsBackKeys)
+            later(quirks_.lagMs, [this] { type(key::BackSpace); });
+        else
+            later(quirks_.lagMs, [this] { eraseBefore(1); });
     }
 
     void FakeApp::deleteSurrounding(int offset, unsigned int size) {
@@ -161,12 +175,26 @@ namespace ngosen::test {
         previousCursor_ = cursor_;
         text_.erase(cursor_ - count, count);
         cursor_ -= count;
+        if (text_.empty() && quirks_.refocusWhenEmptiedMs > 0) {
+            focused_ = false;
+            state_->deactivate(true);
+            later(quirks_.refocusWhenEmptiedMs, [this] {
+                focused_ = true;
+                state_->activate(Mode::Sen, true);
+                changed();
+            });
+            return;
+        }
         changed();
     }
 
     void FakeApp::changed() {
         if (field_.surroundingText && quirks_.reports)
-            later(quirks_.reportDelayMs, [this] { state_->surroundingUpdated(); });
+            later(quirks_.reportDelayMs, [this] {
+                inReport_ = true;
+                state_->surroundingUpdated();
+                inReport_ = false;
+            });
     }
 
     void FakeApp::later(int ms, std::function<void()> action) {

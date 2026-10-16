@@ -94,6 +94,14 @@ namespace fcitx {
     bool isCinnamonSession(const std::string& xdgCurrentDesktop, const std::string& desktopSession);
 
     /**
+     * @brief Tells whether the tray must get an icon name instead of a file path.
+     *
+     * Cinnamon's tray cannot load a path; COSMIC's loads it but paints it in one
+     * colour, which turns the coloured tile into a blank square.
+     */
+    bool trayWantsIconName(const std::string& xdgCurrentDesktop, const std::string& desktopSession);
+
+    /**
      * @brief Path of the stylesheet Cinnamon paints its panels with.
      */
     std::optional<std::string> cinnamonStylesheet(const CinnamonThemeInfo& info);

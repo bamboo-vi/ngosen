@@ -65,7 +65,8 @@ namespace ngosen::key {
 
 namespace ngosen::modifier {
 
-    inline constexpr uint32_t Ctrl = 1U << 2;
-    inline constexpr uint32_t Alt  = 1U << 3;
+    inline constexpr uint32_t Ctrl  = 1U << 2;
+    inline constexpr uint32_t Alt   = 1U << 3;
+    inline constexpr uint32_t Super = 1U << 6;
 
 } // namespace ngosen::modifier

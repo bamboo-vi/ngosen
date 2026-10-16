@@ -21,6 +21,7 @@
 #include <utility>
 
 #include <fcitx-config/iniparser.h>
+#include <fcitx/globalconfig.h>
 #include <fcitx/menu.h>
 #include <fcitx/userinterfacemanager.h>
 #include <fcitx-utils/event.h>
@@ -109,6 +110,15 @@ namespace fcitx {
             migrateLegacyModeOrder(config);
             moveOption(config, "ShowModeUinput", "ShowModeSen");
             moveOption(config, "ShortcutUinput", "ShortcutSen");
+        }
+
+        bool isSwitchKey(const GlobalConfig& config, const Key& key) {
+            for (const auto* keys : {&config.triggerKeys(), &config.altTriggerKeys(), &config.activateKeys(), &config.deactivateKeys(), &config.enumerateForwardKeys(),
+                                     &config.enumerateBackwardKeys(), &config.enumerateGroupForwardKeys(), &config.enumerateGroupBackwardKeys()}) {
+                if (key.checkKeyList(*keys))
+                    return true;
+            }
+            return false;
         }
     } // namespace
 
@@ -242,6 +252,21 @@ namespace fcitx {
             auto& commit = static_cast<CommitStringEvent&>(event);
             stateFor(commit.inputContext())->noteCommit(commit.text());
         });
+        // Keys reach this watcher whichever input method is on, so text typed before switching to
+        // Ngó Sen can be retyped with marks.
+        keyWhileOffWatcher_ = instance_->watchEvent(EventType::InputContextKeyEvent, EventWatcherPhase::PreInputMethod, [this](Event& event) {
+            auto& keyEvent = static_cast<KeyEvent&>(event);
+            auto* ic       = keyEvent.inputContext();
+            // The switch key is usually Ctrl+Space; as a shortcut it would wipe the text it is about to offer.
+            if (instance_->inputMethod(ic) == "ngosen" || isSwitchKey(instance_->globalConfig(), keyEvent.rawKey()))
+                return;
+            ngosen::FcitxKeyPress press(keyEvent);
+            stateFor(ic)->noteKeyWhileOff(press);
+        });
+        leaveTextWatchers_.push_back(instance_->watchEvent(EventType::InputContextFocusOut, EventWatcherPhase::Default,
+                                                           [this](Event& event) { stateFor(static_cast<InputContextEvent&>(event).inputContext())->forgetKeysWhileOff(); }));
+        leaveTextWatchers_.push_back(instance_->watchEvent(EventType::InputContextReset, EventWatcherPhase::Default,
+                                                           [this](Event& event) { stateFor(static_cast<InputContextEvent&>(event).inputContext())->fieldResetWhileOff(); }));
         // A ctx_ rule names a context address, which a later window may reuse.
         contextDestroyedWatcher_ = instance_->watchEvent(EventType::InputContextDestroyed, EventWatcherPhase::Default, [this](Event& event) {
             auto appName = getProgramName(static_cast<InputContextEvent&>(event).inputContext());
@@ -543,6 +568,7 @@ namespace fcitx {
         for (const auto& action : toggleActions_) {
             statusArea.addAction(StatusGroup::InputMethod, action);
         }
+        state->offerRetype();
     }
 
     void NgoSenEngine::keyEvent(const InputMethodEntry& /*entry*/, KeyEvent& keyEvent) {
@@ -1122,21 +1148,8 @@ namespace fcitx {
             }
         }
 
-        // ── Cinnamon: return icon NAME (not absolute path) ──────────────────
-        // Cinnamon's tray uses XApp Status Applet (SNI).  The IconName property
-        // is sent over D-Bus and resolved via Gtk.IconTheme — which only
-        // understands theme icon names, not filesystem paths.
-        //
-        // On KDE and GNOME, absolute paths work correctly — their compositors
-        // or SNI hosts handle filesystem paths in IconName.
-        static const bool kIsCinnamon = [] {
-            std::string de = getEnv("XDG_CURRENT_DESKTOP");
-            if (de.empty())
-                de = getEnv("DESKTOP_SESSION");
-            return !de.empty() && (de == "cinnamon" || de == "X-Cinnamon");
-        }();
-
-        if (kIsCinnamon) {
+        static const bool kTrayWantsIconName = trayWantsIconName(getEnv("XDG_CURRENT_DESKTOP"), getEnv("DESKTOP_SESSION"));
+        if (kTrayWantsIconName) {
             return iconName;
         }
 

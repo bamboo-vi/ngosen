@@ -10,14 +10,56 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thêm
+
+- Nút "Kiểm tra máy tôi…" ở trang Giới thiệu của cửa sổ cài đặt: xem fcitx5 có chạy không, Ngó Sen có trong
+  danh sách bộ gõ không, các biến `GTK_IM_MODULE`, `QT_IM_MODULE`, `XMODIFIERS`, IBus có chạy song song không, và
+  trên KDE Wayland thì fcitx5 có được chọn làm bàn phím ảo không. Mỗi lỗi kèm cách sửa; nút "Báo cáo lỗi…" mở
+  trang báo lỗi trên GitHub đã điền sẵn kết quả, không tự gửi gì (#88).
+- "Kiểm tra máy tôi" thêm mục test một app: gõ `Tieengs Vieetj cos daaus` trong app, chọn "Lưu nhật ký gõ" ở
+  menu Ngó Sen, rồi bấm "Đọc nhật ký gõ". App có báo chữ cho bộ gõ thì tự biết gõ đúng hay sai; app không báo
+  thì bạn tự chọn. Kết quả, cùng cách app nhận chữ và cách bộ gõ xoá chữ, được đưa vào báo lỗi (#90).
+- Gói cài cho máy ARM 64-bit (aarch64): Debian, Ubuntu, Kali và Fedora 43/44; lệnh cài nhanh tự chọn gói theo máy (#86).
+- Lệnh cài nhanh chạy được trên Kali Linux: nó lấy gói dựng cho Debian testing, bản Kali dựa theo (#85).
+- Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
+  chữ đổi luôn thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ" (#82). Nếu có chữ không đổi
+  khi thêm dấu (như `abc tieengs`), thường là tiếng Anh gõ có chủ ý, thì chỉ hiện gợi ý
+  `abc tieengs → abc tiếng` kèm dòng "Cứu chữ: Tab để đổi, Esc để giữ nguyên" (#80). Bấm Tab để gõ lại có dấu,
+  Tab lần nữa để trả lại như cũ, Esc hoặc phím khác để bỏ qua. Không ghi nhớ trong ô mật khẩu; bấm chuột,
+  Enter, phím mũi tên hay chuyển ô thì đoạn đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ (#71).
+
 ### Thay đổi
 
+- Gói cho Debian 13 và Ubuntu 22.04 chuyển sang lõi gõ Rust như các gói khác; chỉ gói Debian 12 còn dùng lõi Go (#91).
+- README ghi công tác giả hai lõi gõ: @nguyen10t2 (bản Rust) và @t1ld3x (bản Go) (#89).
+- Dữ liệu test của cửa sổ cài đặt dùng đường dẫn addon `ngosen` thay cho tên cũ `lotus`; người dùng không
+  thấy khác gì (#79).
+- Lệnh cài không đổi phím bật/tắt tiếng Việt nữa: dùng phím mặc định của fcitx5 là Ctrl+Space, muốn
+  đổi thì vào cài đặt của fcitx5. Máy đã được đặt Ctrl+Shift vẫn giữ nguyên (#76).
 - Test tự động của lệnh cài chạy thêm trên Fedora 44 với KDE; người dùng không thấy khác gì (#70).
 - Đổi tên vài hàm và test còn mang tên chế độ cũ (Uinput, Super Smooth) theo tên Gõ Sen; người dùng không
   thấy khác gì (#69).
 
 ### Sửa
 
+- Gõ Sen làm mất chữ khi gõ `dd`, `ow`… làm chữ đầu tiên trong ô trống trên Wayland, như ô hỏi của Gemini
+  trên Chromium hay Zed: ô bị xoá trống thì mất focus một lúc, chữ gửi lúc đó bị bỏ. Giờ Ngó Sen chờ ô có focus lại rồi mới gửi (#94).
+- Bật kiểm chính tả bằng từ điển thì vài chữ đúng bị trả về phím đã gõ khi kiểu đặt dấu khác cách từ điển ghi:
+  `chói loas` thay cho `chói lóa` (kiểu cũ), `nhoes` thay cho `nhoé` (kiểu mới). Từ điển giờ khớp cả hai kiểu (#92).
+- Trên Sway, chữ có dấu trong app GTK và Firefox bị mất khi gõ Gõ Sen (gõ `đường` ra `ường`) (#87).
+- Lệnh cài nhanh dừng với "im-config không đặt được fcitx5" trên máy X11 dùng im-config 1.1 (Debian testing, Kali),
+  và lệnh gỡ không trả lại bộ gõ cũ ở đó (#85).
+- Lệnh cài nhanh báo không tìm thấy fcitx5 trên máy chưa từng chạy `apt update`, như máy ảo Kali dựng sẵn (#85).
+- Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
+  fcitx5, và không chạy trong kitty (#83).
+- Gõ Sen trong GNOME Console trên GNOME ra chữ lặp (`ddwowngf` thành `ddduuwwoowwnnggff`) rồi đứng, giống
+  lỗi Ptyxis ở #74. Ptyxis trên phiên X11 (như KDE Plasma X11) khi máy có cài IBus cũng sai dấu như vậy. Giờ
+  cả hai gõ đúng dấu (#81).
+- Lõi gõ Rust lên bamboo-core 0.4.1: gõ từ dài hơn 16 phím khi đang bật tiếng Việt (như tên biến
+  `getUserNameByIdentifier`) không còn bị cắt hay mất phím; `tuowf` ra `tườ` thay vì `từơ` (#78).
+- Trên COSMIC, biểu tượng Ngó Sen ở khay hiện đúng chữ V có màu thay vì một ô vuông trắng (#75).
+- Gõ Sen trong Ptyxis (terminal mặc định của Ubuntu 26.04 và Fedora) ra chữ lặp (`tieengs` thành
+  `tieeenngss`) rồi đứng. Giờ gõ đúng dấu như ở app khác (#74).
 - Lời nhắc sau khi cài hoặc cập nhật gói chỉ nói tới KDE Wayland khi máy đang chạy KDE Wayland. Trên KDE
   Wayland, lời nhắc cập nhật bảo đăng xuất rồi đăng nhập lại thay vì chạy `fcitx5 -rd`, vì fcitx5 bật
   bằng lệnh đó không gõ được trong app Qt như Kate, Dolphin (#68).

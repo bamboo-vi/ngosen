@@ -49,9 +49,19 @@ usage() {
     say "  --uninstall  gỡ Ngó Sen và trả lại những gì lệnh cài đã đổi"
 }
 
+x86_64_only() {
+    [ "$2" = x86_64 ] || unsupported "$1 trên máy $2"
+}
+
 # Sets manager and pattern; pattern is a regular expression for the package's file name.
 detect_distribution() {
-    [ "$(uname -m)" = x86_64 ] || unsupported "máy $(uname -m)"
+    local machine deb_arch
+    machine=$(uname -m)
+    case "$machine" in
+        x86_64) deb_arch=amd64 ;;
+        aarch64) deb_arch=arm64 ;;
+        *) unsupported "máy $machine" ;;
+    esac
     [ -r /etc/os-release ] || die "không đọc được /etc/os-release"
 
     local id like codename version
@@ -71,15 +81,17 @@ detect_distribution() {
                 *) unsupported "Fedora ${version:-không rõ phiên bản}" ;;
             esac
             manager=dnf
-            pattern="fcitx5-ngosen-[0-9][^ /]*\\.fc${version}\\.x86_64\\.rpm"
+            pattern="fcitx5-ngosen-[0-9][^ /]*\\.fc${version}\\.${machine}\\.rpm"
             return
             ;;
         opensuse-tumbleweed)
+            x86_64_only "openSUSE" "$machine"
             manager=zypper
             pattern='fcitx5-ngosen-[0-9][^ /]*\.opensuse-tumbleweed\.x86_64\.rpm'
             return
             ;;
         arch | cachyos | endeavouros)
+            x86_64_only "$id" "$machine"
             manager=pacman
             pattern='fcitx5-ngosen-[0-9][^ /]*-x86_64\.pkg\.tar\.zst'
             return
@@ -88,6 +100,7 @@ detect_distribution() {
 
     case " $like " in
         *" arch "*)
+            x86_64_only "$id" "$machine"
             manager=pacman
             pattern='fcitx5-ngosen-[0-9][^ /]*-x86_64\.pkg\.tar\.zst'
             return
@@ -95,10 +108,12 @@ detect_distribution() {
     esac
 
     if command -v apt-get >/dev/null 2>&1; then
+        # Kali Rolling is built from Debian testing.
+        [ "$id" = kali ] && codename=forky
         case "$codename" in
-            bookworm | trixie | jammy | noble | resolute)
+            bookworm | trixie | forky | jammy | noble | resolute)
                 manager=apt
-                pattern="fcitx5-ngosen_[0-9][^ /]*_${codename}_amd64\\.deb"
+                pattern="fcitx5-ngosen_[0-9][^ /]*_${codename}_${deb_arch}\\.deb"
                 return
                 ;;
         esac
@@ -175,6 +190,8 @@ install_package() {
             # off. Naming them also covers a reinstall, which apt skips along with its recommends.
             local extra candidate
             local -a extras=()
+            # Kali's images ship without package lists, and old lists name versions the mirror dropped.
+            as_root apt-get update
             for candidate in im-config fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6; do
                 extra=$(apt-cache policy "$candidate" 2>/dev/null | grep -m1 'Candidate:' || true)
                 case "$extra" in
@@ -238,6 +255,17 @@ enable_fcitx5_autostart() {
     session_changes+=("fcitx5 tự chạy khi đăng nhập")
 }
 
+# im-config 1.1 replaced -n with -w and -m with -r.
+im_config_set() {
+    im-config -n "$1" >/dev/null 2>&1 || im-config -w "$1" >/dev/null 2>&1
+}
+
+# Prints the input method im-config starts when the user has picked none.
+im_config_auto() {
+    im-config -m 2>/dev/null | sed -n 3p | grep . ||
+        im-config -r 2>/dev/null | sed -n 's/^IM framework (auto): //p'
+}
+
 # GNOME offers fcitx5 no Wayland input-method protocol, so apps have to load fcitx5's own modules.
 set_im_environment() {
     local dir file
@@ -257,7 +285,7 @@ SDL_IM_MODULE=fcitx
 EOF
     # Debian's im-config otherwise picks IBus for X11 sessions and overrides the variables above.
     if command -v im-config >/dev/null 2>&1; then
-        im-config -n fcitx5 >/dev/null 2>&1 || :
+        im_config_set fcitx5 || :
     fi
     session_changes+=("app dùng fcitx5 thay IBus")
 }
@@ -320,24 +348,12 @@ EOF
     session_changes+=("thêm Ngó Sen vào danh sách bộ gõ")
 }
 
-# fcitx5's default Ctrl+Space is the completion key in VS Code and other IDEs, and GNOME keeps
-# Super+Space for itself. Ctrl+Shift is what Unikey users already know. A key the user chose stays.
-set_trigger_keys() {
-    local config
-    config="$(config_home)/fcitx5/config"
-    has_trigger_keys && return 0
-    mkdir -p "$(dirname "$config")"
-    printf '\n[Hotkey/TriggerKeys]\n0=Control+Shift_L\n1=Control+Shift_R\n2=Shift+Control_L\n3=Shift+Control_R\n' >>"$config"
-    session_changes+=("bật/tắt tiếng Việt bằng Ctrl+Shift")
-}
-
-# fcitx5 writes its profile and config back when it exits, so it is stopped before either is edited.
+# fcitx5 writes its profile back when it exits, so it is stopped before the profile is edited.
 configure_fcitx5() {
     local was_running=0
     # Stopped before the check too: one running without the addon has already dropped ngosen.
     stop_fcitx5 && was_running=1
     add_ngosen_to_profile
-    set_trigger_keys
     if [ "$was_running" -eq 1 ]; then
         fcitx5 -d >/dev/null 2>&1 || :
     fi
@@ -453,7 +469,7 @@ setup_gnome_session() {
 setup_x11_session() {
     say ""
     if ! grep -qs '^run_im fcitx5$' "$HOME/.xinputrc"; then
-        im-config -n fcitx5 >/dev/null 2>&1 || die "im-config không đặt được fcitx5"
+        im_config_set fcitx5 || die "im-config không đặt được fcitx5"
         session_changes+=("app dùng fcitx5, fcitx5 tự chạy khi đăng nhập")
     fi
     configure_fcitx5
@@ -487,8 +503,8 @@ report_session_changes() {
     done
     say ""
     say "Xong. Đăng xuất rồi đăng nhập lại là gõ được tiếng Việt."
-    if grep -qs '^0=Control+Shift_L$' "$(config_home)/fcitx5/config"; then
-        say "Bấm Ctrl+Shift để chuyển qua lại tiếng Việt và tiếng Anh."
+    if ! has_trigger_keys; then
+        say "Bấm Ctrl+Space để chuyển qua lại tiếng Việt và tiếng Anh."
     fi
     say "Tài khoản khác trên máy này: đăng nhập vào tài khoản đó rồi chạy lại lệnh cài."
 }
@@ -517,7 +533,7 @@ undo_gnome_session() {
         undone+=("app dùng lại IBus")
     fi
     if grep -qs '^run_im fcitx5$' "$HOME/.xinputrc" && command -v im-config >/dev/null 2>&1; then
-        im-config -n REMOVE >/dev/null 2>&1 || :
+        im_config_set REMOVE || :
     fi
     autostart="$config/autostart/org.fcitx.Fcitx5.desktop"
     if cmp -s /usr/share/applications/org.fcitx.Fcitx5.desktop "$autostart"; then
@@ -563,13 +579,13 @@ uninstall() {
     if wants_gnome_setup; then
         undo_gnome_session
     elif wants_x11_setup && grep -qs '^run_im fcitx5$' "$HOME/.xinputrc"; then
-        im-config -n REMOVE >/dev/null 2>&1 || :
+        im_config_set REMOVE || :
     fi
     as_root "${remove[@]}"
     say ""
     if wants_gnome_setup; then
         say "Xong. Đăng xuất rồi đăng nhập lại để GNOME dùng lại IBus."
-    elif wants_x11_setup && [ "$(im-config -m 2>/dev/null | sed -n 3p)" = fcitx5 ]; then
+    elif wants_x11_setup && [ "$(im_config_auto)" = fcitx5 ]; then
         # The system default picks any installed input method, and fcitx5 itself stays installed.
         say "Xong. fcitx5 vẫn còn trên máy nên vẫn tự chạy khi đăng nhập, gõ tiếng Anh như bàn phím."
         say "Gỡ hẳn fcitx5:  sudo apt remove fcitx5"

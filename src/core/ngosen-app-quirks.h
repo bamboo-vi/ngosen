@@ -18,6 +18,11 @@ namespace ngosen {
     // True for GTK4 clients, whose IM modules drop forwarded keys; delete through surrounding text there.
     bool ignoresForwardedKeys(const Field& field);
 
+    // True for VTE terminals under GTK4 (Ptyxis, GNOME Console), through fcitx5-gtk4 or IBus: they take neither
+    // forwarded keys nor surrounding text, but pass committed text to the shell as is, so a DEL in it erases like
+    // Backspace.
+    bool erasesWithCommittedDel(const Field& field);
+
     // True for Chromium-based browsers on the D-Bus and fcitx4 frontends: they take forwarded keys but
     // report no surrounding text, and their address bar selects an inline autocompletion after the typed text.
     bool selectsOverAutocompletion(const Field& field);
@@ -25,6 +30,9 @@ namespace ngosen {
     // Under GNOME, apps reach fcitx5 through GNOME Shell's IBus bridge, which forwards the client's
     // surrounding text tens of milliseconds late and often one edit behind.
     bool surroundingTextLags(const Field& field);
+
+    // Wayland text input delivers a commit only to the field that has focus.
+    bool dropsCommitsWithoutFocus(const Field& field);
 
     // LibreOffice runs Backspace as an async shortcut, so committed text overtakes it.
     bool appliesBackspacesLate(const Field& field);
