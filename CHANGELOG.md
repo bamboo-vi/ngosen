@@ -45,7 +45,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Tài liệu
 
-- Trang của version thử không còn ngắt dòng giữa câu trên điện thoại.
+- Trang của version thử không còn ngắt dòng giữa câu trên điện thoại (#109).
 - README nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, và gọi thống nhất file, repo, build, release (#73).
 - CHANGELOG và README viết "version 1.2" thay cho "bản 1.2"; CHANGELOG dùng file, repo, build, uinput server, forward key như README (#103).
 - Hướng dẫn đóng góp có thêm nhánh `patch`: PR sửa lỗi của version đang phát hành gửi vào đó, tính năng vẫn gửi
