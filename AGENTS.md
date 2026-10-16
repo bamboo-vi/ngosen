@@ -81,7 +81,10 @@ right Shift`.
 
 ## Pull requests
 
-Inside this fork: every change goes through a PR into `main` (branches are deleted on merge). What to update
+Inside this fork: every change goes through a PR (branches are deleted on merge). Features and everything
+else go into `next`; a fix for a bug in the current release goes into `patch`, which ships as the next
+X.Y.Z+1 and is then merged into `next`. Never merge into `main` directly: `install.sh` is downloaded from
+there, so whatever lands on `main` runs on users' machines. What to update
 after a merge and for a release is listed in [RELEASING.md](RELEASING.md).
 Each such PR adds a line under `## [Chưa phát hành]` in [CHANGELOG.md](CHANGELOG.md): what
 changed for the user, with the PR number. The changelog is written in Vietnamese, since most of its

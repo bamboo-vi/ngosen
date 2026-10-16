@@ -12,11 +12,22 @@ repository, so it comes last in both lists; its own rules are in that repository
 - Website: only when users can see the change or the roadmap moved. Unreleased changes are not announced as
   a new version.
 
+## Branches and pace
+
+- `next` holds features. A feature release (`X.Y.0`) is cut from `next` after the change has run as the
+  `next-build` pre-release for at least a week; aim for one main feature every two to three weeks.
+- `patch` holds fixes for the current release. A bug-fix release (`X.Y.Z+1`) is cut from `patch` when a
+  serious bug (lost text, hangs, no typing) is fixed; minor fixes wait for the next release.
+- After a bug-fix release, merge `main` into `next` through a PR. After a feature release, fast-forward
+  `patch` to `main`:
+  `gh api -X PATCH repos/ngosen/ngosen/git/refs/heads/patch -f sha=<merge commit on main>`.
+
 ## Releasing a version
 
 The release is `X.Y.Z-N` (`N` is the packaging revision) with epoch 1, tagged `ngosen-X.Y.Z-N`.
 
-1. On a `release/X.Y.Z` branch, set the version everywhere:
+1. On a `release/X.Y.Z` branch made from `next` (feature release) or `patch` (bug-fix release), set the
+   version everywhere:
    - `CMakeLists.txt` (`project(... VERSION X.Y.Z)`)
    - `packaging/arch/PKGBUILD` (`pkgver`, `pkgrel`)
    - `packaging/rpm/fedora/fcitx5-ngosen.spec` and `packaging/rpm/opensuse/fcitx5-ngosen.spec` (`Version`,
@@ -26,6 +37,7 @@ The release is `X.Y.Z-N` (`N` is the packaging revision) with epoch 1, tagged `n
    - `.github/ISSUE_TEMPLATE/bug_report.yml` (example version)
 
    `packaging/check-version.sh X.Y.Z-N` must print no `MISMATCH`.
+
 2. `CHANGELOG.md`: turn `## [Chưa phát hành]` into `## [X.Y.Z-N] — DD/MM/YYYY` with a one-line summary and a
    link to the release, and start a new empty `## [Chưa phát hành]`.
 3. `packaging/release-notes.md`: update the "Mức đã thử" column to what was actually typed on each system
@@ -38,6 +50,7 @@ The release is `X.Y.Z-N` (`N` is the packaging revision) with epoch 1, tagged `n
    ```
 
    The release workflow refuses a tag that is not on `main` or that disagrees with the packaging files.
+
 5. Check the draft release before publishing:
    - all packages and `SHA256SUMS` are attached, and the sums match;
    - every package reports `1:X.Y.Z-N`;
