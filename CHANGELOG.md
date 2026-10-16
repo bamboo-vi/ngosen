@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Tài liệu
+
+- README trên trang chính khớp version 1.4.2: nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, ghi công tác giả hai lõi gõ,
+  và dùng version, file, repo, build, release như CHANGELOG (#104).
+- Trang tải mỗi version không còn đoạn giải thích cách đánh số từ `0.5.0` (vẫn có ở đầu nhật ký thay đổi), và viết "version", file, distro, build như README (#102).
+
 ## [1.4.2-1] — 16/10/2026
 
 Bản sửa lỗi: Gõ Sen hết mất chữ trên Sway và ở ô trống trên Wayland, hết chữ lặp trong Ptyxis và GNOME Console;
