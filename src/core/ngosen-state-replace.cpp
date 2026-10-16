@@ -159,6 +159,10 @@ namespace ngosen {
         if (surr_wait_timer_only_) {
             return;
         }
+        // Committing now would be lost; a field that empties itself refocuses within a few ms (#93).
+        if (ngosen::dropsCommitsWithoutFocus(host_->field())) {
+            return;
+        }
         finishReplacement("focus lost", false);
     }
 
@@ -261,8 +265,9 @@ namespace ngosen {
         }
         // A previous replacement still waiting for its turn goes out first, keeping the text in order.
         flushDeferredCommit();
+        // wlroots drops a commit sent while the app's report is still arriving, as answering an old state.
         // Focus loss is not inside a key event, and the field is going away, so it commits at once.
-        const bool defer = host_->field().frontend == "dbus" && std::string(reason) != "focus lost";
+        const bool defer = (host_->field().frontend == "dbus" || std::string(reason) == "event") && std::string(reason) != "focus lost";
         if (defer) {
             deferred_commit_text_    = pending_commit_string_;
             deferred_commit_pending_ = true;
@@ -398,6 +403,10 @@ namespace ngosen {
             selectAndOvertype(addedPart, static_cast<int>(ngosen::utf8::length(deletedPart)));
             return;
         }
+        if (ngosen::erasesWithCommittedDel(host_->field())) {
+            replaceThroughCommittedDel();
+            return;
+        }
         const bool isSurrText = deletesThroughSurrounding(surrounding);
         is_deleting_.store(true, std::memory_order_release);
         if (isSurrText) {
@@ -472,6 +481,16 @@ namespace ngosen {
         pending_commit_string_.clear();
         is_deleting_.store(false);
         replayBufferedKeys();
+    }
+
+    void TypingState::replaceThroughCommittedDel() {
+        NGOSEN_INFO("Erase " + std::to_string(expected_backspaces_) + " characters with DEL");
+        std::string out(static_cast<size_t>(expected_backspaces_), '\x7f');
+        out += pending_commit_string_;
+        expected_backspaces_     = 0;
+        current_backspace_count_ = 0;
+        pending_commit_string_.clear();
+        replayBufferedKeys(std::move(out));
     }
 
     void TypingState::replaceThroughForwardedKeys() {

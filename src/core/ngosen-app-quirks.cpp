@@ -39,6 +39,21 @@ namespace ngosen {
         return field.frontend == "dbus" && !field.keyEventOrderFix && field.surroundingText;
     }
 
+    bool erasesWithCommittedDel(const Field& field) {
+        if (field.surroundingText)
+            return false;
+        std::string program;
+        if (field.frontend == "dbus" && !field.keyEventOrderFix)
+            program = field.program;
+        else if (field.frontend == "ibus" && isStartsWith(field.program, "gtk4-im:"))
+            program = field.program.substr(std::string("gtk4-im:").size());
+        else
+            return false;
+        // Neither GTK4 IM module passes on the terminal input purpose VTE sets; these are the GTK4 VTE terminals.
+        program = stripDesktopSuffix(program);
+        return program == "ptyxis" || program == "kgx";
+    }
+
     bool selectsOverAutocompletion(const Field& field) {
         if ((field.frontend != "dbus" && field.frontend != "fcitx4") || !forwardsBackspaces(field) || field.surroundingText)
             return false;
@@ -53,6 +68,10 @@ namespace ngosen {
 
     bool surroundingTextLags(const Field& field) {
         return field.frontend == "ibus";
+    }
+
+    bool dropsCommitsWithoutFocus(const Field& field) {
+        return field.frontend == "wayland" || field.frontend == "wayland_v2";
     }
 
     bool appliesBackspacesLate(const Field& field) {

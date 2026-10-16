@@ -159,6 +159,29 @@ fn test_auto_restore_dict_mode() {
 }
 
 #[test]
+fn test_dict_mode_accepts_either_tone_position() {
+    let mut e = new_test_engine(&["loá"], true);
+    type_keys(&mut e, "loas");
+    assert_eq!(e.preedit_text, "lóa");
+    e.process_key_event(KEY_SPACE, 0);
+    assert_eq!(
+        e.commit_text, "lóa ",
+        "old style against a modern-style entry"
+    );
+
+    let mut e = new_test_engine(&["thủy"], true);
+    e.preeditor
+        .set_config(Config::builder().std_tone_style(false).build());
+    type_keys(&mut e, "thuyr");
+    assert_eq!(e.preedit_text, "thuỷ");
+    e.process_key_event(KEY_SPACE, 0);
+    assert_eq!(
+        e.commit_text, "thuỷ ",
+        "modern style against an old-style entry"
+    );
+}
+
+#[test]
 fn test_auto_restore_rules_mode() {
     let mut e = new_test_engine(&[], false);
     type_keys(&mut e, "tak");

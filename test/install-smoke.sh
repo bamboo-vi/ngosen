@@ -66,8 +66,11 @@ prepare_system() {
             echo 'APT::Install-Recommends "0";' >/etc/apt/apt.conf.d/99no-recommends
         fi
         apt-get update -q
+        # im-config 1.1 exits without a dialog program; every Debian install but a container has whiptail.
         DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends \
-            sudo curl ca-certificates procps dbus dbus-bin
+            sudo curl ca-certificates procps dbus dbus-bin whiptail
+        # Like a fresh Kali image, so the installer has to fetch the lists itself.
+        rm -rf /var/lib/apt/lists/*
     else
         dnf install -y -q sudo curl procps-ng dbus-daemon dbus-tools shadow-utils
     fi
@@ -112,11 +115,6 @@ im_env=$home/.config/environment.d/90-ngosen.conf
 autostart=$home/.config/autostart/org.fcitx.Fcitx5.desktop
 hidden_launcher=$home/.local/share/applications/org.fcitx.Fcitx5.desktop
 
-has_trigger_keys() {
-    has_line "$config" '[Hotkey/TriggerKeys]' && has_line "$config" '0=Control+Shift_L' &&
-        has_line "$config" '1=Control+Shift_R'
-}
-
 check_packages() {
     check "fcitx5-ngosen is installed" is_installed fcitx5-ngosen
     if command -v apt-get >/dev/null 2>&1; then
@@ -134,7 +132,7 @@ check_session_files() {
         check "the Fcitx 5 launcher is hidden" has_line "$hidden_launcher" 'NoDisplay=true'
     fi
     check "profile lists ngosen" has_line "$profile" 'Name=ngosen'
-    check "trigger keys are Ctrl+Shift" has_trigger_keys
+    check "trigger keys are left to fcitx5" lacks_line "$config" '0=Control+Shift_L'
 }
 
 check_uninstalled_state() {

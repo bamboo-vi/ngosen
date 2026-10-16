@@ -5,16 +5,18 @@ bản này mới hơn `3.5.10-4`, nên cập nhật như thường.
 
 ## Chọn tệp theo bản phân phối
 
-| Bản phân phối           | Tệp                                              | Mức đã thử                                                               |
-| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------------ |
-| Fedora 44               | `fcitx5-ngosen-*.fc44.x86_64.rpm`                | dùng hằng ngày (KDE Plasma Wayland)                                      |
-| Fedora 43               | `fcitx5-ngosen-*.fc43.x86_64.rpm`                | chỉ dựng                                                                 |
-| Arch, CachyOS           | `fcitx5-ngosen-*-x86_64.pkg.tar.zst`             | gõ thử 5 app ở chế độ Gõ Sen trên máy ảo CachyOS (Hyprland)              |
-| Ubuntu 26.04            | `…_resolute_amd64.deb`                           | gõ thử 9 app trên máy ảo (GNOME Wayland), với bản tự dựng                |
-| Ubuntu 24.04            | `fcitx5-ngosen_*_noble_amd64.deb`                | gõ thử 7 app trên máy ảo Linux Mint 22 (cùng nền 24.04), với bản tự dựng |
-| Debian 13               | `…_trixie_amd64.deb`                             | gõ thử 6 app trên máy ảo MX 25 (cùng nền Debian 13)                      |
-| Ubuntu 22.04, Debian 12 | `…_jammy_amd64.deb`, `…_bookworm_amd64.deb`      | chỉ dựng                                                                 |
-| openSUSE Tumbleweed     | `fcitx5-ngosen-*.opensuse-tumbleweed.x86_64.rpm` | chỉ dựng                                                                 |
+| Bản phân phối           | Tệp                                              | Mức đã thử                                                                   |
+| ----------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Fedora 44               | `fcitx5-ngosen-*.fc44.x86_64.rpm`                | dùng hằng ngày (KDE Plasma Wayland)                                          |
+| Fedora 43               | `fcitx5-ngosen-*.fc43.x86_64.rpm`                | chỉ dựng                                                                     |
+| Arch, CachyOS           | `fcitx5-ngosen-*-x86_64.pkg.tar.zst`             | gõ thử 5 app ở chế độ Gõ Sen trên máy ảo CachyOS (Hyprland)                  |
+| Ubuntu 26.04            | `…_resolute_amd64.deb`                           | gõ thử 9 app trên máy ảo (GNOME Wayland), với bản tự dựng                    |
+| Ubuntu 24.04            | `fcitx5-ngosen_*_noble_amd64.deb`                | gõ thử 7 app trên máy ảo Linux Mint 22 (cùng nền 24.04), với bản tự dựng     |
+| Debian 13               | `…_trixie_amd64.deb`                             | gõ thử 6 app trên máy ảo MX 25 (cùng nền Debian 13)                          |
+| Ubuntu 22.04, Debian 12 | `…_jammy_amd64.deb`, `…_bookworm_amd64.deb`      | chỉ dựng                                                                     |
+| openSUSE Tumbleweed     | `fcitx5-ngosen-*.opensuse-tumbleweed.x86_64.rpm` | chỉ dựng                                                                     |
+| Kali Rolling            | `…_forky_amd64.deb` (lệnh cài tự chọn)           | lệnh cài chạy trên máy ảo Kali 2026.2 (Xfce X11)                             |
+| Máy ARM 64-bit          | `…_arm64.deb`, `fcitx5-ngosen-*.aarch64.rpm`     | ansidev cài và chạy được trên Ubuntu 26.04 (máy ảo VMware); còn lại chỉ dựng |
 
 "Chỉ dựng" nghĩa là gói dựng được và qua bộ kiểm lúc dựng, chưa ai gõ thử trên bản phân phối đó.
 
@@ -49,6 +51,12 @@ Bản 1.4.1 chỉ đổi lệnh cài, bộ gõ giữ nguyên như 1.4.0. Lệnh 
 `tieengs vieetj` ra `tiếng việt` 3/3 lần trong ô chữ Qt6 và 3/3 lần trong ô chữ GTK3; trước khi sửa, ô chữ
 Qt6 ra chữ thô. Với gói 1.4.0, Chrome 155, VS Code, Discord, Firefox và GNOME Text Editor (Flatpak) gõ đúng
 trên máy ảo Ubuntu 26.04 (GNOME Wayland); Chrome ép chạy qua XWayland sai 5/30 lần.
+
+Bản 1.4.2 là bản sửa lỗi, gõ thử với bản dựng từ nhánh `release/1.4.2`. Ô hỏi của Gemini trong Chromium trên
+máy ảo CachyOS (Plasma Wayland): `ddown` ở đầu ô trống ra `đơn` 3/3 câu (trước khi sửa ra `n`). Trên Sway
+(CachyOS), dòng `dduwowngf tieengs vieetj…` ra đúng `đường tiếng việt…` trong ô chữ GTK3 và Firefox. Trên máy
+ảo Ubuntu 26.04 (GNOME Wayland), `ddwowngf tieengs vieetj` ra `đường tiếng việt` 2/2 lần trong Ptyxis và 2/2
+lần trong GNOME Console. Gói ARM 64-bit được ansidev cài và chạy trên Ubuntu 26.04 (máy ảo VMware) từ bản thử.
 
 Lõi ghép dấu viết bằng Rust có trong gói Fedora, Arch, openSUSE và Ubuntu 24.04 trở lên. Debian 12, 13 và
 Ubuntu 22.04 vẫn dùng lõi Go, vì Rust có sẵn ở đó quá cũ. Hai lõi gõ ra chữ như nhau.

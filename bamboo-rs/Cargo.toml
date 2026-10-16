@@ -12,7 +12,7 @@ name = "ngosen_bamboo"
 crate-type = ["staticlib", "rlib"]
 
 [dependencies]
-bamboo-core = { git = "https://github.com/nguyen10t2/bamboo_core", rev = "82bad325681d9b723631955c00e38fe5bdc79112" }
+bamboo-core = { git = "https://github.com/bamboo-vi/bamboo-core", rev = "bb250271eaf48d61457b9bef0abc8131aa5a5f79" }
 libc = "0.2"
 
 [profile.release]

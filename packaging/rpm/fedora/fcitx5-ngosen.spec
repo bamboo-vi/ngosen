@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.4.1
+Version:        1.4.2
 Release:        1%{?dist}
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -110,11 +110,19 @@ fi
 udevadm control --reload-rules >/dev/null 2>&1 || :
 
 echo "--- Cấu hình Ngó Sen ---"
-echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen, hoặc khởi động lại fcitx5 nếu vừa cập nhật: fcitx5 -rd"
-echo "KDE Wayland: cập nhật xong thì đăng xuất rồi đăng nhập lại."
-echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
+# posttrans cannot tell an install from an upgrade. KWin starts fcitx5 itself on KDE Wayland, and
+# one started with fcitx5 -rd cannot serve Qt apps.
+if pgrep -x kwin_wayland >/dev/null 2>&1; then
+    echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen, hoặc đăng xuất rồi đăng nhập lại nếu vừa cập nhật."
+    echo "KDE Wayland: chọn 'Fcitx 5' trong System Settings → Virtual Keyboard."
+else
+    echo "Mở 'Fcitx5 Configuration' và thêm bộ gõ Ngó Sen, hoặc khởi động lại fcitx5 nếu vừa cập nhật: fcitx5 -rd"
+fi
 
 %changelog
+* Fri Oct 16 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.4.2-1
+- Fix lost letters with Sen mode on Sway and in empty Wayland fields; add arm64 packages and Kali install.
+
 * Wed Oct 14 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.4.1-1
 - The installer makes fcitx5 the KDE input method on Plasma Wayland; CI runs the installer.
 

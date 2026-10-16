@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-15
+
+### Fixed
+- **Long identifiers no longer truncated or dropped:** the active-transformation window is widened from 16 to 32 and overflow now silently commits the head instead of cutting (`getUserNameByIdentifier` (23 chars) stays whole in the preedit; `TransformationStack::push` can no longer lose a key past the window). `active_upper_mask` widened `u16`→`u32`; `Snapshot` metadata stays 8 B (state IDs fit `u16` under the 8192-state DFA cap).
+- **`uow` horn spread by onset class:** the `uơ` rime is only complete after the `c h k kh qu th` onset class (Go bamboo-core `cvMatrix`), so `duow`→`dươ`, `dduow`→`đươ`, `tuow`→`tươ`, `nguow`→`ngươ` while `khuow`→`khuơ` and bare `uowr`→`uở` stay as typed. The class-0 free-onset extension for `oă` (`boặm`, `toắt`, `nhoằng`) is preserved. Partial inputs stay valid via Go's row-union semantics.
+- **Tone after both horns lands on `ơ`:** `tuowf`→`tườ`, `tuowfj`→`tượ` (was `từơ`/`tựơ`) — `find_tone_target` now prefers the vowel carrying `ơ/ê`, matching Go's `findToneTarget`.
+
+### Performance
+- **No scratch-stack zero-fill:** `TransformationStack` slots are `MaybeUninit` (construction of the two slow-path scratch stacks cost 2×256 B of zero-fill per keystroke at window 16, 2×512 B at 32 — the dominant regression source when widening).
+- **Incremental preedit cache:** the raw-append (English/bypass) path grows `cached_output` O(1) per key instead of re-flattening the whole preedit (which was O(n²) over a long identifier).
+- **Measured (`benches/engine_bench.rs`, median of 3×500k, vs 0.4.0):** all 13 scenarios at or faster than 0.4.0 — long identifier **-55.9%**, english passthrough **-41.8%**, mixed typing -14.9%, backspace -14.2%, feed single word -11.0%, worst-case syllable -10.5%, random typing -7.5%; no scenario regresses. Hot path stays 0-alloc (`alloc_regression` 9/9). `Engine` footprint 712 B → 1096 B (32-slot window), working set well under 4 KB.
+
+### Internal
+- **Phonology tables as data:** spelling data lives in `orthography/tables.rs` (single source of truth with how-to-extend notes) and `orthography/packing.rs` derives the `u16`-lane matchers at compile time. Tone-placement preferences (`TONE_PREFERRED`, `TONE_ON_SECOND`, `TONE_SECOND_ONSETS`) and `uơ`/`ưo` patterns (`UHO_PATTERNS`) are data tables instead of hard-coded matches.
+- **Table well-formedness tests:** no duplicate tokens per row, mask dimensions match their row groups (`tables_wellformed`); overflow undo cannot cross the silent commit and the incremental preedit cache is locked to the full flatten (`tests/preedit_overflow.rs`).
+
+## [0.4.0] - 2026-10-12
+
+### Release notes
+- **Version 0.4.0** closes out the long 0.3.x patch series. This is **not** a breaking release: the primary public API (`Engine`, `Config`, `InputMethod`, C-FFI) is fully backward compatible with 0.3.26. The only structural change is inside `advanced::State` internals (64 B layout, see below).
+
+### Performance
+- **Branchless popcount-rank DFA lookup:** `get_transition` is 1 bit-test + 1 `popcnt` rank with no data-dependent branches (was two 8-key SWAR chunks with 4 branches + tail gate; an intermediate 16-lane SWAR step was superseded mid-pass by the rank scheme). `trans_states` sorted by key, `trans_keys` dropped; `State` shrunk from 88 B to **64 B** (single cache line), `comp_hash` moved to a side table; `composition_matches_canonical` compares masked `u128` words. Also fixes a latent invariant bug: a 17th distinct key no longer sets its bitset bit without storing (`popcount(bitset) == trans_len` now holds).
+- **Dense phonetics decode table:** `const` 2K-entry page table replaces PHF `VOWEL_INDEX`/`MARKS_MAPS` in `is_vowel`, `find_vowel_position`, `add_tone_to_char` (new `TONE_TABLE`), `add_mark_to_toneless_char`, `upper` and spelling `strip_mark`; table dimensions derive from `VOWELS.len()`.
+- **One split per revision:** `extract_cvc_trans` runs once per slow-path keystroke (was 3–5×) and is threaded as `&Cvc` through `find_target`/`generate_undo`; `find_tone_target` reuses the stored split; `Cvc` carries absolute vowel indices (`vo_abs`) so vowel lookup no longer value-searches (mis-hit on identical twins, e.g. post-`gi`/`qu` split). Fixes latent `generate_transformations` uho fallback attaching to the wrong index on identical vowels.
+- **Spelling validator packing:** tokens pre-packed to `u16` lanes with branchless per-lane matching (raw or stripped when incomplete) and early row exit; `VC_OK[256]` table replaces the `is_valid_vc` loop.
+- **Flattener cleanup:** O(1) `len*4` reserve replaces the estimate pre-pass, loop-invariant options hoisted, effect chains built in application order via tail pointers (no collect + reverse), dead capacity guard removed; `get_applicable_rules` takes a pre-lowered key.
+- **Measured (criterion, vs 2026-10-12 baseline):** keystroke streams -1% to -17% (`dduwowngf` -17%, `nguwowif` -9%), sentences -5% to -6%, backspace x3 -8.5%, commit -10%; no scenario regresses > 3%; hot path stays 0-alloc (`alloc_regression` green).
+
 ## [0.3.26] - 2026-10-09
 
 ### Features

@@ -37,7 +37,8 @@ Kiểu gõ được dùng và test hằng ngày là **Telex**. VNI và các ki�
 
 ## Cài
 
-Một dòng lệnh, cho Fedora, Ubuntu, Debian, Arch, CachyOS và openSUSE Tumbleweed (máy x86_64):
+Một dòng lệnh, cho Fedora, Ubuntu, Debian, Kali, Arch, CachyOS và openSUSE Tumbleweed trên máy x86_64; Fedora,
+Ubuntu, Debian và Kali có cả gói cho máy ARM 64-bit (aarch64):
 
 ```
 curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash
@@ -55,8 +56,8 @@ gõ hiện trên thanh trên cùng.
 Trên KDE Plasma (Wayland), lệnh cài chọn fcitx5 làm bàn phím ảo của KDE (System Settings → Virtual
 Keyboard), để app Qt như Kate, Dolphin cũng gõ được. Trên Xfce, Cinnamon, MATE (X11, Debian và Ubuntu), lệnh
 cài dùng im-config đặt fcitx5 làm bộ gõ. Ở mọi desktop trên, lệnh cài thêm Ngó Sen vào danh sách bộ gõ; cài
-xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Shift để bật tiếng Việt (nếu trước đó chưa tự
-chọn phím khác cho fcitx5). Các bước này chỉ áp dụng cho tài khoản đang chạy lệnh; tài khoản khác trên
+xong chỉ cần đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Space (phím mặc định của
+fcitx5) để bật tiếng Việt. Các bước này chỉ áp dụng cho tài khoản đang chạy lệnh; tài khoản khác trên
 cùng máy thì đăng nhập vào đó rồi chạy lại lệnh cài. Muốn tự làm các bước đó thì cài bằng
 `curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash -s -- --no-setup`.
 

@@ -10,6 +10,46 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.4.2-1] — 16/10/2026
+
+Bản sửa lỗi: Gõ Sen hết mất chữ trên Sway và ở ô trống trên Wayland, hết chữ lặp trong Ptyxis và GNOME Console;
+thêm gói cho máy ARM và lệnh cài cho Kali.
+Tải ở [ngosen-1.4.2-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.4.2-1).
+
+### Thêm
+
+- Gói cài cho máy ARM 64-bit (aarch64): Debian, Ubuntu, Kali và Fedora 43/44; lệnh cài nhanh tự chọn gói theo máy (#86).
+- Lệnh cài nhanh chạy được trên Kali Linux: nó lấy gói dựng cho Debian testing, bản Kali dựa theo (#85).
+
+### Thay đổi
+
+- Lệnh cài không đổi phím bật/tắt tiếng Việt nữa: dùng phím mặc định của fcitx5 là Ctrl+Space, muốn
+  đổi thì vào cài đặt của fcitx5. Máy đã được đặt Ctrl+Shift vẫn giữ nguyên (#76).
+
+### Sửa
+
+- Gõ Sen làm mất chữ khi gõ `dd`, `ow`… làm chữ đầu tiên trong ô trống trên Wayland, như ô hỏi của Gemini
+  trên Chromium hay Zed: ô bị xoá trống thì mất focus một lúc, chữ gửi lúc đó bị bỏ. Giờ Ngó Sen chờ ô có focus lại rồi mới gửi (#94).
+- Bật kiểm chính tả bằng từ điển thì vài chữ đúng bị trả về phím đã gõ khi kiểu đặt dấu khác cách từ điển ghi:
+  `chói loas` thay cho `chói lóa` (kiểu cũ), `nhoes` thay cho `nhoé` (kiểu mới). Từ điển giờ khớp cả hai kiểu.
+  Sửa ở lõi Rust; gói Debian 12, Debian 13 và Ubuntu 22.04 còn dùng lõi Go nên chưa có (#92).
+- Trên Sway, chữ có dấu trong app GTK và Firefox bị mất khi gõ Gõ Sen (gõ `đường` ra `ường`) (#87).
+- Lệnh cài nhanh dừng với "im-config không đặt được fcitx5" trên máy X11 dùng im-config 1.1 (Debian testing, Kali),
+  và lệnh gỡ không trả lại bộ gõ cũ ở đó (#85).
+- Lệnh cài nhanh báo không tìm thấy fcitx5 trên máy chưa từng chạy `apt update`, như máy ảo Kali dựng sẵn (#85).
+- Gõ Sen trong GNOME Console trên GNOME ra chữ lặp (`ddwowngf` thành `ddduuwwoowwnnggff`) rồi đứng, giống
+  lỗi Ptyxis ở #74. Ptyxis trên phiên X11 (như KDE Plasma X11) khi máy có cài IBus cũng sai dấu như vậy. Giờ
+  cả hai gõ đúng dấu (#81).
+- Lõi gõ Rust lên bamboo-core 0.4.1: gõ từ dài hơn 16 phím khi đang bật tiếng Việt (như tên biến
+  `getUserNameByIdentifier`) không còn bị cắt hay mất phím; `tuowf` ra `tườ` thay vì `từơ`. Gói dùng lõi Go
+  không đổi (#78).
+- Trên COSMIC, biểu tượng Ngó Sen ở khay hiện đúng chữ V có màu thay vì một ô vuông trắng (#75).
+- Gõ Sen trong Ptyxis (terminal mặc định của Ubuntu 26.04 và Fedora) ra chữ lặp (`tieengs` thành
+  `tieeenngss`) rồi đứng. Giờ gõ đúng dấu như ở app khác (#74).
+- Lời nhắc sau khi cài hoặc cập nhật gói chỉ nói tới KDE Wayland khi máy đang chạy KDE Wayland. Trên KDE
+  Wayland, lời nhắc cập nhật bảo đăng xuất rồi đăng nhập lại thay vì chạy `fcitx5 -rd`, vì fcitx5 bật
+  bằng lệnh đó không gõ được trong app Qt như Kate, Dolphin (#68).
+
 ## [1.4.1-1] — 14/10/2026
 
 Trên KDE Plasma (Wayland), lệnh cài tự chọn fcitx5 làm bàn phím ảo để app Qt như Kate, Dolphin gõ được tiếng
