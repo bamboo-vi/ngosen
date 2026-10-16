@@ -26,7 +26,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   "Cứu chữ: Tab để đổi, Esc để giữ nguyên": Tab gõ lại có dấu, Tab lần nữa trả lại như cũ, Esc hoặc phím
   khác thì bỏ qua (#80).
 - Cứu chữ không ghi nhớ gì trong ô mật khẩu, quên đoạn đã gõ khi bấm chuột, Enter, phím mũi tên hay chuyển
-  ô, và không hiện ở app không cho bộ gõ xóa chữ (#71).
+  ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
 
 ### Thay đổi
 
@@ -46,7 +46,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Tài liệu
 
 - README nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, và gọi thống nhất file, repo, build, release (#73).
-- CHANGELOG viết "version 1.2" thay cho "bản 1.2", và dùng file, repo, build, uinput server, forward key như README (#103).
+- CHANGELOG và README viết "version 1.2" thay cho "bản 1.2"; CHANGELOG dùng file, repo, build, uinput server, forward key như README (#103).
 
 ## [1.4.2-1] — 16/10/2026
 
@@ -105,7 +105,7 @@ Tải ở [ngosen-1.4.1-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 ## [1.4.0-1] — 14/10/2026
 
 Lệnh cài một dòng tự đặt fcitx5 làm bộ gõ trên GNOME và các desktop X11 như Xfce, Cinnamon, có thêm lệnh gỡ;
-ẩn các tùy chọn thử nghiệm và bỏ code không dùng.
+ẩn các tuỳ chọn thử nghiệm và bỏ code không dùng.
 Tải ở [ngosen-1.4.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.4.0-1).
 
 ### Thay đổi
@@ -150,14 +150,14 @@ Tải ở [ngosen-1.4.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 
 ## [1.3.0-1] — 13/10/2026
 
-Thêm tùy chọn Backspace chỉ xóa dấu thanh, icon mới hai cọng ngó sen, và sửa icon khay trên panel tối.
+Thêm tuỳ chọn Backspace chỉ xoá dấu thanh, icon mới hai cọng ngó sen, và sửa icon khay trên panel tối.
 Tải ở [ngosen-1.3.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.3.0-1).
 
 ### Thêm
 
-- Tùy chọn "Backspace xóa dấu thanh" (trang Gõ chữ, nhóm Cách bỏ dấu, mặc định tắt): bấm Backspace lúc đang
-  gõ chữ `tiếng` thì ra `tiêng`; chữ không có dấu thanh thì Backspace xóa như thường. Khi tắt, phím `z`
-  (Telex) hay `0` (VNI) vẫn xóa dấu thanh như trước. Đề xuất ở #34 (#37).
+- Tuỳ chọn "Backspace xóa dấu thanh" (trang Gõ chữ, nhóm Cách bỏ dấu, mặc định tắt): bấm Backspace lúc đang
+  gõ chữ `tiếng` thì ra `tiêng`; chữ không có dấu thanh thì Backspace xoá như thường. Khi tắt, phím `z`
+  (Telex) hay `0` (VNI) vẫn xoá dấu thanh như trước. Đề xuất ở #34 (#37).
 - [Version thử](https://github.com/ngosen/ngosen/releases/tag/next-build) build tự động mỗi khi nhánh `next` thay
   đổi, cài bằng một lệnh trong README. Số version có thêm ngày giờ và mã commit, nên cài đè lên version chính
   thức được, và version chính thức sau đó vẫn tự nâng lên (#38, #41, #49).
@@ -172,10 +172,10 @@ Tải ở [ngosen-1.3.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 
 ### Sửa
 
-- Dòng gợi ý dưới tùy chọn trong cửa sổ cài đặt tự xuống dòng khi không đủ chỗ, thay vì bị cắt và bắt cuộn
+- Dòng gợi ý dưới tuỳ chọn trong cửa sổ cài đặt tự xuống dòng khi không đủ chỗ, thay vì bị cắt và bắt cuộn
   ngang (#39).
 - Lời nhắc sau khi cài hoặc cập nhật nói thêm: trên KDE Wayland phải đăng xuất rồi đăng nhập lại, vì
-  `fcitx5 -rd` không thay được fcitx5 do KDE mở, nên cửa sổ cài đặt chưa hiện tùy chọn mới (#42).
+  `fcitx5 -rd` không thay được fcitx5 do KDE mở, nên cửa sổ cài đặt chưa hiện tuỳ chọn mới (#42).
 - Chữ V trên khay không còn màu đen chìm trên panel tối của Linux Mint, MX Linux và các desktop khác
   có panel tối. Ngó Sen đọc màu panel của Cinnamon như đã làm với KDE và GNOME; ở desktop khác, icon
   mặc định màu trắng. Panel sáng thì chọn "Màu biểu tượng: Sáng" trong cài đặt (#44).
