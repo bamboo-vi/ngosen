@@ -163,20 +163,20 @@ Tạo Pull Request trên GitHub với:
 
 ### PR vào `next` hoặc `patch`, không bao giờ vào `main`
 
-- Nhánh `main` chỉ chứa bản release và chỉ được merge bởi maintainer. Lệnh cài tải `install.sh` từ `main`,
+- Nhánh `main` chỉ chứa release và chỉ được merge bởi maintainer. Lệnh cài tải `install.sh` từ `main`,
   nên thứ gì vào `main` là chạy ngay trên máy người dùng.
 - Tính năng mới và mọi thay đổi khác: PR vào `next`.
-- Sửa lỗi của bản đang phát hành: PR vào `patch`. Maintainer ra bản sửa lỗi (vd. 1.4.2 → 1.4.3) từ `patch`,
+- Sửa lỗi của version đang phát hành: PR vào `patch`. Maintainer ra version sửa lỗi (vd. 1.4.2 → 1.4.3) từ `patch`,
   rồi merge `patch` sang `next`.
 - Không chắc thì gửi vào `next`; maintainer sẽ chuyển nếu cần.
 
 ### Cấu trúc nhánh
 
 ```
-main    ← Bản release (chỉ maintainer được merge)
+main    ← release (chỉ maintainer được merge)
   ↑            ↑
 next          patch
-(tính năng)   (sửa lỗi bản đang phát hành)
+(tính năng)   (sửa lỗi version đang phát hành)
   ↑            ↑
 feature/*, fix/*  ← Nhánh cá nhân cho mỗi PR
 ```
@@ -185,16 +185,16 @@ feature/*, fix/*  ← Nhánh cá nhân cho mỗi PR
 
 1. Developer tạo PR vào `next` (tính năng) hoặc `patch` (sửa lỗi)
 2. Code review bởi maintainer
-3. Merge, rồi test trên bản thử `next-build`
-4. Bản sửa lỗi: `patch` → `main`, rồi `patch` → `next`. Bản tính năng: `next` → `main`, rồi đưa `patch`
+3. Merge, rồi test trên version thử `next-build`
+4. Version sửa lỗi: `patch` → `main`, rồi `patch` → `next`. Version tính năng: `next` → `main`, rồi đưa `patch`
    về bằng `main`
 
 ## Báo cáo lỗi
 
 Khi báo cáo lỗi, vui lòng cung cấp:
 
-- Phiên bản Ngó Sen
-- Hệ điều hành và phiên bản
+- Version Ngó Sen
+- Hệ điều hành và version
 - Các bước để tái hiện lỗi
 - Log hoặc screenshot (nếu có) (Log bằng lệnh fcitx5-diagnose)
 - Môi trường (desktop environment, terminal, v.v.)

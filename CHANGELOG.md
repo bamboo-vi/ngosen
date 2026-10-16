@@ -3,10 +3,10 @@
 Mọi thay đổi đáng kể của Ngó Sen được ghi ở đây. Cách ghi theo
 [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/). Mỗi dòng nói người dùng thấy gì thay đổi.
 
-Số phiên bản gồm hai phần: phần trước dấu gạch là số của Ngó Sen (nằm trong `CMakeLists.txt`), phần sau
-là lần đóng gói. Từ `0.5.0` Ngó Sen đánh số riêng; các bản trước mang số `3.5.10` của bản gốc lúc tách ra.
-Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới hơn `3.5.10`. Mỗi bản phát hành mang nhãn
-`ngosen-<phiên bản>`.
+Số version gồm hai phần: phần trước dấu gạch là số của Ngó Sen (nằm trong `CMakeLists.txt`), phần sau là
+lần đóng gói. Từ `0.5.0` Ngó Sen đánh số riêng; các version trước mang số `3.5.10` của bản gốc lúc tách ra.
+Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới hơn `3.5.10`. Mỗi release có tag
+`ngosen-<version>`.
 
 ## [Chưa phát hành]
 
@@ -20,16 +20,18 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   menu Ngó Sen, rồi bấm "Đọc nhật ký gõ". App có báo chữ cho bộ gõ thì tự biết gõ đúng hay sai; app không báo
   thì bạn tự chọn. Kết quả, cùng cách app nhận chữ và cách bộ gõ xoá chữ, được đưa vào báo lỗi (#90).
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
-  chữ đổi luôn thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ" (#82). Nếu có chữ không đổi
-  khi thêm dấu (như `abc tieengs`), thường là tiếng Anh gõ có chủ ý, thì chỉ hiện gợi ý
-  `abc tieengs → abc tiếng` kèm dòng "Cứu chữ: Tab để đổi, Esc để giữ nguyên" (#80). Bấm Tab để gõ lại có dấu,
-  Tab lần nữa để trả lại như cũ, Esc hoặc phím khác để bỏ qua. Không ghi nhớ trong ô mật khẩu; bấm chuột,
-  Enter, phím mũi tên hay chuyển ô thì đoạn đã gõ bị quên. Không hiện ở app không cho bộ gõ xóa chữ (#71).
+  chữ đổi luôn thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ" (#82).
+- Cứu chữ không tự đổi khi trong đoạn có chữ gõ lại vẫn y nguyên (như `abc` trong `abc tieengs`), vì
+  thường đó là tiếng Anh gõ có chủ ý. Khi đó chỉ hiện gợi ý `abc tieengs → abc tiếng` kèm dòng
+  "Cứu chữ: Tab để đổi, Esc để giữ nguyên": Tab gõ lại có dấu, Tab lần nữa trả lại như cũ, Esc hoặc phím
+  khác thì bỏ qua (#80).
+- Cứu chữ không ghi nhớ gì trong ô mật khẩu, quên đoạn đã gõ khi bấm chuột, Enter, phím mũi tên hay chuyển
+  ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
 
 ### Thay đổi
 
 - Gói cho Debian 13 và Ubuntu 22.04 chuyển sang lõi gõ Rust như các gói khác; chỉ gói Debian 12 còn dùng lõi Go (#91).
-- README ghi công tác giả hai lõi gõ: @nguyen10t2 (bản Rust) và @t1ld3x (bản Go) (#89).
+- README ghi công tác giả hai lõi gõ: @nguyen10t2 (lõi Rust) và @t1ld3x (lõi Go) (#89).
 - Dữ liệu test của cửa sổ cài đặt dùng đường dẫn addon `ngosen` thay cho tên cũ `lotus`; người dùng không
   thấy khác gì (#79).
 - Test tự động của lệnh cài chạy thêm trên Fedora 44 với KDE; người dùng không thấy khác gì (#70).
@@ -44,19 +46,20 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Tài liệu
 
 - README nói rõ vì sao Ngó Sen chỉ làm cho fcitx5, và gọi thống nhất file, repo, build, release (#73).
-- Hướng dẫn đóng góp có thêm nhánh `patch`: PR sửa lỗi của bản đang phát hành gửi vào đó, tính năng vẫn gửi
+- CHANGELOG và README viết "version 1.2" thay cho "bản 1.2"; CHANGELOG dùng file, repo, build, uinput server, forward key như README (#103).
+- Hướng dẫn đóng góp có thêm nhánh `patch`: PR sửa lỗi của version đang phát hành gửi vào đó, tính năng vẫn gửi
   vào `next` (#101).
 
 ## [1.4.2-1] — 16/10/2026
 
-Bản sửa lỗi: Gõ Sen hết mất chữ trên Sway và ở ô trống trên Wayland, hết chữ lặp trong Ptyxis và GNOME Console;
+Version sửa lỗi: Gõ Sen hết mất chữ trên Sway và ở ô trống trên Wayland, hết chữ lặp trong Ptyxis và GNOME Console;
 thêm gói cho máy ARM và lệnh cài cho Kali.
 Tải ở [ngosen-1.4.2-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.4.2-1).
 
 ### Thêm
 
 - Gói cài cho máy ARM 64-bit (aarch64): Debian, Ubuntu, Kali và Fedora 43/44; lệnh cài nhanh tự chọn gói theo máy (#86).
-- Lệnh cài nhanh chạy được trên Kali Linux: nó lấy gói dựng cho Debian testing, bản Kali dựa theo (#85).
+- Lệnh cài nhanh chạy được trên Kali Linux: nó lấy gói build cho Debian testing, distro mà Kali dựa trên (#85).
 
 ### Thay đổi
 
@@ -73,7 +76,7 @@ Tải ở [ngosen-1.4.2-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 - Trên Sway, chữ có dấu trong app GTK và Firefox bị mất khi gõ Gõ Sen (gõ `đường` ra `ường`) (#87).
 - Lệnh cài nhanh dừng với "im-config không đặt được fcitx5" trên máy X11 dùng im-config 1.1 (Debian testing, Kali),
   và lệnh gỡ không trả lại bộ gõ cũ ở đó (#85).
-- Lệnh cài nhanh báo không tìm thấy fcitx5 trên máy chưa từng chạy `apt update`, như máy ảo Kali dựng sẵn (#85).
+- Lệnh cài nhanh báo không tìm thấy fcitx5 trên máy chưa từng chạy `apt update`, như máy ảo Kali build sẵn (#85).
 - Gõ Sen trong GNOME Console trên GNOME ra chữ lặp (`ddwowngf` thành `ddduuwwoowwnnggff`) rồi đứng, giống
   lỗi Ptyxis ở #74. Ptyxis trên phiên X11 (như KDE Plasma X11) khi máy có cài IBus cũng sai dấu như vậy. Giờ
   cả hai gõ đúng dấu (#81).
@@ -104,7 +107,7 @@ Tải ở [ngosen-1.4.1-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 ## [1.4.0-1] — 14/10/2026
 
 Lệnh cài một dòng tự đặt fcitx5 làm bộ gõ trên GNOME và các desktop X11 như Xfce, Cinnamon, có thêm lệnh gỡ;
-ẩn các tùy chọn thử nghiệm và bỏ code không dùng.
+ẩn các tuỳ chọn thử nghiệm và bỏ code không dùng.
 Tải ở [ngosen-1.4.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.4.0-1).
 
 ### Thay đổi
@@ -142,24 +145,24 @@ Tải ở [ngosen-1.4.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 
 - Gỡ rồi cài lại trên GNOME không còn làm mất Ngó Sen khỏi danh sách bộ gõ. Nếu fcitx5 đang chạy mà
   không có Ngó Sen, nó ghi đè danh sách khi tắt; lệnh cài giờ tắt fcitx5 trước khi đọc danh sách (#60).
-- Dựng gói lại được: kho `LotusInputMethod/bamboo-core` (lõi Go) đã bị xoá nên mọi lượt dựng đều hỏng
-  ngay bước tải mã. Lõi Go giờ lấy từ bản sao
-  [ngosen/bamboo-go-core](https://github.com/ngosen/bamboo-go-core), cùng đúng bản code như trước. Lõi
-  Rust vẫn lấy từ `nguyen10t2/bamboo_core` (#53).
+- Build gói lại được: repo `LotusInputMethod/bamboo-core` (lõi Go) đã bị xoá nên mọi lần build đều lỗi
+  ngay bước tải code. Lõi Go giờ lấy từ bản sao
+  [ngosen/bamboo-go-core](https://github.com/ngosen/bamboo-go-core), đúng code như trước. Lõi Rust vẫn
+  lấy từ `nguyen10t2/bamboo_core` (#53).
 
 ## [1.3.0-1] — 13/10/2026
 
-Thêm tùy chọn Backspace chỉ xóa dấu thanh, icon mới hai cọng ngó sen, và sửa icon khay trên panel tối.
+Thêm tuỳ chọn Backspace chỉ xoá dấu thanh, icon mới hai cọng ngó sen, và sửa icon khay trên panel tối.
 Tải ở [ngosen-1.3.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.3.0-1).
 
 ### Thêm
 
-- Tùy chọn "Backspace xóa dấu thanh" (trang Gõ chữ, nhóm Cách bỏ dấu, mặc định tắt): bấm Backspace lúc đang
-  gõ chữ `tiếng` thì ra `tiêng`; chữ không có dấu thanh thì Backspace xóa như thường. Khi tắt, phím `z`
-  (Telex) hay `0` (VNI) vẫn xóa dấu thanh như trước. Đề xuất ở #34 (#37).
-- [Bản thử](https://github.com/ngosen/ngosen/releases/tag/next-build) dựng tự động mỗi khi nhánh `next` thay
-  đổi, cài bằng một lệnh trong README. Số phiên bản có thêm ngày giờ và mã commit, nên cài đè lên bản chính
-  thức được, và bản chính thức sau đó vẫn tự nâng lên (#38, #41, #49).
+- Tuỳ chọn "Backspace xóa dấu thanh" (trang Gõ chữ, nhóm Cách bỏ dấu, mặc định tắt): bấm Backspace lúc đang
+  gõ chữ `tiếng` thì ra `tiêng`; chữ không có dấu thanh thì Backspace xoá như thường. Khi tắt, phím `z`
+  (Telex) hay `0` (VNI) vẫn xoá dấu thanh như trước. Đề xuất ở #34 (#37).
+- [Version thử](https://github.com/ngosen/ngosen/releases/tag/next-build) build tự động mỗi khi nhánh `next` thay
+  đổi, cài bằng một lệnh trong README. Số version có thêm ngày giờ và mã commit, nên cài đè lên version chính
+  thức được, và version chính thức sau đó vẫn tự nâng lên (#38, #41, #49).
 
 ### Thay đổi
 
@@ -171,21 +174,21 @@ Tải ở [ngosen-1.3.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 
 ### Sửa
 
-- Dòng gợi ý dưới tùy chọn trong cửa sổ cài đặt tự xuống dòng khi không đủ chỗ, thay vì bị cắt và bắt cuộn
+- Dòng gợi ý dưới tuỳ chọn trong cửa sổ cài đặt tự xuống dòng khi không đủ chỗ, thay vì bị cắt và bắt cuộn
   ngang (#39).
 - Lời nhắc sau khi cài hoặc cập nhật nói thêm: trên KDE Wayland phải đăng xuất rồi đăng nhập lại, vì
-  `fcitx5 -rd` không thay được fcitx5 do KDE mở, nên cửa sổ cài đặt chưa hiện tùy chọn mới (#42).
+  `fcitx5 -rd` không thay được fcitx5 do KDE mở, nên cửa sổ cài đặt chưa hiện tuỳ chọn mới (#42).
 - Chữ V trên khay không còn màu đen chìm trên panel tối của Linux Mint, MX Linux và các desktop khác
   có panel tối. Ngó Sen đọc màu panel của Cinnamon như đã làm với KDE và GNOME; ở desktop khác, icon
   mặc định màu trắng. Panel sáng thì chọn "Màu biểu tượng: Sáng" trong cài đặt (#44).
 - Icon trên khay nhỏ lại cho cân với các icon bên cạnh, và hết mờ trên panel Xfce. Chữ V trắng (khi tắt
   "Sử dụng biểu tượng trạng thái Ngó Sen") giờ cũng là hai cọng ngó như logo (#46).
-- Cập nhật từ bản trước 1.1.0 rồi chạy `fcitx5 -rd` như lời nhắc sau khi cài không còn làm mất Ngó Sen
+- Cập nhật từ version trước 1.1.0 rồi chạy `fcitx5 -rd` như lời nhắc sau khi cài không còn làm mất Ngó Sen
   khỏi danh sách bộ gõ (#47).
 
 ## [1.2.2-1] — 11/10/2026
 
-Bản vá nhỏ: chữ `vi` thay hình bông sen cạnh con trỏ, và hết lỗi mất dấu khi gõ trên thanh địa chỉ Edge.
+Version vá nhỏ: chữ `vi` thay hình bông sen cạnh con trỏ, và hết lỗi mất dấu khi gõ trên thanh địa chỉ Edge.
 Tải ở [ngosen-1.2.2-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.2.2-1).
 
 ### Thay đổi
@@ -197,7 +200,7 @@ Tải ở [ngosen-1.2.2-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 
 ## [1.2.1-1] — 11/10/2026
 
-Bản vá nhỏ: cửa sổ cài đặt bỏ trang Ứng dụng, còn 4 trang. Bộ gõ không đổi. Tải ở
+Version vá nhỏ: cửa sổ cài đặt bỏ trang Ứng dụng, còn 4 trang. Bộ gõ không đổi. Tải ở
 [ngosen-1.2.1-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.2.1-1).
 
 ### Thay đổi
@@ -208,14 +211,14 @@ Bản vá nhỏ: cửa sổ cài đặt bỏ trang Ứng dụng, còn 4 trang. B
 
 ## [1.2.0-1] — 11/10/2026
 
-Bản 1.2: cửa sổ cài đặt mới theo giao diện máy, lưu ngay khi đổi và có Hoàn tác; hết lỗi đảo chữ khi gõ
+Version 1.2: cửa sổ cài đặt mới theo giao diện máy, lưu ngay khi đổi và có Hoàn tác; hết lỗi đảo chữ khi gõ
 nhanh trong gnome-terminal. Tải ở [ngosen-1.2.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.2.0-1).
 
 ### Thay đổi
 
 - README và mô tả gói bỏ các câu kể Ngó Sen tách từ đâu; mục Nguồn gốc còn một dòng ghi công. Trang
   Giới thiệu trong phần cài đặt ghi người phát triển, bên dưới là một dòng ghi công thay cho danh sách
-  tác giả fcitx5-lotus. Mẫu báo lỗi và hướng dẫn đóng góp trỏ về kho của Ngó Sen (#10).
+  tác giả fcitx5-lotus. Mẫu báo lỗi và hướng dẫn đóng góp trỏ về repo của Ngó Sen (#10).
 - Cửa sổ cài đặt nhanh hơn: tìm trong từ điển riêng không còn khựng mỗi phím khi có vài nghìn từ, đổi chế
   độ gõ cho một app không còn đọc lại toàn bộ danh sách app đã cài (#13).
 - Cửa sổ cài đặt lưu ngay khi đổi, không còn nút OK, Áp dụng, Huỷ. Mỗi lần lưu hiện dòng "Đã lưu" kèm nút
@@ -257,7 +260,7 @@ nhanh trong gnome-terminal. Tải ở [ngosen-1.2.0-1](https://github.com/ngosen
 
 ## [1.1.0-1] — 10/10/2026
 
-Bản 1.1: file cài vào máy mang tên `ngosen`, cấu hình cũ tự chuyển sang; icon khay mới; thêm nhật ký gõ
+Version 1.1: file cài vào máy mang tên `ngosen`, cấu hình cũ tự chuyển sang; icon khay mới; thêm nhật ký gõ
 để gửi kèm khi báo lỗi. Tải ở [ngosen-1.1.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.1.0-1).
 
 ### Thêm
@@ -276,10 +279,10 @@ Bản 1.1: file cài vào máy mang tên `ngosen`, cấu hình cũ tự chuyển
   `fcitx5 --verbose ngosen=4` (#7).
 - Icon trên khay hệ thống được vẽ mới: lát cắt ngó sen trên nền xanh, xám đi khi tắt gõ tiếng Việt, mặt cười
   ở chế độ emoji. Kiểu icon chữ (V, E) giữ nguyên (#8).
-- Lõi gõ Rust, lõi mà mọi gói cài đặt đang dùng, lấy bamboo_core 0.3.26 thẳng từ tác giả gốc: bản đã gộp
-  mọi bản sửa của Ngó Sen và nhanh hơn ở Backspace cùng vài chữ có dấu. Chữ gõ ra giống hệt bản trước ([#97](https://github.com/ngosen/ngosen-fork-archive/pull/97)).
+- Lõi gõ Rust, lõi mà mọi gói cài đặt đang dùng, lấy bamboo_core 0.3.26 thẳng từ tác giả gốc: version đã gộp
+  mọi bản sửa của Ngó Sen và nhanh hơn ở Backspace cùng vài chữ có dấu. Chữ gõ ra giống hệt version trước ([#97](https://github.com/ngosen/ngosen-fork-archive/pull/97)).
 
-### Kiểm thử
+### Test
 
 - Test gõ ngẫu nhiên kiểu Gõ Sen vào các app giả có tật như app thật: báo chữ chậm, báo chữ cũ, không báo,
   nhận phím chậm. Chữ cuối cùng trong app phải giống hệt chữ Telex của các phím đã gõ. `core_replay` chạy
@@ -291,8 +294,8 @@ Bản 1.1: file cài vào máy mang tên `ngosen`, cấu hình cũ tự chuyển
 
 ### Tài liệu
 
-- Repo được tạo lại ngoài mạng fork của fcitx5-lotus, giữ nguyên lịch sử commit và các bản phát hành.
-  Pull request và issue đến số 98 nằm ở kho lưu
+- Repo được tạo lại ngoài mạng fork của fcitx5-lotus, giữ nguyên lịch sử commit và các release.
+  Pull request và issue đến số 98 nằm ở repo lưu trữ
   [ngosen/ngosen-fork-archive](https://github.com/ngosen/ngosen-fork-archive); các link PR cũ trong file
   này trỏ về đó (#1).
 - Câu giới thiệu trong README nay là "Bộ gõ tiếng Việt cho fcitx5 trên Linux." thay cho "tối ưu cho
@@ -302,14 +305,14 @@ Bản 1.1: file cài vào máy mang tên `ngosen`, cấu hình cũ tự chuyển
 
 ## [1.0.0-1] — 09/10/2026
 
-Bản 1.0: Ngó Sen chỉ làm cho fcitx5. Click sang ô khác rồi gõ nay ra đúng trong LibreOffice Calc, WPS Office
+Version 1.0: Ngó Sen chỉ làm cho fcitx5. Click sang ô khác rồi gõ nay ra đúng trong LibreOffice Calc, WPS Office
 và Google Sheets. Tải ở [ngosen-1.0.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.0.0-1).
 
 ### Thêm
 
-- Gói Nix cho NixOS, dựng từ mã của Ngó Sen (gói Nix cũ tải mã bản gốc nên đã gỡ ở [#21](https://github.com/ngosen/ngosen-fork-archive/pull/21)). Cách cài nằm
-  trong README. CI dựng gói, chạy test và nạp nó vào fcitx5 trên màn hình X ảo ([#82](https://github.com/ngosen/ngosen-fork-archive/pull/82)).
-- Hướng dẫn tự dựng trên NixOS trong `TU-DUNG.md`, và `nix develop` mở shell có đủ công cụ dựng ([#83](https://github.com/ngosen/ngosen-fork-archive/pull/83)).
+- Gói Nix cho NixOS, build từ code của Ngó Sen (gói Nix cũ tải mã bản gốc nên đã gỡ ở [#21](https://github.com/ngosen/ngosen-fork-archive/pull/21)). Cách cài nằm
+  trong README. CI build gói, chạy test và nạp nó vào fcitx5 trên màn hình X ảo ([#82](https://github.com/ngosen/ngosen-fork-archive/pull/82)).
+- Hướng dẫn tự build trên NixOS trong `TU-DUNG.md`, và `nix develop` mở shell có đủ công cụ build ([#83](https://github.com/ngosen/ngosen-fork-archive/pull/83)).
 
 ### Sửa
 
@@ -333,14 +336,14 @@ và Google Sheets. Tải ở [ngosen-1.0.0-1](https://github.com/ngosen/ngosen/r
 
 ### Tài liệu
 
-- Thêm `RELEASING.md`: những chỗ cần cập nhật sau mỗi PR và mỗi lần ra bản mới; mẫu PR nay đúng với
+- Thêm `RELEASING.md`: những chỗ cần cập nhật sau mỗi PR và mỗi lần ra version mới; mẫu PR nay đúng với
   fork (nhánh `main`, `ctest`, dòng CHANGELOG) ([#80](https://github.com/ngosen/ngosen-fork-archive/pull/80)).
-- README không còn gọi Hyprland là compositor wlroots: Hyprland đã bỏ wlroots từ bản 0.42, nhưng vẫn
+- README không còn gọi Hyprland là compositor wlroots: Hyprland đã bỏ wlroots từ version 0.42, nhưng vẫn
   có giao thức input-method-v2 mà Ngó Sen cần ([#81](https://github.com/ngosen/ngosen-fork-archive/pull/81)).
-- README bỏ câu "không chạy ngầm với quyền root": uinput server của bản cũ chạy bằng tài khoản
+- README bỏ câu "không chạy ngầm với quyền root": uinput server của version cũ chạy bằng tài khoản
   `uinput_proxy`, không phải root. Điểm đầu tiên nay chỉ ghi "Bỏ hẳn uinput server" ([#85](https://github.com/ngosen/ngosen-fork-archive/pull/85)).
 - README bỏ điểm "Chuyển từ fcitx5-lotus không mất gì" khỏi danh sách đầu trang; mục Cài vẫn ghi gói tự
-  thay bản cũ và giữ cấu hình ([#88](https://github.com/ngosen/ngosen-fork-archive/pull/88)).
+  thay version cũ và giữ cấu hình ([#88](https://github.com/ngosen/ngosen-fork-archive/pull/88)).
 - README bỏ roadmap bản IBus và bản chạy thẳng trên Sway, Hyprland: Ngó Sen chỉ làm cho fcitx5. Nhánh
   `feat/ibus-engine` giữ lại, không cập nhật nữa ([#89](https://github.com/ngosen/ngosen-fork-archive/pull/89)).
 
@@ -356,27 +359,27 @@ Sửa lỗi Gõ Sen trên Sway và Hyprland, và cài mới thì dùng Gõ Sen l
 
 ### Sửa
 
-- Chế độ Gõ Sen gõ được trên Sway, Hyprland và các WM dùng input-method-v2. Trước đây chữ đầu tiên cần
+- Chế độ Gõ Sen gõ được trên Sway, Hyprland và các compositor dùng input-method-v2. Trước đây chữ đầu tiên cần
   thêm dấu làm bộ gõ kẹt, mọi phím sau đó không ra chữ ([#73](https://github.com/ngosen/ngosen-fork-archive/pull/73)).
 
 ### Tài liệu
 
 - README mở đầu bằng những điểm chính của Ngó Sen và roadmap tới bản IBus và bản cho wlroots không cần
-  fcitx5 ([#75](https://github.com/ngosen/ngosen-fork-archive/pull/75)). README gọi máy chủ cũ là uinput server, như trên website ([#76](https://github.com/ngosen/ngosen-fork-archive/pull/76)).
+  fcitx5 ([#75](https://github.com/ngosen/ngosen-fork-archive/pull/75)). README gọi server cũ là uinput server, như trên website ([#76](https://github.com/ngosen/ngosen-fork-archive/pull/76)).
 
 ## [0.5.0-1] — 08/10/2026
 
-Bản đầu tiên đánh số riêng; số `0.5` ứng với khoảng nửa chặng đường tới bản 1.0 có bản IBus cho GNOME. Tải ở
+Version đầu tiên đánh số riêng; số `0.5` ứng với khoảng nửa chặng đường tới version 1.0 có bản IBus cho GNOME. Tải ở
 [ngosen-0.5.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-0.5.0-1).
 
 ### Thêm
 
 - README có mục cho VS Code trên Ubuntu: nên cài bằng gói `.deb` hoặc Flatpak; bản snap cần sửa lối tắt
   để gõ được tiếng Việt qua XIM ([#56](https://github.com/ngosen/ngosen-fork-archive/pull/56), [#62](https://github.com/ngosen/ngosen-fork-archive/pull/62)).
-- README có mục "Gỡ": tắt máy chủ nền trước, lệnh gỡ gói cho từng bản phân phối, lệnh gỡ bản tự dựng,
-  và hai thứ còn lại trên máy sau khi gỡ là tệp cấu hình và tài khoản `uinput_proxy` ([#27](https://github.com/ngosen/ngosen-fork-archive/pull/27)).
+- README có mục "Gỡ": tắt uinput server trước, lệnh gỡ gói cho từng distro, lệnh gỡ khi tự build,
+  và hai thứ còn lại trên máy sau khi gỡ là file cấu hình và tài khoản `uinput_proxy` ([#27](https://github.com/ngosen/ngosen-fork-archive/pull/27)).
 - Trang Giới thiệu trong cửa sổ cài đặt có lại hai nút "Báo cáo lỗi" và "Đề xuất tính năng"; chúng mở
-  mẫu tương ứng ở mục Issues của kho `ngosen/ngosen` ([#31](https://github.com/ngosen/ngosen-fork-archive/pull/31)).
+  mẫu tương ứng ở mục Issues của repo `ngosen/ngosen` ([#31](https://github.com/ngosen/ngosen-fork-archive/pull/31)).
 - Công cụ `misc/core-compare` gõ cùng một bộ phím vào lõi ghép dấu hiện tại (Go) và bản Rust
   `bamboo-core`, rồi chỉ ra chỗ hai bên ra chữ khác nhau. Chỉ dùng khi phát triển, không đi kèm bộ gõ
   ([#68](https://github.com/ngosen/ngosen-fork-archive/pull/68)).
@@ -386,11 +389,11 @@ Bản đầu tiên đánh số riêng; số `0.5` ứng với khoảng nửa ch�
 - Phần mã gửi chữ, phím và lệnh xoá ra app đi qua một lớp trung gian riêng, bước đầu để sau này chạy
   được trên IBus. Người dùng không thấy gì khác ([#47](https://github.com/ngosen/ngosen-fork-archive/pull/47)).
 - Phần mã đọc chữ quanh con trỏ, loại ô nhập và tên app cũng đi qua lớp trung gian đó; các chỗ nhận
-  diện app riêng (LibreOffice, Firefox, Chromium, SDL, GTK4) gom về một tệp. Người dùng không thấy gì
+  diện app riêng (LibreOffice, Firefox, Chromium, SDL, GTK4) gom về một file. Người dùng không thấy gì
   khác ([#48](https://github.com/ngosen/ngosen-fork-archive/pull/48)).
 - Chữ tạm (chế độ Preedit và Emoji) và việc làm mới bảng gợi ý cũng đi qua lớp trung gian. Người dùng
   không thấy gì khác ([#49](https://github.com/ngosen/ngosen-fork-archive/pull/49)).
-- Bảng chọn emoji cũng đi qua lớp trung gian, kèm bài kiểm cho các phím của bảng chọn (số, Space, Tab,
+- Bảng chọn emoji cũng đi qua lớp trung gian, kèm test cho các phím của bảng chọn (số, Space, Tab,
   mũi tên, lật trang, Enter, Esc). Người dùng không thấy gì khác ([#50](https://github.com/ngosen/ngosen-fork-archive/pull/50)).
 - Phần gõ đọc cài đặt từ một bản sao riêng, cập nhật mỗi khi đổi cài đặt (cửa sổ cài đặt, nút bật/tắt
   trên menu, menu bảng mã). Người dùng không thấy gì khác ([#51](https://github.com/ngosen/ngosen-fork-archive/pull/51)).
@@ -398,26 +401,26 @@ Bản đầu tiên đánh số riêng; số `0.5` ứng với khoảng nửa ch�
   khác ([#52](https://github.com/ngosen/ngosen-fork-archive/pull/52)).
 - Phần gõ có hàm riêng để đọc chữ UTF-8, xem giờ và ghi log, không dùng hàm của fcitx5 nữa. Người dùng
   không thấy gì khác, kể cả dòng log ([#53](https://github.com/ngosen/ngosen-fork-archive/pull/53)).
-- Phím bấm tới phần gõ qua lớp trung gian, không còn là sự kiện phím của fcitx5; kèm bài kiểm cho việc
+- Phím bấm tới phần gõ qua lớp trung gian, không còn là sự kiện phím của fcitx5; kèm test cho việc
   đọc và đổi phím (phím bổ trợ, Shift, tên phím, tự viết hoa). Người dùng không thấy gì khác ([#54](https://github.com/ngosen/ngosen-fork-archive/pull/54)).
 - Phần gõ lấy từ điển, bảng gõ tắt, bảng phím tự đặt và danh sách emoji qua lớp trung gian thay vì đọc
-  thẳng từ engine fcitx5; kèm bài kiểm cho bảng phím tự đặt. Người dùng không thấy gì khác ([#55](https://github.com/ngosen/ngosen-fork-archive/pull/55)).
-- Phần gõ dùng tên phím riêng thay cho tên phím của fcitx5; lúc dựng, máy tự so từng phím với số của
+  thẳng từ engine fcitx5; kèm test cho bảng phím tự đặt. Người dùng không thấy gì khác ([#55](https://github.com/ngosen/ngosen-fork-archive/pull/55)).
+- Phần gõ dùng tên phím riêng thay cho tên phím của fcitx5; lúc build, máy tự so từng phím với số của
   fcitx5. Người dùng không thấy gì khác ([#63](https://github.com/ngosen/ngosen-fork-archive/pull/63)).
 - Phần gõ của mỗi ô nhập không còn là một kiểu dữ liệu của fcitx5; fcitx5 chỉ giữ nó trong một lớp vỏ
   mỏng. Người dùng không thấy gì khác ([#64](https://github.com/ngosen/ngosen-fork-archive/pull/64)).
-- Phần gõ nay dựng được mà không cần tệp nào của fcitx5: danh sách chế độ gõ, các cờ dùng chung và các
-  hàm xử lý chữ đã dời sang tệp riêng; dòng "Trang 1/2" của bảng emoji nhờ lớp trung gian dịch. Người
+- Phần gõ nay build được mà không cần file nào của fcitx5: danh sách chế độ gõ, các cờ dùng chung và các
+  hàm xử lý chữ đã dời sang file riêng; dòng "Trang 1/2" của bảng emoji nhờ lớp trung gian dịch. Người
   dùng không thấy gì khác ([#65](https://github.com/ngosen/ngosen-fork-archive/pull/65)).
-- Phần gõ dời vào thư mục `src/core/` và được dựng thành thư viện riêng không nối với fcitx5; lỡ dùng
-  tệp của fcitx5 ở đó thì bản dựng báo lỗi ngay. Người dùng không thấy gì khác ([#66](https://github.com/ngosen/ngosen-fork-archive/pull/66)).
-- Tệp phần gõ (khoảng 1.800 dòng) được chia thành năm tệp theo việc: nhận phím, emoji, chờ app, sửa
+- Phần gõ dời vào thư mục `src/core/` và được build thành thư viện riêng không nối với fcitx5; lỡ dùng
+  file của fcitx5 ở đó thì build báo lỗi ngay. Người dùng không thấy gì khác ([#66](https://github.com/ngosen/ngosen-fork-archive/pull/66)).
+- File phần gõ (khoảng 1.800 dòng) được chia thành năm file theo việc: nhận phím, emoji, chờ app, sửa
   chữ cũ, gõ tắt. Thân các hàm giữ nguyên. Người dùng không thấy gì khác ([#67](https://github.com/ngosen/ngosen-fork-archive/pull/67)).
-- Thêm lõi ghép dấu viết bằng Rust (thư viện `bamboo-core`), chưa bật: bản dựng vẫn dùng lõi Go. Muốn
-  thử thì dựng với `-DNGOSEN_RUST_CORE=ON` (cần Rust 1.88+, không cần mạng vì thư viện phụ thuộc nằm sẵn
+- Thêm lõi ghép dấu viết bằng Rust (thư viện `bamboo-core`), chưa bật: build vẫn dùng lõi Go. Muốn
+  thử thì build với `-DNGOSEN_RUST_CORE=ON` (cần Rust 1.88+, không cần mạng vì thư viện phụ thuộc nằm sẵn
   trong `bamboo-rs/vendor`). Người dùng không thấy gì khác
   ([#69](https://github.com/ngosen/ngosen-fork-archive/pull/69)).
-- Gói cho Arch, Fedora và openSUSE dùng lõi ghép dấu Rust, không cần Go để dựng nữa. Gói Debian và
+- Gói cho Arch, Fedora và openSUSE dùng lõi ghép dấu Rust, không cần Go để build nữa. Gói Debian và
   Ubuntu vẫn dùng lõi Go vì Rust có sẵn ở đó còn cũ. Gõ chữ không khác gì ([#70](https://github.com/ngosen/ngosen-fork-archive/pull/70)).
 - Gói `.deb` cho Ubuntu 24.04, 25.10, 26.04 và Debian testing/unstable cũng dùng lõi Rust. Debian 12, 13
   và Ubuntu 22.04 vẫn dùng lõi Go ([#71](https://github.com/ngosen/ngosen-fork-archive/pull/71)).
@@ -425,20 +428,20 @@ Bản đầu tiên đánh số riêng; số `0.5` ứng với khoảng nửa ch�
   phím tắt và tuỳ chọn ẩn/hiện của chế độ cũ tự chuyển sang tên mới ([#43](https://github.com/ngosen/ngosen-fork-archive/pull/43)).
 - Nhánh chính đổi tên từ `ban-dung` thành `main`. Đường dẫn cũ trên GitHub tự chuyển sang tên mới. Ai
   đã tải mã về máy thì chạy `git branch -m ban-dung main && git fetch origin && git branch -u origin/main main` ([#36](https://github.com/ngosen/ngosen-fork-archive/pull/36)).
-- Mục Issues của kho được bật để nhận báo lỗi. Mẫu báo lỗi hỏi phiên bản và cách cài của Ngó Sen thay
+- Mục Issues của repo được bật để nhận báo lỗi. Mẫu báo lỗi hỏi version và cách cài của Ngó Sen thay
   cho các cách cài của bản gốc; README chỉ tới mục Issues ([#30](https://github.com/ngosen/ngosen-fork-archive/pull/30)).
-- Trên phiên X11 thật (Xfce, Cinnamon, MATE…), app nối với bộ gõ qua XIM cũng xoá chữ bằng phím gửi hộ,
-  không cần máy chủ uinput; trước đây chỉ làm vậy dưới XWayland ([#35](https://github.com/ngosen/ngosen-fork-archive/pull/35)).
-- App cài bằng snap (Firefox, Chromium…) nối với bộ gõ qua mô-đun fcitx đời cũ có sẵn trong gói snap;
-  giờ chúng cũng xoá chữ bằng phím gửi hộ, không cần máy chủ uinput. Game dùng SDL 2.0.12 trở về trước
-  nói cùng giao thức đó vẫn đi máy chủ ([#35](https://github.com/ngosen/ngosen-fork-archive/pull/35)).
+- Trên phiên X11 thật (Xfce, Cinnamon, MATE…), app nối với bộ gõ qua XIM cũng xoá chữ bằng forward key,
+  không cần uinput server; trước đây chỉ làm vậy dưới XWayland ([#35](https://github.com/ngosen/ngosen-fork-archive/pull/35)).
+- App cài bằng snap (Firefox, Chromium…) nối với bộ gõ qua module fcitx đời cũ có sẵn trong gói snap;
+  giờ chúng cũng xoá chữ bằng forward key, không cần uinput server. Game dùng SDL 2.0.12 trở về trước
+  nói cùng giao thức đó vẫn đi server ([#35](https://github.com/ngosen/ngosen-fork-archive/pull/35)).
 
 ### Bỏ
 
-- Máy chủ nền `fcitx5-lotus-server`. Bộ gõ xoá chữ cũ bằng phím gửi hộ qua fcitx5, hoặc bấm phím qua
+- Uinput server `fcitx5-lotus-server`. Bộ gõ xoá chữ cũ bằng forward key qua fcitx5, hoặc bấm phím qua
   XTEST trên phiên X11, nên không còn chương trình chạy ngầm, tài khoản `uinput_proxy` hay quyền thiết
-  bị. Cập nhật từ bản cũ thì gói tự tắt dịch vụ cũ và xoá tài khoản đó. Game dùng SDL ngoài X11 không
-  nhận phím gửi hộ nên gõ ra chữ không dấu ([#43](https://github.com/ngosen/ngosen-fork-archive/pull/43)).
+  bị. Cập nhật từ version cũ thì gói tự tắt service cũ và xoá tài khoản đó. Game dùng SDL ngoài X11 không
+  nhận forward key nên gõ ra chữ không dấu ([#43](https://github.com/ngosen/ngosen-fork-archive/pull/43)).
 - Chế độ Surrounding Text, gộp vào Gõ Sen: Gõ Sen đã tự xoá chữ qua surrounding text ở app cần cách
   đó. Cấu hình cũ đặt Surrounding Text (`Mode=Surrounding Text`, số `4` trong luật theo app) tự đọc
   thành Gõ Sen. Còn lại các chế độ Gõ Sen, Preedit, Emoji và OFF ([#43](https://github.com/ngosen/ngosen-fork-archive/pull/43)).
@@ -454,7 +457,7 @@ Bản đầu tiên đánh số riêng; số `0.5` ứng với khoảng nửa ch�
   VS Code gửi lại ([#60](https://github.com/ngosen/ngosen-fork-archive/pull/60), [#61](https://github.com/ngosen/ngosen-fork-archive/pull/61), [#62](https://github.com/ngosen/ngosen-fork-archive/pull/62)).
 - Cửa sổ không báo tên app: chế độ gõ chọn riêng cho cửa sổ đó giờ được xoá khi đóng cửa sổ, nên cửa
   sổ mở sau không còn có thể nhận nhầm chế độ ấy, và danh sách quy tắc không dài thêm suốt phiên ([#59](https://github.com/ngosen/ngosen-fork-archive/pull/59)).
-- Trên Wayland, bấm chuột sang chỗ khác trong ô rồi gõ tiếp giờ bắt đầu từ mới ngay cả khi máy chủ
+- Trên Wayland, bấm chuột sang chỗ khác trong ô rồi gõ tiếp giờ bắt đầu từ mới ngay cả khi server
   nền không chạy: bộ gõ nhận ra cú bấm qua việc con trỏ đổi chỗ mà chữ không đổi ([#40](https://github.com/ngosen/ngosen-fork-archive/pull/40)).
 - Lark (Messenger web) trên Firefox gõ đúng dấu trở lại ("về" thay cho "vêf", "nấu" thay cho "nâú").
   Ô soạn tin này báo con trỏ đã tiến qua chữ vừa gõ trước khi báo chữ đó, và bộ gõ tưởng là một cú
@@ -465,104 +468,104 @@ Bản đầu tiên đánh số riêng; số `0.5` ứng với khoảng nửa ch�
 - Ubuntu 26.04 (GNOME 50.0 tới 50.3): gói kèm extension `forward-keys@ngosen.github.io` sửa lỗi GNOME làm
   rơi phím xoá bộ gõ gửi qua GNOME Shell, khiến Chrome, Edge và app Electron chạy Wayland gõ ra
   `tieêngếng`. Bật bằng `gnome-extensions enable forward-keys@ngosen.github.io` ([#41](https://github.com/ngosen/ngosen-fork-archive/pull/41)).
-- Trên KDE Plasma (Wayland), bộ gõ tự gửi phím xoá cho ứng dụng thay vì nhờ máy chủ uinput, rồi chờ ứng
-  dụng báo đã xoá xong mới gõ chữ mới. Ứng dụng X11 chạy qua XWayland không còn bị kẹt, nuốt hết phím
+- Trên KDE Plasma (Wayland), bộ gõ tự gửi phím xoá cho app thay vì nhờ uinput server, rồi chờ app
+  báo đã xoá xong mới gõ chữ mới. App X11 chạy qua XWayland không còn bị kẹt, nuốt hết phím
   sau một lần thay chữ. Ô soạn tin Facebook trên KDE xoá rồi gõ lại như ô thường, không bôi đen rồi gõ
   đè nữa ([#33](https://github.com/ngosen/ngosen-fork-archive/pull/33)).
 - Trên GNOME, gõ nhanh trong Firefox không còn mất chữ ("viet" ra "v"), ô soạn tin Facebook trên Edge
   không còn ra "i" thay cho "đi", và chuyển từ app khác sang terminal không còn làm rơi chữ. Luật theo
   app nhận cả tên GNOME báo kèm đuôi `.desktop` (như `firefox.desktop`) ([#33](https://github.com/ngosen/ngosen-fork-archive/pull/33)).
-- App nối với bộ gõ qua IBus hoặc qua mô-đun fcitx5 (`GTK_IM_MODULE=ibus`/`fcitx`, ví dụ Zalo và các
-  app Electron chạy X11), và mọi app trên GNOME, gõ được mà không cần máy chủ uinput. App GTK4 xoá chữ
-  bằng surrounding text vì mô-đun GTK4 bỏ qua phím gửi hộ. Game dùng SDL vẫn đi máy chủ vì SDL chỉ
+- App nối với bộ gõ qua IBus hoặc qua module fcitx5 (`GTK_IM_MODULE=ibus`/`fcitx`, ví dụ Zalo và các
+  app Electron chạy X11), và mọi app trên GNOME, gõ được mà không cần uinput server. App GTK4 xoá chữ
+  bằng surrounding text vì module GTK4 bỏ qua forward key. Game dùng SDL vẫn đi server vì SDL chỉ
   nhận chữ ghi và chữ gạch chân ([#34](https://github.com/ngosen/ngosen-fork-archive/pull/34)).
 - Trên X11, thanh địa chỉ Chrome, Edge và Chromium không còn giữ dấu cũ khi gõ một địa chỉ đã từng vào
   ("tiêng" thay cho "tiếng"). Trình duyệt tự gợi ý phần đuôi và bôi đen nó, nên phím xoá đầu chỉ xoá phần
   gợi ý. Ngó Sen nay bôi đen cả chữ cũ bằng Shift+Mũi tên trái qua XTEST rồi gõ đè. Các app khác trên X11
-  cũng xoá qua XTEST khi không gửi phím hộ được, không cần máy chủ uinput. Gói nay kéo theo thư viện
+  cũng xoá qua XTEST khi không forward key được, không cần uinput server. Gói nay kéo theo thư viện
   `libxcb-xtest`, vì Linux Mint không cài sẵn nó ([#38](https://github.com/ngosen/ngosen-fork-archive/pull/38)).
-- Trên X11, bấm chuột sang chỗ khác giữa lúc gõ không còn làm từ mới dính vào từ cũ khi máy chủ uinput
+- Trên X11, bấm chuột sang chỗ khác giữa lúc gõ không còn làm từ mới dính vào từ cũ khi uinput server
   không chạy: Ngó Sen nghe cú bấm chuột qua XInput2 của X server. Gói kéo theo thư viện `libxcb-xinput` ([#39](https://github.com/ngosen/ngosen-fork-archive/pull/39)).
 
 ### Tài liệu
 
 - README viết lại cho người dùng: lộ trình Ngó Sen 1.0 ở đầu, rồi cách chọn chế độ, cài và gỡ. Chi tiết
-  từng vá không còn trong kho; hướng dẫn tự dựng từ mã chuyển sang `TU-DUNG.md` ([#42](https://github.com/ngosen/ngosen-fork-archive/pull/42)).
+  từng vá không còn trong repo; hướng dẫn tự build từ mã chuyển sang `TU-DUNG.md` ([#42](https://github.com/ngosen/ngosen-fork-archive/pull/42)).
 - README: mục lộ trình đổi tên thành "Roadmap", ghi rõ lõi ghép dấu là bamboo-core; phần nguồn gốc
   (vibecode, tách từ fcitx5-lotus) chuyển xuống cuối; ghi thêm các máy ảo dùng để thử ([#44](https://github.com/ngosen/ngosen-fork-archive/pull/44)).
-- Tên mới trong mã (tệp, hàm, lớp, hằng, biến môi trường) không còn chữ "lotus"; tên cũ giữ nguyên
+- Tên mới trong mã (file, hàm, lớp, hằng, biến môi trường) không còn chữ "lotus"; tên cũ giữ nguyên
   tới khi cần sửa chỗ đó. CI kiểm tra mỗi lần đẩy mã ([#37](https://github.com/ngosen/ngosen-fork-archive/pull/37)).
-- Nhật ký thay đổi có mục riêng cho bản `3.5.10-4`; những gì gộp sau bản đó nằm dưới "Chưa phát hành"
+- Nhật ký thay đổi có mục riêng cho version `3.5.10-4`; những gì gộp sau version đó nằm dưới "Chưa phát hành"
   ([#28](https://github.com/ngosen/ngosen-fork-archive/pull/28)).
 
-### Kiểm thử
+### Test
 
-- Bốn bài kiểm thử khoảng chờ của Messenger không còn hỏng khi máy chạy thử bị khựng vài chục phần
-  nghìn giây: khoảng chờ trong bài nới từ 40 lên 500 ms, và vòng lặp sự kiện của bài chạy nốt việc
-  đã tới hạn trước khi kiểm. Không đổi gì ở bộ gõ ([#32](https://github.com/ngosen/ngosen-fork-archive/pull/32)).
+- Bốn test khoảng chờ của Messenger không còn lỗi khi máy chạy test bị khựng vài chục ms: khoảng chờ
+  trong test nới từ 40 lên 500 ms, và vòng lặp sự kiện của test chạy nốt việc đã tới hạn trước khi
+  kiểm. Không đổi gì ở bộ gõ ([#32](https://github.com/ngosen/ngosen-fork-archive/pull/32)).
 
 ## [3.5.10-4] — 04/10/2026
 
-Bản phát hành đầu tiên có gói dựng sẵn:
+Release đầu tiên có gói build sẵn:
 [ngosen-3.5.10-4](https://github.com/ngosen/ngosen/releases/tag/ngosen-3.5.10-4).
 
 ### Thêm
 
-- Kịch bản cài một dòng `install.sh`: nhận ra bản phân phối, tải gói dựng sẵn từ bản phát hành mới
-  nhất, đối chiếu mã băm, hỏi lại rồi cài và bật máy chủ nền. Thay được gói `fcitx5-lotus` đang có,
-  kể cả bản gốc số cao hơn, và ghi đè được bản cài từ mã trên Arch. README hướng dẫn cài theo cách
-  này; hướng dẫn cập nhật bản tự dựng được bổ sung các lệnh nạp lại luật quyền ([#26](https://github.com/ngosen/ngosen-fork-archive/pull/26)).
+- Script cài một dòng `install.sh`: nhận ra distro, tải gói build sẵn từ release mới
+  nhất, đối chiếu hash, hỏi lại rồi cài và bật uinput server. Thay được gói `fcitx5-lotus` đang có,
+  kể cả bản gốc số cao hơn, và ghi đè được gói build từ source trên Arch. README hướng dẫn cài theo cách
+  này; hướng dẫn cập nhật khi tự build được bổ sung các lệnh nạp lại luật quyền ([#26](https://github.com/ngosen/ngosen-fork-archive/pull/26)).
 
 ### Thay đổi
 
-- Trang Giới thiệu trong cửa sổ cài đặt trỏ về kho `ngosen/ngosen` và ghi "Dựa trên fcitx5-lotus của"
+- Trang Giới thiệu trong cửa sổ cài đặt trỏ về repo `ngosen/ngosen` và ghi "Dựa trên fcitx5-lotus của"
   kèm tên các tác giả gốc. Bỏ hai nút "Báo cáo lỗi" và "Đề xuất tính năng", vì chúng mở trang báo lỗi
   của bản gốc ([#20](https://github.com/ngosen/ngosen-fork-archive/pull/20)).
 - Bộ gõ đổi tên hiển thị thành **Ngó Sen**: tên trong danh sách bộ gõ và addon của fcitx5, nhãn "Ngó
-  Sen - Tắt", cửa sổ và mục menu "Cài đặt Ngó Sen", trang Giới thiệu. Tệp cấu hình và tên bên trong
+  Sen - Tắt", cửa sổ và mục menu "Cài đặt Ngó Sen", trang Giới thiệu. File cấu hình và tên bên trong
   giữ nguyên, nên cấu hình cũ dùng tiếp được ([#15](https://github.com/ngosen/ngosen-fork-archive/pull/15)).
-- Gói Fedora đổi tên thành `fcitx5-ngosen`. Cài gói này thì bản `fcitx5-lotus` cũ của fork được thay
+- Gói Fedora đổi tên thành `fcitx5-ngosen`. Cài gói này thì gói `fcitx5-lotus` cũ của fork được thay
   tự động; gói này và `fcitx5-lotus` của bản gốc không cài chung được ([#16](https://github.com/ngosen/ngosen-fork-archive/pull/16)).
 - Gói Debian/Ubuntu đổi tên thành `fcitx5-ngosen` và thay gói `fcitx5-lotus` khi cài. Khi cài hoặc
   cập nhật, gói tự gỡ tài khoản `uinput_proxy` khỏi nhóm `input` và áp luật quyền cho chuột, bàn chạm
   đang cắm, giống gói Fedora ([#23](https://github.com/ngosen/ngosen-fork-archive/pull/23)).
 - Gói openSUSE đổi tên thành `fcitx5-ngosen`, có cùng các bước sau cài như gói Fedora. Thêm công thức
-  gói Arch (`packaging/arch/PKGBUILD`) cho ra gói pacman `fcitx5-ngosen`; quy trình dựng thử trên
-  GitHub nay dựng gói này thay cho tệp nén thô ([#24](https://github.com/ngosen/ngosen-fork-archive/pull/24)).
-- Quy trình phát hành viết lại: gắn nhãn `ngosen-<phiên bản>` thì GitHub kiểm số phiên bản trong các
-  tệp đóng gói, dựng gói cho Fedora, Debian, Ubuntu, openSUSE và Arch, rồi tạo bản phát hành nháp kèm
-  `SHA256SUMS`. Bỏ kho gói có chữ ký và chìa khoá công khai của bản gốc. Các gói lên `3.5.10-4` ([#25](https://github.com/ngosen/ngosen-fork-archive/pull/25)).
-- Kho chuyển về địa chỉ `github.com/ngosen/ngosen` (link cũ tự chuyển). Trang giới thiệu viết lại theo
-  tên Ngó Sen và nằm ở `README.md`; README của bản gốc không còn trong kho, xem ở kho fcitx5-lotus
+  gói Arch (`packaging/arch/PKGBUILD`) cho ra gói pacman `fcitx5-ngosen`; CI build thử trên
+  GitHub nay build gói này thay cho file nén thô ([#24](https://github.com/ngosen/ngosen-fork-archive/pull/24)).
+- Quy trình release viết lại: gắn tag `ngosen-<version>` thì GitHub kiểm số version trong các
+  file đóng gói, build gói cho Fedora, Debian, Ubuntu, openSUSE và Arch, rồi tạo release nháp kèm
+  `SHA256SUMS`. Bỏ repo gói có chữ ký và chìa khoá công khai của bản gốc. Các gói lên `3.5.10-4` ([#25](https://github.com/ngosen/ngosen-fork-archive/pull/25)).
+- Repo chuyển về địa chỉ `github.com/ngosen/ngosen` (link cũ tự chuyển). Trang giới thiệu viết lại theo
+  tên Ngó Sen và nằm ở `README.md`; README của bản gốc không còn trong repo, xem ở repo fcitx5-lotus
   ([#17](https://github.com/ngosen/ngosen-fork-archive/pull/17)).
 - Cập nhật bamboo-core (lõi bộ gõ Telex/VNI) theo bản gốc ([#11](https://github.com/ngosen/ngosen-fork-archive/pull/11)).
 
 ### Bỏ
 
-- Gói Nix (`flake.nix`, thư mục `nix/`) và hai quy trình kiểm Nix. Công thức này tải mã của bản gốc
-  về dựng chứ không dựng mã của Ngó Sen, nên chưa bao giờ cho ra đúng bản này ([#21](https://github.com/ngosen/ngosen-fork-archive/pull/21)).
-- Biến môi trường `LOTUS_SERVER_PATH`: mô-đun không còn kiểm đường dẫn của máy chủ nền ([#9](https://github.com/ngosen/ngosen-fork-archive/pull/9)).
+- Gói Nix (`flake.nix`, thư mục `nix/`) và hai quy trình kiểm Nix. Công thức này tải code của bản gốc
+  về build chứ không build code của Ngó Sen, nên chưa bao giờ cho ra đúng Ngó Sen ([#21](https://github.com/ngosen/ngosen-fork-archive/pull/21)).
+- Biến môi trường `LOTUS_SERVER_PATH`: module không còn kiểm đường dẫn của uinput server ([#9](https://github.com/ngosen/ngosen-fork-archive/pull/9)).
 - Giao diện cài đặt: bỏ dòng và lời giải thích còn sót của tuỳ chọn `FixUinputWithAck` đã gỡ. Giao
   diện vốn không hiện tuỳ chọn này, vì addon không còn khai báo nó ([#14](https://github.com/ngosen/ngosen-fork-archive/pull/14)).
 
-### Sửa lỗi
+### Sửa
 
 - Gói Fedora: khi cập nhật, tài khoản `uinput_proxy` tự được gỡ khỏi nhóm `input`, và luật quyền cho
   chuột, bàn chạm được áp ngay cho thiết bị đang cắm, không phải khởi động lại máy hay cắm lại ([#19](https://github.com/ngosen/ngosen-fork-archive/pull/19)).
-- Máy chủ nền giữ tối đa 1024 phím xoá trong hàng chờ và bỏ hàng chờ khi bộ gõ ngắt kết nối. Trước đây
-  một chương trình gửi dồn dập có thể khiến máy chủ tiếp tục xoá chữ rất lâu sau khi nó đã dừng ([#18](https://github.com/ngosen/ngosen-fork-archive/pull/18)).
-- Khi bộ gõ khởi động lại và nối lại với máy chủ nền đúng lúc kết nối cũ vừa đứt, máy chủ không còn
+- Uinput server giữ tối đa 1024 phím xoá trong hàng chờ và bỏ hàng chờ khi bộ gõ ngắt kết nối. Trước đây
+  một chương trình gửi dồn dập có thể khiến server tiếp tục xoá chữ rất lâu sau khi nó đã dừng ([#18](https://github.com/ngosen/ngosen-fork-archive/pull/18)).
+- Khi bộ gõ khởi động lại và nối lại với uinput server đúng lúc kết nối cũ vừa đứt, server không còn
   ngắt nhầm kết nối mới, và không gõ tiếp các phím xoá còn dở của kết nối cũ ([#22](https://github.com/ngosen/ngosen-fork-archive/pull/22)).
 - Luật udev không còn cấp `/dev/uinput` và mọi thiết bị nhập cho cả nhóm `input`, khớp bản gốc
   (LotusInputMethod/fcitx5-lotus#525) ([#10](https://github.com/ngosen/ngosen-fork-archive/pull/10)).
-- Máy chủ nền và mô-đun bộ gõ nhận nhau theo tài khoản (uid) của tiến trình bên kia, thay cho đường
-  dẫn chương trình. Máy chủ không còn giữ quyền `CAP_SYS_PTRACE`. Mô-đun nay kiểm cả socket phím
+- Uinput server và module bộ gõ nhận nhau theo tài khoản (uid) của tiến trình bên kia, thay cho đường
+  dẫn chương trình. Server không còn giữ quyền `CAP_SYS_PTRACE`. Module nay kiểm cả socket phím
   xoá, nên chương trình chiếm tên socket trước không đọc được độ dài từng từ ([#9](https://github.com/ngosen/ngosen-fork-archive/pull/9)).
-- Máy chủ nền chỉ mở chuột, bàn chạm và núm trỏ, ở chế độ chỉ đọc; không mở bàn phím nữa, và tài
+- Uinput server chỉ mở chuột, bàn chạm và núm trỏ, ở chế độ chỉ đọc; không mở bàn phím nữa, và tài
   khoản `uinput_proxy` ra khỏi nhóm `input`. Chuột kiêm bàn phím mất tính năng bấm chuột để ngắt từ.
   Máy đã cài từ trước cần chạy một lần `sudo gpasswd -d uinput_proxy input` ([#8](https://github.com/ngosen/ngosen-fork-archive/pull/8)).
-- Máy chủ nền chỉ nhận số phím từ 1 tới 1024 (backspace) hoặc từ -1 tới -1024 (bôi đen); số khác bị
-  bỏ qua và ghi log. Trước đây một số âm rất lớn làm máy chủ chết, bàn phím chết theo ([#7](https://github.com/ngosen/ngosen-fork-archive/pull/7)).
+- Uinput server chỉ nhận số phím từ 1 tới 1024 (backspace) hoặc từ -1 tới -1024 (bôi đen); số khác bị
+  bỏ qua và ghi log. Trước đây một số âm rất lớn làm server chết, bàn phím chết theo ([#7](https://github.com/ngosen/ngosen-fork-archive/pull/7)).
 - Chế độ Uinput, app nhận chữ qua dbus (fcitx5-gtk): chữ thay thế được commit ngay sau khi phím xoá
   xử lý xong thay vì trong lúc xử lý, để Ghostty và foot không làm rơi chữ. Lấy từ bản gốc
   (LotusInputMethod/fcitx5-lotus#510), chưa tái hiện được lỗi trên máy thử ([#12](https://github.com/ngosen/ngosen-fork-archive/pull/12)).
@@ -608,15 +611,15 @@ các commit lấy thêm từ bản gốc ngày 24/09/2026. Mọi mục dưới �
 
 - `FixUinputWithAck` và cách lách gợi ý của Chromium.
 
-### Sửa lỗi
+### Sửa
 
 - Server xử lý hết hàng sự kiện libinput ở mỗi vòng lặp, không để sự kiện nằm chờ
   (LotusInputMethod/fcitx5-lotus#507).
-- Lá chắn chống lặp chữ do gợi ý tự điền chỉ bật ở thanh địa chỉ trình duyệt.
+- Cách chặn lặp chữ do gợi ý tự điền chỉ bật ở thanh địa chỉ trình duyệt.
 
 ### Tài liệu
 
-- Tệp `KHAC-GI-SO-VOI-BAN-GOC.md`: từng miếng vá, vì sao có, đã gửi lên bản gốc chưa (không còn trong kho từ
+- File `KHAC-GI-SO-VOI-BAN-GOC.md`: từng miếng vá, vì sao có, đã gửi lên bản gốc chưa (không còn trong repo từ
   [#42](https://github.com/ngosen/ngosen-fork-archive/pull/42)).
 - [AGENTS.md](AGENTS.md): quy định khi sửa fork và khi gửi vá lên bản gốc ([#3](https://github.com/ngosen/ngosen-fork-archive/pull/3)).
 - README: cài sang máy khác, chế độ Uinput duy nhất, khởi động lại server sau khi cập nhật.
