@@ -385,12 +385,12 @@ namespace fcitx {
 #endif
             for (const auto& p : paths) {
 #if NGOSEN_USE_MODERN_FCITX_API
-                if (!isStartsWith(p.string(), "/home/")) {
+                if (!isInHomeDirectory(p.string())) {
                     auto fd = fcitx::UnixFD(::open(p.c_str(), O_RDONLY));
                     if (fd.isValid()) {
                         dictionary_.reset(NewDictionary(fd.release()));
 #else
-                if (!isStartsWith(p, "home/")) {
+                if (!isInHomeDirectory(p)) {
                     int fd = ::open(p.c_str(), O_RDONLY);
                     if (fd != -1) {
                         dictionary_.reset(NewDictionary(fd));
