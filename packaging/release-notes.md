@@ -1,4 +1,4 @@
-Version 1.4.2 sửa lỗi Gõ Sen mất chữ trên Sway và ở ô trống trên Wayland, chữ lặp trong Ptyxis và GNOME Console. Có thêm gói cho máy ARM 64-bit và lệnh cài cho Kali. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.4.3 sửa một lỗi: bỏ chọn "Từ điển tuỳ chỉnh" thì Ngó Sen quay về từ điển gốc. Trước đây, trên distro dùng fcitx5 cũ hơn 5.1.13 (Ubuntu 22.04, 24.04, Linux Mint 22, Debian 12, 13, MX Linux 25), từ thêm vào từ điển tuỳ chỉnh vẫn được giữ dấu sau khi bỏ chọn. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -30,14 +30,8 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 
 ## Đã test những gì
 
-Version 1.4.2 được gõ thử bằng build từ nhánh `release/1.4.2`, trên máy ảo:
+Version 1.4.3 được gõ thử bằng gói `…_noble_amd64.deb` build từ PR #111, trên máy ảo Linux Mint 22.1 (Cinnamon X11, fcitx5 5.1.7). Từ điển tuỳ chỉnh có thêm `kạ`, mỗi lần đổi ô thì khởi động lại fcitx5: bật "Từ điển tuỳ chỉnh" thì `kaj` ra `kạ` 2/2 lần, bỏ chọn thì ra `kaj` 2/2 lần. Cùng các bước đó với 1.4.2 thì cả hai lần đều ra `kạ`.
 
-- Ô hỏi của Gemini trong Chromium, CachyOS (Plasma Wayland): `ddown` ở đầu ô trống ra `đơn` 3/3 lần; trước khi sửa ra `n`.
-- Sway trên CachyOS: `dduwowngf tieengs vieetj` ra `đường tiếng việt` trong ô chữ GTK3 và Firefox.
-- Ubuntu 26.04 (GNOME Wayland): `ddwowngf tieengs vieetj` ra `đường tiếng việt` 2/2 lần trong Ptyxis và 2/2 lần trong GNOME Console.
+Người giữ dự án dùng Ngó Sen hằng ngày trên Fedora 44 (KDE Plasma Wayland). Ubuntu 26.04, Debian 13, Arch và Kali đã được gõ thử ở các version trước. Fedora 43, Ubuntu 22.04, Debian 12 và openSUSE chỉ được build và qua test lúc build, chưa ai gõ thử trên máy thật.
 
-Lệnh cài chạy được trên máy ảo Kali 2026.2 (Xfce X11). Gói ARM 64-bit được ansidev cài và chạy được trên Ubuntu 26.04 (máy ảo VMware), từ version thử.
-
-Người giữ dự án dùng Ngó Sen hằng ngày trên Fedora 44 (KDE Plasma Wayland). Ubuntu 24.04, Debian 13 và Arch đã được gõ thử ở các version trước. Fedora 43, Ubuntu 22.04, Debian 12 và openSUSE chỉ được build và qua test lúc build, chưa ai gõ thử trên máy thật.
-
-Lõi gõ Rust có trong gói Fedora, Arch, openSUSE và Ubuntu 24.04 trở lên. Debian 12, 13 và Ubuntu 22.04 dùng lõi Go, vì Rust có sẵn ở đó quá cũ. Phần sửa kiểm chính tả bằng từ điển ở version này chỉ có trong lõi Rust.
+Lõi gõ Rust có trong gói Fedora, Arch, openSUSE và Ubuntu 24.04 trở lên. Debian 12, 13 và Ubuntu 22.04 dùng lõi Go, vì Rust có sẵn ở đó quá cũ. Phần sửa ở version này nằm ngoài lõi gõ nên có trong cả hai.
