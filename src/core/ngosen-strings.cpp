@@ -21,6 +21,10 @@ bool isStartsWith(const std::string& str, const std::string& prefix) {
 #endif
 }
 
+bool isInHomeDirectory(const std::string& path) {
+    return isStartsWith(path, "/home/");
+}
+
 std::string stripDesktopSuffix(const std::string& program) {
     static constexpr std::string_view suffix = ".desktop";
     if (program.size() > suffix.size() && program.compare(program.size() - suffix.size(), suffix.size(), suffix) == 0) {

@@ -305,6 +305,12 @@ namespace {
         }
     }
 
+    void testHomeDictionaryPath() {
+        check(isInHomeDirectory("/home/an/.local/share/fcitx5/ngosen/vietnamese.cm.dict"), "dictionary path: the custom one is skipped when it is off",
+              "a dictionary under /home was not recognised");
+        check(!isInHomeDirectory("/usr/share/fcitx5/ngosen/vietnamese.cm.dict"), "dictionary path: the built-in one is kept", "the built-in dictionary was taken for a custom one");
+    }
+
     void testWithoutToneMark() {
         check(withoutToneMark("tiếng") == "tiêng", "tone mark: tiếng loses only the sắc", withoutToneMark("tiếng"));
         check(withoutToneMark("Đường") == "Đương", "tone mark: Đường keeps đ and the horns", withoutToneMark("Đường"));
@@ -456,6 +462,7 @@ int main() {
     testRecorderLimits();
     testFocusBounce();
     testTypingIntoSuggestion();
+    testHomeDictionaryPath();
     testWithoutToneMark();
     testBackspaceRemovesTone(true);
     testBackspaceRemovesTone(false);
