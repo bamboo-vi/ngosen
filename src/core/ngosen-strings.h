@@ -15,6 +15,9 @@
  */
 bool isStartsWith(const std::string& str, const std::string& prefix);
 
+// True for a file in a user's home, such as the custom dictionary the settings window writes.
+bool isInHomeDirectory(const std::string& path);
+
 /**
  * @brief Strip the ".desktop" suffix GNOME adds to program names.
  *
