@@ -583,6 +583,8 @@ namespace ngosen {
             return;
         }
         resetMacroSkip();
+        // GTK resets the context when Enter inserts a new line; the sentence started there still capitalizes.
+        const bool keepCapitalize = shouldCapitalize_ && !isFocusOut;
 
         if (bambooEngine_) {
             isPrevSpace_       = false;
@@ -603,6 +605,7 @@ namespace ngosen {
         }
         if (host_->field().frontend != "dbus")
             clearAllBuffers();
+        shouldCapitalize_ = keepCapitalize;
 
         switch (realMode) {
             case ngosen::Mode::Preedit: {
