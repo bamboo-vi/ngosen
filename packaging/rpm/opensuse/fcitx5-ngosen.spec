@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.4.2
+Version:        1.4.3
 Release:        1
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -120,6 +120,9 @@ else
 fi
 
 %changelog
+* Sat Oct 17 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.4.3-1
+- Turning Custom Dictionary off brings back the built-in one on fcitx5 older than 5.1.13.
+
 * Fri Oct 16 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.4.2-1
 - Fix lost letters with Sen mode on Sway and in empty Wayland fields; add arm64 packages and Kali install.
 
