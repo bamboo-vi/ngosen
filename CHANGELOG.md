@@ -10,6 +10,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Thêm
+
+- Trang [lộ trình](ROADMAP.md): những gì Ngó Sen định làm ở các version tới.
+
 ## [1.4.3-1] — 17/10/2026
 
 Bản sửa lỗi: bỏ chọn "Từ điển tuỳ chỉnh" thì quay về từ điển gốc trên Ubuntu 22.04, 24.04 và Debian 12, 13.
