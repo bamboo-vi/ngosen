@@ -12,7 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
-- "Tự viết hoa đầu câu" viết hoa cả chữ đầu dòng sau Enter trong app GTK như xed, đúng như tên tiếng Anh của mục ghi; trước đây app báo reset lúc xuống dòng làm bộ gõ quên mất.
+- "Tự viết hoa đầu câu" viết hoa cả chữ đầu dòng sau Enter trong app GTK như xed, đúng như tên tiếng Anh của mục ghi; trước đây app báo reset lúc xuống dòng làm bộ gõ quên mất (#117).
 
 ## [1.4.3-1] — 17/10/2026
 
