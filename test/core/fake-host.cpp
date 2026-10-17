@@ -41,16 +41,19 @@ namespace ngosen::test {
 
     void FakeLoop::pump(int ms) {
         for (int i = 0; i < ms; ++i) {
-            // A callback may add or destroy timers, so pick one due timer at a time.
+            // A callback may add or destroy timers, so pick one due timer at a time. After a stall
+            // several are due at once; the earliest deadline goes first, as on a real event loop.
             for (bool fired = true; fired;) {
-                fired = false;
+                fired       = false;
+                Entry* next = nullptr;
                 for (Entry* entry : entries_) {
-                    if (entry->armed && entry->deadlineUs <= monotonicUs()) {
-                        entry->armed = false;
-                        entry->onTime(*entry);
-                        fired = true;
-                        break;
-                    }
+                    if (entry->armed && entry->deadlineUs <= monotonicUs() && (!next || entry->deadlineUs < next->deadlineUs))
+                        next = entry;
+                }
+                if (next) {
+                    next->armed = false;
+                    next->onTime(*next);
+                    fired = true;
                 }
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(1));

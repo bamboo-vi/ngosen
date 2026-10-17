@@ -35,6 +35,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Dữ liệu test của cửa sổ cài đặt dùng đường dẫn addon `ngosen` thay cho tên cũ `lotus`; người dùng không
   thấy khác gì (#79).
 - Test tự động của lệnh cài chạy thêm trên Fedora 44 với KDE; người dùng không thấy khác gì (#70).
+- Sửa một test của lõi gõ thỉnh thoảng báo sai khi máy bận; người dùng không thấy khác gì (#116).
 - Đổi tên vài hàm và test còn mang tên chế độ cũ (Uinput, Super Smooth) theo tên Gõ Sen; người dùng không
   thấy khác gì (#69).
 
