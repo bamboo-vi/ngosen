@@ -24,6 +24,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
 - Chuẩn bị kho COPR cho Fedora (`nguyenphi/ngosen`) để sau này `dnf upgrade` tự lên version mới. Chưa bật
   cho người dùng (#133).
+- Kho APT có chữ ký cho Debian, Ubuntu và các bản dựa trên chúng, để lên version mới bằng `apt upgrade` (#PR).
 
 ### Sửa
 
