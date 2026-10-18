@@ -31,7 +31,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Thay đổi
 
 - Test X11 của bản Nix tắt Xvfb khi xong, không còn treo khi chạy ngoài sandbox; người dùng không thấy
-  khác gì (#146).
+  khác gì (#147).
 
 ### Sửa
 
