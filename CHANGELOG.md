@@ -28,6 +28,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
 
+### Tài liệu
+
+- README ghi đúng gói nào dùng lõi Rust (mọi gói trừ Debian 12); lộ trình bỏ mục 1.5.0 vì đã có trong 1.5.1
+  (#129).
+
 ## [1.5.1-1] — 18/10/2026
 
 Version mới: nút "Kiểm tra máy tôi…" trong cửa sổ cài đặt, và lõi gõ Rust cho cả Debian 13 và Ubuntu 22.04.
