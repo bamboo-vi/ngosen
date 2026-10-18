@@ -22,6 +22,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
 - Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
   không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
+- Mỗi version phát hành được tự dựng trên kho COPR `nguyenphi/ngosen` cho Fedora (#PR).
 
 ### Sửa
 

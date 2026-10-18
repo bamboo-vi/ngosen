@@ -1,0 +1,39 @@
+name: Fedora COPR
+
+# Built on publish, not on tag push, so dnf users get a release only after its draft was checked.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  copr:
+    name: Build in nguyenphi/ngosen
+    if: startsWith(github.ref, 'refs/tags/ngosen-') && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    environment: release
+    timeout-minutes: 240
+
+    steps:
+      - name: Install copr-cli
+        run: pipx install copr-cli==2.6
+
+      - name: Write COPR credentials
+        env:
+          COPR_CONFIG: ${{ secrets.COPR_CONFIG }}
+        run: |
+          install -d -m 700 ~/.config
+          printf '%s\n' "$COPR_CONFIG" > ~/.config/copr
+          chmod 600 ~/.config/copr
+
+      # Waits for every chroot, so a failed Fedora build fails this run.
+      - name: Build the tag
+        run: |
+          copr-cli buildscm nguyenphi/ngosen \
+            --clone-url "https://github.com/${GITHUB_REPOSITORY}" \
+            --commit "$GITHUB_REF_NAME" \
+            --spec packaging/rpm/fedora/fcitx5-ngosen.spec \
+            --method make_srpm
