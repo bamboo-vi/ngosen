@@ -14,6 +14,8 @@
 #include "ngosen-strings.h"
 #include "ngosen-utf8.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstddef>
 #include <cstdio>
 #include <string>
@@ -174,7 +176,10 @@ namespace ngosen {
         if (ngosen::key::isBackspace(currentSym) || currentSym == ngosen::key::Return) {
             if (ngosen::key::isBackspace(currentSym)) {
                 hasHistory_ = true;
-                EngineProcessKeyEvent(bambooEngine_.handle(), ngosen::key::BackSpace, 0);
+                if (oldPreBuffer_.empty() && !lastWord_.empty())
+                    reopenLastWord();
+                else
+                    EngineProcessKeyEvent(bambooEngine_.handle(), ngosen::key::BackSpace, 0);
                 ngosen::UniqueCPtr<char> preeditC(EnginePullPreedit(bambooEngine_.handle()));
                 oldPreBuffer_ = (preeditC && (*preeditC.get() != 0)) ? preeditC.get() : "";
             } else {
@@ -231,6 +236,22 @@ namespace ngosen {
         return true;
     }
 
+    void TypingState::reopenLastWord() {
+        // The user may have clicked elsewhere; only an app that reports its text can tell us.
+        if (!typedBeforeCursor(lastWord_)) {
+            lastWord_.clear();
+            return;
+        }
+        ngosen::utf8::eraseLastCodepoint(lastWord_);
+        const auto isBreak = [](char c) { return static_cast<unsigned char>(c) < 0x80 && std::isalnum(static_cast<unsigned char>(c)) == 0; };
+        if (lastWord_.empty() || isBreak(lastWord_.back()))
+            return;
+        const auto        start = std::find_if(lastWord_.rbegin(), lastWord_.rend(), isBreak).base();
+        const std::string word(start, lastWord_.end());
+        lastWord_.clear();
+        EngineRebuildFromText(bambooEngine_.handle(), word.c_str());
+    }
+
     void TypingState::commitWord(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8, const std::string& commitStr) {
         std::string deletedPart;
         std::string addedPart;
@@ -258,6 +279,7 @@ namespace ngosen {
         hasHistory_ = false;
         ResetEngine(bambooEngine_.handle());
         oldPreBuffer_.clear();
+        lastWord_ = commitStr;
     }
 
     void TypingState::replaceFromPreedit(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8) {
@@ -348,6 +370,9 @@ namespace ngosen {
             return;
         settleBeforeKey();
         const uint32_t currentSym = trackCapitalization(keyEvent);
+        // Only plain backspaces typed after a finished commit may reopen the word; anything else changes the text after it.
+        if (!ngosen::key::isBackspace(currentSym) || keyEvent.hasModifier() || is_deleting_.load(std::memory_order_acquire))
+            lastWord_.clear();
         if (handleKeyDuringReplacement(keyEvent, currentSym) || handleDoubledKey(keyEvent, currentSym))
             return;
 
@@ -664,6 +689,7 @@ namespace ngosen {
         }
         resetMacroSkip();
         oldPreBuffer_.clear();
+        lastWord_.clear();
         hasHistory_ = false;
         if (!is_deleting_.load(std::memory_order_acquire)) {
             expected_backspaces_     = 0;

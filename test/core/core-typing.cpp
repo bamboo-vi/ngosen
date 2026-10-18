@@ -176,6 +176,61 @@ namespace {
         check(text == "đơn", "emptied field: commit after focus comes back", text);
     }
 
+    // Backspacing from after a word into it and typing on continues that word; kitty reports no
+    // surrounding text, so the word comes from what we committed.
+    void testBackspaceIntoLastWord(const std::string& frontend, bool surroundingText) {
+        const Field                                                      field = makeField(frontend, surroundingText);
+        const std::string                                                what  = "backspace into last word (" + frontend + (surroundingText ? ", surrounding): " : "): ");
+        const uint32_t                                                   bs    = ngosen::key::BackSpace;
+        const std::vector<std::pair<std::vector<uint32_t>, std::string>> cases{
+            {{'d', 'u', 'y', 'e', 'e', 't', ' ', bs, bs, bs, bs, bs, 'y', 'e', 'e', 'j', 't', ' '}, "duyệt "},
+            {{'t', 'o', 'a', 'n', ' ', bs, bs, 'n', 'f', ' '}, "toàn "},
+            {{'b', 'a', 'n', ' ', bs, 'f', ' '}, "bàn "},
+        };
+        for (const auto& [keys, want] : cases) {
+            const std::string text = ngosen::test::typeInApp(field, {}, keys, std::vector<int>(keys.size(), 100));
+            check(text == want, what + want, text);
+        }
+    }
+
+    // After a click elsewhere the text before the cursor is not our word, so it is not reopened.
+    void testBackspaceAfterMovingAway() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        const std::string   typed = "ban ";
+        for (size_t i = 0; i < typed.size(); ++i) {
+            press(state, static_cast<uint32_t>(typed[i]));
+            host->setSurrounding(typed.substr(0, i + 1), static_cast<unsigned int>(i + 1));
+            state.surroundingUpdated();
+        }
+        host->setSurrounding("xyz", 3);
+        state.surroundingUpdated();
+        press(state, ngosen::key::BackSpace);
+        host->setSurrounding("xy", 2);
+        state.surroundingUpdated();
+        check(!press(state, static_cast<uint32_t>('f')), "backspace after moving away: f goes to the app as a key", "f was taken");
+    }
+
+    // Ctrl+Backspace deletes text we cannot follow without surrounding text.
+    void testBackspaceAfterCtrlBackspace() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        ngosen::TypingState state(&resources, std::make_unique<FakeHost>(loop, makeField("wayland", false)));
+
+        for (const char c : std::string("ban "))
+            press(state, static_cast<uint32_t>(c));
+        FakeKey wordDelete(ngosen::key::BackSpace, false, ngosen::modifier::Ctrl);
+        state.keyEvent(wordDelete);
+        press(state, ngosen::key::BackSpace);
+        check(!press(state, static_cast<uint32_t>('f')), "backspace after ctrl+backspace: f goes to the app as a key", "f was taken");
+    }
+
     // A key typed while the app has not yet applied the backspaces waits and goes out with the
     // replacement in one commit.
     void testKeyDuringReplacement() {
@@ -486,6 +541,10 @@ int main() {
     testKeyDuringReplacement();
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
+    testBackspaceIntoLastWord("wayland", true);
+    testBackspaceIntoLastWord("wayland", false);
+    testBackspaceAfterMovingAway();
+    testBackspaceAfterCtrlBackspace();
     testGtk4DeletesSurrounding();
     testSdlGetsNoForwardedBackspace();
     testTerminalErasesWithCommittedDel();
