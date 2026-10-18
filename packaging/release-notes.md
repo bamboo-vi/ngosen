@@ -1,4 +1,4 @@
-Version 1.5.0 thêm nút "Kiểm tra máy tôi…" ở trang Giới thiệu của cửa sổ cài đặt: xem fcitx5 có chạy không, Ngó Sen có trong danh sách bộ gõ không, các biến môi trường bộ gõ có đúng không, và test một app xem gõ có đúng không. Mỗi lỗi kèm cách sửa, và nút "Báo cáo lỗi…" mở trang báo lỗi đã điền sẵn kết quả. Gói Debian 13 và Ubuntu 22.04 chuyển sang lõi gõ Rust. Version này cũng sửa hai lỗi ở cửa sổ cài đặt: chọn kiểu gõ Custom khi chưa có phím nào thì nay có dòng nhắc, và cảnh báo trùng phím tắt không còn đè lên tên chế độ. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.5.1 thêm nút "Kiểm tra máy tôi…" ở trang Giới thiệu của cửa sổ cài đặt: xem fcitx5 có chạy không, Ngó Sen có trong danh sách bộ gõ không, các biến môi trường bộ gõ có đúng không, và test một app xem gõ có đúng không. Mỗi lỗi kèm cách sửa, và nút "Báo cáo lỗi…" mở trang báo lỗi đã điền sẵn kết quả. Gói Debian 13 và Ubuntu 22.04 chuyển sang lõi gõ Rust. Version này cũng sửa hai lỗi ở cửa sổ cài đặt: chọn kiểu gõ Custom khi chưa có phím nào thì nay có dòng nhắc, và cảnh báo trùng phím tắt không còn đè lên tên chế độ. "Tự viết hoa đầu câu" nay viết hoa cả chữ đầu dòng sau Enter trong app GTK như xed. Version 1.5.0 không được phát hành; 1.5.1 là 1.5.0 thêm bản sửa này. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -30,7 +30,7 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 
 ## Đã test những gì
 
-Version 1.5.0 được gõ thử bằng gói build từ PR #125 trên ba máy ảo: Linux Mint 22.1 (Cinnamon X11, gói `noble`), Ubuntu 26.04 (GNOME Wayland, gói `resolute`) và MX Linux 25 (Xfce X11, gói `trixie`, lần đầu dùng lõi Rust). Trên cả ba, gõ `tieengs vieetj` trong một ô chữ GTK3 ra `tiếng việt`; trên MX gõ thêm `nguwowif vieetj nam` ra `người việt nam`. Trên Ubuntu 26.04, chọn kiểu gõ Custom thì cửa sổ cài đặt hiện dòng nhắc, và "Kiểm tra máy tôi…" báo không có lỗi cài đặt.
+Gói 1.5.0 (PR #125) được gõ thử trên ba máy ảo: Linux Mint 22.1 (Cinnamon X11, gói `noble`), Ubuntu 26.04 (GNOME Wayland, gói `resolute`) và MX Linux 25 (Xfce X11, gói `trixie`, lần đầu dùng lõi Rust). Trên cả ba, gõ `tieengs vieetj` trong một ô chữ GTK3 ra `tiếng việt`; trên MX gõ thêm `nguwowif vieetj nam` ra `người việt nam`. Trên Ubuntu 26.04, chọn kiểu gõ Custom thì cửa sổ cài đặt hiện dòng nhắc, và "Kiểm tra máy tôi…" báo không có lỗi cài đặt. Gói 1.5.1 (PR #127) được gõ thử lại trên Mint và Ubuntu 26.04: bật "Tự viết hoa đầu câu", gõ `ban. tooi`, Enter, `xin` ra `Xin` ở dòng mới (gói 1.5.0 ra `xin`); gõ thường vẫn ra `tiếng việt`.
 
 Người giữ dự án dùng Ngó Sen hằng ngày trên Fedora 44 (KDE Plasma Wayland). Arch và Kali đã được gõ thử ở các version trước. Fedora 43, Ubuntu 22.04, Debian 12 và openSUSE chỉ được build và qua test lúc build, chưa ai gõ thử trên máy thật.
 
