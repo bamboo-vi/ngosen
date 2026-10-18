@@ -205,13 +205,6 @@
     {}
    ],
    [
-    "RetypeAfterSwitch",
-    "Boolean",
-    "Retype text typed before switching on",
-    "True",
-    {}
-   ],
-   [
     "AutoNonVnRestore",
     "Boolean",
     "Auto Restore Invalid Words",

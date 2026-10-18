@@ -62,7 +62,6 @@ SETTINGS_MAP = {
             "DoubleSpaceToPeriod",
             "DoubleHyphenToEmDash",
             "AutoCapitalizeAfterPunctuation",
-            "RetypeAfterSwitch",
         ],
     },
     SettingsCategory.SHORTCUTS: {

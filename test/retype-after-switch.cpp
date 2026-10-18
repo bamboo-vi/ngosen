@@ -58,6 +58,7 @@ int main() {
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Sen");
     config.setValueByPath("InputMethod", "Telex");
+    config.setValueByPath("RetypeAfterSwitch", "True");
     engine.setConfig(config);
     fcitx::InputMethodEntry entry("ngosen", "Ngó Sen", "vi", "ngosen");
 
