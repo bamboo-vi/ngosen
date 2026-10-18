@@ -544,7 +544,6 @@ class DynamicSettingsPage(QWidget):
         # Map internal name back to shortcut key
         internal_to_key = {v: k for k, v in MODE_KEY_TO_INTERNAL_NAME.items()}
 
-        total_height = 0
         for name in order:
             key = internal_to_key.get(name)
             if not key:
@@ -581,19 +580,13 @@ class DynamicSettingsPage(QWidget):
             # Use the existing render logic but into our row
             self._render_string(item_meta, row_layout)
 
-            hint = container.sizeHint()
-            # ONLY use the height from hint, use small width to let QListWidget expand it properly.
-            # Large width hints from QHBoxLayout+Stretch cause overflow.
-            list_item.setSizeHint(QSize(100, hint.height()))
-            total_height += hint.height()
-
             list_widget.addItem(list_item)
             list_widget.setItemWidget(list_item, container)
 
             # Store internal name in the item's data for reordering
             list_item.setData(Qt.UserRole, name)
 
-        list_widget.setFixedHeight(total_height + 2 * list_widget.frameWidth())
+        self._fit_mode_rows(list_widget)
         self.list_widgets.append(list_widget)
         list_widget.model().rowsMoved.connect(lambda *args: self._update_mode_order(list_widget))
 
@@ -607,6 +600,21 @@ class DynamicSettingsPage(QWidget):
         mute(instructions)
         card.content_layout.addWidget(instructions)
         self.form.addRow(label, card)
+
+    @staticmethod
+    def _fit_mode_rows(list_widget):
+        # Item heights are fixed, so a row only grows for its warning when told to.
+        total_height = 0
+        for i in range(list_widget.count()):
+            item = list_widget.item(i)
+            row = list_widget.itemWidget(item)
+            # A warning hidden just now still counts until the layout recomputes.
+            row.layout().activate()
+            height = row.sizeHint().height()
+            # A wide hint from the row's stretch would overflow the list; it widens the row itself.
+            item.setSizeHint(QSize(100, height))
+            total_height += height
+        list_widget.setFixedHeight(total_height + 2 * list_widget.frameWidth())
 
     def _update_mode_order(self, list_widget):
         new_order = []
@@ -667,6 +675,8 @@ class DynamicSettingsPage(QWidget):
                         self.shortcut_warning_labels[key].show()
                     if key in self.shortcut_labels:
                         emphasize(self.shortcut_labels[key])
+        for list_widget in self.list_widgets:
+            self._fit_mode_rows(list_widget)
 
     def load_data(self):
         """Standardized reload method (alias for load_config)."""
