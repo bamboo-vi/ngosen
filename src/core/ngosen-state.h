@@ -180,11 +180,10 @@ namespace ngosen {
         // surrounding text report the commit waits this long for them.
         static constexpr uint64_t ForwardWaitUs = 15000;
 
-        // The field and mode last written to the recorder, to note when either changes.
-        std::string recordedField_;
-        void        recordKey(const ngosen::KeyPress& keyEvent);
+        // Notes the key, after the field and mode when they differ from the last noted ones.
+        void recordKey(const ngosen::KeyPress& keyEvent);
 
-        void        handleKey(ngosen::KeyPress& keyEvent);
+        void handleKey(ngosen::KeyPress& keyEvent);
         // The steps of keyEvent, in order. A true result means the key needs nothing more.
         bool     skipsKey(ngosen::KeyPress& keyEvent);
         void     settleBeforeKey();
