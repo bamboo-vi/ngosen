@@ -93,6 +93,37 @@ namespace {
         check(join(host->commits()) == "['việt ']", "preedit: space commits the word with the space", join(host->commits()));
     }
 
+    // GTK apps reset the input context when Enter inserts a new line; resetAfter says after which key.
+    std::string typeWithAutoCapitalize(const std::vector<uint32_t>& keys, size_t resetAfter = SIZE_MAX, bool focusOut = false) {
+        realMode = ngosen::Mode::Preedit;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.mutableOptions().autoCapitalizeAfterPunctuation = true;
+        auto                owned                                 = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host                                  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        for (size_t i = 0; i < keys.size(); ++i) {
+            press(state, keys[i]);
+            if (i == resetAfter)
+                state.reset(focusOut);
+        }
+        std::string text;
+        for (const auto& commit : host->commits())
+            text += commit;
+        return text + host->preedit();
+    }
+
+    void testAutoCapitalize() {
+        using namespace ngosen::key;
+        const std::string afterPeriod = typeWithAutoCapitalize({'b', 'a', 'n', period, space, 't', 'o', 'o', 'i'});
+        check(afterPeriod == "ban. Tôi", "auto-capitalize: a letter after '. ' is upper case", afterPeriod);
+        const std::vector<uint32_t> enterKeys{'b', 'a', 'n', Return, 't', 'o', 'o', 'i'};
+        const std::string           afterEnter = typeWithAutoCapitalize(enterKeys, 3);
+        check(afterEnter == "banTôi", "auto-capitalize: a letter after Enter is upper case though the app resets", afterEnter);
+        const std::string afterFocusOut = typeWithAutoCapitalize(enterKeys, 3, true);
+        check(afterFocusOut == "bantôi", "auto-capitalize: leaving the field forgets the sentence start", afterFocusOut);
+    }
+
     void testSenForwards(const std::string& frontend, bool surroundingText) {
         realMode = ngosen::Mode::Sen;
         FakeLoop            loop;
@@ -448,6 +479,7 @@ namespace {
 int main() {
     testQuirks();
     testPreeditTelex();
+    testAutoCapitalize();
     testSenForwards("wayland", true);
     testSenForwards("wayland_v2", true);
     testSenForwards("xim", false);
