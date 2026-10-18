@@ -61,8 +61,11 @@ The release is `X.Y.Z-N` (`N` is the packaging revision) with epoch 1, tagged `n
    - each pattern `install.sh` looks for matches exactly one line of `SHA256SUMS`.
 6. The maintainer publishes it:
    `gh release edit ngosen-X.Y.Z-N --repo ngosen/ngosen --draft=false --latest`.
-   Publishing starts the `Fedora COPR` workflow, which builds the tag in `nguyenphi/ngosen`; check that
-   it passes. If it fails, rerun it from the Actions tab, or with `gh workflow run copr.yml --ref <tag>`.
+   Publishing starts two workflows; check that both pass. If one fails, rerun it from the Actions tab,
+   or with `gh workflow run <file> --ref <tag>`:
+   - `Fedora COPR` (`copr.yml`) builds the tag in `nguyenphi/ngosen`;
+   - `APT repository` (`apt.yml`) rebuilds `https://ngosen.github.io/ngosen/apt` from the two newest
+     releases.
 7. Website, after the release is public: add the release entry, update the version and download links,
    and mirror any README changes to the intro, highlights and roadmap. Publishing the site needs the
    maintainer's approval.
