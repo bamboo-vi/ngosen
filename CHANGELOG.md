@@ -28,10 +28,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
 
-## [1.5.0-1] — 18/10/2026
+## [1.5.1-1] — 18/10/2026
 
 Version mới: nút "Kiểm tra máy tôi…" trong cửa sổ cài đặt, và lõi gõ Rust cho cả Debian 13 và Ubuntu 22.04.
-Tải ở [ngosen-1.5.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.0-1).
+1.5.0 không được phát hành; 1.5.1 là 1.5.0 thêm bản sửa #117.
+Tải ở [ngosen-1.5.1-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.1-1).
 
 ### Thêm
 
@@ -60,6 +61,8 @@ Tải ở [ngosen-1.5.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
   không nói gì. Giờ dưới hàng Kiểu gõ có dòng nhắc bật Keymap tuỳ chỉnh và thêm phím ở Phím › Keymap (#123).
 - Ở trang Phím › Phím tắt, khi hai chế độ trùng phím, dòng cảnh báo không còn đè lên tên chế độ và nút phím không
   còn bị co lại; hàng giãn ra cho đủ chỗ (#124).
+- "Tự viết hoa đầu câu" viết hoa cả chữ đầu dòng sau Enter trong app GTK như xed, đúng như tên tiếng Anh của mục
+  ghi; trước đây app báo reset lúc xuống dòng làm bộ gõ quên mất (#117).
 
 ### Tài liệu
 
