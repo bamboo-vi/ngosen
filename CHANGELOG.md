@@ -42,7 +42,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Sửa
 
 - Ở trang Phím › Phím tắt, khi hai chế độ trùng phím, dòng cảnh báo không còn đè lên tên chế độ và nút phím không
-  còn bị co lại; hàng giãn ra cho đủ chỗ.
+  còn bị co lại; hàng giãn ra cho đủ chỗ (#124).
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
 
