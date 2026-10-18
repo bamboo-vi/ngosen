@@ -11,8 +11,6 @@ mới có số version, và từ 1.6.0 trở đi thứ tự có thể đổi. Mu
 
 - Nút "Kiểm tra máy tôi…" trong cửa sổ cài đặt: xem fcitx5 và Ngó Sen đã cài đúng chưa, lỗi nào cũng kèm
   cách sửa, và test được một app gõ đúng hay sai (#88, #90).
-- Gộp "Kiểm tra chính tả" vào "Tự khôi phục từ gõ sai", vì nó chỉ có tác dụng khi Tự khôi phục đang bật
-  (#112).
 
 ## 1.6.0
 
@@ -24,6 +22,8 @@ mới có số version, và từ 1.6.0 trở đi thứ tự có thể đổi. Mu
 ## 1.7.0
 
 - Làm lại cách chèn emoji (#110).
+- Gộp "Kiểm tra chính tả" vào "Tự khôi phục từ gõ sai", vì nó chỉ có tác dụng khi Tự khôi phục đang bật
+  (#112).
 
 ## Sau đó
 
