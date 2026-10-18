@@ -398,11 +398,22 @@ class DynamicSettingsPage(QWidget):
         example.setObjectName("TypingExample")
         example.setFont(brand.typed_font(16))
         layout.addWidget(example)
+        # Custom takes its keys only from the Keymap tab, so without one it types no marks.
+        custom_hint = HintLabel(
+            _("Custom has no keys yet: turn on Custom Keymap and add keys in Keys › Keymap.")
+        )
+        custom_hint.setObjectName("CustomKeymapHint")
+        mute(custom_hint)
+        layout.addWidget(custom_hint)
+        has_keymap = str(
+            self.current_values.get("EnableCustomKeymap", "False")
+        ).lower() == "true" and bool(self.dbus.get_sub_config_list("custom_keymap", "CustomKeymap"))
 
         def show_example():
             text = TYPING_EXAMPLES.get(combo.currentData(), "")
             example.setText(text)
             example.setVisible(bool(text))
+            custom_hint.setVisible(combo.currentData() == "Custom" and not has_keymap)
 
         combo.currentIndexChanged.connect(lambda _index: show_example())
         show_example()
