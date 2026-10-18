@@ -65,8 +65,9 @@ The release is `X.Y.Z-N` (`N` is the packaging revision) with epoch 1, tagged `n
    or with `gh workflow run <file> --ref <tag>`:
    - `Fedora COPR` (`copr.yml`) builds the tag in `nguyenphi/ngosen`;
    - `Package repositories` (`package-repos.yml`) rebuilds the APT repository
-     (`https://ngosen.github.io/ngosen/apt`, two newest releases) and the pacman repository
-     (`https://ngosen.github.io/ngosen/arch`, newest release) on GitHub Pages.
+     (`https://ngosen.github.io/ngosen/apt`, two newest releases), the pacman repository
+     (`https://ngosen.github.io/ngosen/arch`, newest release) and the openSUSE repository
+     (`https://ngosen.github.io/ngosen/opensuse`, two newest releases) on GitHub Pages.
 7. Website, after the release is public: add the release entry, update the version and download links,
    and mirror any README changes to the intro, highlights and roadmap. Publishing the site needs the
    maintainer's approval.
