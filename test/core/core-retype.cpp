@@ -297,8 +297,39 @@ namespace {
 
 } // namespace
 
+namespace {
+
+    // The option is read when keys are noted and again on switching on.
+    std::string offerWithOption(bool whileTyping, bool onSwitch) {
+        realMode = Mode::Off;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        resources.mutableOptions().retypeAfterSwitch = whileTyping;
+        noteWhileOff(state, "tieengs vieetj");
+        resources.mutableOptions().retypeAfterSwitch = onSwitch;
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        loop.pump(150);
+        return host->status().empty() && !host->candidates() ? "(no offer)" : "(offered)";
+    }
+
+    void testOptionOff() {
+        auto offer = offerWithOption(true, false);
+        check(offer == "(no offer)", "turning the option off drops what was typed", offer);
+        offer = offerWithOption(false, true);
+        check(offer == "(no offer)", "keys typed with the option off are not kept", offer);
+        offer = offerWithOption(true, true);
+        check(offer == "(offered)", "with the option on the text is retyped", offer);
+    }
+
+} // namespace
+
 int main() {
     testOffer();
+    testOptionOff();
     testFocusInDoesNotOffer();
     testRetypeInApp("wayland", true, Mode::Sen);
     testRetypeInApp("xim", false, Mode::Sen);

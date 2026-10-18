@@ -39,6 +39,7 @@ namespace ngosen {
         bool         autoCapitalizeAfterPunctuation = false;
         bool         doubleSpaceToPeriod            = false;
         bool         doubleHyphenToEmDash           = false;
+        bool         retypeAfterSwitch              = true;
 
         // How old text is replaced in the app.
         bool messengerSelectOvertype          = false;

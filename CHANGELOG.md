@@ -27,6 +27,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   khác thì bỏ qua (#80).
 - Cứu chữ không ghi nhớ gì trong ô mật khẩu, quên đoạn đã gõ khi bấm chuột, Enter, phím mũi tên hay chuyển
   ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
+- Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
+  không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
 
 ### Thay đổi
 
@@ -41,6 +43,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Chọn kiểu gõ Custom khi chưa bật "Keymap tuỳ chỉnh" hay chưa có phím nào thì gõ không ra dấu mà cửa sổ cài đặt
+  không nói gì. Giờ dưới hàng Kiểu gõ có dòng nhắc bật Keymap tuỳ chỉnh và thêm phím ở Phím › Keymap (#123).
 - Ở trang Phím › Phím tắt, khi hai chế độ trùng phím, dòng cảnh báo không còn đè lên tên chế độ và nút phím không
   còn bị co lại; hàng giãn ra cho đủ chỗ (#124).
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
