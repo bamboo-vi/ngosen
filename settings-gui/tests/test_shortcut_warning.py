@@ -45,5 +45,33 @@ class DuplicateShortcutTest(unittest.TestCase):
         self.assertEqual(len(heights), 1, "every row is back to one line")
 
 
+class RowWidthTest(unittest.TestCase):
+    def setUp(self):
+        self.page = DynamicSettingsPage(FakeDBusHandler(), category=SettingsCategory.SHORTCUTS)
+        self.page.resize(600, 900)
+        self.page.show()
+        app.processEvents()
+        self.addCleanup(self.page.close)
+        self.rows = self.page.findChild(QListWidget)
+
+    def resize_to(self, width):
+        self.page.resize(width, 900)
+        app.processEvents()
+
+    def assert_rows_match_the_list(self):
+        visible = self.rows.viewport().width()
+        for i in range(self.rows.count()):
+            self.assertEqual(self.rows.itemWidget(self.rows.item(i)).width(), visible, f"row {i}")
+
+    def test_rows_widen_with_the_window(self):
+        self.resize_to(1100)
+        self.assert_rows_match_the_list()
+
+    def test_rows_narrow_with_the_window(self):
+        self.resize_to(1400)
+        self.resize_to(700)
+        self.assert_rows_match_the_list()
+
+
 if __name__ == "__main__":
     unittest.main()
