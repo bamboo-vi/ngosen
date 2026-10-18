@@ -291,6 +291,22 @@ namespace {
         check(has(log, "\tcommit\t\"ê\"\n"), "recorder: notes the commit", log);
     }
 
+    // Every field shares one recorder, so coming back to a field must note it again.
+    void testRecorderNotesFieldSwitch() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        ngosen::TypingState terminal(&resources, std::make_unique<FakeHost>(loop, makeField("wayland", false, "kitty")));
+        ngosen::TypingState chat(&resources, std::make_unique<FakeHost>(loop, makeField("ibus", false, "zalo")));
+
+        press(terminal, static_cast<uint32_t>('a'));
+        press(chat, static_cast<uint32_t>('b'));
+        press(terminal, static_cast<uint32_t>('c'));
+        const std::string log  = resources.recorder().dump();
+        const auto        last = log.rfind("\tfield\t");
+        check(last != std::string::npos && has(log.substr(last), "program=kitty") && has(log.substr(last), "0x0063 c"), "recorder: notes the field again on coming back", log);
+    }
+
     void testRecorderHidesPasswords() {
         realMode = ngosen::Mode::Sen;
         FakeLoop      loop;
@@ -490,6 +506,7 @@ int main() {
     testSdlGetsNoForwardedBackspace();
     testTerminalErasesWithCommittedDel();
     testRecorderKeepsTheReplacement();
+    testRecorderNotesFieldSwitch();
     testRecorderHidesPasswords();
     testRecorderLimits();
     testFocusBounce();

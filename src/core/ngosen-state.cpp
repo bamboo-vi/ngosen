@@ -314,10 +314,7 @@ namespace ngosen {
         std::string field = "frontend=" + f.frontend + " program=" + f.program + " surrounding=" + (f.surroundingText ? "1" : "0") + " preedit=" + (f.preedit ? "1" : "0") +
             (f.password ? " password=1" : "") + " mode=" + modeNames[static_cast<int>(realMode.load())];
         auto& recorder = engine_->recorder();
-        if (field != recordedField_) {
-            recorder.add("field", field);
-            recordedField_ = std::move(field);
-        }
+        recorder.addField(field);
         if (f.password) {
             recorder.add("key", "hidden");
             return;
