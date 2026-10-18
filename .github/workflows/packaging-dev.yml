@@ -2,10 +2,9 @@ name: Test Packaging Build
 
 on:
   push:
-    # Tags and next are built by the release and next pre-release workflows, which call this one.
-    branches:
-      - '**'
-      - '!next'
+    # Tags and next are built by the release and next pre-release workflows, which call this one;
+    # pull request branches run through pull_request only.
+    branches: [main, patch]
   pull_request:
   workflow_call:
 

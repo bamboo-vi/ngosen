@@ -1,6 +1,9 @@
 name: CI
 on:
+  # Pull request branches run through pull_request only; a push run would test the same commit twice.
   push:
+    branches: [main, next, patch]
+    tags: ['*']
   pull_request:
 
 permissions:
