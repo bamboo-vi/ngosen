@@ -28,6 +28,16 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
 
+## [1.5.2-1] — 18/10/2026
+
+Sửa lỗi cửa sổ cài đặt: nút phím ở trang Phím › Phím tắt bị cắt mép hoặc mất khi phóng to cửa sổ.
+Tải ở [ngosen-1.5.2-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.2-1).
+
+### Sửa
+
+- Ở trang Phím › Phím tắt, nút phím ở cuối mỗi hàng chế độ không còn bị cắt mép, và không biến mất khi phóng to
+  cửa sổ (#128).
+
 ### Tài liệu
 
 - README ghi đúng gói nào dùng lõi Rust (mọi gói trừ Debian 12); lộ trình bỏ mục 1.5.0 vì đã có trong 1.5.1

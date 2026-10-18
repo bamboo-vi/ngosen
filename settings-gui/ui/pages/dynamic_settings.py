@@ -9,7 +9,7 @@ from enum import Enum
 
 from core.dbus_handler import NgoSenDBusHandler
 from i18n import N_, _
-from qtpy.QtCore import QSize, Qt, QTimer
+from qtpy.QtCore import QEvent, QSize, Qt, QTimer
 from qtpy.QtGui import QColor, QIcon, QPalette
 from qtpy.QtWidgets import (
     QButtonGroup,
@@ -312,6 +312,14 @@ class DynamicSettingsPage(QWidget):
         super().resizeEvent(event)
         self._update_wrap_policy()
 
+    def eventFilter(self, watched, event):
+        # The list keeps each row's width from when the row was laid out, so a resized window cuts off the key buttons.
+        if event.type() == QEvent.Resize:
+            for list_widget in self.list_widgets:
+                if list_widget.viewport() is watched:
+                    self._fit_mode_rows(list_widget)
+        return super().eventFilter(watched, event)
+
     def _update_wrap_policy(self):
         if getattr(self, "form", None) is None:
             return
@@ -586,6 +594,7 @@ class DynamicSettingsPage(QWidget):
             list_item.setData(Qt.UserRole, name)
 
         self._fit_mode_rows(list_widget)
+        list_widget.viewport().installEventFilter(self)
         self.list_widgets.append(list_widget)
         list_widget.model().rowsMoved.connect(lambda *args: self._update_mode_order(list_widget))
 
@@ -610,8 +619,7 @@ class DynamicSettingsPage(QWidget):
             # A warning hidden just now still counts until the layout recomputes.
             row.layout().activate()
             height = row.sizeHint().height()
-            # A wide hint from the row's stretch would overflow the list; it widens the row itself.
-            item.setSizeHint(QSize(100, height))
+            item.setSizeHint(QSize(list_widget.viewport().width(), height))
             total_height += height
         list_widget.setFixedHeight(total_height + 2 * list_widget.frameWidth())
 
