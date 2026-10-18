@@ -27,6 +27,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
+- "Tự viết hoa đầu câu" viết hoa cả chữ đầu dòng sau Enter trong app GTK như xed, đúng như tên tiếng Anh của mục ghi; trước đây app báo reset lúc xuống dòng làm bộ gõ quên mất (#117).
 
 ## [1.5.0-1] — 18/10/2026
 
