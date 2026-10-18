@@ -68,6 +68,7 @@ Tải ở [ngosen-1.5.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 - CHANGELOG và README viết "version 1.2" thay cho "bản 1.2"; CHANGELOG dùng file, repo, build, uinput server, forward key như README (#103).
 - Hướng dẫn đóng góp có thêm nhánh `patch`: PR sửa lỗi của version đang phát hành gửi vào đó, tính năng vẫn gửi
   vào `next` (#101).
+- Trang [lộ trình](ROADMAP.md): những gì Ngó Sen định làm ở các version tới (#120, #121).
 
 ## [1.4.3-1] — 17/10/2026
 
