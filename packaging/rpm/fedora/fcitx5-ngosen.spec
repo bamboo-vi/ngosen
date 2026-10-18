@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.4.3
+Version:        1.5.0
 Release:        1%{?dist}
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -120,6 +120,9 @@ else
 fi
 
 %changelog
+* Sun Oct 18 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.0-1
+- Add a check of the machine's fcitx5 setup to the settings window; the Rust core in every package but Debian 12.
+
 * Sat Oct 17 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.4.3-1
 - Turning Custom Dictionary off brings back the built-in one on fcitx5 older than 5.1.13.
 

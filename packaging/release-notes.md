@@ -1,4 +1,4 @@
-Version 1.4.3 sửa một lỗi: bỏ chọn "Từ điển tuỳ chỉnh" thì Ngó Sen quay về từ điển gốc. Trước đây, trên distro dùng fcitx5 cũ hơn 5.1.13 (Ubuntu 22.04, 24.04, Linux Mint 22, Debian 12, 13, MX Linux 25), từ thêm vào từ điển tuỳ chỉnh vẫn được giữ dấu sau khi bỏ chọn. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.5.0 thêm nút "Kiểm tra máy tôi…" ở trang Giới thiệu của cửa sổ cài đặt: xem fcitx5 có chạy không, Ngó Sen có trong danh sách bộ gõ không, các biến môi trường bộ gõ có đúng không, và test một app xem gõ có đúng không. Mỗi lỗi kèm cách sửa, và nút "Báo cáo lỗi…" mở trang báo lỗi đã điền sẵn kết quả. Gói Debian 13 và Ubuntu 22.04 chuyển sang lõi gõ Rust. Version này cũng sửa hai lỗi ở cửa sổ cài đặt: chọn kiểu gõ Custom khi chưa có phím nào thì nay có dòng nhắc, và cảnh báo trùng phím tắt không còn đè lên tên chế độ. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -30,8 +30,6 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 
 ## Đã test những gì
 
-Version 1.4.3 được gõ thử bằng gói `…_noble_amd64.deb` build từ PR #111, trên máy ảo Linux Mint 22.1 (Cinnamon X11, fcitx5 5.1.7). Từ điển tuỳ chỉnh có thêm `kạ`, mỗi lần đổi ô thì khởi động lại fcitx5: bật "Từ điển tuỳ chỉnh" thì `kaj` ra `kạ` 2/2 lần, bỏ chọn thì ra `kaj` 2/2 lần. Cùng các bước đó với 1.4.2 thì cả hai lần đều ra `kạ`.
+TODO
 
-Người giữ dự án dùng Ngó Sen hằng ngày trên Fedora 44 (KDE Plasma Wayland). Ubuntu 26.04, Debian 13, Arch và Kali đã được gõ thử ở các version trước. Fedora 43, Ubuntu 22.04, Debian 12 và openSUSE chỉ được build và qua test lúc build, chưa ai gõ thử trên máy thật.
-
-Lõi gõ Rust có trong gói Fedora, Arch, openSUSE và Ubuntu 24.04 trở lên. Debian 12, 13 và Ubuntu 22.04 dùng lõi Go, vì Rust có sẵn ở đó quá cũ. Phần sửa ở version này nằm ngoài lõi gõ nên có trong cả hai.
+Lõi gõ Rust nay có trong mọi gói trừ Debian 12, vẫn dùng lõi Go vì Rust có sẵn ở đó quá cũ.
