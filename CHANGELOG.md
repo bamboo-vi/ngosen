@@ -27,6 +27,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
+- Ở trang Phím › Phím tắt, nút phím ở cuối mỗi hàng chế độ không còn bị cắt mép, và không biến mất khi phóng to
+  cửa sổ (#128).
 
 ## [1.5.1-1] — 18/10/2026
 
