@@ -35,6 +35,30 @@ class TypingMarksTest(unittest.TestCase):
         combo.setCurrentIndex(combo.findData("VNI"))
         self.assertEqual(example.text(), "vie65t → việt")
 
+    def custom_hint(self, page):
+        hint = page.findChild(QLabel, "CustomKeymapHint")
+        return hint is not None and not hint.isHidden()
+
+    def test_custom_without_keymap_says_where_to_set_keys(self):
+        page = DynamicSettingsPage(
+            FakeDBusHandler({"InputMethod": "Custom"}), category=SettingsCategory.TYPING
+        )
+        self.assertTrue(self.custom_hint(page))
+
+    def test_custom_hint_follows_the_input_method(self):
+        self.assertFalse(self.custom_hint(self.page))
+        combo = next(c for c in self.page.findChildren(QComboBox) if c.findData("Custom") >= 0)
+        combo.setCurrentIndex(combo.findData("Custom"))
+        self.assertTrue(self.custom_hint(self.page))
+
+    def test_custom_with_a_keymap_has_no_hint(self):
+        dbus = FakeDBusHandler(
+            {"InputMethod": "Custom", "EnableCustomKeymap": "True"},
+            {"custom_keymap": [{"Key": "q", "Value": "XoaDauThanh"}]},
+        )
+        page = DynamicSettingsPage(dbus, category=SettingsCategory.TYPING)
+        self.assertFalse(self.custom_hint(page))
+
     def test_typed_text_uses_xanh_mono(self):
         example = self.page.findChild(QLabel, "TypingExample")
         try_it = self.page.findChildren(QLineEdit)[-1]

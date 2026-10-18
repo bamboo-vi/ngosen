@@ -986,6 +986,10 @@ msgstr ""
 msgid "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
 msgstr ""
 
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Custom has no keys yet: turn on Custom Keymap and add keys in Keys › Keymap."
+msgstr ""
+
 #: settings-gui/ui/main_window.py
 msgid "&Defaults"
 msgstr ""
