@@ -1,6 +1,6 @@
 #!/bin/bash
 # Imports the repository signing subkey from $APT_SIGNING_KEY (the release environment secret).
-# The APT and pacman repositories are signed with the same key.
+# The APT, pacman and openSUSE repositories are signed with the same key.
 set -euo pipefail
 
 if [ -z "${APT_SIGNING_KEY:-}" ]; then
