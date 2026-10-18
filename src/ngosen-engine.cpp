@@ -469,6 +469,7 @@ namespace fcitx {
         o.autoCapitalizeAfterPunctuation   = config_.autoCapitalizeAfterPunctuation.value();
         o.doubleSpaceToPeriod              = config_.doubleSpaceToPeriod.value();
         o.doubleHyphenToEmDash             = config_.doubleHyphenToEmDash.value();
+        o.retypeAfterSwitch                = config_.retypeAfterSwitch.value();
         o.messengerSelectOvertype          = config_.messengerSelectOvertype.value();
         o.waitSurroundingEvent             = config_.waitSurroundingEvent.value();
         o.waitSurroundingMinPerKeyMs       = config_.waitSurroundingMinPerKeyMs.value();

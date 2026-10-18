@@ -155,6 +155,10 @@ msgstr "Hai dấu cách thành dấu chấm (thử nghiệm)"
 msgid "Double Hyphen to Em-Dash (--)"
 msgstr "Hai gạch nối thành gạch dài"
 
+#: src/ngosen-config.h:239
+msgid "Retype text typed before switching on"
+msgstr "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt"
+
 #: src/ngosen-config.h:239 src/ngosen-engine.cpp:246
 msgid "Auto Restore Invalid Words"
 msgstr "Tự khôi phục từ gõ sai"

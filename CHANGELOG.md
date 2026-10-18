@@ -27,6 +27,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   khác thì bỏ qua (#80).
 - Cứu chữ không ghi nhớ gì trong ô mật khẩu, quên đoạn đã gõ khi bấm chuột, Enter, phím mũi tên hay chuyển
   ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
+- Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
+  không ghi nhớ phím gõ lúc chưa bật tiếng Việt.
 
 ### Thay đổi
 
