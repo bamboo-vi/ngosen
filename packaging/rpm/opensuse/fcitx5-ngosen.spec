@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.5.1
+Version:        1.5.2
 Release:        1
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -120,6 +120,9 @@ else
 fi
 
 %changelog
+* Sun Oct 18 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.2-1
+- Keep the mode key buttons on the Shortcuts page inside the list when the window is resized (#128).
+
 * Sun Oct 18 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.1-1
 - Same as 1.5.0, which was not released, plus the capitalize-after-Enter fix (#117).
 
