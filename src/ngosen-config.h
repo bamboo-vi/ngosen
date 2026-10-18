@@ -227,15 +227,15 @@ namespace fcitx {
         Option<bool>                                                                           capitalizeMacro{this, "CapitalizeMacro", _("Capitalize Macro"), true};
         OptionWithAnnotation<MacroSkipTriggerModifier, MacroSkipTriggerModifierI18NAnnotation> macroSkipTriggerModifier{
             this, "MacroSkipTriggerModifier", _("Modifier to Skip Macro for Next Word"), MacroSkipTriggerModifier::Disabled};
-        Option<bool>       autoCapitalizeAfterPunctuation{this, "AutoCapitalizeAfterPunctuation", _("Auto capitalize after sentence-ending punctuation (. ! ? Enter)"), false};
-        Option<bool>       doubleSpaceToPeriod{this, "DoubleSpaceToPeriod", _("Double Space to Period"), false};
-        Option<bool>       doubleHyphenToEmDash{this, "DoubleHyphenToEmDash", _("Double Hyphen to Em-Dash (--)"), false};
-        HiddenOption<bool> retypeAfterSwitch{this, "RetypeAfterSwitch", _("Retype text typed before switching on"), false};
-        Option<bool>       autoNonVnRestore{this, "AutoNonVnRestore", _("Auto Restore Invalid Words"), true};
-        Option<bool>       modernStyle{this, "ModernStyle", _("Use oà, uý (Instead Of òa, úy)"), true};
-        Option<bool>       freeMarking{this, "FreeMarking", _("Allow Type With More Freedom"), true};
-        Option<bool>       ddFreeStyle{this, "DdFreeStyle", _("Allow dd To Produce đ When Auto Restore Invalid Words Is On"), true};
-        Option<bool>       backspaceRemovesTone{this, "BackspaceRemovesTone", _("Backspace Removes the Tone Mark"), false};
+        Option<bool> autoCapitalizeAfterPunctuation{this, "AutoCapitalizeAfterPunctuation", _("Auto capitalize after sentence-ending punctuation (. ! ? Enter)"), false};
+        Option<bool> doubleSpaceToPeriod{this, "DoubleSpaceToPeriod", _("Double Space to Period"), false};
+        Option<bool> doubleHyphenToEmDash{this, "DoubleHyphenToEmDash", _("Double Hyphen to Em-Dash (--)"), false};
+        Option<bool> retypeAfterSwitch{this, "RetypeAfterSwitch", _("Retype text typed before switching on"), true};
+        Option<bool> autoNonVnRestore{this, "AutoNonVnRestore", _("Auto Restore Invalid Words"), true};
+        Option<bool> modernStyle{this, "ModernStyle", _("Use oà, uý (Instead Of òa, úy)"), true};
+        Option<bool> freeMarking{this, "FreeMarking", _("Allow Type With More Freedom"), true};
+        Option<bool> ddFreeStyle{this, "DdFreeStyle", _("Allow dd To Produce đ When Auto Restore Invalid Words Is On"), true};
+        Option<bool> backspaceRemovesTone{this, "BackspaceRemovesTone", _("Backspace Removes the Tone Mark"), false};
         // Timing for deleting through the app. Hidden from the config window; tests and bug reports
         // still set them in ngosen.conf.
         HiddenOption<bool> waitSurroundingEvent{this, "WaitSurroundingEvent", _("Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping"),
