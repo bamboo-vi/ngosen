@@ -14,8 +14,10 @@ repository, so it comes last in both lists; its own rules are in that repository
 
 ## Branches and pace
 
-- `next` holds features. A feature release (`X.Y.0`) is cut from `next` after the change has run as the
-  `next-build` pre-release for at least a week; aim for one main feature every two to three weeks.
+- `next` holds features. A feature release (`X.Y.0`) carries one main feature, so a finished feature
+  whose turn has not come is turned off on the release branch. Few people run the `next-build`
+  pre-release, so instead of waiting on it, the packages from the release PR are typed on an X11 and a
+  Wayland test machine before the release.
 - `patch` holds fixes for the current release. A bug-fix release (`X.Y.Z+1`) is cut from `patch` when a
   serious bug (lost text, hangs, no typing) is fixed; minor fixes wait for the next release.
 - After a bug-fix release, merge `main` into `next` through a PR. After a feature release, fast-forward
