@@ -154,6 +154,10 @@ msgstr ""
 msgid "Double Hyphen to Em-Dash (--)"
 msgstr ""
 
+#: src/ngosen-config.h:239
+msgid "Retype text typed before switching on"
+msgstr ""
+
 #: src/ngosen-config.h:239 src/ngosen-engine.cpp:246
 msgid "Auto Restore Invalid Words"
 msgstr ""

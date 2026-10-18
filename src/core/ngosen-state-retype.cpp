@@ -35,6 +35,10 @@ namespace ngosen {
     void TypingState::noteKeyWhileOff(const ngosen::KeyPress& key) {
         if (key.isRelease() || key.isModifier())
             return;
+        if (!engine_->options().retypeAfterSwitch) {
+            typedWhileOff_.clear();
+            return;
+        }
         // A click moved the cursor, so the text before it is no longer what was typed.
         if (g_mouse_clicked.exchange(false, std::memory_order_acq_rel))
             typedWhileOff_.clear();
@@ -122,7 +126,7 @@ namespace ngosen {
         const std::string typed = std::move(typedWhileOff_);
         typedWhileOff_.clear();
         retype_.reset();
-        if (!bambooEngine_ || typed.empty() || (realMode != ngosen::Mode::Sen && realMode != ngosen::Mode::Preedit))
+        if (!bambooEngine_ || !engine_->options().retypeAfterSwitch || typed.empty() || (realMode != ngosen::Mode::Sen && realMode != ngosen::Mode::Preedit))
             return;
         // Without either, Tab could not remove what was typed.
         if (!canSendBackspaces() && !host_->field().surroundingText)
