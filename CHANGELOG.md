@@ -22,7 +22,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
 - Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
   không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
-- Mỗi version phát hành được tự dựng trên kho COPR `nguyenphi/ngosen` cho Fedora (#134).
+- Mỗi version phát hành được tự dựng trên kho COPR `nguyenphi/ngosen`, để người dùng Fedora lên version mới bằng
+  `dnf upgrade`: bật kho bằng `sudo dnf copr enable nguyenphi/ngosen` (#133, #134).
 
 ### Sửa
 
