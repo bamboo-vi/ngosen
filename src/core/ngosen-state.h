@@ -140,6 +140,7 @@ namespace ngosen {
         ngosen::EngineResources* engine_;
         CGoObject                bambooEngine_;
         std::string              oldPreBuffer_;
+        std::string              lastWord_; ///< The word and break we last committed, while only backspaces follow
         bool                     hasHistory_              = false;
         int                      expected_backspaces_     = 0;
         int                      current_backspace_count_ = 0;
@@ -387,6 +388,8 @@ namespace ngosen {
         void handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         // Backspace on a word with a tone mark: take off only the mark. False leaves the key as is.
         bool removeToneMark(ngosen::KeyPress& keyEvent);
+        // Backspace from after lastWord_ into it: the engine takes up what is left of that word.
+        void reopenLastWord();
         // The engine finished a word: send what differs from the text already typed.
         void commitWord(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8, const std::string& commitStr);
         // The word is still open: bring the app's text in line with the new preedit.
