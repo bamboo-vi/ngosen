@@ -12,11 +12,24 @@ repository, so it comes last in both lists; its own rules are in that repository
 - Website: only when users can see the change or the roadmap moved. Unreleased changes are not announced as
   a new version.
 
+## Branches and pace
+
+- `next` holds features. A feature release (`X.Y.0`) carries one main feature, so a finished feature
+  whose turn has not come is turned off on the release branch. Few people run the `next-build`
+  pre-release, so instead of waiting on it, the packages from the release PR are typed on an X11 and a
+  Wayland test machine before the release.
+- `patch` holds fixes for the current release. A bug-fix release (`X.Y.Z+1`) is cut from `patch` when a
+  serious bug (lost text, hangs, no typing) is fixed; minor fixes wait for the next release.
+- After a bug-fix release, merge `main` into `next` through a PR. After a feature release, fast-forward
+  `patch` to `main`:
+  `gh api -X PATCH repos/ngosen/ngosen/git/refs/heads/patch -f sha=<merge commit on main>`.
+
 ## Releasing a version
 
 The release is `X.Y.Z-N` (`N` is the packaging revision) with epoch 1, tagged `ngosen-X.Y.Z-N`.
 
-1. On a `release/X.Y.Z` branch, set the version everywhere:
+1. On a `release/X.Y.Z` branch made from `next` (feature release) or `patch` (bug-fix release), set the
+   version everywhere:
    - `CMakeLists.txt` (`project(... VERSION X.Y.Z)`)
    - `packaging/arch/PKGBUILD` (`pkgver`, `pkgrel`)
    - `packaging/rpm/fedora/fcitx5-ngosen.spec` and `packaging/rpm/opensuse/fcitx5-ngosen.spec` (`Version`,

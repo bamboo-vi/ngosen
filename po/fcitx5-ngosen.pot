@@ -154,6 +154,10 @@ msgstr ""
 msgid "Double Hyphen to Em-Dash (--)"
 msgstr ""
 
+#: src/ngosen-config.h:239
+msgid "Retype text typed before switching on"
+msgstr ""
+
 #: src/ngosen-config.h:239 src/ngosen-engine.cpp:246
 msgid "Auto Restore Invalid Words"
 msgstr ""
@@ -286,6 +290,14 @@ msgstr ""
 msgid "Page "
 msgstr ""
 
+#: src/core/ngosen-state-retype.cpp
+msgid "Tab: retype in Vietnamese, Esc: keep"
+msgstr ""
+
+#: src/core/ngosen-state-retype.cpp
+msgid "Esc: put back what was typed"
+msgstr ""
+
 #: io.github.ngosen.NgoSen.metainfo.xml.in.in:7
 msgid "Ngó Sen"
 msgstr ""
@@ -320,9 +332,6 @@ msgstr ""
 msgid "Request Feature"
 msgstr ""
 
-#: settings-gui/ui/pages/about.py:136
-msgid "Export Debug Logs"
-msgstr ""
 
 #: settings-gui/ui/pages/about.py:148
 msgid "Developed by Nguyen Phi"
@@ -337,18 +346,12 @@ msgstr ""
 msgid "Licensed under the GNU General Public License v3.0"
 msgstr ""
 
-#: settings-gui/ui/pages/about.py:195
-msgid "Save Debug Log"
-msgstr ""
 
 #: settings-gui/ui/pages/about.py:248 settings-gui/ui/pages/backup.py:169
 #: settings-gui/ui/pages/backup.py:290 settings-gui/ui/main_window.py:307
 msgid "Success"
 msgstr ""
 
-#: settings-gui/ui/pages/about.py:248
-msgid "Debug logs exported to:\n"
-msgstr ""
 
 #: settings-gui/ui/pages/about.py:251 settings-gui/ui/pages/backup.py:172
 #: settings-gui/ui/pages/backup.py:222 settings-gui/ui/pages/backup.py:282
@@ -357,9 +360,6 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: settings-gui/ui/pages/about.py:251
-msgid "Failed to export logs:\n"
-msgstr ""
 
 #: settings-gui/ui/pages/backup.py:53
 msgid "Backup & Restore"
@@ -990,6 +990,10 @@ msgstr ""
 msgid "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
 msgstr ""
 
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Custom has no keys yet: turn on Custom Keymap and add keys in Keys › Keymap."
+msgstr ""
+
 #: settings-gui/ui/main_window.py
 msgid "&Defaults"
 msgstr ""
@@ -1032,4 +1036,151 @@ msgstr ""
 
 #: settings-gui/ui/main_window.py
 msgid "No settings found"
+msgstr ""
+
+#: settings-gui/ui/pages/about.py
+msgid "Check my machine…"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Check my machine"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "How fcitx5 is set up on this machine. Nothing is sent until you send a bug report, and it lists the apps below, so read it before sending."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Check again"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Copy result"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Report bug…"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "Apps connected to fcitx5: {}"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "No setup problem found"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+#, python-brace-format
+msgid "Set {} in the session environment."
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "fcitx5 is not running"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Start Fcitx 5 from the application menu, or run fcitx5 -d."
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Ngó Sen is not in the fcitx5 input method list"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Open Fcitx 5 Configuration and add Ngó Sen under Input Method."
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Older X11 apps have no input method"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "IBus is running next to fcitx5"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Two input methods compete for keys; stop IBus from starting at login."
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Qt apps have no input method"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Chrome and older GTK apps may have no input method"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "GTK apps have no input method"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "KDE does not start fcitx5 as its virtual keyboard"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "System Settings → Keyboard → Virtual Keyboard: choose Fcitx 5."
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "GTK_IM_MODULE or QT_IM_MODULE is set on KDE Wayland"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "KDE Wayland does not need them, and the candidate window may flicker."
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Qt 5 apps have no input method"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Test an app"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "Open the app, switch to Ngó Sen and type “{sample}” ({telex} in Telex). Then choose “Save typing log” in the Ngó Sen menu and read the log here."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "Read typing log"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "It typed right"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "It typed wrong"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} got the sample right."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} got the sample wrong."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "{app} does not tell Ngó Sen its text. Did the sample come out right?"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+#, python-brace-format
+msgid "The app shows: {}"
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "No typing log found. Save one from the Ngó Sen menu first."
+msgstr ""
+
+#: settings-gui/ui/system_check_dialog.py
+msgid "The log has no typing in it. Type the sample, then save the log again."
 msgstr ""

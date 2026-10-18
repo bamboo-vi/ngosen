@@ -1,0 +1,225 @@
+# SPDX-FileCopyrightText: 2026 Ngó Sen contributors
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Checks how fcitx5 is set up on this machine and builds the text of a bug report.
+
+The rules follow install.sh and https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland.
+"""
+
+import configparser
+import os
+import re
+import subprocess
+from dataclasses import dataclass, field
+from urllib.parse import urlencode
+
+from i18n import _
+
+ISSUE_URL = "https://github.com/ngosen/ngosen/issues/new"
+IM_VARIABLES = ("GTK_IM_MODULE", "QT_IM_MODULE", "XMODIFIERS", "SDL_IM_MODULE")
+
+OK, WARN, FAIL = "ok", "warn", "fail"
+
+
+@dataclass
+class Facts:
+    env: dict
+    fcitx_running: bool = False
+    ngosen_in_group: bool = False
+    ibus_running: bool = False
+    kwin_input_method: str = ""
+    apps: list = field(default_factory=list)
+    distro: str = ""
+    fcitx_version: str = ""
+    ngosen_version: str = ""
+
+    @property
+    def session(self):
+        return self.env.get("XDG_SESSION_TYPE", "").lower()
+
+    @property
+    def desktops(self):
+        return [d.upper() for d in self.env.get("XDG_CURRENT_DESKTOP", "").split(":") if d]
+
+
+@dataclass
+class Finding:
+    level: str
+    title: str
+    fix: str = ""
+
+
+def parse_debug_info(text):
+    """(program, frontend) of every input context fcitx5 lists, in order, without repeats."""
+    apps = []
+    for program, frontend in re.findall(r"program:(\S*) frontend:(\S+)", text):
+        if program and (program, frontend) not in apps:
+            apps.append((program, frontend))
+    return apps
+
+
+def _needs(facts, variable, level, title):
+    if facts.env.get(variable) == "fcitx":
+        return []
+    return [
+        Finding(level, title, _("Set {} in the session environment.").format(f"{variable}=fcitx"))
+    ]
+
+
+def evaluate(facts):
+    if not facts.fcitx_running:
+        return [
+            Finding(
+                FAIL,
+                _("fcitx5 is not running"),
+                _("Start Fcitx 5 from the application menu, or run fcitx5 -d."),
+            )
+        ]
+    found = []
+    if not facts.ngosen_in_group:
+        found.append(
+            Finding(
+                FAIL,
+                _("Ngó Sen is not in the fcitx5 input method list"),
+                _("Open Fcitx 5 Configuration and add Ngó Sen under Input Method."),
+            )
+        )
+    if facts.env.get("XMODIFIERS") != "@im=fcitx":
+        found.append(
+            Finding(
+                WARN,
+                _("Older X11 apps have no input method"),
+                _("Set {} in the session environment.").format("XMODIFIERS=@im=fcitx"),
+            )
+        )
+    found += _desktop_findings(facts)
+    if facts.ibus_running:
+        found.append(
+            Finding(
+                WARN,
+                _("IBus is running next to fcitx5"),
+                _("Two input methods compete for keys; stop IBus from starting at login."),
+            )
+        )
+    return found
+
+
+def _desktop_findings(facts):
+    if "GNOME" in facts.desktops:
+        return _needs(facts, "QT_IM_MODULE", FAIL, _("Qt apps have no input method")) + _needs(
+            facts, "GTK_IM_MODULE", WARN, _("Chrome and older GTK apps may have no input method")
+        )
+    if facts.session == "x11":
+        return _needs(facts, "GTK_IM_MODULE", FAIL, _("GTK apps have no input method")) + _needs(
+            facts, "QT_IM_MODULE", FAIL, _("Qt apps have no input method")
+        )
+    if facts.session != "wayland":
+        return []
+    if "KDE" in facts.desktops:
+        found = []
+        if "fcitx" not in facts.kwin_input_method.lower():
+            found.append(
+                Finding(
+                    FAIL,
+                    _("KDE does not start fcitx5 as its virtual keyboard"),
+                    _("System Settings → Keyboard → Virtual Keyboard: choose Fcitx 5."),
+                )
+            )
+        if facts.env.get("GTK_IM_MODULE") or facts.env.get("QT_IM_MODULE"):
+            found.append(
+                Finding(
+                    WARN,
+                    _("GTK_IM_MODULE or QT_IM_MODULE is set on KDE Wayland"),
+                    _("KDE Wayland does not need them, and the candidate window may flicker."),
+                )
+            )
+        return found
+    return _needs(facts, "QT_IM_MODULE", WARN, _("Qt 5 apps have no input method"))
+
+
+def report(facts, findings, app_test=None):
+    """Plain text for the bug report; it lists app names, so the user reviews it before sending."""
+    marks = {OK: "OK", WARN: "!", FAIL: "X"}
+    desktop = ":".join(facts.desktops) or "?"
+    lines = [
+        f"Ngó Sen {facts.ngosen_version or '?'}, fcitx5 {facts.fcitx_version or '?'}",
+        f"{facts.distro or '?'}, {desktop}, {facts.session or '?'}",
+        " ".join(f"{v}={facts.env.get(v) or '(unset)'}" for v in IM_VARIABLES),
+    ]
+    if facts.kwin_input_method:
+        lines.append(f"KWin InputMethod={facts.kwin_input_method}")
+    lines.append("")
+    lines += [f"[{marks[f.level]}] {f.title}" for f in findings] or ["[OK] no setup problem found"]
+    if facts.apps:
+        lines += ["", "Apps: " + ", ".join(f"{p} ({fe})" for p, fe in facts.apps)]
+    if app_test:
+        lines += ["", "App test: " + app_test.summary()]
+    return "\n".join(lines)
+
+
+def issue_url(facts, text):
+    query = {"template": "bug_report.yml", "diagnose": text}
+    if facts.ngosen_version:
+        query["version"] = facts.ngosen_version
+    if facts.distro:
+        query["distro"] = facts.distro
+    return f"{ISSUE_URL}?{urlencode(query)}"
+
+
+def collect(dbus_handler, ngosen_version="", env=None):
+    env = dict(os.environ if env is None else env)
+    facts = Facts(env={k: v for k, v in env.items() if k in IM_VARIABLES or k.startswith("XDG_")})
+    facts.ngosen_version = ngosen_version
+    facts.distro = _distro()
+    facts.fcitx_version = _fcitx_version()
+    facts.ibus_running = _process_running("ibus-daemon")
+    facts.kwin_input_method = _kwin_input_method(env)
+    names = dbus_handler.input_method_names()
+    facts.fcitx_running = names is not None
+    facts.ngosen_in_group = "ngosen" in (names or [])
+    facts.apps = parse_debug_info(dbus_handler.debug_info())
+    return facts
+
+
+def _distro():
+    try:
+        with open("/etc/os-release", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("PRETTY_NAME="):
+                    return line.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        pass
+    return ""
+
+
+def _fcitx_version():
+    try:
+        out = subprocess.run(["fcitx5", "--version"], capture_output=True, text=True, timeout=3)
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return out.stdout.strip()
+
+
+def _process_running(name):
+    try:
+        pids = [p for p in os.listdir("/proc") if p.isdigit()]
+    except OSError:
+        return False
+    for pid in pids:
+        try:
+            with open(f"/proc/{pid}/comm", encoding="utf-8") as f:
+                if f.read().strip() == name:
+                    return True
+        except OSError:
+            continue
+    return False
+
+
+def _kwin_input_method(env):
+    config_home = env.get("XDG_CONFIG_HOME") or os.path.join(env.get("HOME", ""), ".config")
+    parser = configparser.ConfigParser(interpolation=None, strict=False)
+    try:
+        parser.read(os.path.join(config_home, "kwinrc"), encoding="utf-8")
+    except configparser.Error:
+        return ""
+    return parser.get("Wayland", "InputMethod", fallback="")

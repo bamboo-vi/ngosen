@@ -2,7 +2,7 @@
 # Runs install.sh in a throwaway container: install, uninstall, then a reinstall over an fcitx5
 # that is running without the addon. Checks packages and the user's files, not typing.
 #
-#   test/install-smoke.sh [--no-recommends] x11|gnome <release-dir>
+#   test/install-smoke.sh [--no-recommends] x11|gnome|kde <release-dir>
 #
 # Run as root in a fresh Debian, Ubuntu or Fedora container; <release-dir> holds the packages and
 # SHA256SUMS laid out as in a release. It changes the system, so never run it on a real machine.
@@ -12,7 +12,7 @@
 set -euo pipefail
 
 usage() {
-    echo "usage: $0 [--no-recommends] x11|gnome <release-dir>" >&2
+    echo "usage: $0 [--no-recommends] x11|gnome|kde <release-dir>" >&2
     exit 2
 }
 
@@ -25,7 +25,7 @@ fi
 session=$1
 release_dir=$(realpath "$2")
 case "$session" in
-    x11 | gnome) ;;
+    x11 | gnome | kde) ;;
     *) usage ;;
 esac
 [ "$(id -u)" -eq 0 ] || {
@@ -73,6 +73,8 @@ prepare_system() {
         rm -rf /var/lib/apt/lists/*
     else
         dnf install -y -q sudo curl procps-ng dbus-daemon dbus-tools shadow-utils
+        # The installer recognises KDE by kreadconfig6 and kwriteconfig6.
+        [ "$session" = kde ] && dnf install -y -q kf6-kconfig
     fi
     useradd -m "$user"
     echo "$user ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/"$user"
@@ -84,10 +86,10 @@ prepare_system() {
 
 as_user() {
     local desktop=XFCE type=x11
-    if [ "$session" = gnome ]; then
-        desktop=GNOME
-        type=wayland
-    fi
+    case "$session" in
+        gnome) desktop=GNOME type=wayland ;;
+        kde) desktop=KDE type=wayland ;;
+    esac
     sudo -u "$user" -H env XDG_SESSION_TYPE="$type" XDG_CURRENT_DESKTOP="$desktop" \
         NGOSEN_RELEASE_URL="file://$work/release" ${bus:+DBUS_SESSION_BUS_ADDRESS="$bus"} "$@"
 }
@@ -114,6 +116,8 @@ config=$home/.config/fcitx5/config
 im_env=$home/.config/environment.d/90-ngosen.conf
 autostart=$home/.config/autostart/org.fcitx.Fcitx5.desktop
 hidden_launcher=$home/.local/share/applications/org.fcitx.Fcitx5.desktop
+kwinrc=$home/.config/kwinrc
+kwin_im='InputMethod=/usr/share/applications/org.fcitx.Fcitx5.desktop'
 
 check_packages() {
     check "fcitx5-ngosen is installed" is_installed fcitx5-ngosen
@@ -126,6 +130,8 @@ check_packages() {
 check_session_files() {
     if [ "$session" = x11 ]; then
         check ".xinputrc runs fcitx5" has_line "$home/.xinputrc" 'run_im fcitx5'
+    elif [ "$session" = kde ]; then
+        check "KWin starts fcitx5 as its input method" has_line "$kwinrc" "$kwin_im"
     else
         check "environment.d selects fcitx" has_line "$im_env" 'GTK_IM_MODULE=fcitx'
         check "fcitx5 starts at login" test -e "$autostart"
@@ -139,6 +145,9 @@ check_uninstalled_state() {
     check "fcitx5-ngosen is removed" is_removed fcitx5-ngosen
     if [ "$session" = x11 ]; then
         check ".xinputrc no longer runs fcitx5" lacks_line "$home/.xinputrc" 'run_im fcitx5'
+    elif [ "$session" = kde ]; then
+        # fcitx5 may serve other input methods, so KDE keeps it.
+        check "KWin still starts fcitx5" has_line "$kwinrc" "$kwin_im"
     else
         check "environment.d file is removed" test ! -e "$im_env"
         check "autostart entry is removed" test ! -e "$autostart"

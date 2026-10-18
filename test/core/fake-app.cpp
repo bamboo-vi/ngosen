@@ -101,6 +101,10 @@ namespace ngosen::test {
         state_->keyEvent(up);
     }
 
+    void FakeApp::pressSwitchKey() {
+        busyUntilUs_ = monotonicUs() + static_cast<uint64_t>(quirks_.switchBusyMs) * 1000;
+    }
+
     std::string FakeApp::text() const {
         return encode(text_);
     }
@@ -112,9 +116,17 @@ namespace ngosen::test {
     }
 
     void FakeApp::forwardKey(EditKey key, bool release) {
-        if (key != EditKey::BackSpace || release)
+        if (key != EditKey::BackSpace || release || monotonicUs() < busyUntilUs_)
             return;
-        later(quirks_.lagMs, [this] { eraseBefore(1); });
+        if (quirks_.keyStepMs > 0) {
+            later(quirks_.keyStepMs * ++queuedKeys_, [this] {
+                --queuedKeys_;
+                eraseBefore(1);
+            });
+        } else if (quirks_.handsBackKeys)
+            later(quirks_.lagMs, [this] { type(key::BackSpace); });
+        else
+            later(quirks_.lagMs, [this] { eraseBefore(1); });
     }
 
     void FakeApp::deleteSurrounding(int offset, unsigned int size) {

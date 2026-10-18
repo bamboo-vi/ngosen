@@ -61,6 +61,7 @@ add_ngosen_headless_test(preedit_lifecycle preedit-lifecycle.cpp "integration;pr
 add_ngosen_headless_test(app_rule_reset app-rule-reset.cpp "integration;apprule")
 add_ngosen_headless_test(ctx_rule_cleanup ctx-rule-cleanup.cpp "integration;apprule")
 add_ngosen_headless_test(mode_menu_keys mode-menu-keys.cpp "integration;apprule")
+add_ngosen_headless_test(retype_after_switch retype-after-switch.cpp "integration;retype")
 add_ngosen_headless_test(gnome_shared_ibus_context gnome-shared-ibus-context.cpp "integration;apprule;gnome")
 add_ngosen_headless_test(mode_name_migration mode-name-migration.cpp "integration;mode")
 add_ngosen_headless_test(messenger_defaults messenger-defaults.cpp "integration;mode")
@@ -69,26 +70,26 @@ add_ngosen_headless_test(host_field_mapping host-field-mapping.cpp "unit;host")
 add_ngosen_headless_test(custom_keymap custom-keymap.cpp "integration;keymap")
 add_ngosen_headless_test(preedit_smoke_client preedit-smoke-client.cpp "integration;preedit")
 add_ngosen_headless_test(preedit_smoke_server preedit-smoke-server.cpp "integration;preedit")
-add_ngosen_headless_test(smooth_buffered_key_replay
-    smooth-buffered-key-replay.cpp "integration;smooth")
+add_ngosen_headless_test(sen_buffered_key_replay
+    sen-buffered-key-replay.cpp "integration;sen")
 add_ngosen_headless_test(held_key_repeat
-    held-key-repeat.cpp "integration;smooth")
-add_ngosen_headless_test(super_smooth_half_updated_snapshot
-    super-smooth-half-updated-snapshot.cpp "integration;smooth")
-add_ngosen_headless_test(super_smooth_half_updated_mid_word
-    super-smooth-half-updated-mid-word.cpp "integration;smooth")
+    held-key-repeat.cpp "integration;sen")
+add_ngosen_headless_test(sen_half_updated_snapshot
+    sen-half-updated-snapshot.cpp "integration;sen")
+add_ngosen_headless_test(sen_half_updated_mid_word
+    sen-half-updated-mid-word.cpp "integration;sen")
 add_ngosen_headless_test(surrounding_wait_event
-    surrounding-wait-event.cpp "integration;smooth")
-add_ngosen_headless_test(super_smooth_settle_wait
-    super-smooth-settle-wait.cpp "integration;smooth")
+    surrounding-wait-event.cpp "integration;sen")
+add_ngosen_headless_test(sen_settle_wait
+    sen-settle-wait.cpp "integration;sen")
 add_ngosen_headless_test(wayland_forward_backspaces
-    wayland-forward-backspaces.cpp "integration;smooth")
+    wayland-forward-backspaces.cpp "integration;sen")
 add_ngosen_headless_test(xim_key_handback
-    xim-key-handback.cpp "integration;smooth")
+    xim-key-handback.cpp "integration;sen")
 add_ngosen_headless_test(xim_forward_handback
-    xim-forward-handback.cpp "integration;smooth")
+    xim-forward-handback.cpp "integration;sen")
 add_ngosen_headless_test(ibus_dbus_forward_backspaces
-    ibus-dbus-forward-backspaces.cpp "integration;smooth")
+    ibus-dbus-forward-backspaces.cpp "integration;sen")
 add_ngosen_headless_test(cursor_jump_reset
     cursor-jump-reset.cpp "integration;surrounding")
 add_ngosen_headless_test(click_switch_fuzz
@@ -101,19 +102,19 @@ add_ngosen_headless_test(calc_text_input_cell_click
 add_ngosen_headless_test(x11_pointer_click
     x11-pointer-click.cpp "unit;x11")
 add_ngosen_headless_test(x11_xtest_replacement
-    x11-xtest-replacement.cpp "integration;smooth")
-add_ngosen_headless_test(super_smooth_settle_wait_immediate
-    super-smooth-settle-wait-immediate.cpp "integration;smooth")
-add_ngosen_headless_test(super_smooth_settle_plain_field
-    super-smooth-settle-plain-field.cpp "integration;smooth")
-add_ngosen_headless_test(super_smooth_settle_empty_composer
-    super-smooth-settle-empty-composer.cpp "integration;smooth")
-add_ngosen_headless_test(super_smooth_messenger_select_overtype
-    super-smooth-messenger-select-overtype.cpp "integration;smooth")
+    x11-xtest-replacement.cpp "integration;sen")
+add_ngosen_headless_test(sen_settle_wait_immediate
+    sen-settle-wait-immediate.cpp "integration;sen")
+add_ngosen_headless_test(sen_settle_plain_field
+    sen-settle-plain-field.cpp "integration;sen")
+add_ngosen_headless_test(sen_settle_empty_composer
+    sen-settle-empty-composer.cpp "integration;sen")
+add_ngosen_headless_test(sen_messenger_select_overtype
+    sen-messenger-select-overtype.cpp "integration;sen")
 add_ngosen_headless_test(replay_single_commit
-    replay-single-commit.cpp "integration;smooth")
-add_ngosen_headless_test(super_smooth_settle_first_word
-    super-smooth-settle-first-word.cpp "integration;smooth")
+    replay-single-commit.cpp "integration;sen")
+add_ngosen_headless_test(sen_settle_first_word
+    sen-settle-first-word.cpp "integration;sen")
 add_ngosen_headless_test(emoji_candidate_keys emoji-candidate-keys.cpp "integration;emoji")
 add_ngosen_headless_test(emoji_history_page_navigation
     emoji-history-page-navigation.cpp "integration;emoji")

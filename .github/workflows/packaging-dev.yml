@@ -24,6 +24,7 @@ jobs:
             codename: bookworm
           - distro: debian:13
             codename: trixie
+            rust: true
           - distro: debian:testing
             codename: forky
             rust: true
@@ -32,6 +33,7 @@ jobs:
             rust: true
           - distro: ubuntu:22.04
             codename: jammy
+            rust: true
           - distro: ubuntu:24.04
             codename: noble
             rust: true
@@ -47,6 +49,7 @@ jobs:
             arch: arm64
           - distro: debian:13
             codename: trixie
+            rust: true
             arch: arm64
           - distro: debian:testing
             codename: forky
@@ -54,6 +57,7 @@ jobs:
             arch: arm64
           - distro: ubuntu:22.04
             codename: jammy
+            rust: true
             arch: arm64
           - distro: ubuntu:24.04
             codename: noble
@@ -277,6 +281,9 @@ jobs:
           - name: fedora-44, GNOME
             image: fedora:44
             args: gnome
+          - name: fedora-44, KDE
+            image: fedora:44
+            args: kde
 
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     container: ${{ matrix.image }}
