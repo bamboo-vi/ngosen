@@ -7,11 +7,6 @@ bạn chỉ phải làm quen một thứ mới. Tính năng làm xong trước l
 mới có số version, và từ 1.6.0 trở đi thứ tự có thể đổi. Muốn đề nghị hay góp ý thì mở
 [issue](https://github.com/ngosen/ngosen/issues).
 
-## 1.5.0
-
-- Nút "Kiểm tra máy tôi…" trong cửa sổ cài đặt: xem fcitx5 và Ngó Sen đã cài đúng chưa, lỗi nào cũng kèm
-  cách sửa, và test được một app gõ đúng hay sai (#88, #90).
-
 ## 1.6.0
 
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen là chữ thành
