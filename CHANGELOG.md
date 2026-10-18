@@ -12,7 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thêm
 
-- Trang [lộ trình](ROADMAP.md): những gì Ngó Sen định làm ở các version tới (#120).
+- Trang [lộ trình](ROADMAP.md): những gì Ngó Sen định làm ở các version tới (#120, #121).
 
 ## [1.4.3-1] — 17/10/2026
 
