@@ -8,8 +8,8 @@
   hay ô tìm kiếm hiện ra theo từng phím gõ.
 - **Một chế độ cho hầu hết app.** Trình duyệt, terminal, Zalo, LibreOffice đều dùng Gõ Sen. Ngó Sen tự nhận ra
   app nhận chữ kiểu gì, không phải đổi chế độ.
-- **Lõi Rust.** Phần biến `tieengs` thành `tiếng` được viết lại bằng Rust. Gói cho Fedora, Arch, openSUSE
-  và Ubuntu 24.04 trở lên dùng lõi Rust.
+- **Lõi Rust.** Phần biến `tieengs` thành `tiếng` được viết lại bằng Rust. Mọi gói đều dùng lõi Rust, trừ
+  gói cho Debian 12.
 - **Cài bằng một dòng lệnh.** Có cho Fedora, Ubuntu, Debian, Arch, CachyOS và openSUSE. Script so hash
   SHA-256 trước khi cài.
 - **Cửa sổ cài đặt theo giao diện máy.** Sáng hay tối, KDE hay GNOME, cửa sổ dùng giao diện đang có.
