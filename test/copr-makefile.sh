@@ -8,6 +8,8 @@ top=${1:?usage: copr-makefile.sh <source dir>}
 makefile=$top/.copr/Makefile
 [ -f "$makefile" ] || exit 77
 want=$top/packaging/rpm/fedora/fcitx5-ngosen.spec
+# Other distributions' package builds do not ship the Fedora spec.
+[ -f "$want" ] || exit 77
 fail=0
 for spec in "" packaging/rpm/fedora/fcitx5-ngosen.spec /packaging/rpm/fedora/fcitx5-ngosen.spec "$want"; do
     cmds=$(make -n -f "$makefile" srpm outdir=/nonexistent spec="$spec")
