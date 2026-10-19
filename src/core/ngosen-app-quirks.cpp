@@ -98,7 +98,8 @@ namespace ngosen {
     }
 
     bool hidesAddressBarFlag(const Field& field) {
-        return stripDesktopSuffix(field.program) == "firefox";
+        // Debian names its Firefox ESR program firefox-esr.
+        return isStartsWith(stripDesktopSuffix(field.program), "firefox");
     }
 
 } // namespace ngosen
