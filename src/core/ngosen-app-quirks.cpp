@@ -18,7 +18,7 @@ namespace ngosen {
         if (field.frontend == "xim") {
             // A forwarded key that reaches a client inside one of its own XIM requests comes back to us
             // and lands after the commit (WordCraft); XTEST keys queue in order like typed ones.
-            return !xtestAvailable();
+            return !xtestAvailable() && !takesSentKeyEvents(field);
         }
         if (field.frontend == "ibus") {
             // SDL takes only commits and preedit from the IM.
@@ -34,6 +34,10 @@ namespace ngosen {
             return field.formattedPreedit || field.surroundingText;
         }
         return false;
+    }
+
+    bool takesSentKeyEvents(const Field& field) {
+        return field.frontend == "xim" && xsendAvailable();
     }
 
     bool ignoresForwardedKeys(const Field& field) {

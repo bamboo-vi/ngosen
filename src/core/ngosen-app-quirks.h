@@ -15,6 +15,10 @@ namespace ngosen {
     // input-method frontend, XIM clients under Xwayland, and IBus, D-Bus and fcitx4 clients other than SDL.
     bool forwardsBackspaces(const Field& field);
 
+    // True for XIM clients under Xwayland, where XTEST asks the user first: backspaces go as key events
+    // sent to the focused X window instead.
+    bool takesSentKeyEvents(const Field& field);
+
     // True for GTK4 clients, whose IM modules drop forwarded keys; delete through surrounding text there.
     bool ignoresForwardedKeys(const Field& field);
 
