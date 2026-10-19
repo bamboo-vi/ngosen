@@ -169,6 +169,10 @@ namespace {
         check("LibreOffice applies backspaces late", ngosen::appliesBackspacesLate(field("wayland", "soffice.desktop")));
         check("Firefox hides the address bar flag", ngosen::hidesAddressBarFlag(field("wayland", "firefox")));
         check("Firefox ESR hides the address bar flag", ngosen::hidesAddressBarFlag(field("dbus", "firefox-esr")));
+        check("Zen hides the address bar flag", ngosen::hidesAddressBarFlag(field("dbus", "zen")));
+        check("LibreWolf hides the address bar flag", ngosen::hidesAddressBarFlag(field("wayland", "librewolf.desktop")));
+        check("Waterfox hides the address bar flag", ngosen::hidesAddressBarFlag(field("dbus", "waterfox")));
+        check("zenity is not a browser", !ngosen::hidesAddressBarFlag(field("dbus", "zenity")));
     }
 
 } // namespace
