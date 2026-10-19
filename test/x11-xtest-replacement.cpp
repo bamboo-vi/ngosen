@@ -2,7 +2,8 @@
 //
 // On an X11 session XTEST presses the keys a frontend cannot forward, and the backspaces for XIM clients.
 // Clients whose forwarding works keep it; Chromium-based clients, which report no surrounding text and whose address bar selects an inline
-// autocompletion, select the old text with Shift+Left and type over it.
+// autocompletion, select the old text with Shift+Left and type over it. Under Xwayland, XIM clients get
+// their backspaces as key events sent to their window.
 #include "ngosen-engine.h"
 #include "ngosen-utils.h"
 #include "ngosen-xtest.h"
@@ -231,6 +232,21 @@ int main() {
         return 1;
     if (!keepsForwarding(h, "gtk3app", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText, fcitx::CapabilityFlag::KeyEventOrderFix}))
         return 1;
+
+    // Under Xwayland XTEST asks the user first, so Wine gets key events sent to its window.
+    unsetenv("DISPLAY");
     setXTestSenderForTest({});
+    setXSendSenderForTest([&sent](int count) {
+        sent.push_back(count);
+        return true;
+    });
+    if (!pressesBackSpaceThroughXTest(h, "wine-preloader", "xim", fcitx::CapabilityFlags{}, fcitx::KeyStates(fcitx::KeyState::Repeat)))
+        return 1;
+    // xterm drops sent events, so it keeps forwarding.
+    if (!keepsForwarding(h, "xterm", "xim", fcitx::CapabilityFlags{}))
+        return 1;
+    if (!keepsForwarding(h, "gtk3app", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText, fcitx::CapabilityFlag::KeyEventOrderFix}))
+        return 1;
+    setXSendSenderForTest({});
     return 0;
 }

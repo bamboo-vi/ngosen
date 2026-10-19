@@ -19,3 +19,9 @@ bool xtestSendKeys(int count);
 
 // Tests replace the X server with a recorder; an empty function restores it.
 void setXTestSenderForTest(std::function<bool(int)> sender);
+
+// Under Xwayland: presses BackSpace count times as key events sent to the focused X window. Clients
+// that read keys through XInput2 (GTK3) ignore them; core-event clients take them like typed keys.
+bool xsendAvailable();
+bool xsendKeys(int count);
+void setXSendSenderForTest(std::function<bool(int)> sender);

@@ -18,7 +18,7 @@ namespace ngosen {
         if (field.frontend == "xim") {
             // A forwarded key that reaches a client inside one of its own XIM requests comes back to us
             // and lands after the commit (WordCraft); XTEST keys queue in order like typed ones.
-            return !xtestAvailable();
+            return !xtestAvailable() && !takesSentKeyEvents(field);
         }
         if (field.frontend == "ibus") {
             // SDL takes only commits and preedit from the IM.
@@ -34,6 +34,15 @@ namespace ngosen {
             return field.formattedPreedit || field.surroundingText;
         }
         return false;
+    }
+
+    bool takesSentKeyEvents(const Field& field) {
+        if (field.frontend != "xim" || !xsendAvailable())
+            return false;
+        // Wine and winit apply forwarded keys after a later commit, and report nothing that sets them
+        // apart; xterm and XInput2 clients drop sent events, so the rest keep forwarding.
+        const std::string program = stripDesktopSuffix(field.program);
+        return isStartsWith(program, "wine") || program == "wordcraft";
     }
 
     bool ignoresForwardedKeys(const Field& field) {
