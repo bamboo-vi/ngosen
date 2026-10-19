@@ -98,8 +98,15 @@ namespace ngosen {
     }
 
     bool hidesAddressBarFlag(const Field& field) {
-        // Debian names its Firefox ESR program firefox-esr.
-        return isStartsWith(stripDesktopSuffix(field.program), "firefox");
+        // Debian names its Firefox ESR program firefox-esr; the forks share Firefox's address bar.
+        const std::string program = stripDesktopSuffix(field.program);
+        if (isStartsWith(program, "firefox"))
+            return true;
+        for (const char* fork : {"zen", "librewolf", "waterfox", "floorp", "mullvadbrowser", "icecat"}) {
+            if (program == fork)
+                return true;
+        }
+        return false;
     }
 
 } // namespace ngosen

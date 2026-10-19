@@ -368,7 +368,10 @@ namespace ngosen {
         settleBeforeKey();
         const uint32_t currentSym = trackCapitalization(keyEvent);
         // Only plain backspaces typed after a finished commit may reopen the word; anything else changes the text after it.
-        if (!ngosen::key::isBackspace(currentSym) || keyEvent.hasModifier() || is_deleting_.load(std::memory_order_acquire))
+        // Backspaces we press through XTEST come back here while we delete; they belong to the commit.
+        const bool deleting     = is_deleting_.load(std::memory_order_acquire);
+        const bool ownBackspace = deleting && ngosen::key::isBackspace(currentSym) && !ngosen::forwardsBackspaces(host_->field());
+        if (!ngosen::key::isBackspace(currentSym) || keyEvent.hasModifier() || (deleting && !ownBackspace))
             lastWord_.clear();
         if (handleKeyDuringReplacement(keyEvent, currentSym) || handleDoubledKey(keyEvent, currentSym))
             return;

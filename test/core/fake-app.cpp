@@ -134,6 +134,24 @@ namespace ngosen::test {
             later(quirks_.lagMs, [this] { eraseBefore(1); });
     }
 
+    bool FakeApp::pressSystemKeys(int count) {
+        if (!quirks_.takesXTest || count <= 0)
+            return false;
+        later(quirks_.lagMs, [this, count] {
+            // The X server stamps the burst with one time, and fcitx5's XIM frontend then marks every press after the first as a repeat.
+            const auto time = static_cast<uint32_t>(monotonicUs() / 1000);
+            for (int i = 0; i < count; ++i) {
+                FakeKey down(key::BackSpace, false, i == 0 ? 0 : modifier::Repeat, time);
+                state_->keyEvent(down);
+                if (!down.accepted())
+                    eraseBefore(1);
+                FakeKey up(key::BackSpace, true, 0, time);
+                state_->keyEvent(up);
+            }
+        });
+        return true;
+    }
+
     void FakeApp::deleteSurrounding(int offset, unsigned int size) {
         later(quirks_.lagMs, [this, offset, size] { eraseAround(offset, size); });
     }
