@@ -1,0 +1,159 @@
+name: Package repositories
+
+# Built on publish, not on tag push, so users get a release only after its draft was checked.
+# The repositories share the one Pages site, and every deploy replaces it, so they ship together.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-repositories
+  cancel-in-progress: false
+
+jobs:
+  apt:
+    name: APT repository
+    if: startsWith(github.ref, 'refs/tags/ngosen-') && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install tools
+        run: sudo apt-get -qq update && sudo apt-get -qq install -y apt-utils
+
+      # The two newest releases, so users can go back one version with apt.
+      - name: Download packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir debs
+          gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --exclude-pre-releases \
+              --limit 2 --json tagName --jq '.[].tagName' |
+              while read -r tag; do
+                  gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern '*.deb' --dir debs
+              done
+
+      - name: Import signing key
+        env:
+          APT_SIGNING_KEY: ${{ secrets.APT_SIGNING_KEY }}
+        run: packaging/import-signing-key.sh
+
+      - name: Build repository
+        run: packaging/build-apt-repo.sh debs apt
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: repo-apt
+          path: apt
+
+  pacman:
+    name: pacman repository
+    if: startsWith(github.ref, 'refs/tags/ngosen-') && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    environment: release
+
+    steps:
+      - name: Install tools
+        run: pacman -Syu --noconfirm --needed github-cli gnupg
+
+      - uses: actions/checkout@v7
+
+      - name: Download package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --exclude-pre-releases \
+              --limit 1 --json tagName --jq '.[0].tagName')
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern '*.pkg.tar.zst' --dir pkgs
+
+      - name: Import signing key
+        env:
+          APT_SIGNING_KEY: ${{ secrets.APT_SIGNING_KEY }}
+        run: packaging/import-signing-key.sh
+
+      - name: Build repository
+        run: packaging/build-arch-repo.sh pkgs arch
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: repo-arch
+          path: arch
+
+  zypper:
+    name: openSUSE repository
+    if: startsWith(github.ref, 'refs/tags/ngosen-') && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install tools
+        run: sudo apt-get -qq update && sudo apt-get -qq install -y createrepo-c
+
+      # The two newest releases, so users can go back one version with zypper.
+      - name: Download packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir rpms
+          gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --exclude-pre-releases \
+              --limit 2 --json tagName --jq '.[].tagName' |
+              while read -r tag; do
+                  gh release download "$tag" --repo "$GITHUB_REPOSITORY" \
+                      --pattern '*.opensuse-tumbleweed.x86_64.rpm' --dir rpms
+              done
+
+      - name: Import signing key
+        env:
+          APT_SIGNING_KEY: ${{ secrets.APT_SIGNING_KEY }}
+        run: packaging/import-signing-key.sh
+
+      - name: Build repository
+        run: packaging/build-zypper-repo.sh rpms opensuse
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: repo-opensuse
+          path: opensuse
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: [apt, pacman, zypper]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: repo-apt
+          path: site/apt
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: repo-arch
+          path: site/arch
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: repo-opensuse
+          path: site/opensuse
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v5

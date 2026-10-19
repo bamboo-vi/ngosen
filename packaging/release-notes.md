@@ -1,4 +1,4 @@
-Version 1.5.2 sửa một lỗi ở cửa sổ cài đặt: ở trang Phím › Phím tắt, nút phím ở cuối mỗi hàng chế độ bị cắt mép, và mất hẳn khi phóng to cửa sổ. Phần còn lại giống 1.5.1: nút "Kiểm tra máy tôi…" ở trang Giới thiệu, và lõi gõ Rust cho mọi gói trừ Debian 12. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.5.3 sửa lỗi Gõ Sen khi backspace qua dấu cách vào từ trước rồi gõ tiếp, với cả Telex và VNI (`duyeet`, dấu cách, xoá còn `du`, gõ `yeejt` ra `duyệt`, trước đây ra `duyeejt`). Trong gnome-text-editor trên GNOME, sửa chữ giữa từ không còn mất chữ (`toan`, xoá một chữ, `nf` ra `toàn`, trước đây ra `toòn`). Gõ Sen không còn rối chữ trong app dùng XIM như WordCraft trên X11 (`dââấ` thay vì `dấu`) và Wine 11 (phần mềm Windows) trên Wayland, cả GNOME và KDE (`tiêến` thay vì `tiếng`). Thanh địa chỉ Firefox ESR (mặc định trên Debian) và các browser dựa trên Firefox (Zen, LibreWolf, Waterfox, Floorp, Mullvad Browser, GNU IceCat) không còn thừa chữ khi autocomplete (`cowf` ra `cờ`, trước đây ra `coờ`). Log gõ ghi đúng app khi chuyển cửa sổ, nút "Mặc định" trong cài đặt sáng đúng lúc. Đây là version đầu tiên lên kho COPR cho Fedora, APT cho Debian/Ubuntu, pacman cho Arch và kho openSUSE, có thêm gói Ubuntu 26.10; cách bật kho sẽ ghi trong README khi các kho chạy ổn. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -19,7 +19,7 @@ Chọn file theo distro:
 - Fedora 44, 43: `fcitx5-ngosen-*.fc44.x86_64.rpm`, `fcitx5-ngosen-*.fc43.x86_64.rpm`
 - Arch, CachyOS: `fcitx5-ngosen-*-x86_64.pkg.tar.zst`
 - openSUSE Tumbleweed: `fcitx5-ngosen-*.opensuse-tumbleweed.x86_64.rpm`
-- Ubuntu 26.04, 24.04, 22.04: `…_resolute_amd64.deb`, `…_noble_amd64.deb`, `…_jammy_amd64.deb`
+- Ubuntu 26.10, 26.04, 24.04, 22.04: `…_stonking_amd64.deb`, `…_resolute_amd64.deb`, `…_noble_amd64.deb`, `…_jammy_amd64.deb`
 - Debian 13, 12: `…_trixie_amd64.deb`, `…_bookworm_amd64.deb`
 - Kali Rolling: `…_forky_amd64.deb`
 - Máy ARM 64-bit: file cùng tên với đuôi `_arm64.deb`, hoặc `.aarch64.rpm` cho Fedora
@@ -30,10 +30,14 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 
 ## Đã test những gì
 
-Gói 1.5.2 (PR #130) được test trên máy ảo Ubuntu 26.04 (GNOME Wayland, gói `resolute`): ở trang Phím › Phím tắt, nút phím của cả năm chế độ hiện đủ khi cửa sổ nhỏ, khi phóng to, và khi thu nhỏ lại sau đó (1.5.1 mất nút khi phóng to); gõ `tieengs vieetj` vẫn ra `tiếng việt`.
+Gói 1.5.3 (PR #151, sau các sửa cuối) được test ngày 19/10/2026 bằng cách gửi phím vào VM, dùng Gõ Sen, Telex. Mỗi lượt gõ hai lần cùng một dòng: `duyeet`, space, 5 backspace, `yeejt` → `duyệt`; `toan`, space, 2 backspace, `nf` → `toàn`; `ban`, space, 1 backspace, `f` → `bàn`; rồi `tieengs vieetj xin chaof cacs banj, hoom nay trowif ddepj quas` → `tiếng việt xin chào các bạn, hôm nay trời đẹp quá`. Linux Mint 22.1 (Cinnamon X11, gói `noble`): GTK3 text box, GTK3 text box ép dùng XIM và xed đều đúng; xterm (XIM) đúng 5/10 lượt, các lượt còn lại lỗi vài từ khi phím dồn tới; bản 1.5.2 trên cùng máy lỗi 2/5 lượt nên lỗi này đã có trước 1.5.3. Ubuntu 26.04 (GNOME Wayland, gói `resolute`): GTK3 text box, gnome-text-editor và xterm đều đúng; Wine 11.20 Notepad đúng cả ba trường hợp backspace, nhưng 2/4 dòng có một hoặc hai từ lỗi (`chaà`, `tiêễn`), so với 4/4 dòng lỗi ở bản 1.5.2 trên cùng máy; các lỗi còn lại đến từ Wine.
+
+Gói build từ nhánh `patch` sau #143 và từ PR #149 (PR #149 cùng code với 1.5.3, chỉ khác số version) được gõ thử trên ba máy ảo, kiểu Gõ Sen, Telex: Ubuntu 26.04 (GNOME Wayland, gói `resolute`), Linux Mint 22.1 (Cinnamon X11, gói `noble`) và CachyOS (KDE Plasma Wayland, gói Arch). Gõ `duyeet`, dấu cách, xoá còn `du` rồi `yeejt` ra `duyệt`; gõ `toan`, xoá một chữ, `nf` ra `toàn`; gõ `ban`, dấu cách, xoá một chữ, `f` ra `bàn`. Đã thử trong gnome-text-editor, xed, ô chữ GTK3 và GTK4, Ptyxis, gnome-terminal, Konsole, kitty, VS Code, Chrome và Firefox; giữ phím xoá rồi gõ tiếp vẫn đúng. Kiểu gõ VNI cũng được gõ thử với lỗi xoá qua dấu cách. LibreOffice và Firefox bản snap chưa được sửa lỗi xoá qua dấu cách, nhưng gõ không bị hỏng thêm.
+
+Gói 1.5.2 (PR #130) được test trên máy ảo Ubuntu 26.04 (GNOME Wayland, gói `resolute`): ở trang Phím › Phím tắt, nút phím của cả năm chế độ hiện đủ khi cửa sổ nhỏ, khi phóng to, và khi thu nhỏ lại sau đó.
 
 Gói 1.5.0 (PR #125) được gõ thử trên ba máy ảo: Linux Mint 22.1 (Cinnamon X11, gói `noble`), Ubuntu 26.04 (GNOME Wayland, gói `resolute`) và MX Linux 25 (Xfce X11, gói `trixie`, lần đầu dùng lõi Rust). Trên cả ba, gõ `tieengs vieetj` trong một ô chữ GTK3 ra `tiếng việt`; trên MX gõ thêm `nguwowif vieetj nam` ra `người việt nam`. Trên Ubuntu 26.04, chọn kiểu gõ Custom thì cửa sổ cài đặt hiện dòng nhắc, và "Kiểm tra máy tôi…" báo không có lỗi cài đặt. Gói 1.5.1 (PR #127) được gõ thử lại trên Mint và Ubuntu 26.04: bật "Tự viết hoa đầu câu", gõ `ban. tooi`, Enter, `xin` ra `Xin` ở dòng mới (gói 1.5.0 ra `xin`); gõ thường vẫn ra `tiếng việt`.
 
-Người giữ dự án dùng Ngó Sen hằng ngày trên Fedora 44 (KDE Plasma Wayland). Arch và Kali đã được gõ thử ở các version trước. Fedora 43, Ubuntu 22.04, Debian 12 và openSUSE chỉ được build và qua test lúc build, chưa ai gõ thử trên máy thật.
+Người giữ dự án dùng Ngó Sen hằng ngày trên Fedora 44 (KDE Plasma Wayland). Kali đã được gõ thử ở các version trước. Fedora 43, Ubuntu 22.04, Debian 12 và openSUSE chỉ được build và qua test lúc build, chưa ai gõ thử trên máy thật.
 
 Lõi gõ Rust nay có trong mọi gói trừ Debian 12, vẫn dùng lõi Go vì Rust có sẵn ở đó quá cũ.

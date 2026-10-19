@@ -10,23 +10,48 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.3-1] — 19/10/2026
+
+Sửa lỗi Gõ Sen khi backspace, trong gnome-text-editor, thanh địa chỉ Firefox ESR và các browser dựa trên Firefox, XIM trên X11 và Wine trên Wayland; thêm kho cài đặt và gói Ubuntu 26.10.
+Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.3-1).
+
 ### Thêm
 
-- Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
-  chữ đổi luôn thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ" (#82).
-- Cứu chữ không tự đổi khi trong đoạn có chữ gõ lại vẫn y nguyên (như `abc` trong `abc tieengs`), vì
-  thường đó là tiếng Anh gõ có chủ ý. Khi đó chỉ hiện gợi ý `abc tieengs → abc tiếng` kèm dòng
-  "Cứu chữ: Tab để đổi, Esc để giữ nguyên": Tab gõ lại có dấu, Tab lần nữa trả lại như cũ, Esc hoặc phím
-  khác thì bỏ qua (#80).
-- Cứu chữ không ghi nhớ gì trong ô mật khẩu, quên đoạn đã gõ khi bấm chuột, Enter, phím mũi tên hay chuyển
-  ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
-- Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
-  không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
+- Mỗi version phát hành được tự dựng trên kho COPR `nguyenphi/ngosen`, để người dùng Fedora lên version mới bằng
+  `dnf upgrade`: bật kho bằng `sudo dnf copr enable nguyenphi/ngosen` (#133, #134).
+- Kho APT có chữ ký cho Debian, Ubuntu và các bản dựa trên chúng, để lên version mới bằng `apt upgrade` (#135).
+- Kho pacman có chữ ký cho Arch, CachyOS và EndeavourOS, để lên version mới bằng `pacman -Syu` (#137).
+- Kho openSUSE Tumbleweed có chữ ký, để lên version mới bằng `zypper up` (#140).
+- Có gói cho Ubuntu 26.10: lệnh cài một dòng và kho APT nhận Ubuntu 26.10 trên máy x86_64 và ARM 64-bit (#150).
+
+### Thay đổi
+
+- Test X11 của bản Nix tắt Xvfb khi xong, không còn treo khi chạy ngoài sandbox; người dùng không thấy
+  khác gì (#147).
 
 ### Sửa
 
-- Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
-  fcitx5, và không chạy trong kitty (#83).
+- Gõ Sen trong WordCraft và các app dùng XIM trên phiên X11 không còn rối chữ (như `dââấ` thay vì `dấu`): Ngó
+  Sen xoá chữ bằng phím thật qua XTEST thay vì gửi backspace qua XIM (#156).
+- Gõ Sen trong Wine 11 (phần mềm Windows) trên phiên Wayland không còn rối chữ (như `tiêến` thay vì `tiếng`):
+  Ngó Sen gửi phím xoá thẳng vào cửa sổ app, không hiện hộp hỏi quyền điều khiển (#158).
+- Gõ trên thanh địa chỉ Firefox ESR (bản Firefox mặc định của Debian) khi Firefox đang tự điền địa chỉ không còn
+  ra chữ thừa (như `coờ` thay vì `cờ`) (#162).
+- Gõ trên thanh địa chỉ của các trình duyệt dựa trên Firefox (Zen, LibreWolf, Waterfox, Floorp, Mullvad Browser,
+  GNU IceCat) khi đang tự điền địa chỉ không còn ra chữ thừa (như `moờ` thay vì `mờ`) (#164).
+- Nhật ký gõ ghi đúng app đang gõ khi chuyển qua lại giữa các cửa sổ. Trước đây quay về một ô đã gõ trước đó
+  thì phím gõ ở đó bị ghi dưới tên app vừa rời (#143).
+- Nút "Mặc định" trong cửa sổ cài đặt sáng ngay khi đã có gõ tắt, keymap riêng hay từ thêm vào từ điển, không
+  cần mở trang đó trước (#132).
+- Gõ Sen: xoá lùi từ sau dấu cách vào lại từ vừa gõ rồi gõ tiếp thì Ngó Sen sửa tiếp chính từ đó. Trước đây
+  gõ `duyeet`, dấu cách, xoá còn `du` rồi gõ `yeejt` ra `duyeejt` thay vì `duyệt`, ở mọi app kể cả kitty (#142).
+- Gõ Sen trong gnome-text-editor: xoá lùi giữa từ rồi gõ tiếp không còn mất chữ. Trước đây gõ `toan`, xoá một
+  chữ rồi gõ `nf` ra `toòn` thay vì `toàn` (#149).
+
+### Tài liệu
+
+- README nói rõ cách ghi nguồn khi lấy mã hay ý tưởng của Ngó Sen, kể cả khi nhờ AI viết lại (#167).
+- README viết lại cho gọn: chọn chế độ trước, rồi cài, lỗi thường gặp, gỡ; giữ nguyên mọi lệnh và link (#167).
 
 ## [1.5.2-1] — 18/10/2026
 
@@ -56,8 +81,8 @@ Tải ở [ngosen-1.5.1-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
   trên KDE Wayland thì fcitx5 có được chọn làm bàn phím ảo không. Mỗi lỗi kèm cách sửa; nút "Báo cáo lỗi…" mở
   trang báo lỗi trên GitHub đã điền sẵn kết quả, không tự gửi gì (#88).
 - "Kiểm tra máy tôi" thêm mục test một app: gõ `Tieengs Vieetj cos daaus` trong app, chọn "Lưu nhật ký gõ" ở
-  menu Ngó Sen, rồi bấm "Đọc nhật ký gõ". App có báo chữ cho bộ gõ thì tự biết gõ đúng hay sai; app không báo
-  thì bạn tự chọn. Kết quả, cùng cách app nhận chữ và cách bộ gõ xoá chữ, được đưa vào báo lỗi (#90).
+  menu Ngó Sen, rồi bấm "Đọc nhật ký gõ". Nếu app có báo chữ cho bộ gõ, "Kiểm tra máy tôi" tự biết gõ đúng hay sai;
+  app không báo thì bạn tự chọn. Kết quả, cùng cách app nhận chữ và cách bộ gõ xoá chữ, được đưa vào báo lỗi (#90).
 
 ### Thay đổi
 
@@ -207,7 +232,7 @@ Tải ở [ngosen-1.4.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 
 ## [1.3.0-1] — 13/10/2026
 
-Thêm tuỳ chọn Backspace chỉ xoá dấu thanh, icon mới hai cọng ngó sen, và sửa icon khay trên panel tối.
+Thêm tuỳ chọn Backspace chỉ xoá dấu thanh, icon mới hai cọng ngó sen và sửa icon khay trên panel tối.
 Tải ở [ngosen-1.3.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.3.0-1).
 
 ### Thêm
@@ -277,7 +302,7 @@ nhanh trong gnome-terminal. Tải ở [ngosen-1.2.0-1](https://github.com/ngosen
 - Cửa sổ cài đặt nhanh hơn: tìm trong từ điển riêng không còn khựng mỗi phím khi có vài nghìn từ, đổi chế
   độ gõ cho một app không còn đọc lại toàn bộ danh sách app đã cài (#13).
 - Cửa sổ cài đặt lưu ngay khi đổi, không còn nút OK, Áp dụng, Huỷ. Mỗi lần lưu hiện dòng "Đã lưu" kèm nút
-  Hoàn tác, đưa lại đúng cài đặt trước đó, kể cả luật app, gõ tắt và từ điển riêng. Khi fcitx5 không chạy,
+  Hoàn tác để khôi phục đúng cài đặt trước đó, kể cả luật app, gõ tắt và từ điển riêng. Khi fcitx5 không chạy,
   cửa sổ báo ngay là thay đổi sẽ không được lưu (#14).
 - Trang Gõ chữ gộp trang Tổng quan: Chế độ gõ, Kiểu gõ, Bảng mã nằm trên cùng, các tuỳ chọn chia nhóm Cách
   bỏ dấu và Gõ nhanh, tên ngắn hơn, có dòng gợi ý ngay dưới tuỳ chọn thay cho dấu hỏi, và ô Gõ thử ở cuối.
@@ -360,7 +385,7 @@ Version 1.1: file cài vào máy mang tên `ngosen`, cấu hình cũ tự chuy�
 
 ## [1.0.0-1] — 09/10/2026
 
-Version 1.0: Ngó Sen chỉ làm cho fcitx5. Click sang ô khác rồi gõ nay ra đúng trong LibreOffice Calc, WPS Office
+Version 1.0: Ngó Sen chỉ làm cho fcitx5. Click sang ô khác rồi gõ giờ đã ra đúng chữ trong LibreOffice Calc, WPS Office
 và Google Sheets. Tải ở [ngosen-1.0.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.0.0-1).
 
 ### Thêm
@@ -377,7 +402,7 @@ và Google Sheets. Tải ở [ngosen-1.0.0-1](https://github.com/ngosen/ngosen/r
   hộp thoại "Delete Contents", từ đó không gõ được tiếng Việt nữa. Nay phím đầu ở ô mới bắt đầu một chữ
   mới ([#87](https://github.com/ngosen/ngosen-fork-archive/pull/87)).
 - LibreOffice Calc mở thẳng trên Wayland (không qua module Qt của fcitx): click sang ô khác rồi gõ thì chữ
-  ra lẫn chữ của ô trước, hoặc mở hộp thoại "Delete Contents". Nay bộ gõ hỏi Calc đang ở ô nào trước khi
+  ra lẫn chữ của ô trước hoặc hộp thoại "Delete Contents" mở ra. Nay bộ gõ hỏi Calc đang ở ô nào trước khi
   sửa chữ, nên mỗi ô mới bắt đầu một chữ mới ([#90](https://github.com/ngosen/ngosen-fork-archive/pull/90)).
 - WPS Office: gõ hai phím giống nhau liền nhau (`dd`, `ee`, `oo`, `aa`, `ww`) thì phím thứ hai bị mất, nên
   `dd` không ra `đ` và `oo` không ra `ô`. Nay chỉ app gõ qua XIM mới bị coi là "gửi trả phím" ([#90](https://github.com/ngosen/ngosen-fork-archive/pull/90)).

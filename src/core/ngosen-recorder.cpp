@@ -135,6 +135,13 @@ namespace ngosen {
         events_.push_back({monotonicUs(), kind, detail});
     }
 
+    void Recorder::addField(const std::string& detail) {
+        if (detail == lastField_)
+            return;
+        lastField_ = detail;
+        add("field", detail);
+    }
+
     std::string Recorder::dump() const {
         std::string out;
         if (events_.empty())

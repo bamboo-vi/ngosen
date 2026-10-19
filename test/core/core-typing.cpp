@@ -15,6 +15,7 @@
 #include "ngosen-state.h"
 #include "ngosen-strings.h"
 #include "ngosen-utf8.h"
+#include "ngosen-xtest.h"
 
 #include <iostream>
 #include <memory>
@@ -176,6 +177,77 @@ namespace {
         check(text == "đơn", "emptied field: commit after focus comes back", text);
     }
 
+    // Backspacing from after a word into it and typing on continues that word; kitty reports no
+    // surrounding text, so the word comes from what we committed.
+    void testBackspaceIntoLastWord(const std::string& frontend, bool surroundingText, ngosen::test::AppQuirks quirks = {}) {
+        const Field                                                      field = makeField(frontend, surroundingText);
+        const std::string                                                what  = "backspace into last word (" + frontend + (surroundingText ? ", surrounding): " : "): ");
+        const uint32_t                                                   bs    = ngosen::key::BackSpace;
+        const std::vector<std::pair<std::vector<uint32_t>, std::string>> cases{
+            {{'d', 'u', 'y', 'e', 'e', 't', ' ', bs, bs, bs, bs, bs, 'y', 'e', 'e', 'j', 't', ' '}, "duyệt "},
+            {{'t', 'o', 'a', 'n', ' ', bs, bs, 'n', 'f', ' '}, "toàn "},
+            {{'b', 'a', 'n', ' ', bs, 'f', ' '}, "bàn "},
+        };
+        for (const auto& [keys, want] : cases) {
+            const std::string text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
+            check(text == want, what + want, text);
+        }
+    }
+
+    // After a click elsewhere the text before the cursor is not our word, so it is not reopened.
+    void testBackspaceAfterMovingAway() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        const std::string   typed = "ban ";
+        for (size_t i = 0; i < typed.size(); ++i) {
+            press(state, static_cast<uint32_t>(typed[i]));
+            host->setSurrounding(typed.substr(0, i + 1), static_cast<unsigned int>(i + 1));
+            state.surroundingUpdated();
+        }
+        host->setSurrounding("xyz", 3);
+        state.surroundingUpdated();
+        press(state, ngosen::key::BackSpace);
+        host->setSurrounding("xy", 2);
+        state.surroundingUpdated();
+        check(!press(state, static_cast<uint32_t>('f')), "backspace after moving away: f goes to the app as a key", "f was taken");
+    }
+
+    // gnome-text-editor sends a key that types no text back once more, marked as repeated; counting the
+    // backspace twice left the word one letter short of the app's text.
+    void testResentBackspace() {
+        ngosen::test::AppQuirks quirks;
+        quirks.resendsKeysWithoutText                                       = true;
+        const uint32_t                                                   bs = ngosen::key::BackSpace;
+        const std::vector<std::pair<std::vector<uint32_t>, std::string>> cases{
+            {{'t', 'o', 'a', 'n', bs, 'n', 'f', ' '}, "toàn "},
+            {{'b', 'a', 'n', ' ', bs, 'f', ' '}, "bàn "},
+        };
+        for (const auto& [keys, want] : cases) {
+            const std::string text = ngosen::test::typeInApp(makeField("dbus", true, "gnome-text-editor"), quirks, keys, std::vector<int>(keys.size(), 100));
+            check(text == want, "resent backspace: " + want, text);
+        }
+    }
+
+    // Ctrl+Backspace deletes text we cannot follow without surrounding text.
+    void testBackspaceAfterCtrlBackspace() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        ngosen::TypingState state(&resources, std::make_unique<FakeHost>(loop, makeField("wayland", false)));
+
+        for (const char c : std::string("ban "))
+            press(state, static_cast<uint32_t>(c));
+        FakeKey wordDelete(ngosen::key::BackSpace, false, ngosen::modifier::Ctrl);
+        state.keyEvent(wordDelete);
+        press(state, ngosen::key::BackSpace);
+        check(!press(state, static_cast<uint32_t>('f')), "backspace after ctrl+backspace: f goes to the app as a key", "f was taken");
+    }
+
     // A key typed while the app has not yet applied the backspaces waits and goes out with the
     // replacement in one commit.
     void testKeyDuringReplacement() {
@@ -289,6 +361,22 @@ namespace {
         check(has(log, "\tforward\tBackSpace down\n"), "recorder: notes the forwarded backspace", log);
         check(has(log, "\tapp\t\"ti|\" cursor=2 anchor=2 length=2\n"), "recorder: notes the app's report", log);
         check(has(log, "\tcommit\t\"ê\"\n"), "recorder: notes the commit", log);
+    }
+
+    // Every field shares one recorder, so coming back to a field must note it again.
+    void testRecorderNotesFieldSwitch() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        ngosen::TypingState terminal(&resources, std::make_unique<FakeHost>(loop, makeField("wayland", false, "kitty")));
+        ngosen::TypingState chat(&resources, std::make_unique<FakeHost>(loop, makeField("ibus", false, "zalo")));
+
+        press(terminal, static_cast<uint32_t>('a'));
+        press(chat, static_cast<uint32_t>('b'));
+        press(terminal, static_cast<uint32_t>('c'));
+        const std::string log  = resources.recorder().dump();
+        const auto        last = log.rfind("\tfield\t");
+        check(last != std::string::npos && has(log.substr(last), "program=kitty") && has(log.substr(last), "0x0063 c"), "recorder: notes the field again on coming back", log);
     }
 
     void testRecorderHidesPasswords() {
@@ -486,10 +574,24 @@ int main() {
     testKeyDuringReplacement();
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
+    testBackspaceIntoLastWord("wayland", true);
+    testBackspaceIntoLastWord("wayland", false);
+    {
+        // On an X11 session XIM clients get our backspaces as XTEST presses.
+        setXTestSenderForTest([](int) { return true; });
+        ngosen::test::AppQuirks xtest;
+        xtest.takesXTest = true;
+        testBackspaceIntoLastWord("xim", false, xtest);
+        setXTestSenderForTest({});
+    }
+    testBackspaceAfterMovingAway();
+    testBackspaceAfterCtrlBackspace();
+    testResentBackspace();
     testGtk4DeletesSurrounding();
     testSdlGetsNoForwardedBackspace();
     testTerminalErasesWithCommittedDel();
     testRecorderKeepsTheReplacement();
+    testRecorderNotesFieldSwitch();
     testRecorderHidesPasswords();
     testRecorderLimits();
     testFocusBounce();

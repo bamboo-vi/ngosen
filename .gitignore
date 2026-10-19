@@ -1,6 +1,7 @@
 build*/
 .*
 !.git*
+!.copr/
 .git/
 *.tar.*
 *.kdev4
@@ -25,6 +26,7 @@ install_manifest.txt
 io.github.ngosen.NgoSen.metainfo.xml
 io.github.ngosen.NgoSen.metainfo.xml.in
 Makefile
+!.copr/Makefile
 .vscode/
 compile_commands.json
 !.all-contributorsrc

@@ -12,8 +12,12 @@
 namespace ngosen {
 
     // True when the frontend can deliver backspaces itself, so XTEST is not needed: the Wayland
-    // input-method frontend, XIM clients, and IBus, D-Bus and fcitx4 clients other than SDL.
+    // input-method frontend, XIM clients under Xwayland, and IBus, D-Bus and fcitx4 clients other than SDL.
     bool forwardsBackspaces(const Field& field);
+
+    // True for Wine over XIM under Xwayland, where XTEST asks the user first: backspaces go
+    // as key events sent to the focused X window instead.
+    bool takesSentKeyEvents(const Field& field);
 
     // True for GTK4 clients, whose IM modules drop forwarded keys; delete through surrounding text there.
     bool ignoresForwardedKeys(const Field& field);
@@ -41,7 +45,7 @@ namespace ngosen {
     // selected; it reports the field only when a key reaches it, a lone Shift included.
     bool reportsFieldOnlyOnKey(const Field& field);
 
-    // Firefox's address bar sets no Url flag; callers recognise it by the text after the cursor.
+    // The address bar of Firefox and its forks sets no Url flag; callers recognise it by the text after the cursor.
     bool hidesAddressBarFlag(const Field& field);
 
 } // namespace ngosen

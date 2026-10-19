@@ -140,6 +140,7 @@ namespace ngosen {
         ngosen::EngineResources* engine_;
         CGoObject                bambooEngine_;
         std::string              oldPreBuffer_;
+        std::string              lastWord_; ///< The word and break we last committed, while only backspaces follow
         bool                     hasHistory_              = false;
         int                      expected_backspaces_     = 0;
         int                      current_backspace_count_ = 0;
@@ -178,12 +179,13 @@ namespace ngosen {
         // XIM, IBus and D-Bus clients queue forwarded keys, and XIM may hand one back; without a
         // surrounding text report the commit waits this long for them.
         static constexpr uint64_t ForwardWaitUs = 15000;
+        // A key sent back arrives at once; a held key repeats tens of milliseconds apart.
+        static constexpr uint64_t SentBackWithinUs = 10000;
 
-        // The field and mode last written to the recorder, to note when either changes.
-        std::string recordedField_;
-        void        recordKey(const ngosen::KeyPress& keyEvent);
+        // Notes the key, after the field and mode when they differ from the last noted ones.
+        void recordKey(const ngosen::KeyPress& keyEvent);
 
-        void        handleKey(ngosen::KeyPress& keyEvent);
+        void handleKey(ngosen::KeyPress& keyEvent);
         // The steps of keyEvent, in order. A true result means the key needs nothing more.
         bool     skipsKey(ngosen::KeyPress& keyEvent);
         void     settleBeforeKey();
@@ -387,6 +389,8 @@ namespace ngosen {
         void handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         // Backspace on a word with a tone mark: take off only the mark. False leaves the key as is.
         bool removeToneMark(ngosen::KeyPress& keyEvent);
+        // Backspace from after lastWord_ into it: the engine takes up what is left of that word.
+        void reopenLastWord();
         // The engine finished a word: send what differs from the text already typed.
         void commitWord(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8, const std::string& commitStr);
         // The word is still open: bring the app's text in line with the new preedit.

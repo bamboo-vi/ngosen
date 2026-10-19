@@ -27,6 +27,18 @@ target_link_libraries(ngosen_test_core PRIVATE
 #   add_ngosen_headless_test(my_test my-test.cpp "integration;myfeature")
 function(add_ngosen_headless_test target source labels)
     add_executable(${target} ${source} $<TARGET_OBJECTS:ngosen_test_core>)
+    ngosen_headless_test_settings(${target})
+    if(TARGET ngosen_test_pch)
+        target_precompile_headers(${target} REUSE_FROM ngosen_test_pch)
+    endif()
+    add_test(NAME ${target} COMMAND ${target})
+    # An empty DISPLAY keeps XTEST off, so no test presses keys in the developer's X session.
+    set_tests_properties(${target} PROPERTIES LABELS "${labels}" TIMEOUT 20 ENVIRONMENT "DISPLAY=")
+endfunction()
+
+# The precompiled header is reused only by targets with the same flags, so the tests and its host
+# share one set.
+function(ngosen_headless_test_settings target)
     target_include_directories(${target} PRIVATE
         ${PROJECT_BINARY_DIR}
         ${PROJECT_SOURCE_DIR}/src
@@ -44,10 +56,33 @@ function(add_ngosen_headless_test target source labels)
         Bamboo::Core
         Pthread::Pthread
     )
-    add_test(NAME ${target} COMMAND ${target})
-    # An empty DISPLAY keeps XTEST off, so no test presses keys in the developer's X session.
-    set_tests_properties(${target} PROPERTIES LABELS "${labels}" TIMEOUT 20 ENVIRONMENT "DISPLAY=")
 endfunction()
+
+# Every headless test parses the same fcitx5 headers; parse them once.
+if(NOT CMAKE_VERSION VERSION_LESS 3.16)
+    add_library(ngosen_test_pch OBJECT EXCLUDE_FROM_ALL test-pch.cpp)
+    ngosen_headless_test_settings(ngosen_test_pch)
+    target_precompile_headers(ngosen_test_pch PRIVATE
+        <filesystem>
+        <iostream>
+        <memory>
+        <string>
+        <vector>
+        <fcitx-config/iniparser.h>
+        <fcitx-utils/event.h>
+        <fcitx-utils/utf8.h>
+        <fcitx/action.h>
+        <fcitx/addonfactory.h>
+        <fcitx/addonmanager.h>
+        <fcitx/candidatelist.h>
+        <fcitx/inputcontext.h>
+        <fcitx/inputcontextmanager.h>
+        <fcitx/inputmethodengine.h>
+        <fcitx/inputpanel.h>
+        <fcitx/instance.h>
+        <fcitx/text.h>
+    )
+endif()
 
 # Helper macro to compile lightweight unit test linked with Bamboo engine core.
 function(add_bamboo_test target source labels)
