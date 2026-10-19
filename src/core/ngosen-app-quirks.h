@@ -15,7 +15,7 @@ namespace ngosen {
     // input-method frontend, XIM clients under Xwayland, and IBus, D-Bus and fcitx4 clients other than SDL.
     bool forwardsBackspaces(const Field& field);
 
-    // True for Wine and WordCraft over XIM under Xwayland, where XTEST asks the user first: backspaces go
+    // True for Wine over XIM under Xwayland, where XTEST asks the user first: backspaces go
     // as key events sent to the focused X window instead.
     bool takesSentKeyEvents(const Field& field);
 

@@ -39,10 +39,9 @@ namespace ngosen {
     bool takesSentKeyEvents(const Field& field) {
         if (field.frontend != "xim" || !xsendAvailable())
             return false;
-        // Wine and winit apply forwarded keys after a later commit, and report nothing that sets them
-        // apart; xterm and XInput2 clients drop sent events, so the rest keep forwarding.
-        const std::string program = stripDesktopSuffix(field.program);
-        return isStartsWith(program, "wine") || program == "wordcraft";
+        // Wine applies forwarded keys after a later commit and reports nothing that sets it apart;
+        // xterm and XInput2 clients drop sent events, so the rest keep forwarding.
+        return isStartsWith(stripDesktopSuffix(field.program), "wine");
     }
 
     bool ignoresForwardedKeys(const Field& field) {
