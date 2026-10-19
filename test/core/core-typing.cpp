@@ -474,6 +474,18 @@ namespace {
         check(!ngosen::ignoresForwardedKeys(gtk3), "quirks: key order fix means GTK3", "true");
     }
 
+    // Tapping Shift or Ctrl alone mid-word, as when reaching for a shortcut and letting go, keeps the
+    // word open so a later tone key still applies to it.
+    void testModifierTapKeepsWord() {
+        for (const auto& [frontend, surroundingText] : {std::pair<const char*, bool>{"wayland", true}, {"ibus", false}}) {
+            for (const uint32_t modifier : {ngosen::key::Shift_L, ngosen::key::Control_L}) {
+                const std::vector<uint32_t> keys{'v', 'i', 'e', 'e', 't', modifier, 'j'};
+                const std::string           text = ngosen::test::typeInApp(makeField(frontend, surroundingText), {}, keys, std::vector<int>(keys.size(), 100));
+                check(text == "việt", std::string("modifier tap: ") + frontend + (modifier == ngosen::key::Shift_L ? " Shift" : " Ctrl") + " keeps vieet open", text);
+            }
+        }
+    }
+
 } // namespace
 
 int main() {
@@ -499,6 +511,7 @@ int main() {
     testBackspaceRemovesTone(true);
     testBackspaceRemovesTone(false);
     testPreeditBackspaceRemovesTone();
+    testModifierTapKeepsWord();
     if (failures == 0)
         std::cout << "all core typing checks passed\n";
     return failures == 0 ? 0 : 1;

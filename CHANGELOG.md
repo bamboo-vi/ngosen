@@ -37,6 +37,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - Lộ trình thêm thông báo "Có gì mới" cho 1.6.0 và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148).
 
+### Test
+
+- Test mới: bấm rồi thả Shift hay Ctrl giữa từ không chốt từ đang gõ (`vieet`, Shift, `j` vẫn ra `việt`); người
+  dùng không thấy khác gì (#PR).
+
 ## [1.5.2-1] — 18/10/2026
 
 Sửa lỗi cửa sổ cài đặt: nút phím ở trang Phím › Phím tắt bị cắt mép hoặc mất khi phóng to cửa sổ.
