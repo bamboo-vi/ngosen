@@ -49,18 +49,13 @@ namespace ngosen {
     }
 
     void TypingState::deactivate(bool isFocusOut) {
-        const bool surroundingValid = host_->surrounding().isValid();
         flushPendingReplacement(); // commit pending text into the field we are leaving
         lastDeactivateTime_ = nowMs();
         if (realMode == ngosen::Mode::Preedit && !isFocusOut) {
             commitBuffer();
             return;
         }
-        if (isFocusOut && host_->field().frontend == "dbus" && !surroundingValid) {
-            NGOSEN_INFO("Skip clearAllBuffers");
-        } else if (surroundingValid && !oldPreBuffer_.empty()) {
-            clearAllBuffers();
-        }
+        // The word stays until activate() knows whether focus only bounced.
         // A selection waiting to be typed over has no backspaces left, but is just as unfinished.
         if (realMode == ngosen::Mode::Sen && is_deleting_.load() && (expected_backspaces_ > 0 || overtype_pending_)) {
             deletionInterruptedAt_ = nowMs();
