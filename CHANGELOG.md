@@ -27,6 +27,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Kho APT có chữ ký cho Debian, Ubuntu và các bản dựa trên chúng, để lên version mới bằng `apt upgrade` (#135).
 - Kho pacman có chữ ký cho Arch, CachyOS và EndeavourOS, để lên version mới bằng `pacman -Syu` (#137).
 - Kho openSUSE Tumbleweed có chữ ký, để lên version mới bằng `zypper up` (#140).
+- Có gói cho Ubuntu 26.10: lệnh cài một dòng và kho APT nhận Ubuntu 26.10 trên máy x86_64 và ARM 64-bit (#150).
 
 ### Thay đổi
 

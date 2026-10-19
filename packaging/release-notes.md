@@ -19,7 +19,7 @@ Chọn file theo distro:
 - Fedora 44, 43: `fcitx5-ngosen-*.fc44.x86_64.rpm`, `fcitx5-ngosen-*.fc43.x86_64.rpm`
 - Arch, CachyOS: `fcitx5-ngosen-*-x86_64.pkg.tar.zst`
 - openSUSE Tumbleweed: `fcitx5-ngosen-*.opensuse-tumbleweed.x86_64.rpm`
-- Ubuntu 26.04, 24.04, 22.04: `…_resolute_amd64.deb`, `…_noble_amd64.deb`, `…_jammy_amd64.deb`
+- Ubuntu 26.10, 26.04, 24.04, 22.04: `…_stonking_amd64.deb`, `…_resolute_amd64.deb`, `…_noble_amd64.deb`, `…_jammy_amd64.deb`
 - Debian 13, 12: `…_trixie_amd64.deb`, `…_bookworm_amd64.deb`
 - Kali Rolling: `…_forky_amd64.deb`
 - Máy ARM 64-bit: file cùng tên với đuôi `_arm64.deb`, hoặc `.aarch64.rpm` cho Fedora
