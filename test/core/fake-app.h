@@ -30,6 +30,7 @@ namespace ngosen::test {
         bool dropsCommitsInReport   = false; // drops commits sent while its report is handled, as wlroots does
         int  refocusWhenEmptiedMs   = 0;     // leaves focus this long when its text becomes empty, as Zed does
         bool resendsKeysWithoutText = false; // sends a key that types no text back once more, marked as repeated, as gnome-text-editor does
+        bool takesXTest             = false; // gets backspaces as XTEST presses, which come back to the input method first
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -50,9 +51,7 @@ namespace ngosen::test {
         void        commitText(const std::string& text) override;
         void        forwardKey(EditKey key, bool release) override;
         void        deleteSurrounding(int offset, unsigned int size) override;
-        bool        pressSystemKeys(int /*count*/) override {
-            return false;
-        }
+        bool        pressSystemKeys(int count) override;
 
         Surrounding surrounding() const override;
         Field       field() const override {
