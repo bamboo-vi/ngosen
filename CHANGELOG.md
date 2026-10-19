@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- Gõ Sen trong Chrome/Chromium trên Wayland không còn để nguyên `ddungs rooif` thay vì `đúng rồi` ở ô bình luận
+  TikTok, hay không ghép dấu ở từ đầu tiên trong ô Draft.js khi chữ gợi ý biến mất. Ngó Sen giờ giữ từ đang gõ
+  khi ô mất focus rồi có lại ngay sau khi trang vẽ lại ô (#176).
+
 ### Tài liệu
 
 - README hướng dẫn thêm repo để update bằng dnf, apt, pacman hoặc zypper (#174).
