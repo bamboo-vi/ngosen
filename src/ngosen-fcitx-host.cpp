@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 #include "ngosen-fcitx-host.h"
+#include "ngosen-app-quirks.h"
 
 #include "ngosen-keysym.h"
 #include "ngosen-xtest.h"
@@ -121,7 +122,10 @@ namespace ngosen {
     }
 
     bool FcitxHost::pressSystemKeys(int count) {
-        return xtestSendKeys(count);
+        if (xtestAvailable()) {
+            return xtestSendKeys(count);
+        }
+        return ngosen::takesSentKeyEvents(field()) && xsendKeys(count);
     }
 
     Surrounding FcitxHost::surrounding() const {

@@ -22,11 +22,6 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
 - Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
   không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
-- Mỗi version phát hành được tự dựng trên kho COPR `nguyenphi/ngosen`, để người dùng Fedora lên version mới bằng
-  `dnf upgrade`: bật kho bằng `sudo dnf copr enable nguyenphi/ngosen` (#133, #134).
-- Kho APT có chữ ký cho Debian, Ubuntu và các bản dựa trên chúng, để lên version mới bằng `apt upgrade` (#135).
-- Kho pacman có chữ ký cho Arch, CachyOS và EndeavourOS, để lên version mới bằng `pacman -Syu` (#137).
-- Kho openSUSE Tumbleweed có chữ ký, để lên version mới bằng `zypper up` (#140).
 
 ### Sửa
 
@@ -41,6 +36,49 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - Test mới: bấm rồi thả Shift hay Ctrl giữa từ không chốt từ đang gõ (`vieet`, Shift, `j` vẫn ra `việt`); người
   dùng không thấy khác gì (#155).
+
+## [1.5.3-1] — 19/10/2026
+
+Sửa lỗi Gõ Sen khi backspace, trong gnome-text-editor, thanh địa chỉ Firefox ESR và các browser dựa trên Firefox, XIM trên X11 và Wine trên Wayland; thêm kho cài đặt và gói Ubuntu 26.10.
+Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.3-1).
+
+### Thêm
+
+- Mỗi version phát hành được tự dựng trên kho COPR `nguyenphi/ngosen`, để người dùng Fedora lên version mới bằng
+  `dnf upgrade`: bật kho bằng `sudo dnf copr enable nguyenphi/ngosen` (#133, #134).
+- Kho APT có chữ ký cho Debian, Ubuntu và các bản dựa trên chúng, để lên version mới bằng `apt upgrade` (#135).
+- Kho pacman có chữ ký cho Arch, CachyOS và EndeavourOS, để lên version mới bằng `pacman -Syu` (#137).
+- Kho openSUSE Tumbleweed có chữ ký, để lên version mới bằng `zypper up` (#140).
+- Có gói cho Ubuntu 26.10: lệnh cài một dòng và kho APT nhận Ubuntu 26.10 trên máy x86_64 và ARM 64-bit (#150).
+
+### Thay đổi
+
+- Test X11 của bản Nix tắt Xvfb khi xong, không còn treo khi chạy ngoài sandbox; người dùng không thấy
+  khác gì (#147).
+
+### Sửa
+
+- Gõ Sen trong WordCraft và các app dùng XIM trên phiên X11 không còn rối chữ (như `dââấ` thay vì `dấu`): Ngó
+  Sen xoá chữ bằng phím thật qua XTEST thay vì gửi backspace qua XIM (#156).
+- Gõ Sen trong Wine 11 (phần mềm Windows) trên phiên Wayland không còn rối chữ (như `tiêến` thay vì `tiếng`):
+  Ngó Sen gửi phím xoá thẳng vào cửa sổ app, không hiện hộp hỏi quyền điều khiển (#158).
+- Gõ trên thanh địa chỉ Firefox ESR (bản Firefox mặc định của Debian) khi Firefox đang tự điền địa chỉ không còn
+  ra chữ thừa (như `coờ` thay vì `cờ`) (#162).
+- Gõ trên thanh địa chỉ của các trình duyệt dựa trên Firefox (Zen, LibreWolf, Waterfox, Floorp, Mullvad Browser,
+  GNU IceCat) khi đang tự điền địa chỉ không còn ra chữ thừa (như `moờ` thay vì `mờ`) (#164).
+- Nhật ký gõ ghi đúng app đang gõ khi chuyển qua lại giữa các cửa sổ. Trước đây quay về một ô đã gõ trước đó
+  thì phím gõ ở đó bị ghi dưới tên app vừa rời (#143).
+- Nút "Mặc định" trong cửa sổ cài đặt sáng ngay khi đã có gõ tắt, keymap riêng hay từ thêm vào từ điển, không
+  cần mở trang đó trước (#132).
+- Gõ Sen: xoá lùi từ sau dấu cách vào lại từ vừa gõ rồi gõ tiếp thì Ngó Sen sửa tiếp chính từ đó. Trước đây
+  gõ `duyeet`, dấu cách, xoá còn `du` rồi gõ `yeejt` ra `duyeejt` thay vì `duyệt`, ở mọi app kể cả kitty (#142).
+- Gõ Sen trong gnome-text-editor: xoá lùi giữa từ rồi gõ tiếp không còn mất chữ. Trước đây gõ `toan`, xoá một
+  chữ rồi gõ `nf` ra `toòn` thay vì `toàn` (#149).
+
+### Tài liệu
+
+- README nói rõ cách ghi nguồn khi lấy mã hay ý tưởng của Ngó Sen, kể cả khi nhờ AI viết lại (#167).
+- README viết lại cho gọn: chọn chế độ trước, rồi cài, lỗi thường gặp, gỡ; giữ nguyên mọi lệnh và link (#167).
 
 ## [1.5.2-1] — 18/10/2026
 

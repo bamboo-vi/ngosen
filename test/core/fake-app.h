@@ -20,15 +20,17 @@ namespace ngosen::test {
 
     // Ways a real app's field departs from an ideal one.
     struct AppQuirks {
-        bool reports              = true; // tells the input method when its text changes
-        int  reportDelayMs        = 0;
-        bool staleReport          = false; // reports the text as it was one change earlier
-        int  lagMs                = 0;     // applies commits, deletions and keys this late, in order
-        bool handsBackKeys        = false; // sends forwarded keys back to the input method first, as XIM clients do
-        int  keyStepMs            = 0;     // applies forwarded backspaces one per step, reporting after each
-        int  switchBusyMs         = 0;     // drops forwarded keys this long after a switch key, as Qt does
-        bool dropsCommitsInReport = false; // drops commits sent while its report is handled, as wlroots does
-        int  refocusWhenEmptiedMs = 0;     // leaves focus this long when its text becomes empty, as Zed does
+        bool reports                = true; // tells the input method when its text changes
+        int  reportDelayMs          = 0;
+        bool staleReport            = false; // reports the text as it was one change earlier
+        int  lagMs                  = 0;     // applies commits, deletions and keys this late, in order
+        bool handsBackKeys          = false; // sends forwarded keys back to the input method first, as XIM clients do
+        int  keyStepMs              = 0;     // applies forwarded backspaces one per step, reporting after each
+        int  switchBusyMs           = 0;     // drops forwarded keys this long after a switch key, as Qt does
+        bool dropsCommitsInReport   = false; // drops commits sent while its report is handled, as wlroots does
+        int  refocusWhenEmptiedMs   = 0;     // leaves focus this long when its text becomes empty, as Zed does
+        bool resendsKeysWithoutText = false; // sends a key that types no text back once more, marked as repeated, as gnome-text-editor does
+        bool takesXTest             = false; // gets backspaces as XTEST presses, which come back to the input method first
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -49,9 +51,7 @@ namespace ngosen::test {
         void        commitText(const std::string& text) override;
         void        forwardKey(EditKey key, bool release) override;
         void        deleteSurrounding(int offset, unsigned int size) override;
-        bool        pressSystemKeys(int /*count*/) override {
-            return false;
-        }
+        bool        pressSystemKeys(int count) override;
 
         Surrounding surrounding() const override;
         Field       field() const override {

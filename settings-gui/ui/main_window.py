@@ -61,6 +61,8 @@ class NgoSenSettingsWindow(QMainWindow):
         self._setup_ui()
         self._setup_window_size()
         self.update_reset_button_state()
+        # Defaults also resets pages not opened yet, so the button must see what they hold.
+        QTimer.singleShot(0, self._check_all_pages)
         if self._saved is None:
             self._show_message(_("Cannot reach fcitx5, so changes will not be saved."), error=True)
 
@@ -199,6 +201,10 @@ class NgoSenSettingsWindow(QMainWindow):
         # Pages are built when first opened; reset and search need all of them.
         for row in range(self.sidebar.count()):
             self._page_for_item(self.sidebar.item(row))
+
+    def _check_all_pages(self):
+        self._build_all_pages()
+        self.update_reset_button_state()
 
     def _setup_bottom_bar(self, layout):
         container = QFrame()

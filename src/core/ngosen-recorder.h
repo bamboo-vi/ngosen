@@ -23,11 +23,14 @@ namespace ngosen {
         explicit Recorder(size_t capacity = 400) : capacity_(capacity) {}
 
         void add(const std::string& kind, const std::string& detail);
+        // Adds a field event unless it is the field of the last one.
+        void addField(const std::string& detail);
         // One event per line: milliseconds since the first kept event, kind and detail, tab separated.
         std::string dump() const;
         void        clear() {
             events_.clear();
             droppedField_.reset();
+            lastField_.clear();
         }
 
       private:
@@ -41,6 +44,7 @@ namespace ngosen {
         std::deque<Event> events_;
         // The kept keys are useless for replay without the field they were typed into.
         std::optional<Event> droppedField_;
+        std::string          lastField_;
     };
 
     // The text around the cursor, cut to what explains a typing error: the whole field may be a long

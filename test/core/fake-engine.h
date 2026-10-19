@@ -7,6 +7,7 @@
 
 #include "ngosen-engine-resources.h"
 #include "ngosen-key.h"
+#include "ngosen-keysym.h"
 
 #include <cstdint>
 #include <string>
@@ -55,7 +56,7 @@ namespace ngosen::test {
 
     class FakeKey final : public KeyPress {
       public:
-        explicit FakeKey(uint32_t sym, bool release = false, uint32_t states = 0) : sym_(sym), states_(states), release_(release) {}
+        explicit FakeKey(uint32_t sym, bool release = false, uint32_t states = 0, uint32_t time = 0) : sym_(sym), states_(states), release_(release), time_(time) {}
 
         uint32_t sym() const override {
             return sym_;
@@ -69,13 +70,13 @@ namespace ngosen::test {
         bool     isModifier() const override;
         bool     isBareShift() const override;
         uint32_t code() const override {
-            return 0;
+            return time_ != 0 ? sym_ : 0;
         }
         uint32_t time() const override {
-            return 0;
+            return time_;
         }
         bool hasModifier() const override {
-            return states_ != 0;
+            return (states_ & ~modifier::Repeat) != 0;
         }
         bool        isCursorMove() const override;
         std::string name() const override {
@@ -100,6 +101,7 @@ namespace ngosen::test {
         uint32_t sym_;
         uint32_t states_;
         bool     release_;
+        uint32_t time_;
         uint32_t appSym_   = sym_;
         bool     accepted_ = false;
     };
