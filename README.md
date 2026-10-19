@@ -1,13 +1,8 @@
 # Ngó Sen
 
-Ngó Sen là bộ gõ tiếng Việt cho fcitx5 trên Linux. fcitx5 chạy được trên GNOME, KDE, Xfce, Sway và Hyprland,
-có nhiều tính năng và nhẹ RAM. Chỉ làm cho fcitx5 cũng đỡ công giữ nhiều bản. Mã IBus cũ ở nhánh
+Ngó Sen là bộ gõ tiếng Việt cho fcitx5 trên Linux, được **vibecode**. fcitx5 chạy được trên GNOME, KDE, Xfce,
+Sway và Hyprland, có nhiều tính năng và nhẹ RAM. Chỉ làm cho fcitx5 cũng đỡ công giữ nhiều bản. Mã IBus cũ ở nhánh
 `feat/ibus-engine`, không còn được bảo trì.
-
-Ngó Sen được **vibecode**.
-
-Ngó Sen không còn uinput server, chỉ dùng quyền của fcitx5. Cài xong gõ được ngay, không phải bật service
-hay cấp quyền thiết bị.
 
 Cửa sổ cài đặt dùng giao diện sáng, tối của máy trên KDE và GNOME. Đổi gì lưu ngay, có nút Hoàn tác.
 
@@ -195,8 +190,8 @@ Ngó Sen is a Vietnamese input method for fcitx5. The maintainer only **vibecode
 agent writes the code, then the maintainer measures and uses it daily. It is licensed under GPL-3.0-or-later
 and published as is, with no promise of support.
 
-Since 1.0, Ngó Sen has no background uinput server, has two typing modes, Gõ Sen (for fast typing, browsers
-and Electron apps) and Preedit, and uses the Bamboo composition core ported from Go to Rust.
+Since 1.0, Ngó Sen has two typing modes, Gõ Sen (for fast typing, browsers and Electron apps) and Preedit,
+and uses the Bamboo composition core ported from Go to Rust.
 Both cores are MIT licensed: the Rust [bamboo-core](https://github.com/bamboo-vi/bamboo-core) by
 [@nguyen10t2](https://github.com/nguyen10t2), used by most packages, and the Go
 [bamboo-core](https://github.com/BambooEngine/bamboo-core) by [@t1ld3x](https://github.com/t1ld3x),
