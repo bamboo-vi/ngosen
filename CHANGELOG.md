@@ -10,13 +10,18 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
-### Sửa
-
-- Sửa lỗi build Fedora COPR khiến `dnf upgrade` từ kho nguyenphi/ngosen không nhận được version 1.5.3 (#169).
-
 ### Tài liệu
 
 - README hướng dẫn thêm repo để update bằng dnf, apt, pacman hoặc zypper (#174).
+
+## [1.5.3-2] — 20/10/2026
+
+Chỉ tăng lần đóng gói để sửa lỗi build Fedora COPR (#169), code chương trình giữ nguyên như 1.5.3-1.
+Tải ở [ngosen-1.5.3-2](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.3-2).
+
+### Sửa
+
+- Sửa lỗi build Fedora COPR khiến `dnf upgrade` từ kho nguyenphi/ngosen không nhận được version 1.5.3 (#169).
 
 ## [1.5.3-1] — 19/10/2026
 
