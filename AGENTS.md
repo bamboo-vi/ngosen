@@ -63,6 +63,10 @@ a careful human wrote it, and the person sending it must be able to explain ever
   When changing which frontends forward backspaces, keep the `sdlGetsNoDeletion` checks in
   `test/ibus-dbus-forward-backspaces.cpp` and the SDL case in `test/x11-xtest-replacement.cpp`
   passing.
+- **XIM clients on an X11 session delete through XTEST.** A forwarded key that reaches a client
+  during one of its own XIM requests can come back after the commit (WordCraft), while XTEST keys
+  queue in order like typed ones. Forward only where XTEST is missing (XIM under Xwayland), and keep
+  the XIM case in `test/x11-xtest-replacement.cpp` passing.
 - **Reuse one build directory.** A full Rust or C++ build writes over 1 GB, and a new directory
   per experiment wears out the SSD and fills it. Rebuild in one CMake build directory; make a second
   only when two builds must exist side by side, and delete it when done. Do not share one

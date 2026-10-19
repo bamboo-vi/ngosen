@@ -36,6 +36,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Gõ Sen trong WordCraft và các app dùng XIM trên phiên X11 không còn rối chữ (như `dââấ` thay vì `dấu`): Ngó
+  Sen xoá chữ bằng phím thật qua XTEST thay vì gửi backspace qua XIM (#156).
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
 - Nhật ký gõ ghi đúng app đang gõ khi chuyển qua lại giữa các cửa sổ. Trước đây quay về một ô đã gõ trước đó

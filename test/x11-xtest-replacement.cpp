@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// On an X11 session XTEST presses the keys a frontend cannot forward. Clients whose forwarding works keep it;
-// Chromium-based clients, which report no surrounding text and whose address bar selects an inline
+// On an X11 session XTEST presses the keys a frontend cannot forward, and the backspaces for XIM clients.
+// Clients whose forwarding works keep it; Chromium-based clients, which report no surrounding text and whose address bar selects an inline
 // autocompletion, select the old text with Shift+Left and type over it.
 #include "ngosen-engine.h"
 #include "ngosen-utils.h"
@@ -139,25 +139,30 @@ namespace {
         return true;
     }
 
-    // SDL takes neither forwarded keys nor surrounding text; XTEST presses BackSpace like a keyboard, and
-    // the last one comes back to the input method as the sentinel.
-    bool sdlPressesBackSpaceThroughXTest(Harness& h) {
-        auto context = h.open("Medieval2", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::Preedit, fcitx::CapabilityFlag::FormattedPreedit});
+    // XTEST presses BackSpace like a keyboard, and the last one comes back to the input method as the
+    // sentinel. SDL takes neither forwarded keys nor surrounding text; XIM clients can hand a forwarded key
+    // back after the commit.
+    bool pressesBackSpaceThroughXTest(Harness& h, const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps,
+                                      fcitx::KeyStates sentinelStates = fcitx::KeyStates()) {
+        const std::string where   = frontend + " " + program + ": ";
+        auto              context = h.open(program, frontend, caps);
         if (!h.typeTieE(*context))
             return false;
-        if (h.sent != std::vector<int>{2}) {
-            reportFailure("SDL: press one BackSpace plus the sentinel through XTEST", "[2]", joinCounts(h.sent));
+        if (h.sent != std::vector<int>{2} || !context->forwarded().empty()) {
+            reportFailure(where + "press one BackSpace plus the sentinel through XTEST, forward nothing", "[2], 0 forwarded",
+                          joinCounts(h.sent) + ", " + std::to_string(context->forwarded().size()) + " forwarded");
             return false;
         }
         // XTEST sends the presses in one burst, so the X server gives them the same time.
         constexpr int CodeBackSpace = 22;
         constexpr int BurstTime     = 5000;
         const auto    backSpace     = fcitx::Key(FcitxKey_BackSpace, fcitx::KeyStates(), CodeBackSpace);
-        if (!h.key(*context, backSpace, false, false, BurstTime) || !h.key(*context, backSpace, false, true, BurstTime))
+        const auto    sentinel      = fcitx::Key(FcitxKey_BackSpace, sentinelStates, CodeBackSpace);
+        if (!h.key(*context, backSpace, false, false, BurstTime) || !h.key(*context, sentinel, false, true, BurstTime))
             return false;
         h.pumpUntil([&] { return !context->commits().empty(); }, nowUs() + 500000);
         if (context->commits() != std::vector<std::string>{"ê"}) {
-            reportFailure("SDL: commit once the sentinel is back", "['ê']", joinCommits(*context));
+            reportFailure(where + "commit once the sentinel is back", "['ê']", joinCommits(*context));
             return false;
         }
         return true;
@@ -214,7 +219,10 @@ int main() {
         return 1;
     if (!chromiumSelectsAndOvertypes(h, "chromium", "fcitx4", fcitx::CapabilityFlags{fcitx::CapabilityFlag::Preedit, fcitx::CapabilityFlag::FormattedPreedit}))
         return 1;
-    if (!sdlPressesBackSpaceThroughXTest(h))
+    if (!pressesBackSpaceThroughXTest(h, "Medieval2", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::Preedit, fcitx::CapabilityFlag::FormattedPreedit}))
+        return 1;
+    // fcitx5's XIM frontend marks a press as a repeat when the same key was released at the same time.
+    if (!pressesBackSpaceThroughXTest(h, "wordcraft", "xim", fcitx::CapabilityFlags{}, fcitx::KeyStates(fcitx::KeyState::Repeat)))
         return 1;
     // VTE terminals report no surrounding text either, but print Shift+Left as an escape sequence.
     if (!keepsForwarding(h, "gnome-terminal-server", "dbus", chromeCaps))
@@ -222,8 +230,6 @@ int main() {
     if (!keepsForwarding(h, "xfce4-terminal", "dbus", chromeCaps))
         return 1;
     if (!keepsForwarding(h, "gtk3app", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText, fcitx::CapabilityFlag::KeyEventOrderFix}))
-        return 1;
-    if (!keepsForwarding(h, "geany", "xim", fcitx::CapabilityFlags{}))
         return 1;
     setXTestSenderForTest({});
     return 0;

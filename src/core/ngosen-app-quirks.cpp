@@ -6,13 +6,19 @@
 #include "ngosen-app-quirks.h"
 
 #include "ngosen-strings.h"
+#include "ngosen-xtest.h"
 
 namespace ngosen {
 
     bool forwardsBackspaces(const Field& field) {
         // On wayland_v2 (input-method-v2: Sway, Hyprland) fcitx5 sends forwarded keys through a virtual keyboard.
-        if (field.frontend == "wayland" || field.frontend == "wayland_v2" || field.frontend == "xim") {
+        if (field.frontend == "wayland" || field.frontend == "wayland_v2") {
             return true;
+        }
+        if (field.frontend == "xim") {
+            // A forwarded key that reaches a client inside one of its own XIM requests comes back to us
+            // and lands after the commit (WordCraft); XTEST keys queue in order like typed ones.
+            return !xtestAvailable();
         }
         if (field.frontend == "ibus") {
             // SDL takes only commits and preedit from the IM.
