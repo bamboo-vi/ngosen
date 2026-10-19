@@ -1,3 +1,9 @@
+fcitx5-ngosen (1:1.5.3-2) unstable; urgency=medium
+
+  * Fedora COPR: build from the release tag again (#169).
+
+ -- Nguyen Phi <nguyenphidt@gmail.com>  Tue, 20 Oct 2026 12:00:00 +0700
+
 fcitx5-ngosen (1:1.5.3-1) unstable; urgency=medium
 
   * Sen mode: backspacing into the word before a space and typing on fixes that word (#142).
