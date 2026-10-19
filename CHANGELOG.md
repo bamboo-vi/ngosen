@@ -12,7 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [1.5.3-1] — 19/10/2026
 
-Sửa lỗi Gõ Sen khi xoá lùi rồi gõ tiếp và trong app XIM (WordCraft, Wine), thêm kho cài đặt để lên version mới bằng lệnh cập nhật của distro.
+Sửa lỗi Gõ Sen khi backspace, trong gnome-text-editor, XIM trên X11 và Wine trên Wayland; thêm kho cài đặt và gói Ubuntu 26.10.
 Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.3-1).
 
 ### Thêm
