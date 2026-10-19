@@ -40,7 +40,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Test
 
 - Test mới: bấm rồi thả Shift hay Ctrl giữa từ không chốt từ đang gõ (`vieet`, Shift, `j` vẫn ra `việt`); người
-  dùng không thấy khác gì (#PR).
+  dùng không thấy khác gì (#155).
 
 ## [1.5.2-1] — 18/10/2026
 
