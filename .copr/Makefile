@@ -2,8 +2,8 @@
 # Runs as root in a Fedora mock chroot, so build tools can be installed here.
 outdir ?= $(CURDIR)
 topdir := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
-# COPR passes the Spec File field as given, possibly empty or anchored with "/".
-specfile := $(topdir)/$(patsubst /%,%,$(or $(spec),packaging/rpm/fedora/fcitx5-ngosen.spec))
+# COPR passes the Spec File field possibly empty, anchored with "/", or already joined to the checkout.
+specfile := $(or $(wildcard $(filter /%,$(spec))),$(topdir)/$(patsubst /%,%,$(or $(spec),packaging/rpm/fedora/fcitx5-ngosen.spec)))
 
 srpm:
 	dnf -y install git-core rpm-build
