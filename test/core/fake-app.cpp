@@ -88,8 +88,13 @@ namespace ngosen::test {
     }
 
     void FakeApp::type(uint32_t sym) {
-        FakeKey down(sym);
+        const auto time = static_cast<uint32_t>(monotonicUs() / 1000);
+        FakeKey    down(sym, false, 0, time);
         state_->keyEvent(down);
+        if (!down.accepted() && quirks_.resendsKeysWithoutText && keyText(sym).empty()) {
+            FakeKey again(sym, false, modifier::Repeat, time);
+            state_->keyEvent(again);
+        }
         if (!down.accepted()) {
             if (sym == key::BackSpace)
                 later(quirks_.lagMs, [this] { eraseBefore(1); });

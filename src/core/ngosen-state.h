@@ -179,6 +179,8 @@ namespace ngosen {
         // XIM, IBus and D-Bus clients queue forwarded keys, and XIM may hand one back; without a
         // surrounding text report the commit waits this long for them.
         static constexpr uint64_t ForwardWaitUs = 15000;
+        // A key sent back arrives at once; a held key repeats tens of milliseconds apart.
+        static constexpr uint64_t SentBackWithinUs = 10000;
 
         // Notes the key, after the field and mode when they differ from the last noted ones.
         void recordKey(const ngosen::KeyPress& keyEvent);

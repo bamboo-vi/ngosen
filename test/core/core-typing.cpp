@@ -216,6 +216,22 @@ namespace {
         check(!press(state, static_cast<uint32_t>('f')), "backspace after moving away: f goes to the app as a key", "f was taken");
     }
 
+    // gnome-text-editor sends a key that types no text back once more, marked as repeated; counting the
+    // backspace twice left the word one letter short of the app's text.
+    void testResentBackspace() {
+        ngosen::test::AppQuirks quirks;
+        quirks.resendsKeysWithoutText                                       = true;
+        const uint32_t                                                   bs = ngosen::key::BackSpace;
+        const std::vector<std::pair<std::vector<uint32_t>, std::string>> cases{
+            {{'t', 'o', 'a', 'n', bs, 'n', 'f', ' '}, "toàn "},
+            {{'b', 'a', 'n', ' ', bs, 'f', ' '}, "bàn "},
+        };
+        for (const auto& [keys, want] : cases) {
+            const std::string text = ngosen::test::typeInApp(makeField("dbus", true, "gnome-text-editor"), quirks, keys, std::vector<int>(keys.size(), 100));
+            check(text == want, "resent backspace: " + want, text);
+        }
+    }
+
     // Ctrl+Backspace deletes text we cannot follow without surrounding text.
     void testBackspaceAfterCtrlBackspace() {
         realMode = ngosen::Mode::Sen;
@@ -561,6 +577,7 @@ int main() {
     testBackspaceIntoLastWord("wayland", false);
     testBackspaceAfterMovingAway();
     testBackspaceAfterCtrlBackspace();
+    testResentBackspace();
     testGtk4DeletesSurrounding();
     testSdlGetsNoForwardedBackspace();
     testTerminalErasesWithCommittedDel();

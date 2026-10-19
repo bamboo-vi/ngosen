@@ -43,6 +43,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   cần mở trang đó trước (#132).
 - Gõ Sen: xoá lùi từ sau dấu cách vào lại từ vừa gõ rồi gõ tiếp thì Ngó Sen sửa tiếp chính từ đó. Trước đây
   gõ `duyeet`, dấu cách, xoá còn `du` rồi gõ `yeejt` ra `duyeejt` thay vì `duyệt`, ở mọi app kể cả kitty (#142).
+- Gõ Sen trong gnome-text-editor: xoá lùi giữa từ rồi gõ tiếp không còn mất chữ. Trước đây gõ `toan`, xoá một
+  chữ rồi gõ `nf` ra `toòn` thay vì `toàn` (#149).
 
 ## [1.5.2-1] — 18/10/2026
 
