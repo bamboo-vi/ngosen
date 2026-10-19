@@ -239,6 +239,9 @@ add_dependencies(addon_conf_test ngosen-addon.conf.in-fmt ngosenmigrate)
 add_test(NAME addon_conf COMMAND addon_conf_test)
 set_tests_properties(addon_conf PROPERTIES LABELS "unit;config" TIMEOUT 20)
 
+add_test(NAME copr_makefile COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/copr-makefile.sh ${PROJECT_SOURCE_DIR})
+set_tests_properties(copr_makefile PROPERTIES LABELS "unit;packaging" TIMEOUT 20 SKIP_RETURN_CODE 77)
+
 # The Rust typing core's own tests, ported from the Go core's.
 if (NGOSEN_RUST_CORE)
     add_test(NAME bamboo_rs_cargo_test
