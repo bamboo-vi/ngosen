@@ -1,3 +1,5 @@
+Version 1.5.3-1 phát hành ngày 19/10/2026 nhưng build trên kho COPR nguyenphi/ngosen lỗi nên người dùng Fedora chạy `dnf upgrade` từ kho này chưa nhận được 1.5.3; PR #169 sửa lỗi build, 1.5.3-2 là build 1.5.3 đầu tiên trên COPR. Ai đã cài 1.5.3-1 từ package khác hoặc `install.sh` không cần cập nhật, vì lên 1.5.3-2 cũng không thay đổi gì.
+
 Version 1.5.3 sửa lỗi Gõ Sen khi backspace qua dấu cách vào từ trước rồi gõ tiếp, với cả Telex và VNI (`duyeet`, dấu cách, xoá còn `du`, gõ `yeejt` ra `duyệt`, trước đây ra `duyeejt`). Trong gnome-text-editor trên GNOME, sửa chữ giữa từ không còn mất chữ (`toan`, xoá một chữ, `nf` ra `toàn`, trước đây ra `toòn`). Gõ Sen không còn rối chữ trong app dùng XIM như WordCraft trên X11 (`dââấ` thay vì `dấu`) và Wine 11 (phần mềm Windows) trên Wayland, cả GNOME và KDE (`tiêến` thay vì `tiếng`). Thanh địa chỉ Firefox ESR (mặc định trên Debian) và các browser dựa trên Firefox (Zen, LibreWolf, Waterfox, Floorp, Mullvad Browser, GNU IceCat) không còn thừa chữ khi autocomplete (`cowf` ra `cờ`, trước đây ra `coờ`). Log gõ ghi đúng app khi chuyển cửa sổ, nút "Mặc định" trong cài đặt sáng đúng lúc. Đây là version đầu tiên lên kho COPR cho Fedora, APT cho Debian/Ubuntu, pacman cho Arch và kho openSUSE, có thêm gói Ubuntu 26.10; cách bật kho sẽ ghi trong README khi các kho chạy ổn. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
@@ -29,6 +31,8 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 Đối chiếu file tải về với `SHA256SUMS`: `sha256sum -c SHA256SUMS --ignore-missing`.
 
 ## Đã test những gì
+
+Version 1.5.3-2 không được gõ thử lại trên VM; các test gõ của 1.5.3 dưới đây vẫn áp dụng vì code chương trình giống hệt 1.5.3-1.
 
 Gói 1.5.3 (PR #151, sau các sửa cuối) được test ngày 19/10/2026 bằng cách gửi phím vào VM, dùng Gõ Sen, Telex. Mỗi lượt gõ hai lần cùng một dòng: `duyeet`, space, 5 backspace, `yeejt` → `duyệt`; `toan`, space, 2 backspace, `nf` → `toàn`; `ban`, space, 1 backspace, `f` → `bàn`; rồi `tieengs vieetj xin chaof cacs banj, hoom nay trowif ddepj quas` → `tiếng việt xin chào các bạn, hôm nay trời đẹp quá`. Linux Mint 22.1 (Cinnamon X11, gói `noble`): GTK3 text box, GTK3 text box ép dùng XIM và xed đều đúng; xterm (XIM) đúng 5/10 lượt, các lượt còn lại lỗi vài từ khi phím dồn tới; bản 1.5.2 trên cùng máy lỗi 2/5 lượt nên lỗi này đã có trước 1.5.3. Ubuntu 26.04 (GNOME Wayland, gói `resolute`): GTK3 text box, gnome-text-editor và xterm đều đúng; Wine 11.20 Notepad đúng cả ba trường hợp backspace, nhưng 2/4 dòng có một hoặc hai từ lỗi (`chaà`, `tiêễn`), so với 4/4 dòng lỗi ở bản 1.5.2 trên cùng máy; các lỗi còn lại đến từ Wine.
 
