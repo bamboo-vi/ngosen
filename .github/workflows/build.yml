@@ -68,11 +68,27 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global --add safe.directory "$GITHUB_WORKSPACE/ngosen"
           git config --global --add safe.directory "$GITHUB_WORKSPACE/fcitx5"
+      # fcitx5 changes far less often than this repository; rebuild it only for a new fcitx5 commit,
+      # compiler or library it links.
+      - name: Find fcitx5 revision
+        id: fcitx5
+        run: |
+          echo "sha=$(git ls-remote https://github.com/fcitx/fcitx5 HEAD | cut -f1)" >> "$GITHUB_OUTPUT"
+          echo "deps=$(pacman -Q fmt libuv gcc-libs ${{ matrix.compiler }} | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+      - name: Restore fcitx5 build
+        id: fcitx5-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: /opt/fcitx
+          key: fcitx5-${{ matrix.compiler }}-${{ steps.fcitx5.outputs.sha }}-${{ steps.fcitx5.outputs.deps }}
       - uses: actions/checkout@v7
+        if: steps.fcitx5-cache.outputs.cache-hit != 'true'
         with:
           repository: fcitx/fcitx5
+          ref: ${{ steps.fcitx5.outputs.sha }}
           path: fcitx5
       - name: Cache fcitx5 data files
+        if: steps.fcitx5-cache.outputs.cache-hit != 'true'
         uses: actions/cache@v6
         with:
           path: 'fcitx5/**/*.tar.*'
@@ -80,18 +96,27 @@ jobs:
             ${{ runner.os }}-${{ hashFiles('fcitx5/src/modules/spell/CMakeLists.txt')
             }}
       - name: Build and Install fcitx5
+        if: steps.fcitx5-cache.outputs.cache-hit != 'true'
         uses: fcitx/github-actions@cmake
         with:
           path: fcitx5
           cmake-option: >-
             -DENABLE_KEYBOARD=Off -DENABLE_X11=Off -DENABLE_WAYLAND=Off -DENABLE_ENCHANT=Off
             -DENABLE_DBUS=Off -DENABLE_SERVER=Off -DUSE_SYSTEMD=Off -DENABLE_EMOJI=On
+      # Saved now: Ngó Sen installs into the same prefix later in this job.
+      - name: Save fcitx5 build
+        if: steps.fcitx5-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: /opt/fcitx
+          key: ${{ steps.fcitx5-cache.outputs.cache-primary-key }}
       - uses: actions/checkout@v7
         with:
           path: ngosen
           submodules: true
+      # Scanned on pushes to the branches instead of every pull request; the scan doubles this job's time.
       - name: Init CodeQL
-        if: matrix.compiler == 'gcc' && matrix.core == 'go'
+        if: matrix.compiler == 'gcc' && matrix.core == 'go' && github.event_name != 'pull_request'
         uses: github/codeql-action/init@v4.38.1
         with:
           languages: cpp,go
@@ -107,9 +132,9 @@ jobs:
           ctest --test-dir ngosen/build -N
       - name: Test
         run: |
-          ctest --test-dir ngosen/build --output-on-failure --no-tests=error
+          ctest --test-dir ngosen/build --output-on-failure --no-tests=error -j"$(nproc)"
       - name: CodeQL Analysis
-        if: matrix.compiler == 'gcc' && matrix.core == 'go'
+        if: matrix.compiler == 'gcc' && matrix.core == 'go' && github.event_name != 'pull_request'
         uses: github/codeql-action/analyze@v4.38.1
         with:
           checkout_path: ngosen
@@ -135,7 +160,7 @@ jobs:
           cmake -S . -B build -DNGOSEN_CORE_ONLY=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build build -j"$(nproc)"
       - name: Test
-        run: ctest --test-dir build --output-on-failure --no-tests=error
+        run: ctest --test-dir build --output-on-failure --no-tests=error -j"$(nproc)"
 
   # Builds this checkout, so a change that breaks the NixOS package fails here.
   nix:

@@ -12,7 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [1.5.3-1] — 19/10/2026
 
-Sửa lỗi Gõ Sen khi xoá lùi rồi gõ tiếp, và thêm kho cài đặt để lên version mới bằng lệnh cập nhật của distro.
+Sửa lỗi Gõ Sen khi xoá lùi rồi gõ tiếp và trong app XIM (WordCraft, Wine), thêm kho cài đặt để lên version mới bằng lệnh cập nhật của distro.
 Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.3-1).
 
 ### Thêm
@@ -22,6 +22,7 @@ Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 - Kho APT có chữ ký cho Debian, Ubuntu và các bản dựa trên chúng, để lên version mới bằng `apt upgrade` (#135).
 - Kho pacman có chữ ký cho Arch, CachyOS và EndeavourOS, để lên version mới bằng `pacman -Syu` (#137).
 - Kho openSUSE Tumbleweed có chữ ký, để lên version mới bằng `zypper up` (#140).
+- Có gói cho Ubuntu 26.10: lệnh cài một dòng và kho APT nhận Ubuntu 26.10 trên máy x86_64 và ARM 64-bit (#150).
 
 ### Thay đổi
 
@@ -30,6 +31,10 @@ Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 
 ### Sửa
 
+- Gõ Sen trong WordCraft và các app dùng XIM trên phiên X11 không còn rối chữ (như `dââấ` thay vì `dấu`): Ngó
+  Sen xoá chữ bằng phím thật qua XTEST thay vì gửi backspace qua XIM (#156).
+- Gõ Sen trong Wine 11 (phần mềm Windows) trên phiên Wayland không còn rối chữ (như `tiêến` thay vì `tiếng`):
+  Ngó Sen gửi phím xoá thẳng vào cửa sổ app, không hiện hộp hỏi quyền điều khiển (#158).
 - Nhật ký gõ ghi đúng app đang gõ khi chuyển qua lại giữa các cửa sổ. Trước đây quay về một ô đã gõ trước đó
   thì phím gõ ở đó bị ghi dưới tên app vừa rời (#143).
 - Nút "Mặc định" trong cửa sổ cài đặt sáng ngay khi đã có gõ tắt, keymap riêng hay từ thêm vào từ điển, không

@@ -13,59 +13,46 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/') }}
 
 jobs:
+  # A pull request that changes no packaging or build files builds one package per family. Pushes,
+  # releases and pull requests that do touch them build every target in .github/package-matrix.json.
+  scope:
+    name: Package targets
+    runs-on: ubuntu-latest
+    outputs:
+      full: ${{ steps.scope.outputs.full }}
+      deb: ${{ steps.scope.outputs.deb }}
+      fedora: ${{ steps.scope.outputs.fedora }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          full=true
+          # A failed diff leaves the full set.
+          if [ "$EVENT" = pull_request ] && changed=$(git diff --name-only "$BASE" HEAD) &&
+              ! printf '%s\n' "$changed" |
+              grep -qE '^(packaging/|install\.sh$|test/install-smoke\.sh$|\.github/|cmake/|bamboo|settings-gui/|pyproject\.toml$)|CMakeLists\.txt$'; then
+              full=false
+          fi
+          filter='if $full then . else map(select(.pr)) end'
+          {
+              echo "full=$full"
+              echo "deb=$(jq -c --argjson full "$full" ".deb | $filter" .github/package-matrix.json)"
+              echo "fedora=$(jq -c --argjson full "$full" ".fedora | $filter" .github/package-matrix.json)"
+          } >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
   build-deb:
     name: DEB [${{ matrix.codename }}${{ matrix.arch == 'arm64' && ', arm64' || '' }}]
+    needs: scope
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - distro: debian:12
-            codename: bookworm
-          - distro: debian:13
-            codename: trixie
-            rust: true
-          - distro: debian:testing
-            codename: forky
-            rust: true
-          - distro: debian:unstable
-            codename: sid
-            rust: true
-          - distro: ubuntu:22.04
-            codename: jammy
-            rust: true
-          - distro: ubuntu:24.04
-            codename: noble
-            rust: true
-          - distro: ubuntu:25.10
-            codename: questing
-            rust: true
-          - distro: ubuntu:26.04
-            codename: resolute
-            rust: true
-          # arm64 only for the published targets.
-          - distro: debian:12
-            codename: bookworm
-            arch: arm64
-          - distro: debian:13
-            codename: trixie
-            rust: true
-            arch: arm64
-          - distro: debian:testing
-            codename: forky
-            rust: true
-            arch: arm64
-          - distro: ubuntu:22.04
-            codename: jammy
-            rust: true
-            arch: arm64
-          - distro: ubuntu:24.04
-            codename: noble
-            rust: true
-            arch: arm64
-          - distro: ubuntu:26.04
-            codename: resolute
-            rust: true
-            arch: arm64
+        include: ${{ fromJSON(needs.scope.outputs.deb) }}
 
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
 
@@ -98,22 +85,11 @@ jobs:
 
   build-rpm-fedora:
     name: RPM [fedora-${{ matrix.releasever }}${{ matrix.arch == 'arm64' && ', arm64' || '' }}]
+    needs: scope
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - distro: fedora:43
-            releasever: 43
-          - distro: fedora:44
-            releasever: 44
-          - distro: fedora:rawhide
-            releasever: rawhide
-          - distro: fedora:43
-            releasever: 43
-            arch: arm64
-          - distro: fedora:44
-            releasever: 44
-            arch: arm64
+        include: ${{ fromJSON(needs.scope.outputs.fedora) }}
 
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
 
@@ -159,6 +135,8 @@ jobs:
 
   build-rpm-opensuse:
     name: RPM [opensuse-${{ matrix.releasever }}]
+    needs: scope
+    if: needs.scope.outputs.full == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -256,7 +234,9 @@ jobs:
   # change rather than the last published build.
   install-test:
     name: Installer [${{ matrix.name }}]
-    needs: [build-deb, build-rpm-fedora, build-rpm-opensuse, build-arch]
+    # Needs every published package, so it runs only when they are all built.
+    needs: [scope, build-deb, build-rpm-fedora, build-rpm-opensuse, build-arch]
+    if: needs.scope.outputs.full == 'true'
     strategy:
       fail-fast: false
       matrix:

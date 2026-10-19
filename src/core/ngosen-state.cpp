@@ -423,11 +423,12 @@ namespace ngosen {
         const uint64_t lastPressAtUs = lastInputAtUs_;
         lastInputAtUs_               = ngosen::monotonicUs();
         // An app may send a key we let through back to us: XIM clients as is, gnome-text-editor at once
-        // and marked as repeated. Let it through again rather than count it twice. Our own XTEST
-        // backspaces share one time, and some frontends stamp a held key's repeats with its first second.
-        const bool sameAsLast = keyEvent.time() != 0 && keyEvent.time() == lastPressTime_ && keyEvent.code() == lastPressCode_;
-        const bool resentNow  = (keyEvent.states() & ngosen::modifier::Repeat) != 0 && lastInputAtUs_ - lastPressAtUs < SentBackWithinUs;
-        const bool sentBack   = resentNow || (!is_deleting_.load(std::memory_order_acquire) && host_->field().frontend == "xim");
+        // and marked as repeated; let it through rather than count it twice. Some frontends stamp a held
+        // key's repeats with its first second. Our XTEST backspaces share one time, and XIM marks them repeats.
+        const bool ownBackspace = is_deleting_.load(std::memory_order_acquire) && ngosen::key::isBackspace(keyEvent.sym()) && !ngosen::forwardsBackspaces(host_->field());
+        const bool sameAsLast   = keyEvent.time() != 0 && keyEvent.time() == lastPressTime_ && keyEvent.code() == lastPressCode_;
+        const bool resentNow    = !ownBackspace && (keyEvent.states() & ngosen::modifier::Repeat) != 0 && lastInputAtUs_ - lastPressAtUs < SentBackWithinUs;
+        const bool sentBack     = resentNow || (!is_deleting_.load(std::memory_order_acquire) && host_->field().frontend == "xim");
         if (sameAsLast && sentBack) {
             NGOSEN_INFO("App sent a key back: " + keyEvent.name());
             keyEvent.passToApp();
