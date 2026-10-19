@@ -233,14 +233,17 @@ int main() {
     if (!keepsForwarding(h, "gtk3app", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText, fcitx::CapabilityFlag::KeyEventOrderFix}))
         return 1;
 
-    // Under Xwayland XTEST asks the user first, so XIM clients get key events sent to their window.
+    // Under Xwayland XTEST asks the user first, so Wine gets key events sent to its window.
     unsetenv("DISPLAY");
     setXTestSenderForTest({});
     setXSendSenderForTest([&sent](int count) {
         sent.push_back(count);
         return true;
     });
-    if (!pressesBackSpaceThroughXTest(h, "code", "xim", fcitx::CapabilityFlags{}, fcitx::KeyStates(fcitx::KeyState::Repeat)))
+    if (!pressesBackSpaceThroughXTest(h, "wine-preloader", "xim", fcitx::CapabilityFlags{}, fcitx::KeyStates(fcitx::KeyState::Repeat)))
+        return 1;
+    // xterm drops sent events, so it keeps forwarding.
+    if (!keepsForwarding(h, "xterm", "xim", fcitx::CapabilityFlags{}))
         return 1;
     if (!keepsForwarding(h, "gtk3app", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText, fcitx::CapabilityFlag::KeyEventOrderFix}))
         return 1;
