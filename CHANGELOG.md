@@ -48,6 +48,11 @@ Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 - Gõ Sen trong gnome-text-editor: xoá lùi giữa từ rồi gõ tiếp không còn mất chữ. Trước đây gõ `toan`, xoá một
   chữ rồi gõ `nf` ra `toòn` thay vì `toàn` (#149).
 
+### Tài liệu
+
+- README nói rõ cách ghi nguồn khi lấy mã hay ý tưởng của Ngó Sen, kể cả khi nhờ AI viết lại (#167).
+- README viết lại cho gọn: chọn chế độ trước, rồi cài, lỗi thường gặp, gỡ; giữ nguyên mọi lệnh và link (#167).
+
 ## [1.5.2-1] — 18/10/2026
 
 Sửa lỗi cửa sổ cài đặt: nút phím ở trang Phím › Phím tắt bị cắt mép hoặc mất khi phóng to cửa sổ.
