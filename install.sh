@@ -111,7 +111,7 @@ detect_distribution() {
         # Kali Rolling is built from Debian testing.
         [ "$id" = kali ] && codename=forky
         case "$codename" in
-            bookworm | trixie | forky | jammy | noble | resolute)
+            bookworm | trixie | forky | jammy | noble | resolute | stonking)
                 manager=apt
                 pattern="fcitx5-ngosen_[0-9][^ /]*_${codename}_${deb_arch}\\.deb"
                 return
