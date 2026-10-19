@@ -10,6 +10,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- Sửa lỗi build Fedora COPR khiến `dnf upgrade` từ kho nguyenphi/ngosen không nhận được version 1.5.3 (#169).
+
 ## [1.5.3-1] — 19/10/2026
 
 Sửa lỗi Gõ Sen khi backspace, trong gnome-text-editor, thanh địa chỉ Firefox ESR và các browser dựa trên Firefox, XIM trên X11 và Wine trên Wayland; thêm kho cài đặt và gói Ubuntu 26.10.
