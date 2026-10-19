@@ -132,7 +132,7 @@ jobs:
           ctest --test-dir ngosen/build -N
       - name: Test
         run: |
-          ctest --test-dir ngosen/build --output-on-failure --no-tests=error
+          ctest --test-dir ngosen/build --output-on-failure --no-tests=error -j"$(nproc)"
       - name: CodeQL Analysis
         if: matrix.compiler == 'gcc' && matrix.core == 'go' && github.event_name != 'pull_request'
         uses: github/codeql-action/analyze@v4.38.1
@@ -160,7 +160,7 @@ jobs:
           cmake -S . -B build -DNGOSEN_CORE_ONLY=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build build -j"$(nproc)"
       - name: Test
-        run: ctest --test-dir build --output-on-failure --no-tests=error
+        run: ctest --test-dir build --output-on-failure --no-tests=error -j"$(nproc)"
 
   # Builds this checkout, so a change that breaks the NixOS package fails here.
   nix:
