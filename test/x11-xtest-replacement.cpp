@@ -245,6 +245,8 @@ int main() {
     // xterm drops sent events, so it keeps forwarding.
     if (!keepsForwarding(h, "xterm", "xim", fcitx::CapabilityFlags{}))
         return 1;
+    if (!keepsForwarding(h, "wordcraft", "xim", fcitx::CapabilityFlags{}))
+        return 1;
     if (!keepsForwarding(h, "gtk3app", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText, fcitx::CapabilityFlag::KeyEventOrderFix}))
         return 1;
     setXSendSenderForTest({});
