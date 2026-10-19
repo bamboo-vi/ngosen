@@ -68,5 +68,7 @@ namespace ngosen::modifier {
     inline constexpr uint32_t Ctrl  = 1U << 2;
     inline constexpr uint32_t Alt   = 1U << 3;
     inline constexpr uint32_t Super = 1U << 6;
+    // Not a modifier: fcitx5 marks a key the keyboard repeats while it is held down.
+    inline constexpr uint32_t Repeat = 1U << 31;
 
 } // namespace ngosen::modifier

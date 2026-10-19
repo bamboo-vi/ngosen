@@ -14,6 +14,8 @@
 #include "ngosen-strings.h"
 #include "ngosen-utf8.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstddef>
 #include <cstdio>
 #include <string>
@@ -174,7 +176,10 @@ namespace ngosen {
         if (ngosen::key::isBackspace(currentSym) || currentSym == ngosen::key::Return) {
             if (ngosen::key::isBackspace(currentSym)) {
                 hasHistory_ = true;
-                EngineProcessKeyEvent(bambooEngine_.handle(), ngosen::key::BackSpace, 0);
+                if (oldPreBuffer_.empty() && !lastWord_.empty())
+                    reopenLastWord();
+                else
+                    EngineProcessKeyEvent(bambooEngine_.handle(), ngosen::key::BackSpace, 0);
                 ngosen::UniqueCPtr<char> preeditC(EnginePullPreedit(bambooEngine_.handle()));
                 oldPreBuffer_ = (preeditC && (*preeditC.get() != 0)) ? preeditC.get() : "";
             } else {
@@ -231,6 +236,22 @@ namespace ngosen {
         return true;
     }
 
+    void TypingState::reopenLastWord() {
+        // The user may have clicked elsewhere; only an app that reports its text can tell us.
+        if (!typedBeforeCursor(lastWord_)) {
+            lastWord_.clear();
+            return;
+        }
+        ngosen::utf8::eraseLastCodepoint(lastWord_);
+        const auto isBreak = [](char c) { return static_cast<unsigned char>(c) < 0x80 && std::isalnum(static_cast<unsigned char>(c)) == 0; };
+        if (lastWord_.empty() || isBreak(lastWord_.back()))
+            return;
+        const auto        start = std::find_if(lastWord_.rbegin(), lastWord_.rend(), isBreak).base();
+        const std::string word(start, lastWord_.end());
+        lastWord_.clear();
+        EngineRebuildFromText(bambooEngine_.handle(), word.c_str());
+    }
+
     void TypingState::commitWord(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8, const std::string& commitStr) {
         std::string deletedPart;
         std::string addedPart;
@@ -258,6 +279,7 @@ namespace ngosen {
         hasHistory_ = false;
         ResetEngine(bambooEngine_.handle());
         oldPreBuffer_.clear();
+        lastWord_ = commitStr;
     }
 
     void TypingState::replaceFromPreedit(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8) {
@@ -314,10 +336,7 @@ namespace ngosen {
         std::string field = "frontend=" + f.frontend + " program=" + f.program + " surrounding=" + (f.surroundingText ? "1" : "0") + " preedit=" + (f.preedit ? "1" : "0") +
             (f.password ? " password=1" : "") + " mode=" + modeNames[static_cast<int>(realMode.load())];
         auto& recorder = engine_->recorder();
-        if (field != recordedField_) {
-            recorder.add("field", field);
-            recordedField_ = std::move(field);
-        }
+        recorder.addField(field);
         if (f.password) {
             recorder.add("key", "hidden");
             return;
@@ -348,6 +367,12 @@ namespace ngosen {
             return;
         settleBeforeKey();
         const uint32_t currentSym = trackCapitalization(keyEvent);
+        // Only plain backspaces typed after a finished commit may reopen the word; anything else changes the text after it.
+        // Backspaces we press through XTEST come back here while we delete; they belong to the commit.
+        const bool deleting     = is_deleting_.load(std::memory_order_acquire);
+        const bool ownBackspace = deleting && ngosen::key::isBackspace(currentSym) && !ngosen::forwardsBackspaces(host_->field());
+        if (!ngosen::key::isBackspace(currentSym) || keyEvent.hasModifier() || (deleting && !ownBackspace))
+            lastWord_.clear();
         if (handleKeyDuringReplacement(keyEvent, currentSym) || handleDoubledKey(keyEvent, currentSym))
             return;
 
@@ -398,12 +423,16 @@ namespace ngosen {
         }
         if (keyEvent.isRelease())
             return true;
-        lastInputAtUs_ = ngosen::monotonicUs();
-        // An XIM client sometimes sends a key we let through back to us instead of typing it. Let it
-        // through again rather than type it twice. Our own XTEST backspaces share one time, so they
-        // are exempt. Other frontends never do this, and some stamp keys in whole seconds.
-        if (!is_deleting_.load(std::memory_order_acquire) && keyEvent.time() != 0 && keyEvent.time() == lastPressTime_ && keyEvent.code() == lastPressCode_ &&
-            host_->field().frontend == "xim") {
+        const uint64_t lastPressAtUs = lastInputAtUs_;
+        lastInputAtUs_               = ngosen::monotonicUs();
+        // An app may send a key we let through back to us: XIM clients as is, gnome-text-editor at once
+        // and marked as repeated; let it through rather than count it twice. Some frontends stamp a held
+        // key's repeats with its first second. Our XTEST backspaces share one time, and XIM marks them repeats.
+        const bool ownBackspace = is_deleting_.load(std::memory_order_acquire) && ngosen::key::isBackspace(keyEvent.sym()) && !ngosen::forwardsBackspaces(host_->field());
+        const bool sameAsLast   = keyEvent.time() != 0 && keyEvent.time() == lastPressTime_ && keyEvent.code() == lastPressCode_;
+        const bool resentNow    = !ownBackspace && (keyEvent.states() & ngosen::modifier::Repeat) != 0 && lastInputAtUs_ - lastPressAtUs < SentBackWithinUs;
+        const bool sentBack     = resentNow || (!is_deleting_.load(std::memory_order_acquire) && host_->field().frontend == "xim");
+        if (sameAsLast && sentBack) {
             NGOSEN_INFO("App sent a key back: " + keyEvent.name());
             keyEvent.passToApp();
             return true;
@@ -664,6 +693,7 @@ namespace ngosen {
         }
         resetMacroSkip();
         oldPreBuffer_.clear();
+        lastWord_.clear();
         hasHistory_ = false;
         if (!is_deleting_.load(std::memory_order_acquire)) {
             expected_backspaces_     = 0;

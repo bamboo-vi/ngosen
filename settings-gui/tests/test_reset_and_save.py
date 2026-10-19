@@ -48,6 +48,26 @@ class ResetTest(unittest.TestCase):
         self.assertEqual(fake.sub_configs["app_rules"], [])
         self.assertEqual(fake.sub_configs["ngosen-macro"], [])
 
+    def test_reset_button_sees_pages_not_opened(self):
+        cases = {
+            "macros": FakeDBusHandler(
+                sub_configs={"ngosen-macro": [{"Key": "kg", "Value": "khô gà"}]}
+            ),
+            "keymap": FakeDBusHandler(
+                sub_configs={"custom_keymap": [{"Key": "s", "Value": "DauSac"}]}
+            ),
+        }
+        for name, fake in cases.items():
+            with self.subTest(name):
+                window = NgoSenSettingsWindow(dbus_handler=fake)
+                app.processEvents()
+                self.assertTrue(window.btn_reset.isEnabled())
+
+    def test_reset_button_off_at_defaults(self):
+        window = NgoSenSettingsWindow(dbus_handler=FakeDBusHandler())
+        app.processEvents()
+        self.assertFalse(window.btn_reset.isEnabled())
+
     def test_reset_keymap_turns_it_off(self):
         fake = FakeDBusHandler(
             {"EnableCustomKeymap": "True"},
@@ -115,6 +135,17 @@ class DictionaryTest(unittest.TestCase):
         self.assertTrue(page.save_data())
         self.assertEqual(fake.values["EnableDictionary"], "False")
         self.assertFalse(os.path.exists(local))
+
+    def test_reset_button_sees_added_words(self):
+        local = os.path.join(self.tmp.name, "fcitx5/ngosen/vietnamese.cm.dict")
+        os.makedirs(os.path.dirname(local))
+        with open(local, "w", encoding="utf-8") as f:
+            f.write("an\nba\nxyz\n")
+        bundled = self.bundled
+        with mock.patch.object(DictEditorPage, "_get_global_dict_path", lambda self: bundled):
+            window = NgoSenSettingsWindow(dbus_handler=FakeDBusHandler())
+            app.processEvents()
+        self.assertTrue(window.btn_reset.isEnabled())
 
 
 if __name__ == "__main__":

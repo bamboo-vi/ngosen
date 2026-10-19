@@ -233,7 +233,8 @@ namespace ngosen {
     }
 
     bool TypingState::canSendBackspaces() const {
-        return ngosen::forwardsBackspaces(host_->field()) || ngosen::erasesWithCommittedDel(host_->field()) || xtestAvailable();
+        const Field field = host_->field();
+        return ngosen::forwardsBackspaces(field) || ngosen::erasesWithCommittedDel(field) || xtestAvailable() || ngosen::takesSentKeyEvents(field);
     }
 
     void TypingState::deferTimedCommit(uint64_t deliverAtUs) {
