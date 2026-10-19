@@ -1,0 +1,28 @@
+{
+  "deb": [
+    { "distro": "debian:12", "codename": "bookworm" },
+    { "distro": "debian:13", "codename": "trixie", "rust": true },
+    { "distro": "debian:testing", "codename": "forky", "rust": true },
+    { "distro": "debian:unstable", "codename": "sid", "rust": true },
+    { "distro": "ubuntu:22.04", "codename": "jammy", "rust": true, "pr": true },
+    { "distro": "ubuntu:24.04", "codename": "noble", "rust": true },
+    { "distro": "ubuntu:25.10", "codename": "questing", "rust": true },
+    { "distro": "ubuntu:26.04", "codename": "resolute", "rust": true, "pr": true },
+    { "distro": "ubuntu:26.10", "codename": "stonking", "rust": true },
+    { "distro": "debian:12", "codename": "bookworm", "arch": "arm64" },
+    { "distro": "debian:13", "codename": "trixie", "rust": true, "arch": "arm64" },
+    { "distro": "debian:testing", "codename": "forky", "rust": true, "arch": "arm64" },
+    { "distro": "ubuntu:22.04", "codename": "jammy", "rust": true, "arch": "arm64" },
+    { "distro": "ubuntu:24.04", "codename": "noble", "rust": true, "arch": "arm64" },
+    { "distro": "ubuntu:26.04", "codename": "resolute", "rust": true, "arch": "arm64", "pr": true },
+    { "distro": "ubuntu:26.10", "codename": "stonking", "rust": true, "arch": "arm64" }
+  ],
+  "fedora": [
+    { "distro": "fedora:43", "releasever": "43" },
+    { "distro": "fedora:44", "releasever": "44", "pr": true },
+    { "distro": "fedora:45", "releasever": "45" },
+    { "distro": "fedora:rawhide", "releasever": "rawhide" },
+    { "distro": "fedora:43", "releasever": "43", "arch": "arm64" },
+    { "distro": "fedora:44", "releasever": "44", "arch": "arm64" }
+  ]
+}
