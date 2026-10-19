@@ -15,6 +15,7 @@
 #include "ngosen-state.h"
 #include "ngosen-strings.h"
 #include "ngosen-utf8.h"
+#include "ngosen-xtest.h"
 
 #include <iostream>
 #include <memory>
@@ -178,7 +179,7 @@ namespace {
 
     // Backspacing from after a word into it and typing on continues that word; kitty reports no
     // surrounding text, so the word comes from what we committed.
-    void testBackspaceIntoLastWord(const std::string& frontend, bool surroundingText) {
+    void testBackspaceIntoLastWord(const std::string& frontend, bool surroundingText, ngosen::test::AppQuirks quirks = {}) {
         const Field                                                      field = makeField(frontend, surroundingText);
         const std::string                                                what  = "backspace into last word (" + frontend + (surroundingText ? ", surrounding): " : "): ");
         const uint32_t                                                   bs    = ngosen::key::BackSpace;
@@ -188,7 +189,7 @@ namespace {
             {{'b', 'a', 'n', ' ', bs, 'f', ' '}, "bàn "},
         };
         for (const auto& [keys, want] : cases) {
-            const std::string text = ngosen::test::typeInApp(field, {}, keys, std::vector<int>(keys.size(), 100));
+            const std::string text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
             check(text == want, what + want, text);
         }
     }
@@ -575,6 +576,14 @@ int main() {
     testCommitAfterFieldRefocus();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);
+    {
+        // On an X11 session XIM clients get our backspaces as XTEST presses.
+        setXTestSenderForTest([](int) { return true; });
+        ngosen::test::AppQuirks xtest;
+        xtest.takesXTest = true;
+        testBackspaceIntoLastWord("xim", false, xtest);
+        setXTestSenderForTest({});
+    }
     testBackspaceAfterMovingAway();
     testBackspaceAfterCtrlBackspace();
     testResentBackspace();
