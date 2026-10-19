@@ -41,7 +41,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Gõ Sen trong Wine 11 (phần mềm Windows) trên phiên Wayland không còn rối chữ (như `tiêến` thay vì `tiếng`):
   Ngó Sen gửi phím xoá thẳng vào cửa sổ app, không hiện hộp hỏi quyền điều khiển (#158).
 - Gõ trên thanh địa chỉ Firefox ESR (bản Firefox mặc định của Debian) khi Firefox đang tự điền địa chỉ không còn
-  ra chữ thừa (như `coờ` thay vì `cờ`) (#161).
+  ra chữ thừa (như `coờ` thay vì `cờ`) (#162).
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
 - Nhật ký gõ ghi đúng app đang gõ khi chuyển qua lại giữa các cửa sổ. Trước đây quay về một ô đã gõ trước đó
