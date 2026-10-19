@@ -4,7 +4,7 @@ Ngó Sen là bộ gõ tiếng Việt cho fcitx5 trên Linux. fcitx5 chạy đư�
 có nhiều tính năng và nhẹ RAM. Chỉ làm cho fcitx5 cũng đỡ công giữ nhiều bản. Mã IBus cũ ở nhánh
 `feat/ibus-engine`, không còn được bảo trì.
 
-Người giữ dự án chỉ **vibecode**: nêu việc cho trợ lý AI viết mã, rồi đo và dùng nó hằng ngày.
+Ngó Sen được **vibecode**.
 
 Ngó Sen không còn uinput server, chỉ dùng quyền của fcitx5. Cài xong gõ được ngay, không phải bật service
 hay cấp quyền thiết bị.
