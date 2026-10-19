@@ -12,7 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [1.5.3-1] — 19/10/2026
 
-Sửa lỗi Gõ Sen khi backspace, trong gnome-text-editor, XIM trên X11 và Wine trên Wayland; thêm kho cài đặt và gói Ubuntu 26.10.
+Sửa lỗi Gõ Sen khi backspace, trong gnome-text-editor, thanh địa chỉ Firefox ESR, XIM trên X11 và Wine trên Wayland; thêm kho cài đặt và gói Ubuntu 26.10.
 Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.3-1).
 
 ### Thêm
@@ -35,6 +35,8 @@ Tải ở [ngosen-1.5.3-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
   Sen xoá chữ bằng phím thật qua XTEST thay vì gửi backspace qua XIM (#156).
 - Gõ Sen trong Wine 11 (phần mềm Windows) trên phiên Wayland không còn rối chữ (như `tiêến` thay vì `tiếng`):
   Ngó Sen gửi phím xoá thẳng vào cửa sổ app, không hiện hộp hỏi quyền điều khiển (#158).
+- Gõ trên thanh địa chỉ Firefox ESR (bản Firefox mặc định của Debian) khi Firefox đang tự điền địa chỉ không còn
+  ra chữ thừa (như `coờ` thay vì `cờ`) (#162).
 - Nhật ký gõ ghi đúng app đang gõ khi chuyển qua lại giữa các cửa sổ. Trước đây quay về một ô đã gõ trước đó
   thì phím gõ ở đó bị ghi dưới tên app vừa rời (#143).
 - Nút "Mặc định" trong cửa sổ cài đặt sáng ngay khi đã có gõ tắt, keymap riêng hay từ thêm vào từ điển, không

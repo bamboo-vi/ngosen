@@ -168,6 +168,7 @@ namespace {
         check("IBus surrounding text lags", ngosen::surroundingTextLags(field("ibus", "x")));
         check("LibreOffice applies backspaces late", ngosen::appliesBackspacesLate(field("wayland", "soffice.desktop")));
         check("Firefox hides the address bar flag", ngosen::hidesAddressBarFlag(field("wayland", "firefox")));
+        check("Firefox ESR hides the address bar flag", ngosen::hidesAddressBarFlag(field("dbus", "firefox-esr")));
     }
 
 } // namespace
