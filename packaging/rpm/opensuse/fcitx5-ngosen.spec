@@ -2,7 +2,7 @@ Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
 Version:        1.5.3
-Release:        1
+Release:        2
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
 URL:            https://github.com/ngosen/ngosen
@@ -120,6 +120,9 @@ else
 fi
 
 %changelog
+* Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.3-2
+- Fedora COPR: build from the release tag again (#169).
+
 * Mon Oct 19 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.3-1
 - Sen mode: backspacing into the word before a space and typing on fixes that word (#142).
 - Sen mode: fixing a word mid-way in gnome-text-editor no longer loses a letter (#149).
