@@ -48,6 +48,56 @@ Cài xong, đăng xuất rồi đăng nhập lại. Bấm Ctrl+Space (phím mặ
 Các bước thiết lập chỉ áp dụng cho tài khoản chạy lệnh. Tài khoản khác trên cùng máy cần đăng nhập vào
 đó rồi chạy lại lệnh cài.
 
+### Cập nhật bằng trình quản lý gói
+
+Từ version 1.5.3, mỗi release đều có trên repo có chữ ký để nhận version mới qua update của hệ thống:
+`dnf upgrade`, `apt upgrade`, `pacman -Syu` hoặc `zypper up`.
+
+Chỉ cần thêm repo một lần. Nếu đã cài Ngó Sen bằng lệnh một dòng, chỉ cần thêm repo; lệnh cài gói trong
+mỗi khối dưới đây dành cho máy chưa có Ngó Sen.
+
+Các repo dùng chung một key có fingerprint `6D4A 2075 F985 3BE8 F6B6 FE7E 7550 1858 158B 36CD`.
+Đối chiếu fingerprint này với thông tin trình quản lý gói hiển thị.
+
+Fedora dùng COPR (x86_64 và aarch64):
+
+```
+sudo dnf copr enable nguyenphi/ngosen
+sudo dnf install fcitx5-ngosen
+```
+
+Debian, Ubuntu và các distro dựa trên chúng (Linux Mint, MX…) dùng repo APT (x86_64 và arm64):
+
+```
+sudo curl -fsSL -o /usr/share/keyrings/ngosen.gpg https://ngosen.github.io/ngosen/apt/ngosen.gpg
+echo "deb [signed-by=/usr/share/keyrings/ngosen.gpg] https://ngosen.github.io/ngosen/apt $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME}) main" | sudo tee /etc/apt/sources.list.d/ngosen.list
+sudo apt update
+sudo apt install fcitx5-ngosen
+```
+
+Kali: thay phần `$(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})` bằng `forky`.
+
+Arch, CachyOS và EndeavourOS dùng repo pacman (x86_64):
+
+```
+curl -fsSL https://ngosen.github.io/ngosen/arch/ngosen.asc | sudo pacman-key --add -
+sudo pacman-key --lsign-key 6D4A2075F9853BE8F6B6FE7E75501858158B36CD
+printf '\n[ngosen]\nServer = https://ngosen.github.io/ngosen/arch/$arch\n' | sudo tee -a /etc/pacman.conf
+sudo pacman -Syu fcitx5-ngosen
+```
+
+openSUSE Tumbleweed dùng repo zypper (x86_64):
+
+```
+sudo zypper addrepo https://ngosen.github.io/ngosen/opensuse/ngosen.repo
+sudo zypper refresh
+sudo zypper install fcitx5-ngosen
+```
+
+zypper hỏi một lần có tin cậy key không; đối chiếu fingerprint rồi chọn tin cậy.
+
+Sau khi update, khởi động lại fcitx5 theo mục “Khởi động lại sau khi cài hoặc cập nhật”.
+
 ### Cài bằng tay hoặc tự build
 
 Muốn tự thiết lập desktop thì cài bằng

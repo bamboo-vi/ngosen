@@ -381,6 +381,7 @@ namespace ngosen {
         current_backspace_count_ = 0;
         pending_commit_string_   = addedPart;
         expected_backspaces_     = static_cast<int>(ngosen::utf8::length(deletedPart));
+        deletedChars_            = expected_backspaces_;
         recordSendSnapshot(deletedPart);
         if (live_key_ && waitsForKeyReport()) {
             startKeyReportWait(deletedPart, addedPart);

@@ -154,6 +154,12 @@ namespace ngosen {
         bool                     isPrevPunctuation_     = false;
         int64_t                  lastDeactivateTime_    = 0;     ///< ms on CLOCK_MONOTONIC
         int64_t                  deletionInterruptedAt_ = 0;     ///< when deactivate() cut an in-flight replacement (0 = none)
+        int64_t                  lastBounceAt_          = 0;     ///< ms on CLOCK_MONOTONIC
+        int                      fieldBounces_          = 0;     ///< bounces since focus came in
+        int                      waitBounces_           = 0;     ///< bounces during the wait that started at bouncedInWait_
+        uint64_t                 bouncedInWait_         = 0;     ///< surr_wait_started_at_ of the wait those bounces came in
+        int                      deletedChars_          = 0;     ///< characters the current replacement deletes
+        bool                     checkWordAfterBounce_  = false; ///< focus came back too fast to tell whether it is the same field
         bool                     tracking_modifier_tap_ = false; ///< Selected modifier held, waiting for consecutive keyup
         bool                     macro_skip_            = false; ///< Macro disabled for the current word
 
@@ -342,6 +348,8 @@ namespace ngosen {
         // Commits after a fixed delay, for apps whose reports cannot be trusted.
         bool startTimedWait(ngosen::KeyPress* event, int sleepTime, bool skipFrozenWait);
         bool onTimedWaitTimer(ngosen::Timer& t);
+        bool waitsForRedraw() const;
+        bool lostWordAfterBounce(const Surrounding& s, bool settling);
         void forwardBackspaces(int count);
         // True when a replacement can delete text: forwarded by the frontend or pressed through XTEST.
         bool canSendBackspaces() const;
