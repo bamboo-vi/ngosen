@@ -6,12 +6,16 @@
 // key event the way the typing logic used to.
 #include "ngosen-app-quirks.h"
 #include "ngosen-fcitx-host.h"
+#include "ngosen-program-name.h"
 #include "test-input-context.h"
 
 #include <fcitx/event.h>
 #include <fcitx/inputpanel.h>
 #include <fcitx/text.h>
 
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -175,10 +179,43 @@ namespace {
         check("zenity is not a browser", !ngosen::hidesAddressBarFlag(field("dbus", "zenity")));
     }
 
+    // Desktop files the lookup finds through XDG_DATA_DIRS: Flatpak exports, and a native app with a reverse-DNS name.
+    void writeDesktopFiles(const std::filesystem::path& root) {
+        const auto write = [](const std::filesystem::path& dir, const std::string& id, const std::string& text) {
+            std::filesystem::create_directories(dir);
+            std::ofstream(dir / (id + ".desktop")) << text;
+        };
+        const auto flatpak = root / "flatpak/exports/share/applications";
+        write(flatpak, "org.mozilla.firefox", "[Desktop Entry]\r\nName=Firefox\r\nStartupWMClass = firefox \r\n\r\n[Desktop Action new-window]\r\nStartupWMClass=other\r\n");
+        write(flatpak, "net.mullvad.MullvadBrowser", "[Desktop Entry]\nStartupWMClass=Mullvad Browser\n");
+        write(flatpak, "net.waterfox.waterfox", "[Desktop Entry]\nName=Waterfox\n");
+        write(flatpak, "net.lutris.Lutris", "[Desktop Entry]\nStartupWMClass=net.lutris.Lutris\n");
+        write(root / "usr/share/applications", "org.gnome.Ptyxis", "[Desktop Entry]\nStartupWMClass=ptyxis\n");
+        setenv("XDG_DATA_DIRS", ((root / "flatpak/exports/share").string() + ":" + (root / "usr/share").string()).c_str(), 1);
+    }
+
+    void checkFlatpakNames(TestInstance& testInstance) {
+        TestInputContext  firefox(&testInstance.instance, "org.mozilla.firefox", "dbus");
+        ngosen::FcitxHost host(&firefox, &testInstance.instance);
+        const auto        f = host.field();
+        check("Flatpak Firefox hides the address bar flag", ngosen::hidesAddressBarFlag(f));
+        check("the reported name is kept beside it", f.program == "firefox" && f.reportedProgram == "org.mozilla.firefox");
+        check("a StartupWMClass with spaces drops them", ngosen::normalizeProgramName("net.mullvad.MullvadBrowser") == "mullvadbrowser");
+        check("without StartupWMClass the last part names it", ngosen::normalizeProgramName("net.waterfox.waterfox") == "waterfox");
+        check("a StartupWMClass that is the app ID is skipped", ngosen::normalizeProgramName("net.lutris.Lutris") == "lutris");
+        check("the GNOME desktop ID of a Flatpak app is mapped", ngosen::normalizeProgramName("org.mozilla.firefox.desktop") == "firefox");
+        check("a native app with a reverse-DNS name is left as reported", ngosen::normalizeProgramName("org.gnome.Ptyxis") == "org.gnome.Ptyxis");
+        check("a name with no desktop file is left as reported", ngosen::normalizeProgramName("com.example.Operator") == "com.example.Operator");
+        TestInputContext gedit(&testInstance.instance, "gedit", "dbus");
+        check("a native name is not marked as mapped", ngosen::FcitxHost(&gedit, &testInstance.instance).field().reportedProgram.empty());
+    }
+
 } // namespace
 
 int main() {
     configureTestPaths("fcitx5-ngosen-host-field-mapping");
+    // Before fcitx5 reads the data directories.
+    writeDesktopFiles(std::filesystem::temp_directory_path() / "fcitx5-ngosen-host-field-mapping" / "system");
     TestInstance testInstance;
     checkFlags(testInstance);
     checkSurrounding(testInstance);
@@ -186,5 +223,6 @@ int main() {
     checkPreedit(testInstance);
     checkKeys(testInstance);
     checkQuirks();
+    checkFlatpakNames(testInstance);
     return failures == 0 ? 0 : 1;
 }

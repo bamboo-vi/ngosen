@@ -10,6 +10,18 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- Gõ dấu trên thanh địa chỉ Firefox cài từ Flatpak khi đang autofill URL (phần chữ sau con trỏ được chọn)
+  không còn làm rối từ: `gox` ra `gõ` thay vì `goõ` hoặc `gox`, `dduowcj` ra `được` thay vì `dđược`,
+  `daaus` ra `dấu` thay vì `daáu`. Trước đây app Flatpak báo app ID `org.mozilla.firefox` thay cho `firefox`
+  nên Ngó Sen không nhận ra. Giờ Ngó Sen nhận ra app cài từ Flatpak theo tên thường của app; log gõ ghi cả
+  hai tên, như `firefox (org.mozilla.firefox)` (#200, #204).
+- Macro có chữ viết tắt lưu bằng chữ hoa, như `VN` → `Việt Nam`, giờ mở rộng được; trước đây không bao giờ
+  khớp. Nếu cùng chữ viết tắt được lưu với nhiều cách viết hoa, Ngó Sen dùng bản viết thường, nếu không có
+  thì dùng bản lưu đầu tiên. Trình sửa macro trong cửa sổ cài đặt coi `VN` và `vn` là cùng chữ viết tắt,
+  đề nghị cập nhật thay vì thêm bản thứ hai (#194).
+
 ### Tài liệu
 
 - Viết lại form yêu cầu tính năng ngắn hơn, thêm form báo lỗi cài đặt hoặc cập nhật; issue mới phải đi qua

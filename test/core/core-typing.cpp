@@ -436,9 +436,13 @@ namespace {
     // The log a user saves after a wrong word must show the keys, what was sent and what the app said.
     void testRecorderKeepsTheReplacement() {
         realMode = ngosen::Mode::Sen;
+        // Flatpak Firefox: the log shows the app ID it reported too.
+        Field firefox           = makeField("wayland", true, "firefox");
+        firefox.reportedProgram = "org.mozilla.firefox";
+
         FakeLoop            loop;
         FakeResources       resources;
-        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "firefox"));
+        auto                owned = std::make_unique<FakeHost>(loop, firefox);
         FakeHost*           host  = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
 
@@ -449,7 +453,7 @@ namespace {
         loop.pump(150);
 
         const std::string log = resources.recorder().dump();
-        check(has(log, "\tfield\tfrontend=wayland program=firefox surrounding=1 preedit=1 mode=Sen\n"), "recorder: notes the field and mode", log);
+        check(has(log, "\tfield\tfrontend=wayland program=firefox (org.mozilla.firefox) surrounding=1 preedit=1 mode=Sen\n"), "recorder: notes the field and mode", log);
         check(has(log, "\tkey\tdown 0x0065 e\n"), "recorder: notes the key", log);
         check(has(log, "\tforward\tBackSpace down\n"), "recorder: notes the forwarded backspace", log);
         check(has(log, "\tapp\t\"ti|\" cursor=2 anchor=2 length=2\n"), "recorder: notes the app's report", log);
