@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.4-1] — 20/10/2026
+
+Version sửa lỗi: Gõ Sen trong Chrome/Chromium trên Wayland ghép dấu đúng hơn ở TikTok và Draft.js;
+sửa lỗi macro mất dấu cách.
+Tải ở [ngosen-1.5.4-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.4-1).
+
 ### Sửa
 
 - Gõ Sen trong Chrome/Chromium trên Wayland không còn để nguyên `ddungs rooif` thay vì `đúng rồi` trong bình
