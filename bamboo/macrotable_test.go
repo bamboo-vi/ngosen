@@ -41,3 +41,28 @@ func TestMacroTableGet(t *testing.T) {
 		t.Errorf("Get on empty table got [found] expected [missing]")
 	}
 }
+
+func TestMacroTableKeyWrittenWithCapitals(t *testing.T) {
+	table := &MacroTable{mTable: map[string]string{}}
+	table.add("VN", "Việt Nam")
+	table.add("KO", "Kansas")
+	table.add("ko", "không")
+	table.add("Ko", "Korea")
+	for _, key := range []string{"vn", "Vn", "VN"} {
+		if val, ok := table.Get(key); !ok || val != "Việt Nam" {
+			t.Errorf("Get(%s) got [%s,%v] expected [Việt Nam,true]", key, val, ok)
+		}
+	}
+	if val, _ := table.Get("KO"); val != "không" {
+		t.Errorf("Get(KO) got [%s] expected the lower-case key's [không]", val)
+	}
+}
+
+func TestMacroTableFirstCapitalizedKeyWins(t *testing.T) {
+	table := &MacroTable{mTable: map[string]string{}}
+	table.add("KO", "Kansas")
+	table.add("Ko", "Korea")
+	if val, _ := table.Get("ko"); val != "Kansas" {
+		t.Errorf("Get(ko) got [%s] expected the first key's [Kansas]", val)
+	}
+}
