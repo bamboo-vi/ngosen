@@ -1,6 +1,6 @@
 name: Lỗi cài đặt hoặc cập nhật
 description: Lỗi khi cài, cập nhật, gỡ hoặc Ngó Sen không hiện hay không chạy sau khi cài.
-labels: ['bug']
+labels: ['cài đặt']
 body:
   - type: markdown
     attributes:

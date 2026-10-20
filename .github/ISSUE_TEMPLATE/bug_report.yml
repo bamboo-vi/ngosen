@@ -1,6 +1,6 @@
 name: Báo lỗi
 description: Báo lỗi khi dùng Ngó Sen.
-labels: ['bug']
+labels: ['lỗi']
 body:
   - type: markdown
     attributes:
