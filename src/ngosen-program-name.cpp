@@ -6,89 +6,79 @@
 #include "ngosen-program-name.h"
 
 #include "ngosen-strings.h"
-#include "ngosen-utils.h"
+
+#include <fcitx-config/iniparser.h>
+#include <fcitx-config/rawconfig.h>
+#if NGOSEN_USE_MODERN_FCITX_API
+#include <fcitx-utils/standardpaths.h>
+#else
+#include <fcitx-utils/standardpath.h>
+#endif
 
 #include <algorithm>
 #include <cctype>
-#include <fstream>
-#include <sstream>
+#include <cstdio>
 #include <unordered_map>
+#include <vector>
 
 namespace ngosen {
 
     namespace {
-        std::string lowercase(std::string text) {
+        std::string lowercaseWithoutSpaces(std::string text) {
+            text.erase(std::remove(text.begin(), text.end(), ' '), text.end());
             std::transform(text.begin(), text.end(), text.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
             return text;
         }
 
-        std::string readExportedDesktopFile(const std::string& appId) {
-            const std::string home = getEnv("HOME");
-            for (const std::string& dir : {home + "/.local/share/flatpak", std::string("/var/lib/flatpak")}) {
-                std::ifstream file(dir + "/exports/share/applications/" + appId + ".desktop");
-                if (file) {
-                    std::ostringstream text;
-                    text << file.rdbuf();
-                    return text.str();
-                }
+        bool looksLikeAppId(const std::string& name) {
+            return std::count(name.begin(), name.end(), '.') >= 2 && name.find('/') == std::string::npos;
+        }
+
+        std::vector<std::string> desktopFiles(const std::string& name) {
+            const std::string        file = "applications/" + name + ".desktop";
+            std::vector<std::string> found;
+#if NGOSEN_USE_MODERN_FCITX_API
+            for (const auto& path : fcitx::StandardPaths::global().locateAll(fcitx::StandardPathsType::Data, file))
+                found.push_back(path.string());
+#else
+            found = fcitx::StandardPath::global().locateAll(fcitx::StandardPath::Type::Data, file);
+#endif
+            return found;
+        }
+
+        std::string programForAppId(const std::string& appId, const fcitx::RawConfig& desktopEntry) {
+            const std::string* wmClass = desktopEntry.valueByPath("Desktop Entry/StartupWMClass");
+            // Mullvad Browser's class is "Mullvad Browser", Lutris gives its app ID.
+            if (wmClass && !wmClass->empty() && !looksLikeAppId(*wmClass))
+                return lowercaseWithoutSpaces(*wmClass);
+            return lowercaseWithoutSpaces(appId.substr(appId.rfind('.') + 1));
+        }
+
+        std::string resolve(const std::string& program) {
+            const std::string name = stripDesktopSuffix(program);
+            if (!looksLikeAppId(name))
+                return program;
+            for (const auto& path : desktopFiles(name)) {
+                // A native app may use a reverse-DNS name too; only a Flatpak export proves the app ID.
+                if (path.find("/flatpak/exports/share/applications/") == std::string::npos)
+                    continue;
+                FILE* file = std::fopen(path.c_str(), "r");
+                if (!file)
+                    continue;
+                fcitx::RawConfig entry;
+                fcitx::readFromIni(entry, file);
+                std::fclose(file);
+                return programForAppId(name, entry);
             }
-            return {};
+            return program;
         }
     } // namespace
 
-    bool isFlatpakAppId(const std::string& name) {
-        size_t parts = 0;
-        size_t start = 0;
-        while (start <= name.size()) {
-            const size_t end  = std::min(name.find('.', start), name.size());
-            const auto   part = name.substr(start, end - start);
-            if (part.empty() || std::isdigit(static_cast<unsigned char>(part[0])) ||
-                !std::all_of(part.begin(), part.end(), [](unsigned char c) { return std::isalnum(c) || c == '_' || c == '-'; }))
-                return false;
-            ++parts;
-            start = end + 1;
-        }
-        return parts >= 3;
-    }
-
-    std::string startupWmClass(const std::string& desktopEntry) {
-        std::istringstream lines(desktopEntry);
-        std::string        line;
-        bool               inEntry = false;
-        while (std::getline(lines, line)) {
-            if (!line.empty() && line[0] == '[')
-                inEntry = line == "[Desktop Entry]";
-            else if (inEntry && isStartsWith(line, "StartupWMClass=")) {
-                // Mullvad Browser's class is "Mullvad Browser"; its program is mullvadbrowser.
-                std::string wmClass = line.substr(std::string("StartupWMClass=").size());
-                wmClass.erase(std::remove(wmClass.begin(), wmClass.end(), ' '), wmClass.end());
-                return lowercase(wmClass);
-            }
-        }
-        return {};
-    }
-
-    std::string programForAppId(const std::string& appId, const std::string& desktopEntry) {
-        std::string program = startupWmClass(desktopEntry);
-        // Some apps (Lutris) give their app ID as the class too.
-        if (program.empty() || isFlatpakAppId(program))
-            program = lowercase(appId.substr(appId.rfind('.') + 1));
-        return program;
-    }
-
-    std::string normalizeProgramName(const std::string& program) {
-        // The IBus GTK4 module puts this before the name it reports.
-        static const std::string gtk4Prefix = "gtk4-im:";
-        if (isStartsWith(program, gtk4Prefix))
-            return gtk4Prefix + normalizeProgramName(program.substr(gtk4Prefix.size()));
-
-        const std::string name = stripDesktopSuffix(program);
-        if (!isFlatpakAppId(name))
-            return program;
+    const std::string& normalizeProgramName(const std::string& program) {
         static std::unordered_map<std::string, std::string> cache;
-        auto                                                it = cache.find(name);
+        auto                                                it = cache.find(program);
         if (it == cache.end())
-            it = cache.emplace(name, programForAppId(name, readExportedDesktopFile(name))).first;
+            it = cache.emplace(program, resolve(program)).first;
         return it->second;
     }
 

@@ -148,6 +148,8 @@ namespace ngosen {
         f.url              = caps.test(fcitx::CapabilityFlag::Url);
         f.keyEventOrderFix = caps.test(fcitx::CapabilityFlag::KeyEventOrderFix);
         f.password         = caps.test(fcitx::CapabilityFlag::Password) || caps.test(fcitx::CapabilityFlag::Sensitive);
+        if (f.program != ic_->program())
+            f.reportedProgram = ic_->program();
         return f;
     }
 

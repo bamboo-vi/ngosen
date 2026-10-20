@@ -329,7 +329,8 @@ namespace ngosen {
     void TypingState::recordKey(const ngosen::KeyPress& keyEvent) {
         static const char* const modeNames[] = {"Off", "Sen", "Preedit", "Emoji"};
         const auto               f           = host_->field();
-        std::string field = "frontend=" + f.frontend + " program=" + f.program + " surrounding=" + (f.surroundingText ? "1" : "0") + " preedit=" + (f.preedit ? "1" : "0") +
+        const std::string        program     = f.reportedProgram.empty() ? f.program : f.program + " (" + f.reportedProgram + ")";
+        std::string field = "frontend=" + f.frontend + " program=" + program + " surrounding=" + (f.surroundingText ? "1" : "0") + " preedit=" + (f.preedit ? "1" : "0") +
             (f.password ? " password=1" : "") + " mode=" + modeNames[static_cast<int>(realMode.load())];
         auto& recorder = engine_->recorder();
         recorder.addField(field);
