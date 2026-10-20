@@ -11,7 +11,16 @@ pub struct MacroTable {
 }
 
 impl MacroTable {
-    pub fn new(table: HashMap<String, String>) -> Self {
+    /// Keys are stored lowercased, as `get` looks them up; a key written in lower case wins over
+    /// the same key written with capitals.
+    pub fn new(entries: HashMap<String, String>) -> Self {
+        let mut table = HashMap::with_capacity(entries.len());
+        for (key, value) in entries {
+            let lower = key.to_lowercase();
+            if key == lower || !table.contains_key(&lower) {
+                table.insert(lower, value);
+            }
+        }
         Self { table }
     }
 
@@ -19,7 +28,6 @@ impl MacroTable {
         self.table.is_empty()
     }
 
-    /// Keys are stored as the user wrote them; only the typed text is lowercased.
     pub fn get(&self, key: &str) -> Option<&str> {
         if key.is_empty() || self.is_empty() {
             return None;
@@ -55,5 +63,19 @@ mod tests {
         assert!(t.get("").is_none());
         assert!(t.get("xyz").is_none());
         assert!(MacroTable::default().get("vn").is_none());
+    }
+
+    #[test]
+    fn macro_table_key_written_with_capitals() {
+        let t = table(&[
+            ("VN", "Việt Nam"),
+            ("KO", "Kansas"),
+            ("ko", "không"),
+            ("Ko", "Korea"),
+        ]);
+        for key in ["vn", "Vn", "VN"] {
+            assert_eq!(t.get(key), Some("Việt Nam"), "{key}");
+        }
+        assert_eq!(t.get("KO"), Some("không"), "the lower-case key wins");
     }
 }

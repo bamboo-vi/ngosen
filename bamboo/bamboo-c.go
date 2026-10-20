@@ -222,7 +222,7 @@ func NewMacroTable(definition **C.char) uintptr {
 	maxEntries := 1<<20 - 1
 	i := 0
 	for i < maxEntries && def[i] != nil {
-		table.mTable[C.GoString(def[i])] = C.GoString(def[i+1])
+		table.add(C.GoString(def[i]), C.GoString(def[i+1]))
 		i += 2
 	}
 
