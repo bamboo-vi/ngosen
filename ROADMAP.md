@@ -10,9 +10,13 @@ mới có số version, và từ 1.6.0 trở đi thứ tự có thể đổi. Mu
 ## 1.6.0
 
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen là chữ thành
-  `tiếng việt` (#71, #80, #82, #83).
+  `tiếng việt` (#71, #80, #82, #83). Đã xong, có thể thử ngay bằng
+  [test build](README.md#test-tính-năng-chưa-có-trong-release).
 - Cứu dấu: sửa dấu chữ đã gõ xong. Bôi đen chữ, gõ dấu rồi bấm Tab (`nhanh` + `s` → `nhánh`). Ở app hỗ trợ
   surrounding text, chỉ cần click vào chữ rồi gõ dấu (#118).
+- Có gì mới: sau khi cập nhật lên version có tính năng mới, một thông báo nhỏ ở góc màn hình hiện một lần,
+  bấm vào thì mở trang "Có gì mới" trong cửa sổ cài đặt, mỗi tính năng có cách dùng và nút tắt. Bản chỉ sửa
+  lỗi thì không báo.
 
 ## 1.7.0
 
@@ -32,5 +36,8 @@ Chưa có số version, xếp theo thứ tự định làm:
 5. Sửa lỗi gõ vội, như `tiếgn` thành `tiếng`.
 6. Tự chạy "Kiểm tra máy tôi" lần đầu mở cửa sổ cài đặt. Có thêm bảng các app gõ được, lấy từ kết quả test
    người dùng gửi về.
-7. Đưa Ngó Sen vào kho phần mềm của các distro: nixpkgs và AUR trước, rồi COPR, PPA, OBS, sau cùng là
-   Debian.
+7. Mẹo dùng Ngó Sen trong cửa sổ cài đặt, mỗi mẹo dẫn sang trang hướng dẫn trên website. Mẹo có sẵn trong
+   gói cài, không tải gì từ mạng.
+8. Đưa Ngó Sen vào repo của các distro: từ 1.5.3 đã có repo riêng có chữ ký cho Fedora (COPR),
+   Debian và Ubuntu (APT), Arch (pacman) và openSUSE Tumbleweed. nixpkgs đang chờ review
+   ([NixOS/nixpkgs#575620](https://github.com/NixOS/nixpkgs/pull/575620)). Còn AUR, rồi Debian.
