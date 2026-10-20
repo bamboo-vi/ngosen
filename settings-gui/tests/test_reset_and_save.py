@@ -88,6 +88,19 @@ class ResetTest(unittest.TestCase):
         self.assertEqual(fake.values["DateFormat"], "%d/%m/%Y")
 
 
+class MacroTest(unittest.TestCase):
+    def test_same_key_in_other_case_updates_the_row(self):
+        # The typing core matches macro keys in any case, so "VN" would never be used.
+        fake = FakeDBusHandler({}, {"ngosen-macro": [{"Key": "vn", "Value": "Việt Nam"}]})
+        page = MacroEditorPage(fake)
+        page.input_key.setText("VN")
+        page.input_val.setText("Vietnam")
+        self.assertEqual(page.btn_add.text(), "Update")
+        page.upsert_row("VN", "Vietnam")
+        self.assertTrue(page.save_data())
+        self.assertEqual(fake.sub_configs["ngosen-macro"], [{"Key": "vn", "Value": "Vietnam"}])
+
+
 class HotkeyTest(unittest.TestCase):
     def test_editing_first_hotkey_keeps_the_others(self):
         fake = FakeDBusHandler({"ModeMenuKey": {"0": "grave", "1": "Control+space"}})

@@ -382,9 +382,11 @@ class MacroEditorPage(BaseEditorPage):
 
     def _find_row_by_key(self, key: str) -> int | None:
         """Finds row index for a given key. Returns None if not found."""
+        # The typing core ignores the case of a macro key.
+        key = key.lower()
         for r in range(self.table.rowCount()):
             item = self.table.item(r, 0)
-            if item and item.text() == key:
+            if item and item.text().lower() == key:
                 return r
         return None
 

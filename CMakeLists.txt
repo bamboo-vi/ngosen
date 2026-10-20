@@ -32,6 +32,7 @@ set(ngosen_fcitx_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-utils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-fcitx-host.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-fcitx-log.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-program-name.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-pointer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-monitor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-icon-resolver.cpp
