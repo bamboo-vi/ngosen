@@ -22,6 +22,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
 - Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
   không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
+- Khi icon hoặc menu tray bị mất hay treo, chạy `ngosen-save-log` trong terminal để lưu nhật ký gõ của Ngó Sen.
+  Lệnh in đường dẫn file đã lưu, ví dụ `~/.local/state/ngosen/typing-<ngày giờ>.log`; chỉ tài khoản của bạn
+  đọc được file này (#197).
 - Khi bật "Gõ tắt chữ hoa", gõ macro chỉ viết hoa chữ đầu sẽ viết hoa chữ đầu nội dung, tiện dùng ở đầu câu:
   với `ko` → `không`, gõ `Ko` ra `Không` thay vì `không`. Nội dung đã có chữ hoa vẫn giữ nguyên: với
   `ip` → `iPhone`, gõ `Ip` vẫn ra `iPhone` (#203).
