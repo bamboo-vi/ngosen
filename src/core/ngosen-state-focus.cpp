@@ -13,6 +13,11 @@ namespace ngosen {
     namespace {
         // Focus that comes back sooner than this left only for a moment (Chromium on X11 bounces it).
         constexpr int64_t FocusBounceMs = 100;
+        // A field that bounces again and again redraws its editor (Draft.js in Chrome on GNOME) and
+        // drops a commit that arrives before the redraw our backspaces cause (#175), so the commit
+        // waits until those bounces have come and gone, but no longer than RedrawWaitMs.
+        constexpr int64_t RedrawSettleMs = 8;
+        constexpr int64_t RedrawWaitMs   = 100;
 
         int64_t           nowMs() {
             return static_cast<int64_t>(ngosen::monotonicUs() / 1000);
@@ -29,10 +34,18 @@ namespace ngosen {
             is_deleting_.store(false);
 
         realMode = targetMode;
-        if (bounce)
+        if (bounce) {
             NGOSEN_INFO("Focus bounce: keep word buffers");
-        else
+            ++fieldBounces_;
+            if (now - static_cast<int64_t>(surr_wait_started_at_ / 1000) < RedrawWaitMs) {
+                waitBounces_   = bouncedInWait_ == surr_wait_started_at_ ? waitBounces_ + 1 : 1;
+                bouncedInWait_ = surr_wait_started_at_;
+            }
+            lastBounceAt_ = now;
+        } else {
             clearAllBuffers();
+            fieldBounces_ = 0;
+        }
 
         if (isFocusIn && host_->field().frontend == "dbus" && !s.isValid()) {
             NGOSEN_INFO("Skip clearAllBuffers");
@@ -49,18 +62,13 @@ namespace ngosen {
     }
 
     void TypingState::deactivate(bool isFocusOut) {
-        const bool surroundingValid = host_->surrounding().isValid();
         flushPendingReplacement(); // commit pending text into the field we are leaving
         lastDeactivateTime_ = nowMs();
         if (realMode == ngosen::Mode::Preedit && !isFocusOut) {
             commitBuffer();
             return;
         }
-        if (isFocusOut && host_->field().frontend == "dbus" && !surroundingValid) {
-            NGOSEN_INFO("Skip clearAllBuffers");
-        } else if (surroundingValid && !oldPreBuffer_.empty()) {
-            clearAllBuffers();
-        }
+        // The word stays until activate() knows whether focus only bounced.
         // A selection waiting to be typed over has no backspaces left, but is just as unfinished.
         if (realMode == ngosen::Mode::Sen && is_deleting_.load() && (expected_backspaces_ > 0 || overtype_pending_)) {
             deletionInterruptedAt_ = nowMs();
@@ -74,6 +82,16 @@ namespace ngosen {
         host_->refreshPanel();
         if (realMode == ngosen::Mode::Preedit || realMode == ngosen::Mode::Emoji)
             host_->refreshPreedit();
+    }
+
+    bool TypingState::waitsForRedraw() const {
+        const int64_t now     = nowMs();
+        const auto    started = static_cast<int64_t>(surr_wait_started_at_ / 1000);
+        if (fieldBounces_ < 2 || now - started >= RedrawWaitMs)
+            return false;
+        // Each deleted character brings its own redraw.
+        const int bounces = bouncedInWait_ == surr_wait_started_at_ ? waitBounces_ : 0;
+        return bounces < deletedChars_ || now - lastBounceAt_ < RedrawSettleMs || !host_->hasFocus();
     }
 
 } // namespace ngosen

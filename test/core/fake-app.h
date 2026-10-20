@@ -31,6 +31,8 @@ namespace ngosen::test {
         int  refocusWhenEmptiedMs   = 0;     // leaves focus this long when its text becomes empty, as Zed does
         bool resendsKeysWithoutText = false; // sends a key that types no text back once more, marked as repeated, as gnome-text-editor does
         bool takesXTest             = false; // gets backspaces as XTEST presses, which come back to the input method first
+        int  redrawAfterEditMs      = 0;     // bounces focus this long after each edit and drops commits until then, as TikTok in Chrome does
+        bool redrawsOnlyOnDeletion  = false; // redraws after deletions but not insertions, as a plain Draft.js box in Chrome on GNOME does
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -47,6 +49,10 @@ namespace ngosen::test {
         // The user pressed the key that switches input methods.
         void        pressSwitchKey();
         std::string text() const;
+        // The longest time from forwarding a replacement's first backspace to its commit.
+        int slowestCommitMs() const {
+            return slowestCommitMs_;
+        }
 
         void        commitText(const std::string& text) override;
         void        forwardKey(EditKey key, bool release) override;
@@ -92,16 +98,20 @@ namespace ngosen::test {
         void                                eraseBefore(size_t count);
         void                                eraseAround(int offset, unsigned int size);
         void                                changed();
+        void                                redrawAfterEdit();
         void                                later(int ms, std::function<void()> action);
 
         FakeLoop&                           loop_;
         Field                               field_;
         AppQuirks                           quirks_;
-        TypingState*                        state_       = nullptr;
-        int                                 queuedKeys_  = 0;
-        bool                                inReport_    = false;
-        bool                                focused_     = true;
-        uint64_t                            busyUntilUs_ = 0;
+        TypingState*                        state_           = nullptr;
+        int                                 queuedKeys_      = 0;
+        int                                 redraws_         = 0;
+        bool                                inReport_        = false;
+        bool                                focused_         = true;
+        uint64_t                            busyUntilUs_     = 0;
+        uint64_t                            forwardedAt_     = 0;
+        int                                 slowestCommitMs_ = 0;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
         std::u32string                      previousText_;
@@ -113,6 +123,6 @@ namespace ngosen::test {
     std::string telexOutput(const std::vector<uint32_t>& keys);
 
     // The app's text after typing the keys in Gõ Sen mode, waiting gapsMs[i] after key i.
-    std::string typeInApp(const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs);
+    std::string typeInApp(const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs, int* slowestCommitMs = nullptr);
 
 } // namespace ngosen::test

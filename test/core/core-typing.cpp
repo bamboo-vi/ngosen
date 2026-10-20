@@ -177,6 +177,32 @@ namespace {
         check(text == "đơn", "emptied field: commit after focus comes back", text);
     }
 
+    // TikTok's comment box in Chrome under GNOME applies our backspaces late and loses a commit that
+    // arrives before the redraw they cause (#175).
+    void testCommitAfterEditorRedraw() {
+        Field                   field = makeField("ibus", true);
+        ngosen::test::AppQuirks quirks;
+        quirks.keyStepMs         = 6;
+        quirks.redrawAfterEditMs = 7;
+        const std::vector<uint32_t> keys{'t', 'i', 'e', 'e', 'n', 'g', 's'};
+        const std::string           text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
+        check(text == "tiếng", "redrawing editor: commit after the redraw", text);
+
+        // A box that redraws after each of our backspaces only, with over a second of plain words in between.
+        quirks.keyStepMs                   = 10;
+        quirks.redrawsOnlyOnDeletion       = true;
+        const std::string           spaced = "tieengs xin xin xin chaof";
+        const std::vector<uint32_t> spacedKeys(spaced.begin(), spaced.end());
+        int                         slowest = 0;
+        const std::string           after   = ngosen::test::typeInApp(field, quirks, spacedKeys, std::vector<int>(spacedKeys.size(), 100), &slowest);
+        // The first word may be lost: nothing has shown yet that the box redraws.
+        const std::string tail = " xin xin xin chào";
+        check(after.size() >= tail.size() && after.compare(after.size() - tail.size(), tail.size(), tail) == 0, "redrawing editor: commit after the redraw following a pause",
+              after);
+        // Three backspaces take 30 ms and their last redraw 7 ms more; the wait gives up at 100 ms.
+        check(slowest < 60, "redrawing editor: commit once the redraws are done", std::to_string(slowest) + " ms");
+    }
+
     // Backspacing from after a word into it and typing on continues that word; kitty reports no
     // surrounding text, so the word comes from what we committed.
     void testBackspaceIntoLastWord(const std::string& frontend, bool surroundingText, ngosen::test::AppQuirks quirks = {}) {
@@ -400,27 +426,36 @@ namespace {
         check(!has(log, "0x0065") && !has(log, "\"ti") && !has(log, "\"ê\"") && !has(log, " e\n"), "recorder: keeps no password text", log);
     }
 
-    // Focus that leaves a field which cannot report its text and comes straight back keeps the
-    // word; a real switch starts a new one.
+    // Focus that leaves a field and comes straight back keeps the word; a real switch starts a new
+    // one. Chromium on Wayland reports the text while it leaves, as it does when a page redraws its
+    // editor after every key (TikTok comments, #175).
     void testFocusBounce() {
-        for (const bool bounce : {true, false}) {
-            realMode = ngosen::Mode::Sen;
-            FakeLoop            loop;
-            FakeResources       resources;
-            auto                owned = std::make_unique<FakeHost>(loop, makeField("xim", false));
-            ngosen::TypingState state(&resources, std::move(owned));
+        for (const bool reports : {false, true}) {
+            for (const bool bounce : {true, false}) {
+                realMode = ngosen::Mode::Sen;
+                FakeLoop            loop;
+                FakeResources       resources;
+                auto                owned = std::make_unique<FakeHost>(loop, makeField(reports ? "wayland" : "xim", reports));
+                FakeHost*           host  = owned.get();
+                ngosen::TypingState state(&resources, std::move(owned));
 
-            for (const char c : std::string("tie"))
-                press(state, static_cast<uint32_t>(c));
-            state.deactivate(true);
-            if (!bounce)
-                loop.pump(150);
-            state.activate(ngosen::Mode::Sen, true);
-            const bool taken = press(state, static_cast<uint32_t>('e'));
-            if (bounce)
-                check(taken, "focus bounce: keeps the word", "e went to the app as a plain key");
-            else
-                check(!taken, "focus switch: starts a new word", "e was taken to change the old word");
+                const std::string   typed = "tie";
+                for (size_t i = 0; i < typed.size(); ++i) {
+                    press(state, static_cast<uint32_t>(typed[i]));
+                    if (reports)
+                        host->setSurrounding(typed.substr(0, i + 1), static_cast<unsigned int>(i + 1));
+                }
+                state.deactivate(true);
+                if (!bounce)
+                    loop.pump(150);
+                state.activate(ngosen::Mode::Sen, true);
+                const std::string field = reports ? " (field reports its text)" : "";
+                const bool        taken = press(state, static_cast<uint32_t>('e'));
+                if (bounce)
+                    check(taken, "focus bounce: keeps the word" + field, "e went to the app as a plain key");
+                else
+                    check(!taken, "focus switch: starts a new word" + field, "e was taken to change the old word");
+            }
         }
     }
 
@@ -574,6 +609,7 @@ int main() {
     testKeyDuringReplacement();
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
+    testCommitAfterEditorRedraw();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);
     {
