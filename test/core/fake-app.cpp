@@ -71,13 +71,17 @@ namespace ngosen::test {
     }
 
     std::string typeInApp(const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs, int* slowestCommitMs) {
+        FakeResources resources;
+        return typeInApp(resources, field, quirks, keys, gapsMs, slowestCommitMs);
+    }
+
+    std::string typeInApp(FakeResources& resources, const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs, int* slowestCommitMs) {
         realMode = Mode::Sen;
         realtextLen.store(0);
-        FakeLoop      loop;
-        FakeResources resources;
-        auto          owned = std::make_unique<FakeApp>(loop, field, quirks);
-        FakeApp*      app   = owned.get();
-        TypingState   state(&resources, std::move(owned));
+        FakeLoop    loop;
+        auto        owned = std::make_unique<FakeApp>(loop, field, quirks);
+        FakeApp*    app   = owned.get();
+        TypingState state(&resources, std::move(owned));
         app->attach(&state);
         for (size_t i = 0; i < keys.size(); ++i) {
             app->type(keys[i]);

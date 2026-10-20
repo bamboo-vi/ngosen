@@ -177,6 +177,14 @@ namespace {
         check(text == "đơn", "emptied field: commit after focus comes back", text);
     }
 
+    void testMacroKeepsSpace() {
+        FakeResources resources;
+        resources.setMacros({{"e", "em"}, {"ko", "không"}});
+        const std::vector<uint32_t> keys{'e', ' ', 'k', 'o', ' ', 'a'};
+        const std::string           text = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));
+        check(text == "em không a", "macro keeps its space", text);
+    }
+
     // TikTok's comment box in Chrome under GNOME applies our backspaces late and loses a commit that
     // arrives before the redraw they cause (#175).
     void testCommitAfterEditorRedraw() {
@@ -610,6 +618,7 @@ int main() {
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
     testCommitAfterEditorRedraw();
+    testMacroKeepsSpace();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);
     {

@@ -36,6 +36,8 @@ namespace ngosen::test {
         uintptr_t macroTable() const override {
             return macroTable_;
         }
+        // Replaces the macro table; call before building a TypingState.
+        void                    setMacros(const std::vector<std::pair<std::string, std::string>>& macros);
         std::vector<EmojiEntry> emojiHistory() override {
             return {};
         }

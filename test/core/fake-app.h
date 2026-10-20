@@ -18,6 +18,8 @@ namespace ngosen {
 
 namespace ngosen::test {
 
+    class FakeResources;
+
     // Ways a real app's field departs from an ideal one.
     struct AppQuirks {
         bool reports                = true; // tells the input method when its text changes
@@ -124,5 +126,8 @@ namespace ngosen::test {
 
     // The app's text after typing the keys in Gõ Sen mode, waiting gapsMs[i] after key i.
     std::string typeInApp(const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs, int* slowestCommitMs = nullptr);
+    // The same with the given settings and macro table.
+    std::string typeInApp(FakeResources& resources, const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs,
+                          int* slowestCommitMs = nullptr);
 
 } // namespace ngosen::test
