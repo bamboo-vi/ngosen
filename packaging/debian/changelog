@@ -1,3 +1,9 @@
+fcitx5-ngosen (1:1.5.4-3) unstable; urgency=medium
+
+  * Rework the issue forms and add discussion forms (#190).
+
+ -- Nguyen Phi <nguyenphidt@gmail.com>  Tue, 20 Oct 2026 21:00:00 +0700
+
 fcitx5-ngosen (1:1.5.4-2) unstable; urgency=medium
 
   * Rewrite the bug report form (#188).
