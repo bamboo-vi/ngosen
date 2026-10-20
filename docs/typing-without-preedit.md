@@ -107,10 +107,21 @@ request. "Fix" is what the client could change; none of these need a protocol ch
 
 ## Upstream reports
 
-Filed so far:
+Filed by Ngó Sen:
 
 - Ubuntu 26.04, mutter: key events lost under GNOME 50 (the "forward-keys" extension in the
   README works around it): https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/2169784
+
+Filed by others, confirmed here:
+
+- Sway drops the surrounding text Chromium sends over Wayland text-input; confirmed on Sway 1.12
+  with Chromium 154 and fcitx5: https://github.com/swaywm/sway/issues/9191#issuecomment-6287333263
+
+Filed by others:
+
+- Firefox on Wayland text-input sends surrounding text one edit late, so an input method that
+  deletes surrounding text corrupts the word: https://bugzilla.mozilla.org/show_bug.cgi?id=2080478
+- SDL does not handle `delete_surrounding_text`: https://github.com/libsdl-org/SDL/issues/15987
 
 The other behaviours above are not yet reported upstream. Reports should carry a minimal
 reproduction without Ngó Sen (a small fcitx5 or `text-input-v3` client that commits and deletes),
