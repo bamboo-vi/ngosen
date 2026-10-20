@@ -55,7 +55,7 @@ body:
     id: version
     attributes:
       label: Version Ngó Sen đã thử cài
-      placeholder: 1.5.4-2
+      placeholder: 1.5.4-3
 
   - type: input
     id: distro

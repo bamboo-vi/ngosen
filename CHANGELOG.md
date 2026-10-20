@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.4-3] — 20/10/2026
+
+Chỉ tăng lần đóng gói để đưa các form GitHub mới (#190) lên nhánh mặc định của GitHub, code chương trình giữ nguyên như 1.5.4-1 và 1.5.4-2.
+Tải ở [ngosen-1.5.4-3](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.4-3).
+
 ### Tài liệu
 
 - Viết lại form yêu cầu tính năng ngắn hơn, thêm form báo lỗi cài đặt hoặc cập nhật; issue mới phải đi qua

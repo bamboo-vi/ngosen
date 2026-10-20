@@ -2,7 +2,7 @@ Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
 Version:        1.5.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
 URL:            https://github.com/ngosen/ngosen
@@ -120,6 +120,9 @@ else
 fi
 
 %changelog
+* Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.4-3
+- Rework the issue forms and add discussion forms (#190).
+
 * Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.4-2
 - Rewrite the bug report form (#188).
 
