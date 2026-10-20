@@ -387,9 +387,11 @@ namespace ngosen {
         bool       jumped   = sameText && (s.cursor() != lastSurroundingCursor_ || s.anchor() != lastSurroundingAnchor_);
         // Some editors (Lark in Firefox) report the cursor past our commit before the committed text.
         const bool echo = jumped && unreportedCommitLength_ > 0 && s.cursor() == s.anchor() && s.cursor() == lastSurroundingCursor_ + unreportedCommitLength_;
-        // Typing the next letter of a selected inline suggestion (Edge's address bar) keeps the text.
-        const bool intoSuggestion = jumped && passed_key_ && s.anchor() == lastSurroundingAnchor_ && s.anchor() > s.cursor() && s.cursor() == lastSurroundingCursor_ + 1 &&
-            ngosen::utf8::decode(s.text())[lastSurroundingCursor_] == passed_key_->sym;
+        // Typing the next letter of an inline suggestion keeps the text and steps over that letter.
+        // Edge reports the suggestion selected, Firefox does not.
+        const bool intoSuggestion = jumped && passed_key_ && s.cursor() == lastSurroundingCursor_ + 1 &&
+            ngosen::utf8::decode(s.text())[lastSurroundingCursor_] == passed_key_->sym &&
+            (s.anchor() == s.cursor() || (s.anchor() == lastSurroundingAnchor_ && s.anchor() > s.cursor()));
         const bool settling = ngosen::monotonicUs() - lastInputAtUs_ < CaretSettleUs;
         // A spreadsheet reports a click on another cell only as that cell's text with the cursor at its start.
         const bool lostWord = lostWordAfterBounce(s, settling);
