@@ -36,15 +36,20 @@ namespace ngosen {
         realMode = targetMode;
         if (bounce) {
             NGOSEN_INFO("Focus bounce: keep word buffers");
-            ++fieldBounces_;
-            if (now - static_cast<int64_t>(surr_wait_started_at_ / 1000) < RedrawWaitMs) {
+            checkWordAfterBounce_ = true;
+            // Only a bounce right after a key or our own edit tells that the field redraws.
+            const bool inWait = now - static_cast<int64_t>(surr_wait_started_at_ / 1000) < RedrawWaitMs;
+            if (inWait || now - static_cast<int64_t>(lastInputAtUs_ / 1000) < RedrawWaitMs)
+                ++fieldBounces_;
+            if (inWait) {
                 waitBounces_   = bouncedInWait_ == surr_wait_started_at_ ? waitBounces_ + 1 : 1;
                 bouncedInWait_ = surr_wait_started_at_;
             }
             lastBounceAt_ = now;
         } else {
             clearAllBuffers();
-            fieldBounces_ = 0;
+            fieldBounces_         = 0;
+            checkWordAfterBounce_ = false;
         }
 
         if (isFocusIn && host_->field().frontend == "dbus" && !s.isValid()) {
