@@ -41,11 +41,15 @@ namespace ngosen::test {
     } // namespace
 
     std::string telexOutput(const std::vector<uint32_t>& keys) {
+        FakeResources resources;
+        return telexOutput(resources, keys);
+    }
+
+    std::string telexOutput(FakeResources& resources, const std::vector<uint32_t>& keys) {
         realMode = Mode::Preedit;
         realtextLen.store(0);
-        FakeLoop      loop;
-        FakeResources resources;
-        Field         field;
+        FakeLoop loop;
+        Field    field;
         field.frontend    = "wayland";
         field.preedit     = true;
         auto        owned = std::make_unique<FakeHost>(loop, field);
