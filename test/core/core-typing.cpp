@@ -695,8 +695,37 @@ namespace {
                 host->setSurrounding(suggestion, typed, selected ? static_cast<unsigned int>(suggestion.size()) : typed);
                 state.surroundingUpdated();
             }
-            check(press(state, static_cast<uint32_t>('s')), what + "ngo then s makes ngó", "s went to the app as a plain key");
+            check(press(state, static_cast<uint32_t>('s')), what + "s is taken as a tone key", "s went to the app as a plain key");
+            loop.pump(200);
+            const std::string last = host->commits().empty() ? std::string() : host->commits().back();
+            check(last == "ó", what + "ngo then s makes ngó", last);
         }
+    }
+
+    // Without a selection, a click one letter to the right looks like a step into a suggestion,
+    // except that it comes long after the key.
+    void testClickAfterTypingIsNotSuggestion() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "firefox"));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        host->setSurrounding("on", 0);
+        state.surroundingUpdated();
+        press(state, static_cast<uint32_t>('c'));
+        loop.pump(45);
+        host->setSurrounding("con", 1);
+        state.surroundingUpdated();
+        press(state, static_cast<uint32_t>('o'));
+        loop.pump(45);
+        host->setSurrounding("coon", 2);
+        state.surroundingUpdated();
+        loop.pump(300);
+        host->setSurrounding("coon", 3);
+        state.surroundingUpdated();
+        check(!press(state, static_cast<uint32_t>('s')), "click one letter on: s starts a new word", "s was taken as a tone key for co");
     }
 
     void testRecorderLimits() {
@@ -768,6 +797,7 @@ int main() {
     testRecorderLimits();
     testFocusBounce();
     testTypingIntoSuggestion();
+    testClickAfterTypingIsNotSuggestion();
     testHomeDictionaryPath();
     testWithoutToneMark();
     testBackspaceRemovesTone(true);
