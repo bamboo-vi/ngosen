@@ -7,6 +7,7 @@
 #include "ngosen-app-quirks.h"
 
 #include "ngosen-keysym.h"
+#include "ngosen-program-name.h"
 #include "ngosen-xtest.h"
 
 #include <fcitx-utils/i18n.h>
@@ -140,7 +141,7 @@ namespace ngosen {
         const auto& caps = ic_->capabilityFlags();
         Field       f;
         f.frontend         = ic_->frontend();
-        f.program          = ic_->program();
+        f.program          = normalizeProgramName(ic_->program());
         f.surroundingText  = caps.test(fcitx::CapabilityFlag::SurroundingText);
         f.preedit          = caps.test(fcitx::CapabilityFlag::Preedit);
         f.formattedPreedit = caps.test(fcitx::CapabilityFlag::FormattedPreedit);

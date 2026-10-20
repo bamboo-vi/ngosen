@@ -6,6 +6,7 @@
 // key event the way the typing logic used to.
 #include "ngosen-app-quirks.h"
 #include "ngosen-fcitx-host.h"
+#include "ngosen-program-name.h"
 #include "test-input-context.h"
 
 #include <fcitx/event.h>
@@ -175,6 +176,28 @@ namespace {
         check("zenity is not a browser", !ngosen::hidesAddressBarFlag(field("dbus", "zenity")));
     }
 
+    void checkFlatpakNames(TestInstance& testInstance) {
+        check("a Flatpak app ID is recognised",
+              ngosen::isFlatpakAppId("org.mozilla.firefox") && ngosen::isFlatpakAppId("io.gitlab.librewolf-community") && ngosen::isFlatpakAppId("app.zen_browser.zen"));
+        check("program names are not app IDs",
+              !ngosen::isFlatpakAppId("firefox") && !ngosen::isFlatpakAppId("soffice.bin") && !ngosen::isFlatpakAppId("python3.12") && !ngosen::isFlatpakAppId("gtk4-im:nautilus"));
+        const std::string librewolf = "[Desktop Entry]\nName=LibreWolf\nStartupWMClass=librewolf\n\n[Desktop Action new-window]\nStartupWMClass=other\n";
+        check("StartupWMClass names the program", ngosen::programForAppId("io.gitlab.librewolf-community", librewolf) == "librewolf");
+        check("StartupWMClass is lowercased", ngosen::startupWmClass("[Desktop Entry]\nStartupWMClass=Code\n") == "code");
+        check("only the Desktop Entry group counts", ngosen::startupWmClass("[Desktop Action new]\nStartupWMClass=other\n").empty());
+        check("spaces are dropped from StartupWMClass", ngosen::startupWmClass("[Desktop Entry]\nStartupWMClass=Mullvad Browser\n") == "mullvadbrowser");
+        check("without StartupWMClass the last part names it", ngosen::programForAppId("net.waterfox.waterfox", "[Desktop Entry]\nName=Waterfox\n") == "waterfox");
+        check("a StartupWMClass that is the app ID is skipped", ngosen::programForAppId("net.lutris.Lutris", "[Desktop Entry]\nStartupWMClass=net.lutris.Lutris\n") == "lutris");
+
+        // Flatpak Firefox on the D-Bus frontend.
+        TestInputContext  firefox(&testInstance.instance, "org.mozilla.firefox", "dbus");
+        ngosen::FcitxHost host(&firefox, &testInstance.instance);
+        check("Flatpak Firefox hides the address bar flag", ngosen::hidesAddressBarFlag(host.field()));
+        check("other names are left as reported", ngosen::normalizeProgramName("firefox.desktop") == "firefox.desktop" && ngosen::normalizeProgramName("SDL_App") == "SDL_App");
+        check("the GNOME desktop ID of a Flatpak app is mapped", ngosen::normalizeProgramName("org.mozilla.firefox.desktop") == "firefox");
+        check("the IBus GTK4 prefix is kept", ngosen::normalizeProgramName("gtk4-im:org.gnome.Ptyxis") == "gtk4-im:ptyxis");
+    }
+
 } // namespace
 
 int main() {
@@ -186,5 +209,6 @@ int main() {
     checkPreedit(testInstance);
     checkKeys(testInstance);
     checkQuirks();
+    checkFlatpakNames(testInstance);
     return failures == 0 ? 0 : 1;
 }
