@@ -37,9 +37,11 @@ namespace ngosen {
         if (bounce) {
             NGOSEN_INFO("Focus bounce: keep word buffers");
             checkWordAfterBounce_ = true;
-            // Only a bounce caused by our own edit tells that the field redraws.
-            if (now - static_cast<int64_t>(surr_wait_started_at_ / 1000) < RedrawWaitMs) {
+            // Only a bounce right after a key or our own edit tells that the field redraws.
+            const bool inWait = now - static_cast<int64_t>(surr_wait_started_at_ / 1000) < RedrawWaitMs;
+            if (inWait || now - static_cast<int64_t>(lastInputAtUs_ / 1000) < RedrawWaitMs)
                 ++fieldBounces_;
+            if (inWait) {
                 waitBounces_   = bouncedInWait_ == surr_wait_started_at_ ? waitBounces_ + 1 : 1;
                 bouncedInWait_ = surr_wait_started_at_;
             }
