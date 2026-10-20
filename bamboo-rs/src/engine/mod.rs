@@ -96,11 +96,19 @@ pub fn determine_macro_case(s: &str) -> MacroCase {
     }
 }
 
+/// Upper-cases the first letter of text written in lower case; text with capitals, such as iPhone,
+/// stays as written. A letter whose upper case is several letters (ß) stays too, as in Go.
 fn capitalize_first(s: &str) -> String {
     let mut chars = s.chars();
-    match chars.next() {
-        Some(first) => first.to_uppercase().chain(chars).collect(),
-        None => String::new(),
+    let Some(first) = chars.next() else {
+        return String::new();
+    };
+    let mut upper = first.to_uppercase();
+    match (upper.next(), upper.next()) {
+        (Some(u), None) if !s.chars().any(char::is_uppercase) => {
+            std::iter::once(u).chain(chars).collect()
+        }
+        _ => s.to_string(),
     }
 }
 

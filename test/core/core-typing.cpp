@@ -186,15 +186,15 @@ namespace {
         check(text == "em không a", "macro keeps its space", text);
     }
 
-    // With Capitalize Macro on, an abbreviation typed with a capital first letter capitalizes the text.
+    // With Capitalize Macro on, an abbreviation typed with a capital first letter capitalizes the
+    // text, unless the text has capitals of its own.
     void testMacroCapitalized() {
         const std::vector<std::pair<std::string, std::string>> cases{
-            {"Ko", "Không "},
-            {"kO", "không "},
+            {"Ko", "Không "}, {"kO", "không "}, {"Ip", "iPhone "}, {"Io", "iOS "}, {"Bt", "ßa "},
         };
         for (const auto& [typed, want] : cases) {
             FakeResources resources;
-            resources.setMacros({{"ko", "không"}});
+            resources.setMacros({{"ko", "không"}, {"ip", "iPhone"}, {"io", "iOS"}, {"bt", "ßa"}});
             std::vector<uint32_t> keys(typed.begin(), typed.end());
             keys.push_back(' ');
             const std::string text = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));

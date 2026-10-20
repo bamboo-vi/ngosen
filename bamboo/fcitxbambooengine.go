@@ -145,12 +145,20 @@ func (e *FcitxBambooEngine) expandMacro(str, macroText string) string {
 		case VnCaseAllCapital:
 			return strings.ToUpper(macroText)
 		case VnCaseCapitalized:
-			if first, size := utf8.DecodeRuneInString(macroText); size > 0 {
-				return string(unicode.ToUpper(first)) + macroText[size:]
-			}
+			return capitalizeFirst(macroText)
 		}
 	}
 	return macroText
+}
+
+// capitalizeFirst upper-cases the first letter of text written in lower case; text with capitals,
+// such as iPhone, stays as written.
+func capitalizeFirst(text string) string {
+	first, size := utf8.DecodeRuneInString(text)
+	if size == 0 || strings.IndexFunc(text, unicode.IsUpper) >= 0 {
+		return text
+	}
+	return string(unicode.ToUpper(first)) + text[size:]
 }
 
 func (e *FcitxBambooEngine) getMacroText() (bool, string) {

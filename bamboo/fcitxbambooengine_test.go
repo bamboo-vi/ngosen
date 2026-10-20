@@ -124,6 +124,11 @@ func TestExpandMacro(t *testing.T) {
 	if got := e.expandMacro("kO", "không"); got != "không" {
 		t.Errorf("expandMacro mixed got [%s] expected [không] (unchanged)", got)
 	}
+	for text, want := range map[string]string{"iPhone": "iPhone", "iOS": "iOS", "ßa": "ßa", "đi": "Đi"} {
+		if got := e.expandMacro("Ab", text); got != want {
+			t.Errorf("expandMacro capitalized %s got [%s] expected [%s]", text, got, want)
+		}
+	}
 	e.autoCapitalizeMacro = false
 	// $TIME substitution
 	e.timeFormat = "%H:%M"

@@ -101,6 +101,14 @@ fn test_expand_macro() {
     assert_eq!(e.expand_macro("Vn", "Việt Nam"), "Việt Nam");
     assert_eq!(e.expand_macro("Ko", "không"), "Không");
     assert_eq!(e.expand_macro("kO", "không"), "không");
+    for (text, want) in [
+        ("iPhone", "iPhone"),
+        ("iOS", "iOS"),
+        ("ßa", "ßa"),
+        ("đi", "Đi"),
+    ] {
+        assert_eq!(e.expand_macro("Ab", text), want, "{text}");
+    }
     e.auto_capitalize_macro = false;
     e.time_format = "%H:%M".to_string();
     let now = e.expand_macro("now", "giờ $TIME");
