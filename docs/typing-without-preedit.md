@@ -73,11 +73,13 @@ Measured on the apps named, with the version and desktop in the linked Ngó Sen 
 request. "Fix" is what the client could change; none of these need a protocol change.
 
 - **Chromium-based browsers and Electron apps** (Chrome, Chromium, Edge, Brave, Vivaldi, Opera;
-  VS Code, Discord, Zalo and other Electron apps) report no surrounding text to fcitx5 on Linux
-  and do not honour `deleteSurroundingText`, so Ngó Sen forwards Backspace keys. Their address bar
-  selects an inline autocompletion after the typed text, which a forwarded Backspace deletes.
-  Fix: report surrounding text and implement deletion on the Linux IME path, as the macOS and
-  Windows paths do.
+  VS Code, Discord, Zalo and other Electron apps) report no surrounding text to fcitx5 through the
+  GTK IM module, which they use on X11 and by default on Wayland, so Ngó Sen cannot check what is
+  before the cursor and forwards Backspace keys. Their address bar selects an inline autocompletion
+  after the typed text, which a forwarded Backspace deletes. With Wayland text-input instead
+  (`--enable-wayland-ime`), Chromium does send surrounding text; KWin passes it on, while Sway
+  drops it after the first update (swaywm/sway#9191).
+  Fix: report surrounding text through the GTK IM module as the Wayland text-input path does.
 - **Firefox and its forks** (Firefox ESR on Debian, Zen, LibreWolf, Waterfox, Floorp, Mullvad
   Browser, GNU IceCat) set no URL input purpose on the address bar, so an input method cannot tell
   it from a text field and has to guess from the text after the cursor (#161, #162, #164).
