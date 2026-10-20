@@ -1,0 +1,100 @@
+name: Lỗi cài đặt hoặc cập nhật
+description: Lỗi khi cài, cập nhật, gỡ hoặc Ngó Sen không hiện hay không chạy sau khi cài.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Nếu mở được app cài đặt: "Cài đặt Ngó Sen" → "Giới thiệu" → "Kiểm tra máy tôi…" → "Chép kết quả", rồi dán vào ô kết quả bên dưới.
+        Nếu gõ ra sai chữ, dùng form "Báo lỗi".
+
+  - type: dropdown
+    id: step
+    attributes:
+      label: Bạn gặp lỗi ở bước nào?
+      options:
+        - Cài lần đầu
+        - Cập nhật
+        - Gỡ
+        - Sau khi cài, không gõ được / không thấy Ngó Sen
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Cách cài Ngó Sen
+      options:
+        - Lệnh cài một dòng (install.sh)
+        - Repo của distro (dnf, apt, pacman, zypper)
+        - Gói tải từ trang Releases
+        - nixpkgs
+        - Tự build từ source
+        - Khác
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Toàn bộ output trong terminal
+      description: Dán lệnh đã chạy và toàn bộ output, từ đầu đến cuối.
+      placeholder: curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnose
+    attributes:
+      label: Kết quả "Kiểm tra máy tôi"
+      description: Chọn "Chép kết quả" rồi dán vào đây.
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Version Ngó Sen đã thử cài
+      placeholder: 1.5.4-2
+
+  - type: input
+    id: distro
+    attributes:
+      label: Distro
+      description: Ghi tên và version distro, kèm kết quả lệnh `uname -m` (x86_64 hoặc aarch64).
+    validations:
+      required: true
+
+  - type: dropdown
+    id: desktop_env
+    attributes:
+      label: Desktop
+      options:
+        - KDE Plasma
+        - GNOME
+        - Cinnamon
+        - Xfce
+        - COSMIC
+        - Hyprland
+        - Sway
+        - i3
+        - Khác
+
+  - type: dropdown
+    id: session
+    attributes:
+      label: Session
+      options:
+        - Wayland
+        - X11
+        - Không rõ
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Thông tin thêm
+      description: |
+        Ảnh chụp màn hình và những cách đã thử.
+        Mục [Lỗi thường gặp](https://github.com/ngosen/ngosen#lỗi-thường-gặp) trong README có hướng dẫn cho lỗi extension GNOME trên Ubuntu 26.04 và lỗi trong VS Code.

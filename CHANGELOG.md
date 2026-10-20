@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Tài liệu
+
+- Viết lại form yêu cầu tính năng ngắn hơn, thêm form báo lỗi cài đặt hoặc cập nhật; issue mới phải đi qua
+  một form, không còn mở issue trống. (#190)
+
 ## [1.5.4-2] — 20/10/2026
 
 Chỉ tăng lần đóng gói để đưa mẫu báo lỗi mới (#188) lên nhánh mặc định của GitHub, code chương trình giữ nguyên như 1.5.4-1.

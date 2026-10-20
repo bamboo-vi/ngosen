@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Hướng dẫn cài và lỗi thường gặp
+    url: https://github.com/ngosen/ngosen#cài
+    about: Cách cài Ngó Sen và xử lý các lỗi thường gặp.
+  - name: Website Ngó Sen
+    url: https://ngosen.github.io
+    about: Giới thiệu Ngó Sen và các tính năng.
