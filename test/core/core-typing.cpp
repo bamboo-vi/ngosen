@@ -177,6 +177,18 @@ namespace {
         check(text == "đơn", "emptied field: commit after focus comes back", text);
     }
 
+    // TikTok's comment box in Chrome under GNOME applies our backspaces late and loses a commit that
+    // arrives before the redraw they cause (#175).
+    void testCommitAfterEditorRedraw() {
+        Field                   field = makeField("ibus", true);
+        ngosen::test::AppQuirks quirks;
+        quirks.keyStepMs         = 6;
+        quirks.redrawAfterEditMs = 7;
+        const std::vector<uint32_t> keys{'t', 'i', 'e', 'e', 'n', 'g', 's'};
+        const std::string           text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
+        check(text == "tiếng", "redrawing editor: commit after the redraw", text);
+    }
+
     // Backspacing from after a word into it and typing on continues that word; kitty reports no
     // surrounding text, so the word comes from what we committed.
     void testBackspaceIntoLastWord(const std::string& frontend, bool surroundingText, ngosen::test::AppQuirks quirks = {}) {
@@ -583,6 +595,7 @@ int main() {
     testKeyDuringReplacement();
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
+    testCommitAfterEditorRedraw();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);
     {

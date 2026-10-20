@@ -204,6 +204,10 @@ namespace ngosen {
             surr_wait_timer_only_ = false;
             return false;
         }
+        if (waitsForRedraw()) {
+            t.rearm(ngosen::monotonicUs() + 2000);
+            return true;
+        }
         if (!host_->hasFocus()) {
             // Chromium X11 leaves and re-enters the field within ~0.3 ms; a commit in that gap is
             // lost. Give it a moment to come back.

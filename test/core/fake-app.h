@@ -31,6 +31,7 @@ namespace ngosen::test {
         int  refocusWhenEmptiedMs   = 0;     // leaves focus this long when its text becomes empty, as Zed does
         bool resendsKeysWithoutText = false; // sends a key that types no text back once more, marked as repeated, as gnome-text-editor does
         bool takesXTest             = false; // gets backspaces as XTEST presses, which come back to the input method first
+        int  redrawAfterEditMs      = 0;     // bounces focus this long after each edit and drops commits until then, as TikTok in Chrome does
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -92,6 +93,7 @@ namespace ngosen::test {
         void                                eraseBefore(size_t count);
         void                                eraseAround(int offset, unsigned int size);
         void                                changed();
+        void                                redrawAfterEdit();
         void                                later(int ms, std::function<void()> action);
 
         FakeLoop&                           loop_;
@@ -99,6 +101,7 @@ namespace ngosen::test {
         AppQuirks                           quirks_;
         TypingState*                        state_       = nullptr;
         int                                 queuedKeys_  = 0;
+        int                                 redraws_     = 0;
         bool                                inReport_    = false;
         bool                                focused_     = true;
         uint64_t                            busyUntilUs_ = 0;
