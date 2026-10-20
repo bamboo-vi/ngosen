@@ -355,6 +355,8 @@ namespace ngosen {
     // Some apps move the caret back and forth for a few ms after a key (VS Code's EditContext on
     // Wayland). Nobody clicks that soon after typing, so such moves are not clicks.
     constexpr uint64_t CaretSettleUs = 30000;
+    // A browser reports the step into its suggestion right after the key; a click takes longer.
+    constexpr uint64_t SuggestionStepUs = 100000;
 
     // Our own edits only touch the text before the cursor, even while their report is still on the way.
     bool TypingState::textAfterCursorChanged(const Surrounding& s) const {
@@ -387,10 +389,14 @@ namespace ngosen {
         bool       jumped   = sameText && (s.cursor() != lastSurroundingCursor_ || s.anchor() != lastSurroundingAnchor_);
         // Some editors (Lark in Firefox) report the cursor past our commit before the committed text.
         const bool echo = jumped && unreportedCommitLength_ > 0 && s.cursor() == s.anchor() && s.cursor() == lastSurroundingCursor_ + unreportedCommitLength_;
-        // Typing the next letter of a selected inline suggestion (Edge's address bar) keeps the text.
-        const bool intoSuggestion = jumped && passed_key_ && s.anchor() == lastSurroundingAnchor_ && s.anchor() > s.cursor() && s.cursor() == lastSurroundingCursor_ + 1 &&
-            ngosen::utf8::decode(s.text())[lastSurroundingCursor_] == passed_key_->sym;
-        const bool settling = ngosen::monotonicUs() - lastInputAtUs_ < CaretSettleUs;
+        // Typing the next letter of an inline suggestion keeps the text and steps over that letter.
+        // Edge reports the suggestion selected; Firefox does not, so a click one letter on looks the same
+        // and only the timing tells them apart.
+        const uint64_t sinceInputUs   = ngosen::monotonicUs() - lastInputAtUs_;
+        const bool     intoSuggestion = jumped && passed_key_ && s.cursor() == lastSurroundingCursor_ + 1 &&
+            ngosen::utf8::decode(s.text())[lastSurroundingCursor_] == passed_key_->sym &&
+            ((s.anchor() == s.cursor() && sinceInputUs < SuggestionStepUs) || (s.anchor() == lastSurroundingAnchor_ && s.anchor() > s.cursor()));
+        const bool settling = sinceInputUs < CaretSettleUs;
         // A spreadsheet reports a click on another cell only as that cell's text with the cursor at its start.
         const bool lostWord = lostWordAfterBounce(s, settling);
         const bool newField =

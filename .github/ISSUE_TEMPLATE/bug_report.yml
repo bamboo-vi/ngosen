@@ -1,130 +1,151 @@
 name: Báo lỗi
-description: Báo cáo lỗi để giúp chúng tôi cải thiện
-labels: ['bug']
+description: Báo lỗi khi dùng Ngó Sen.
+labels: ['lỗi']
 body:
   - type: markdown
     attributes:
       value: |
-        Cảm ơn bạn đã dành thời gian báo cáo lỗi! Vui lòng điền đầy đủ thông tin bên dưới.
-
-        Đây là nơi báo lỗi của Ngó Sen.
+        Cách nhanh nhất: mở "Cài đặt Ngó Sen" → "Giới thiệu" → "Kiểm tra máy tôi…" để kiểm tra thiết lập.
+        Chọn "Báo cáo lỗi…" để mở form này với kết quả, version và distro đã điền sẵn, hoặc "Chép kết quả" để tự dán vào ô bên dưới.
+        Kết quả có tên các app; hãy đọc trước khi gửi.
 
   - type: textarea
     id: description
     attributes:
-      label: Mô tả lỗi
-      description: Mô tả rõ ràng về lỗi bạn gặp phải
-      placeholder: Khi tôi gõ..., bộ gõ hiển thị...
-    validations:
-      required: true
-
-  - type: textarea
-    id: reproduce
-    attributes:
-      label: Các bước tái hiện
-      description: Các bước để tái hiện lỗi
+      label: Bạn gặp lỗi gì?
+      description: Ghi đúng các phím đã gõ, kết quả thực tế và kết quả mong đợi. Nếu lỗi không liên quan đến gõ chữ, ghi cách làm xuất hiện lỗi.
       placeholder: |
-        1. Mở...
-        2. Gõ...
-        3. Nhấn...
-        4. Lỗi xuất hiện
-    validations:
-      required: true
-
-  - type: textarea
-    id: expected
-    attributes:
-      label: Kết quả mong đợi
-      description: Mô tả kết quả bạn mong đợi
-      placeholder: Khi gõ..., bộ gõ nên hiển thị...
-    validations:
-      required: true
-
-  - type: textarea
-    id: actual
-    attributes:
-      label: Kết quả thực tế
-      description: Mô tả kết quả thực tế xảy ra
-      placeholder: Thay vào đó, bộ gõ hiển thị...
+        Phím đã gõ: tieengs vieetj
+        Kết quả thực tế:
+        Kết quả mong đợi: tiếng việt
     validations:
       required: true
 
   - type: input
-    id: version
+    id: app
     attributes:
-      label: Phiên bản Ngó Sen
-      description: Số phiên bản của gói `fcitx5-ngosen` đã cài. Bản tự build thì ghi mã commit.
-      placeholder: 'ví dụ: 1.5.4-1'
+      label: App gặp lỗi
+      description: Ghi tên app và cách cài (Flatpak, Snap, gói của distro, AppImage). Nếu là trang web, ghi trình duyệt và trang web.
     validations:
       required: true
 
   - type: dropdown
-    id: install_method
+    id: mode
     attributes:
-      label: Cách cài đặt
-      description: Bạn đã cài đặt Ngó Sen bằng cách nào?
+      label: Chế độ gõ
       options:
-        - Lệnh cài một dòng (install.sh)
-        - Gói tải từ trang Releases
-        - Tự build từ source
-        - Khác
+        - Gõ Sen
+        - Gạch chân (Preedit)
+        - Chọn Emoji
+        - Không rõ
+    validations:
+      required: true
+
+  - type: input
+    id: input_type
+    attributes:
+      label: Kiểu gõ
+      placeholder: Telex, VNI, VIQR, ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Lỗi xảy ra bao lâu một lần?
+      options:
+        - Lần nào cũng bị
+        - Thỉnh thoảng
+        - Mới bị một lần
+
+  - type: textarea
+    id: typing_log
+    attributes:
+      label: Nhật ký gõ
+      description: |
+        Đây là thông tin hữu ích nhất khi Ngó Sen gõ sai chữ. Gõ một câu test; ngay sau khi lỗi xảy ra, chọn "Lưu nhật ký gõ" trong menu Ngó Sen ở khay hệ thống.
+        File `~/.local/state/ngosen/typing-<date>-<time>.log` lưu vài trăm phím gần nhất, những gì Ngó Sen gửi cho app và app báo lại.
+        File chứa nội dung vừa gõ (không ghi nội dung trong ô mật khẩu). Đọc file trước khi chia sẻ, rồi kéo file vào ô này.
+
+  - type: textarea
+    id: diagnose
+    attributes:
+      label: Kết quả "Kiểm tra máy tôi"
+      description: Kết quả từ "Cài đặt Ngó Sen" → "Giới thiệu" → "Kiểm tra máy tôi…". Nếu chưa được điền sẵn, chọn "Chép kết quả" rồi dán vào đây.
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Version Ngó Sen
+      placeholder: 1.5.5-1
     validations:
       required: true
 
   - type: input
     id: distro
     attributes:
-      label: Hệ điều hành / Distro
-      description: Bạn đang sử dụng hệ điều hành nào?
-      placeholder: 'ví dụ: Arch Linux, Ubuntu 24.04, Fedora 40...'
+      label: Distro
+      description: Ghi tên và version distro.
     validations:
       required: true
 
   - type: dropdown
     id: desktop_env
     attributes:
-      label: Môi trường Desktop
-      description: Bạn đang sử dụng môi trường desktop nào?
+      label: Desktop
       options:
         - KDE Plasma
         - GNOME
-        - XFCE
-        - Sway
+        - Cinnamon
+        - Xfce
+        - COSMIC
         - Hyprland
+        - Sway
         - i3
-        - Khác (ghi cụ thể ở dưới)
-    validations:
-      required: false
+        - Khác
 
-  - type: input
-    id: input_type
+  - type: dropdown
+    id: session
     attributes:
-      label: Kiểu gõ
-      description: Bạn đang sử dụng kiểu gõ nào?
-      placeholder: Ví dụ Telex, VNI, VIQR, .....
+      label: Session
+      options:
+        - Wayland
+        - X11
+        - Không rõ
     validations:
       required: true
 
-  - type: textarea
-    id: diagnose
+  - type: dropdown
+    id: install_method
     attributes:
-      label: Diagnose
-      description: |
-        Nếu có lỗi, vui lòng cung cấp diagnose từ fcitx5.
-        Bạn có thể lấy diagnose bằng lệnh: `fcitx5-diagnose`.
-      render: shell
+      label: Cách cài Ngó Sen
+      options:
+        - Lệnh cài một dòng (install.sh)
+        - Repo của distro (dnf, apt, pacman, zypper)
+        - Gói tải từ trang Releases
+        - nixpkgs
+        - Tự build từ source
+        - Khác
 
   - type: textarea
     id: log_fcitx5
     attributes:
-      label: Log của fcitx5
+      label: Log fcitx5 hoặc backtrace
       description: |
-        Log của fcitx5 (Chạy lệnh `fcitx5 --verbose ngosen=4` ở terminal trong quá trình tái hiện lỗi)
-      render: shell
+        Khi fcitx5 treo, crash hoặc menu ở khay hệ thống không phản hồi, chạy trong terminal:
+        ```sh
+        fcitx5 -r --verbose ngosen=4 2>&1 | tee ~/ngosen-fcitx5.log
+        ```
+        Làm lại các bước gây lỗi, nhấn Ctrl+C, rồi chạy `fcitx5 -rd` để dùng lại bình thường. Dán log hoặc đính kèm file `~/ngosen-fcitx5.log`.
+        Trên KDE Plasma Wayland, fcitx5 chạy từ terminal không gõ được trong app Qt; nếu dùng môi trường này, ghi rõ trong báo cáo.
+        Nếu fcitx5 đang treo, mở terminal khác và chạy lệnh sau (cần gdb), rồi đính kèm file `~/fcitx5-bt.txt`:
+        ```sh
+        gdb -p $(pgrep -x fcitx5) -batch -ex "thread apply all bt" > ~/fcitx5-bt.txt 2>&1
+        ```
 
   - type: textarea
     id: additional
     attributes:
-      label: Thông tin bổ sung
-      description: Bất kỳ thông tin nào khác có thể hữu ích
-      placeholder: Ảnh chụp màn hình, cấu hình, v.v.
+      label: Thông tin thêm
+      description: Ảnh chụp màn hình, video hoặc version cũ từng dùng không gặp lỗi.

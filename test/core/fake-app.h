@@ -123,6 +123,8 @@ namespace ngosen::test {
 
     // The text the keys give in Preedit mode, where the app only ever gets finished text.
     std::string telexOutput(const std::vector<uint32_t>& keys);
+    // The same with the given settings and macro table.
+    std::string telexOutput(FakeResources& resources, const std::vector<uint32_t>& keys);
 
     // The app's text after typing the keys in Gõ Sen mode, waiting gapsMs[i] after key i.
     std::string typeInApp(const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs, int* slowestCommitMs = nullptr);

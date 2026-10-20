@@ -24,10 +24,7 @@ pub fn type_keys(e: &mut BambooEngine, keys: &str) {
 }
 
 pub fn macro_table(pairs: &[(&str, &str)]) -> Arc<MacroTable> {
-    let table = pairs
-        .iter()
-        .map(|&(k, v)| (k.to_string(), v.to_string()))
-        .collect();
+    let table = pairs.iter().map(|&(k, v)| (k.to_string(), v.to_string()));
     Arc::new(MacroTable::new(table))
 }
 
