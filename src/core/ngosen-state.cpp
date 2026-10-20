@@ -236,18 +236,34 @@ namespace ngosen {
         return true;
     }
 
+    // Vietnamese letters lie in these Latin blocks; quotes, ellipses and other symbols end a word.
+    static bool isWordChar(char32_t c) {
+        if (c < 0x80)
+            return std::isalnum(static_cast<int>(c)) != 0;
+        return (c >= 0xC0 && c <= 0x24F && c != 0xD7 && c != 0xF7) || (c >= 0x1E00 && c <= 0x1EFF);
+    }
+
+    // Plain ASCII letters are written the same in every charset, so the engine can rebuild them.
+    static bool isPlainLetters(std::string committed) {
+        ngosen::utf8::eraseLastCodepoint(committed);
+        return std::all_of(committed.begin(), committed.end(), [](char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); });
+    }
+
     void TypingState::reopenLastWord() {
         // The user may have clicked elsewhere; only an app that reports its text can tell us.
-        if (!typedBeforeCursor(lastWord_)) {
+        if (!typedBeforeCursor(lastWord_) || !ngosen::utf8::validate(lastWord_)) {
             lastWord_.clear();
             return;
         }
         ngosen::utf8::eraseLastCodepoint(lastWord_);
-        const auto isBreak = [](char c) { return static_cast<unsigned char>(c) < 0x80 && std::isalnum(static_cast<unsigned char>(c)) == 0; };
-        if (lastWord_.empty() || isBreak(lastWord_.back()))
+        const std::u32string chars   = ngosen::utf8::decode(lastWord_);
+        const auto           letters = static_cast<size_t>(std::find_if_not(chars.rbegin(), chars.rend(), isWordChar) - chars.rbegin());
+        if (letters == 0)
             return;
-        const auto        start = std::find_if(lastWord_.rbegin(), lastWord_.rend(), isBreak).base();
-        const std::string word(start, lastWord_.end());
+        auto start = lastWord_.cbegin();
+        for (size_t i = letters; i < chars.size(); ++i)
+            start = ngosen::utf8::nextChar(start, lastWord_.cend());
+        const std::string word(start, lastWord_.cend());
         lastWord_.clear();
         EngineRebuildFromText(bambooEngine_.handle(), word.c_str());
     }
@@ -275,7 +291,9 @@ namespace ngosen {
         hasHistory_ = false;
         ResetEngine(bambooEngine_.handle());
         oldPreBuffer_.clear();
-        lastWord_ = commitStr;
+        // The engine rebuilds a word from Unicode, not from a legacy charset's encoding of it.
+        const bool rebuildable = engine_->options().outputCharset == "Unicode" || isPlainLetters(commitStr);
+        lastWord_              = rebuildable ? commitStr : std::string();
     }
 
     void TypingState::replaceFromPreedit(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8) {

@@ -21,6 +21,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   khớp. Nếu cùng chữ viết tắt được lưu với nhiều cách viết hoa, Ngó Sen dùng bản viết thường, nếu không có
   thì dùng bản lưu đầu tiên. Trình sửa macro trong cửa sổ cài đặt coi `VN` và `vn` là cùng chữ viết tắt,
   đề nghị cập nhật thay vì thêm bản thứ hai (#194).
+- Gõ Sen sửa lỗi khi backspace về từ vừa gõ để thêm dấu (tính năng từ #142): macro kết thúc bằng ký tự
+  không phải chữ cái, như `q` → `“quá”` hay `vv` → `vân vân…`, giờ giữ nguyên nội dung. Trước đây gõ `q`,
+  Space, backspace, `s` ra `“qua”s` thay vì `“quá”s`; với `vv` thì ra `vân van…s`. Với charset VNI Windows,
+  từ đã mã hóa giờ bắt đầu từ mới như trước #142, sửa lỗi gõ `dduowc`, Space, backspace, backspace, `j`
+  ra chữ rối `ñöä`. Từ chưa có chữ tiếng Việt vẫn mở lại được trong VNI Windows / TCVN3: gõ `ban`, Space,
+  backspace, `f` ra `bàn` (#199).
 
 ### Tài liệu
 
