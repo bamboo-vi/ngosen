@@ -4,12 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 // Random typing in Gõ Sen mode against fake apps that report late, report stale text or apply
-// backspaces late. Whatever the app does, its text must end up as the Telex output of the keys.
+// backspaces late. Whatever the app does, its text must end up as the Telex output of the keys,
+// macros included.
 //
 // Keys come 40 to 160 ms apart, with one in five rolled over 8 to 25 ms after the last.
 // NGOSEN_FUZZ_RUNS sets the sequences per app (default 2); NGOSEN_FUZZ_SEED repeats one run.
 
 #include "fake-app.h"
+#include "fake-engine.h"
 #include "ngosen-keysym.h"
 
 #include <cstdio>
@@ -20,6 +22,7 @@
 
 using ngosen::Field;
 using ngosen::test::AppQuirks;
+using ngosen::test::FakeResources;
 using ngosen::test::telexOutput;
 using ngosen::test::typeInApp;
 
@@ -43,14 +46,21 @@ namespace {
         {"no surrounding text, slow app", "xim", false, {true, 0, false, 30}},
     };
 
-    const char* const     words[] = {"vieetj", "nguowif", "dduwowcj", "tooi", "khoong", "hoaf", "thuyeets", "ddi", "chuaw", "quas", "giof", "muwaf", "xin", "chaof", "banj"};
+    const char* const words[] = {"vieetj", "nguowif", "dduwowcj", "tooi", "khoong", "hoaf", "thuyeets", "ddi", "chuaw", "quas", "giof", "muwaf", "xin", "chaof", "banj"};
+    // One macro's text starts with its abbreviation, the other's does not.
+    const char* const     macroWords[] = {"e", "ko"};
 
     std::vector<uint32_t> randomKeys(std::mt19937& rng) {
         std::vector<uint32_t> keys;
         const char            letters[] = "abcdeghiklmnopqrstuvxyfsrxjwd";
         const int             count     = 2 + static_cast<int>(rng() % 5);
+        // Every sequence has a macro, as a fixed seed may otherwise roll none.
+        const int macroAt = static_cast<int>(rng() % static_cast<unsigned>(count));
         for (int w = 0; w < count; ++w) {
-            if (rng() % 3 == 0) {
+            if (w == macroAt) {
+                for (const char* c = macroWords[rng() % 2]; *c; ++c)
+                    keys.push_back(static_cast<uint32_t>(*c));
+            } else if (rng() % 3 == 0) {
                 const int length = 1 + static_cast<int>(rng() % 5);
                 for (int i = 0; i < length; ++i)
                     keys.push_back(static_cast<uint32_t>(letters[rng() % (sizeof(letters) - 1)]));
@@ -92,12 +102,14 @@ int main() {
             std::vector<int>    gaps;
             for (size_t i = 0; i < keys.size(); ++i)
                 gaps.push_back(static_cast<int>(rng() % 5 == 0 ? 8 + rng() % 18 : 40 + rng() % 120));
-            const std::string want = telexOutput(keys);
+            FakeResources resources;
+            resources.setMacros({{"e", "em"}, {"ko", "không"}});
+            const std::string want = telexOutput(resources, keys);
             Field             field;
             field.frontend         = app.frontend;
             field.surroundingText  = app.surroundingText;
             field.preedit          = true;
-            const std::string seen = typeInApp(field, app.quirks, keys, gaps);
+            const std::string seen = typeInApp(resources, field, app.quirks, keys, gaps);
             if (seen != want) {
                 ++failures;
                 std::printf("FAIL: %s, seed %lu: keys \"%s\" gave \"%s\", want \"%s\"\n", app.name, seed, describe(keys).c_str(), seen.c_str(), want.c_str());

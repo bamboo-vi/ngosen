@@ -186,6 +186,34 @@ namespace {
         check(text == "em không a", "macro keeps its space", text);
     }
 
+    // An abbreviation matches in any case it was written or typed in.
+    void testMacroKeyCase() {
+        const std::vector<std::pair<std::string, std::string>> cases{
+            {"ko", "không "}, {"KO", "KHÔNG "}, {"vn", "việt nam "}, {"Vn", "Việt Nam "}, {"VN", "VIỆT NAM "},
+        };
+        for (const auto& [typed, want] : cases) {
+            FakeResources resources;
+            resources.setMacros({{"ko", "không"}, {"VN", "Việt Nam"}});
+            std::vector<uint32_t> keys(typed.begin(), typed.end());
+            keys.push_back(' ');
+            const std::string text = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));
+            check(text == want, "macro key case: " + typed, text);
+        }
+        // Of several capitalized spellings, both cores take the first one saved.
+        const std::vector<std::pair<std::string, std::string>> spellings{{"KO", "kansas"}, {"Ko", "korea"}, {"kO", "kosovo"}};
+        for (size_t first = 0; first < spellings.size(); ++first) {
+            std::vector<std::pair<std::string, std::string>> macros;
+            for (size_t i = 0; i < spellings.size(); ++i)
+                macros.push_back(spellings[(first + i) % spellings.size()]);
+            FakeResources resources;
+            resources.setMacros(macros);
+            const std::vector<uint32_t> keys{'k', 'o', ' '};
+            const std::string           text  = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));
+            const std::string&          value = spellings[first].second;
+            check(text == value + " ", "first macro spelling wins: " + spellings[first].first, text);
+        }
+    }
+
     // TikTok's comment box in Chrome under GNOME applies our backspaces late and loses a commit that
     // arrives before the redraw they cause (#175).
     void testCommitAfterEditorRedraw() {
@@ -678,6 +706,7 @@ int main() {
     testCommitAfterEditorRedraw();
     testQuickSwitchesNoRedrawWait();
     testMacroKeepsSpace();
+    testMacroKeyCase();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);
     {
