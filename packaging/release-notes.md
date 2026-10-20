@@ -1,3 +1,5 @@
+Version 1.5.4-1 phát hành ngày 20/10/2026; 1.5.4-2 chỉ tăng lần đóng gói để đưa mẫu báo lỗi mới (#188) lên nhánh mặc định của GitHub, code chương trình giữ nguyên. Mẫu báo lỗi bắt đầu từ “Kiểm tra máy tôi…”, yêu cầu log từ “Lưu nhật ký gõ”, chế độ gõ, app và Wayland hay X11, kèm hướng dẫn lấy log fcitx5 hoặc backtrace khi fcitx5 bị treo. Tài liệu `docs/typing-without-preedit.md` nói rõ nhận định về surrounding text của Chromium chỉ áp dụng cho GTK IM (#184) và liệt kê các báo lỗi upstream do người khác gửi (#186). Ai đã cài 1.5.4-1 không cần cập nhật, vì lên 1.5.4-2 không thay đổi gì khi gõ.
+
 Version 1.5.4 sửa lỗi Gõ Sen trong Chrome/Chromium trên Wayland: bình luận TikTok không còn để nguyên `ddungs rooif` thay vì `đúng rồi`, từ đầu ô Draft.js ghép dấu khi chữ gợi ý biến mất. Chrome trên GNOME cũng sửa lỗi mất chữ trong bình luận TikTok và ô Draft.js thường (`xin chào` thành `xin ch`, `đẹp` thành `ẹp`): Ngó Sen giữ từ khi ô mất focus rồi có lại ngay, chờ trang vẽ lại ô mới commit. Tuy vậy, từ đầu có dấu thanh gõ ngay sau khi bấm vào ô Draft.js trong Chrome trên GNOME đôi lúc vẫn mất chữ; các từ sau bình thường. Macro `e` → `em` giữ dấu cách, nên `e ko` ra `em không` thay vì `emkhông`. README thêm hướng dẫn dùng repo để update bằng dnf, apt, pacman hoặc zypper; tài liệu “Cách người Việt gõ” giải thích kiểu gõ không preedit. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
@@ -29,6 +31,8 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 Đối chiếu file tải về với `SHA256SUMS`: `sha256sum -c SHA256SUMS --ignore-missing`.
 
 ## Đã test những gì
+
+Version 1.5.4-2 không được gõ thử lại trên VM; các test gõ của 1.5.4-1 dưới đây vẫn áp dụng vì code chương trình giống hệt 1.5.4-1.
 
 Ngày 20/10/2026, bản build từ nhánh `patch` (cùng code chương trình với 1.5.4-1), chép đè lên gói đã cài trên máy ảo, được test bằng Gõ Sen, Telex. Gõ `tieengs vieetj xin chaof cacs banj hoom nay trowif ddepj quas ddungs rooif` → `tiếng việt xin chào các bạn hôm nay trời đẹp quá đúng rồi` trên hai trang test: ô Draft.js thường và ô vẽ lại sau mỗi phím.
 

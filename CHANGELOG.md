@@ -10,11 +10,18 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.4-2] — 20/10/2026
+
+Chỉ tăng lần đóng gói để đưa mẫu báo lỗi mới (#188) lên nhánh mặc định của GitHub, code chương trình giữ nguyên như 1.5.4-1.
+Tải ở [ngosen-1.5.4-2](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.4-2).
+
 ### Tài liệu
 
 - Viết lại mẫu báo lỗi cho Ngó Sen: ưu tiên “Kiểm tra máy tôi…” để tự điền báo cáo, yêu cầu nhật ký từ
   “Lưu nhật ký gõ”, chế độ gõ (Gõ Sen, Gạch chân, Chọn Emoji), app và Wayland hay X11; hướng dẫn lấy log
   fcitx5 hoặc backtrace khi fcitx5 bị treo. (#188)
+- `docs/typing-without-preedit.md` nói rõ nhận định về surrounding text của Chromium chỉ áp dụng cho GTK IM (#184).
+- `docs/typing-without-preedit.md` liệt kê các báo lỗi upstream do người khác gửi (#186).
 
 ## [1.5.4-1] — 20/10/2026
 
