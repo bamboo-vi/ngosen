@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.5-1] — 20/10/2026
+
+Sửa lỗi gõ dấu khi autofill trên thanh địa chỉ Firefox Flatpak, macro có chữ viết tắt viết hoa và lỗi backspace với macro hoặc charset VNI Windows trong Gõ Sen.
+Tải ở [ngosen-1.5.5-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.5-1).
+
 ### Sửa
 
 - Gõ dấu trên thanh địa chỉ Firefox cài từ Flatpak khi đang autofill URL (phần chữ sau con trỏ được chọn)
@@ -27,6 +32,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   từ đã mã hóa giờ bắt đầu từ mới như trước #142, sửa lỗi gõ `dduowc`, Space, backspace, backspace, `j`
   ra chữ rối `ñöä`. Từ chưa có chữ tiếng Việt vẫn mở lại được trong VNI Windows / TCVN3: gõ `ban`, Space,
   backspace, `f` ra `bàn` (#199).
+
+## [1.5.4-3] — 20/10/2026
+
+Chỉ tăng lần đóng gói để đưa các form GitHub mới (#190) lên nhánh mặc định của GitHub, code chương trình giữ nguyên như 1.5.4-1 và 1.5.4-2.
+Tải ở [ngosen-1.5.4-3](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.4-3).
 
 ### Tài liệu
 

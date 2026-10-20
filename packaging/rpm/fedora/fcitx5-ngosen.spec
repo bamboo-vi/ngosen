@@ -1,8 +1,8 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.5.4
-Release:        2%{?dist}
+Version:        1.5.5
+Release:        1%{?dist}
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
 URL:            https://github.com/ngosen/ngosen
@@ -120,6 +120,14 @@ else
 fi
 
 %changelog
+* Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.5-1
+- Recognise Flatpak apps by their usual program name, so Firefox from Flatpak no longer mixes up words while autofilling an address (#200, #204).
+- Macros with an uppercase abbreviation such as VN now expand (#194).
+- Sen mode: backspacing into the last word keeps macro text that ends in a quote or ellipsis, and no longer garbles words in a legacy charset (#199).
+
+* Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.4-3
+- Rework the issue forms and add discussion forms (#190).
+
 * Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.4-2
 - Rewrite the bug report form (#188).
 
