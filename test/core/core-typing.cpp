@@ -9,6 +9,7 @@
 #include "fake-host.h"
 
 #include "ngosen-app-quirks.h"
+#include "ngosen-clock.h"
 #include "ngosen-globals.h"
 #include "ngosen-keysym.h"
 #include "ngosen-recorder.h"
@@ -209,6 +210,36 @@ namespace {
               after);
         // Three backspaces take 30 ms and their last redraw 7 ms more; the wait gives up at 100 ms.
         check(slowest < 60, "redrawing editor: commit once the redraws are done", std::to_string(slowest) + " ms");
+    }
+
+    // Switching fields quickly is not a redraw, so a field that never redraws commits as fast as before.
+    void testQuickSwitchesNoRedrawWait() {
+        for (const auto& [frontend, surrounding] : std::vector<std::pair<std::string, bool>>{{"xim", false}, {"wayland", true}}) {
+            realMode = ngosen::Mode::Sen;
+            realtextLen.store(0);
+            FakeLoop            loop;
+            FakeResources       resources;
+            auto                owned = std::make_unique<ngosen::test::FakeApp>(loop, makeField(frontend, surrounding), ngosen::test::AppQuirks{});
+            auto*               app   = owned.get();
+            ngosen::TypingState state(&resources, std::move(owned));
+            app->attach(&state);
+            for (int i = 0; i < 2; ++i) {
+                loop.pump(30);
+                state.deactivate(true);
+                loop.pump(3);
+                state.activate(ngosen::Mode::Sen, true);
+            }
+            for (const char c : std::string("tie")) {
+                app->type(static_cast<uint32_t>(c));
+                loop.pump(100);
+            }
+            const uint64_t start = ngosen::monotonicUs();
+            app->type('e');
+            while (app->text() != "tiê" && ngosen::monotonicUs() - start < 300000)
+                loop.pump(1);
+            const auto ms = static_cast<int>((ngosen::monotonicUs() - start) / 1000);
+            check(app->text() == "tiê" && ms < 60, "quick field switches: no wait for a redraw (" + frontend + ")", app->text() + ", " + std::to_string(ms) + " ms");
+        }
     }
 
     // Backspacing from after a word into it and typing on continues that word; kitty reports no
@@ -465,6 +496,29 @@ namespace {
                     check(!taken, "focus switch: starts a new word" + field, "e was taken to change the old word");
             }
         }
+
+        // A quick switch to another field on the same context looks like a bounce until that field
+        // reports text without the word before the cursor.
+        for (const bool otherField : {true, false}) {
+            realMode = ngosen::Mode::Sen;
+            FakeLoop            loop;
+            FakeResources       resources;
+            auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+            FakeHost*           host  = owned.get();
+            ngosen::TypingState state(&resources, std::move(owned));
+            typeTie(state, *host, loop, true);
+            loop.pump(40);
+            state.deactivate(true);
+            loop.pump(3);
+            state.activate(ngosen::Mode::Sen, true);
+            host->setSurrounding(otherField ? "xin chao" : "tie", otherField ? 8 : 3);
+            state.surroundingUpdated();
+            const bool taken = press(state, static_cast<uint32_t>('e'));
+            if (otherField)
+                check(!taken, "quick switch to another field: starts a new word", "e was taken to change the old word");
+            else
+                check(taken, "focus bounce with the word still there: keeps it", "e went to the app as a plain key");
+        }
     }
 
     void testHomeDictionaryPath() {
@@ -618,6 +672,7 @@ int main() {
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
     testCommitAfterEditorRedraw();
+    testQuickSwitchesNoRedrawWait();
     testMacroKeepsSpace();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);

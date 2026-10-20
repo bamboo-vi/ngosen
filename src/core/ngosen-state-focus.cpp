@@ -36,8 +36,10 @@ namespace ngosen {
         realMode = targetMode;
         if (bounce) {
             NGOSEN_INFO("Focus bounce: keep word buffers");
-            ++fieldBounces_;
+            checkWordAfterBounce_ = true;
+            // Only a bounce caused by our own edit tells that the field redraws.
             if (now - static_cast<int64_t>(surr_wait_started_at_ / 1000) < RedrawWaitMs) {
+                ++fieldBounces_;
                 waitBounces_   = bouncedInWait_ == surr_wait_started_at_ ? waitBounces_ + 1 : 1;
                 bouncedInWait_ = surr_wait_started_at_;
             }
