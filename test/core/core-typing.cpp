@@ -186,10 +186,10 @@ namespace {
         check(text == "em không a", "macro keeps its space", text);
     }
 
-    // An abbreviation matches in any case it was written or typed in.
+    // An abbreviation matches in any case it was written or typed in, and its text follows that case.
     void testMacroKeyCase() {
         const std::vector<std::pair<std::string, std::string>> cases{
-            {"ko", "không "}, {"KO", "KHÔNG "}, {"vn", "việt nam "}, {"Vn", "Việt Nam "}, {"VN", "VIỆT NAM "},
+            {"ko", "không "}, {"Ko", "Không "}, {"KO", "KHÔNG "}, {"vn", "việt nam "}, {"Vn", "Việt Nam "}, {"VN", "VIỆT NAM "},
         };
         for (const auto& [typed, want] : cases) {
             FakeResources resources;
