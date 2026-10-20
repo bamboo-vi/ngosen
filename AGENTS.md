@@ -82,7 +82,8 @@ right Shift`.
 - The body says what was wrong for the user and why this fixes it. Numbers go here, one line each,
   with how they were measured: `Tested: Writer, 60 words, 0 wrong (was 30).`
 - One logical change per commit; every commit builds and passes `ctest`.
-- Keep the `Co-Authored-By:` trailer the agent adds. It is how we disclose AI assistance.
+- No AI trailer in commits. AI assistance is disclosed in PR descriptions and comments, which end with
+  the line `Assisted-by: AI`.
 
 ## Pull requests
 

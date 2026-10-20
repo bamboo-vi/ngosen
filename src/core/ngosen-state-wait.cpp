@@ -204,6 +204,10 @@ namespace ngosen {
             surr_wait_timer_only_ = false;
             return false;
         }
+        if (waitsForRedraw()) {
+            t.rearm(ngosen::monotonicUs() + 2000);
+            return true;
+        }
         if (!host_->hasFocus()) {
             // Chromium X11 leaves and re-enters the field within ~0.3 ms; a commit in that gap is
             // lost. Give it a moment to come back.
@@ -359,6 +363,19 @@ namespace ngosen {
         return before.substr(std::min<size_t>(lastSurroundingCursor_, before.size())) != now.substr(std::min<size_t>(s.cursor(), now.size()));
     }
 
+    // A quick switch to another field on the same context comes back like a bounce. The first settled
+    // report after it tells which: the same field still has the word before the cursor.
+    bool TypingState::lostWordAfterBounce(const Surrounding& s, bool settling) {
+        if (!checkWordAfterBounce_ || is_deleting_.load(std::memory_order_acquire) || deferred_commit_pending_ || unreportedCommitLength_ > 0)
+            return false;
+        checkWordAfterBounce_ = false;
+        if (settling || realMode != ngosen::Mode::Sen || oldPreBuffer_.empty() || s.cursor() != s.anchor())
+            return false;
+        const std::u32string word   = ngosen::utf8::decode(oldPreBuffer_);
+        const std::u32string before = ngosen::utf8::decode(s.text()).substr(0, s.cursor());
+        return before.size() < word.size() || before.compare(before.size() - word.size(), word.size(), word) != 0;
+    }
+
     // Wayland apps report a click only as a cursor move; the IM gets no reset or mouse event.
     void TypingState::checkCursorJump() {
         const auto s = host_->surrounding();
@@ -373,13 +390,15 @@ namespace ngosen {
         // Typing the next letter of a selected inline suggestion (Edge's address bar) keeps the text.
         const bool intoSuggestion = jumped && passed_key_ && s.anchor() == lastSurroundingAnchor_ && s.anchor() > s.cursor() && s.cursor() == lastSurroundingCursor_ + 1 &&
             ngosen::utf8::decode(s.text())[lastSurroundingCursor_] == passed_key_->sym;
+        const bool settling = ngosen::monotonicUs() - lastInputAtUs_ < CaretSettleUs;
         // A spreadsheet reports a click on another cell only as that cell's text with the cursor at its start.
+        const bool lostWord = lostWordAfterBounce(s, settling);
         const bool newField =
-            hasLastSurrounding_ && !sameText && s.cursor() == 0 && s.anchor() == 0 && !oldPreBuffer_.empty() && (unreportedCommitLength_ == 0 || textAfterCursorChanged(s));
+            (hasLastSurrounding_ && !sameText && s.cursor() == 0 && s.anchor() == 0 && !oldPreBuffer_.empty() && (unreportedCommitLength_ == 0 || textAfterCursorChanged(s))) ||
+            lostWord;
         // Firefox repeats the old state before the echo, so only a change ends the wait.
         if (jumped || !sameText)
             unreportedCommitLength_ = 0;
-        const bool settling = ngosen::monotonicUs() - lastInputAtUs_ < CaretSettleUs;
         // Calc reports the new cell empty just before the key we let through lands in it.
         // Our unreported commits do not matter here: in the same cell the key would follow them.
         const bool keyStartedCell = settling && passed_key_ && !sameText && s.text().empty() && !oldPreBuffer_.empty() && ngosen::reportsFieldOnlyOnKey(host_->field());

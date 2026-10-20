@@ -37,6 +37,29 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Test mới: bấm rồi thả Shift hay Ctrl giữa từ không chốt từ đang gõ (`vieet`, Shift, `j` vẫn ra `việt`); người
   dùng không thấy khác gì (#155).
 
+## [1.5.4-1] — 20/10/2026
+
+Version sửa lỗi: Gõ Sen trong Chrome/Chromium trên Wayland ghép dấu đúng hơn ở TikTok và Draft.js;
+sửa lỗi macro mất dấu cách.
+Tải ở [ngosen-1.5.4-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.4-1).
+
+### Sửa
+
+- Gõ Sen trong Chrome/Chromium trên Wayland không còn để nguyên `ddungs rooif` thay vì `đúng rồi` trong bình
+  luận TikTok hay không ghép dấu ở từ đầu ô Draft.js khi chữ gợi ý biến mất. Chrome trên GNOME cũng sửa lỗi mất
+  chữ trong bình luận TikTok và ô Draft.js thường: `xin chào` thành `xin ch`, `đẹp` thành `ẹp`. Ngó Sen giữ từ
+  khi ô mất focus rồi có lại ngay, chờ trang vẽ lại ô mới commit. Tuy vậy, trong Chrome trên GNOME, từ đầu có
+  dấu thanh gõ ngay sau khi bấm vào ô Draft.js đôi lúc vẫn mất chữ; các từ sau bình thường (#176, #180).
+- Macro có nội dung bắt đầu bằng chữ viết tắt, như `e` → `em`, không còn mất dấu cách khi nhấn Space:
+  gõ `e ko` cho ra `em không` thay vì `emkhông` (#179).
+
+### Tài liệu
+
+- README hướng dẫn thêm repo để update bằng dnf, apt, pacman hoặc zypper (#174).
+- Thêm `docs/typing-without-preedit.md` (tiếng Anh): kiểu gõ không preedit cần gì ở app, Ngó Sen đang xoá chữ
+  bằng những cách nào, và app nào sửa gì thì bỏ được cách vòng; làm nguồn cho trang kêu gọi hỗ trợ trên website (#181).
+  Trang đổi tên thành "How Vietnamese people type" / "Cách người Việt gõ" (#183).
+
 ## [1.5.3-2] — 20/10/2026
 
 Chỉ tăng lần đóng gói để sửa lỗi build Fedora COPR (#169), code chương trình giữ nguyên như 1.5.3-1.

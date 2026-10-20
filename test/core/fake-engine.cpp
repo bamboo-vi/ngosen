@@ -65,6 +65,17 @@ namespace ngosen::test {
             dictionary_ = NewDictionary(static_cast<uintptr_t>(fd));
     }
 
+    void FakeResources::setMacros(const std::vector<std::pair<std::string, std::string>>& macros) {
+        std::vector<char*> pairs;
+        for (const auto& [key, value] : macros) {
+            pairs.push_back(const_cast<char*>(key.c_str()));   //NOLINT
+            pairs.push_back(const_cast<char*>(value.c_str())); //NOLINT
+        }
+        pairs.push_back(nullptr);
+        DeleteObject(macroTable_);
+        macroTable_ = NewMacroTable(pairs.data());
+    }
+
     FakeResources::~FakeResources() {
         DeleteObject(macroTable_);
         DeleteObject(dictionary_);
