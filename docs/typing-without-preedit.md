@@ -1,7 +1,8 @@
-# Typing Vietnamese without preedit: what apps need
+# How Vietnamese people type
 
-Ngó Sen's default mode, Gõ Sen, puts every letter straight into the app and corrects the word in
-place as tone marks arrive. This page explains what that asks of the app and the toolkit, how
+Vietnamese users expect each letter to appear in the app as they type it, with the word corrected
+in place when a tone mark arrives, and no preedit underline. Ngó Sen's default mode, Gõ Sen, works
+this way. This page explains what that asks of the app and the toolkit, how
 Ngó Sen copes today, and where a fix upstream would remove a workaround. It is written for people
 who maintain apps, toolkits and other input methods; the Vietnamese page on the website is a
 translation of it.
