@@ -186,6 +186,34 @@ namespace {
         check(text == "em không a", "macro keeps its space", text);
     }
 
+    // An abbreviation matches in any case it was written or typed in.
+    void testMacroKeyCase() {
+        const std::vector<std::pair<std::string, std::string>> cases{
+            {"ko", "không "}, {"KO", "KHÔNG "}, {"vn", "việt nam "}, {"Vn", "Việt Nam "}, {"VN", "VIỆT NAM "},
+        };
+        for (const auto& [typed, want] : cases) {
+            FakeResources resources;
+            resources.setMacros({{"ko", "không"}, {"VN", "Việt Nam"}});
+            std::vector<uint32_t> keys(typed.begin(), typed.end());
+            keys.push_back(' ');
+            const std::string text = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));
+            check(text == want, "macro key case: " + typed, text);
+        }
+        // Of several capitalized spellings, both cores take the first one saved.
+        const std::vector<std::pair<std::string, std::string>> spellings{{"KO", "kansas"}, {"Ko", "korea"}, {"kO", "kosovo"}};
+        for (size_t first = 0; first < spellings.size(); ++first) {
+            std::vector<std::pair<std::string, std::string>> macros;
+            for (size_t i = 0; i < spellings.size(); ++i)
+                macros.push_back(spellings[(first + i) % spellings.size()]);
+            FakeResources resources;
+            resources.setMacros(macros);
+            const std::vector<uint32_t> keys{'k', 'o', ' '};
+            const std::string           text  = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));
+            const std::string&          value = spellings[first].second;
+            check(text == value + " ", "first macro spelling wins: " + spellings[first].first, text);
+        }
+    }
+
     // TikTok's comment box in Chrome under GNOME applies our backspaces late and loses a commit that
     // arrives before the redraw they cause (#175).
     void testCommitAfterEditorRedraw() {
@@ -257,6 +285,40 @@ namespace {
             const std::string text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
             check(text == want, what + want, text);
         }
+    }
+
+    // What we committed may differ from what the engine can take back: a macro's text ending in a
+    // symbol, or a word in a legacy charset.
+    void testBackspaceIntoCommittedText() {
+        const Field    field = makeField("wayland", true);
+        const uint32_t bs    = ngosen::key::BackSpace;
+        const auto     type  = [&](FakeResources& resources, const std::string& keys) {
+            std::vector<uint32_t> syms;
+            for (const char c : keys)
+                syms.push_back(c == '<' ? bs : static_cast<uint32_t>(c));
+            return ngosen::test::typeInApp(resources, field, {}, syms, std::vector<int>(syms.size(), 100));
+        };
+        FakeResources macros;
+        macros.setMacros({{"q", "“quá”"}, {"vv", "vân vân…"}});
+        const std::string quote = type(macros, "q <s ");
+        check(quote == "“quá”s ", "backspace into a macro ending in a quote", quote);
+        const std::string ellipsis = type(macros, "vv <s ");
+        check(ellipsis == "vân vân…s ", "backspace into a macro ending in an ellipsis", ellipsis);
+
+        // VNI Windows writes "đươ" as "ñöô"; the word is not reopened, so j starts a new one.
+        FakeResources vni;
+        vni.mutableOptions().outputCharset = "VNI Windows";
+        const std::string legacy           = type(vni, "dduowc <<j ");
+        check(legacy == "ñöôj ", "backspace into a VNI Windows word", legacy);
+        // A word of plain letters is the same in any charset, so it is still reopened.
+        const std::string plain = type(vni, "ban <f ");
+        check(plain == "baøn ", "backspace into a plain word in VNI Windows", plain);
+
+        // VIQR writes tone marks as ASCII symbols, so "ba`n" is not reopened either.
+        FakeResources viqr;
+        viqr.mutableOptions().outputCharset = "VIQR";
+        const std::string marked            = type(viqr, "banf <s ");
+        check(marked == "ba`ns ", "backspace into a VIQR word", marked);
     }
 
     // After a click elsewhere the text before the cursor is not our word, so it is not reopened.
@@ -408,9 +470,13 @@ namespace {
     // The log a user saves after a wrong word must show the keys, what was sent and what the app said.
     void testRecorderKeepsTheReplacement() {
         realMode = ngosen::Mode::Sen;
+        // Flatpak Firefox: the log shows the app ID it reported too.
+        Field firefox           = makeField("wayland", true, "firefox");
+        firefox.reportedProgram = "org.mozilla.firefox";
+
         FakeLoop            loop;
         FakeResources       resources;
-        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "firefox"));
+        auto                owned = std::make_unique<FakeHost>(loop, firefox);
         FakeHost*           host  = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
 
@@ -421,7 +487,7 @@ namespace {
         loop.pump(150);
 
         const std::string log = resources.recorder().dump();
-        check(has(log, "\tfield\tfrontend=wayland program=firefox surrounding=1 preedit=1 mode=Sen\n"), "recorder: notes the field and mode", log);
+        check(has(log, "\tfield\tfrontend=wayland program=firefox (org.mozilla.firefox) surrounding=1 preedit=1 mode=Sen\n"), "recorder: notes the field and mode", log);
         check(has(log, "\tkey\tdown 0x0065 e\n"), "recorder: notes the key", log);
         check(has(log, "\tforward\tBackSpace down\n"), "recorder: notes the forwarded backspace", log);
         check(has(log, "\tapp\t\"ti|\" cursor=2 anchor=2 length=2\n"), "recorder: notes the app's report", log);
@@ -606,27 +672,60 @@ namespace {
         check(host->preedit() == "viết", "preedit: a new tone mark goes on the rebuilt word", host->preedit());
     }
 
-    // An address bar fills in a suggestion after the cursor and selects it. Typing its next letter
-    // leaves the text as it was and moves the cursor one step, which is not a click.
+    // An address bar fills in a suggestion after the cursor. Typing its next letter leaves the text
+    // as it was and moves the cursor one step, which is not a click. Edge reports the suggestion
+    // selected; Firefox reports no selection.
     void testTypingIntoSuggestion() {
+        for (const bool selected : {true, false}) {
+            realMode = ngosen::Mode::Sen;
+            FakeLoop            loop;
+            FakeResources       resources;
+            auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, selected ? "microsoft-edge" : "firefox"));
+            FakeHost*           host  = owned.get();
+            ngosen::TypingState state(&resources, std::move(owned));
+
+            const std::string   suggestion = "ngosen.github.io";
+            const std::string   what       = selected ? "selected suggestion: " : "unselected suggestion: ";
+            host->setSurrounding("", 0);
+            state.surroundingUpdated();
+            for (unsigned int typed = 1; typed <= 3; ++typed) {
+                press(state, static_cast<uint32_t>(suggestion[typed - 1]));
+                // Later than the caret settling time, as both browsers report it.
+                loop.pump(45);
+                host->setSurrounding(suggestion, typed, selected ? static_cast<unsigned int>(suggestion.size()) : typed);
+                state.surroundingUpdated();
+            }
+            check(press(state, static_cast<uint32_t>('s')), what + "s is taken as a tone key", "s went to the app as a plain key");
+            loop.pump(200);
+            const std::string last = host->commits().empty() ? std::string() : host->commits().back();
+            check(last == "ó", what + "ngo then s makes ngó", last);
+        }
+    }
+
+    // Without a selection, a click one letter to the right looks like a step into a suggestion,
+    // except that it comes long after the key.
+    void testClickAfterTypingIsNotSuggestion() {
         realMode = ngosen::Mode::Sen;
         FakeLoop            loop;
         FakeResources       resources;
-        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "microsoft-edge"));
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "firefox"));
         FakeHost*           host  = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
 
-        const std::string   suggestion = "ngosen.github.io";
-        host->setSurrounding("", 0);
+        host->setSurrounding("on", 0);
         state.surroundingUpdated();
-        for (unsigned int typed = 1; typed <= 3; ++typed) {
-            press(state, static_cast<uint32_t>(suggestion[typed - 1]));
-            // Later than the caret settling time, as Edge reports it.
-            loop.pump(45);
-            host->setSurrounding(suggestion, typed, static_cast<unsigned int>(suggestion.size()));
-            state.surroundingUpdated();
-        }
-        check(press(state, static_cast<uint32_t>('s')), "suggestion: ngo then s makes ngó", "s went to the app as a plain key");
+        press(state, static_cast<uint32_t>('c'));
+        loop.pump(45);
+        host->setSurrounding("con", 1);
+        state.surroundingUpdated();
+        press(state, static_cast<uint32_t>('o'));
+        loop.pump(45);
+        host->setSurrounding("coon", 2);
+        state.surroundingUpdated();
+        loop.pump(300);
+        host->setSurrounding("coon", 3);
+        state.surroundingUpdated();
+        check(!press(state, static_cast<uint32_t>('s')), "click one letter on: s starts a new word", "s was taken as a tone key for co");
     }
 
     void testRecorderLimits() {
@@ -674,6 +773,7 @@ int main() {
     testCommitAfterEditorRedraw();
     testQuickSwitchesNoRedrawWait();
     testMacroKeepsSpace();
+    testMacroKeyCase();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);
     {
@@ -684,6 +784,7 @@ int main() {
         testBackspaceIntoLastWord("xim", false, xtest);
         setXTestSenderForTest({});
     }
+    testBackspaceIntoCommittedText();
     testBackspaceAfterMovingAway();
     testBackspaceAfterCtrlBackspace();
     testResentBackspace();
@@ -696,6 +797,7 @@ int main() {
     testRecorderLimits();
     testFocusBounce();
     testTypingIntoSuggestion();
+    testClickAfterTypingIsNotSuggestion();
     testHomeDictionaryPath();
     testWithoutToneMark();
     testBackspaceRemovesTone(true);

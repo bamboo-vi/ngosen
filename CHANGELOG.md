@@ -10,6 +10,31 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.5-1] — 21/10/2026
+
+Sửa lỗi gõ dấu trên thanh địa chỉ Firefox Flatpak khi autofill và lỗi macro có chữ viết tắt viết hoa.
+Tải ở [ngosen-1.5.5-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.5-1).
+
+### Sửa
+
+- Gõ dấu trên thanh địa chỉ Firefox cài từ Flatpak khi đang autofill URL (phần địa chỉ tự điền
+  sau con trỏ được bôi đen) không còn làm rối từ: `ee` ra `ê` thay vì `eê`, `es` ra `é` thay vì
+  `eé`, `dduowcj` ra `được` thay vì `dđược`. Trước đây app Flatpak báo app ID `org.mozilla.firefox`
+  thay cho `firefox` nên Ngó Sen không nhận ra. Giờ Ngó Sen nhận ra app cài từ Flatpak theo tên
+  thường của app; log gõ ghi cả hai tên, như `firefox (org.mozilla.firefox)` (#200, #204).
+- Macro có chữ viết tắt lưu bằng chữ hoa, như `VN` → `Việt Nam`, giờ mở rộng được; trước đây không bao giờ
+  khớp. Nếu cùng chữ viết tắt được lưu với nhiều cách viết hoa, Ngó Sen dùng bản viết thường, nếu không có
+  thì dùng bản lưu đầu tiên. Trình sửa macro trong cửa sổ cài đặt coi `VN` và `vn` là cùng chữ viết tắt,
+  đề nghị cập nhật thay vì thêm bản thứ hai (#194).
+- Test tự động phát hiện Gõ Sen có thể dựng lại sai macro kết thúc bằng dấu ngoặc kép hoặc dấu ba chấm
+  khi backspace về từ vừa gõ (`q` → `“quá”`, rồi backspace và `s` ra `“qua”s`), hoặc từ dùng charset
+  VNI Windows (ra `ñöä`). Bản trước không gặp lỗi này khi test trên Ubuntu GNOME và Linux Mint trong ô GTK,
+  LibreOffice Writer, xterm, nên thay đổi chỉ để phòng lỗi. Từ thường vẫn mở lại được trong VNI Windows /
+  TCVN3: `ban`, Space, backspace, `f` ra `bàn` (#199).
+- Trên thanh địa chỉ Firefox, khi Firefox autofill địa chỉ (gõ `g` điền thành `google.com/`), gõ chữ trùng với
+  chữ tiếp theo của địa chỉ bị hiểu nhầm là bấm chuột, làm mất từ đang gõ: `gox` ra `gox`, `daaus` ra `daáu`.
+  Giờ `gox` ra `gõ` và `daaus` ra `dấu`. Đã test với Firefox cài từ Flatpak trên Ubuntu GNOME (#209).
+
 ## [1.5.4-3] — 20/10/2026
 
 Chỉ tăng lần đóng gói để đưa các form GitHub mới (#190) lên nhánh mặc định của GitHub, code chương trình giữ nguyên như 1.5.4-1 và 1.5.4-2.
