@@ -74,7 +74,6 @@ pub enum MacroCase {
     AllSmall,
     AllCapital,
     NoChange,
-    Capitalized,
 }
 
 pub fn determine_macro_case(s: &str) -> MacroCase {
@@ -83,24 +82,7 @@ pub fn determine_macro_case(s: &str) -> MacroCase {
     match (has_lower, has_upper) {
         (true, false) => MacroCase::AllSmall,
         (false, true) => MacroCase::AllCapital,
-        (true, true) => {
-            let mut chars = s.chars();
-            let first_upper = chars.next().is_some_and(char::is_uppercase);
-            if first_upper && !chars.any(char::is_uppercase) {
-                MacroCase::Capitalized
-            } else {
-                MacroCase::NoChange
-            }
-        }
         _ => MacroCase::NoChange,
-    }
-}
-
-fn capitalize_first(s: &str) -> String {
-    let mut chars = s.chars();
-    match chars.next() {
-        Some(first) => first.to_uppercase().chain(chars).collect(),
-        None => String::new(),
     }
 }
 
@@ -190,7 +172,6 @@ impl BambooEngine {
             match determine_macro_case(s) {
                 MacroCase::AllSmall => return text.to_lowercase(),
                 MacroCase::AllCapital => return text.to_uppercase(),
-                MacroCase::Capitalized => return capitalize_first(&text),
                 MacroCase::NoChange => {}
             }
         }

@@ -62,7 +62,6 @@ const (
 	VnCaseAllSmall uint8 = iota + 1
 	VnCaseAllCapital
 	VnCaseNoChange
-	VnCaseCapitalized
 )
 
 func determineMacroCase(str string) uint8 {
@@ -73,13 +72,9 @@ func determineMacroCase(str string) uint8 {
 		} else if unicode.IsUpper(c) {
 			hasUpper = true
 		}
-	}
-	if hasLower && hasUpper {
-		first, size := utf8.DecodeRuneInString(str)
-		if unicode.IsUpper(first) && strings.IndexFunc(str[size:], unicode.IsUpper) < 0 {
-			return VnCaseCapitalized
+		if hasLower && hasUpper {
+			return VnCaseNoChange
 		}
-		return VnCaseNoChange
 	}
 	if hasLower {
 		return VnCaseAllSmall
@@ -144,10 +139,6 @@ func (e *FcitxBambooEngine) expandMacro(str, macroText string) string {
 			return strings.ToLower(macroText)
 		case VnCaseAllCapital:
 			return strings.ToUpper(macroText)
-		case VnCaseCapitalized:
-			if first, size := utf8.DecodeRuneInString(macroText); size > 0 {
-				return string(unicode.ToUpper(first)) + macroText[size:]
-			}
 		}
 	}
 	return macroText
