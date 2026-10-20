@@ -123,7 +123,8 @@ fi
 * Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.5-1
 - Recognise Flatpak apps by their usual program name, so Firefox from Flatpak no longer mixes up words while autofilling an address (#200, #204).
 - Macros with an uppercase abbreviation such as VN now expand (#194).
-- Sen mode: backspacing into the last word keeps macro text that ends in a quote or ellipsis, and no longer garbles words in a legacy charset (#199).
+- Sen mode: backspacing into the last word no longer rebuilds macro text that ends in a quote or ellipsis, or a word in a legacy charset; found by a test (#199).
+- Typing the next letter of an address Firefox is autofilling is no longer taken for a click, so gox gives gõ and daaus gives dấu (#209).
 
 * Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.4-3
 - Rework the issue forms and add discussion forms (#190).
