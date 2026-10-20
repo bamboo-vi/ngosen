@@ -57,3 +57,12 @@ func TestMacroTableKeyWrittenWithCapitals(t *testing.T) {
 		t.Errorf("Get(KO) got [%s] expected the lower-case key's [không]", val)
 	}
 }
+
+func TestMacroTableFirstCapitalizedKeyWins(t *testing.T) {
+	table := &MacroTable{mTable: map[string]string{}}
+	table.add("KO", "Kansas")
+	table.add("Ko", "Korea")
+	if val, _ := table.Get("ko"); val != "Kansas" {
+		t.Errorf("Get(ko) got [%s] expected the first key's [Kansas]", val)
+	}
+}

@@ -77,12 +77,12 @@ fn c_string_array<S: AsRef<str>>(strs: &[S]) -> *mut *mut c_char {
     }
 }
 
-/// Reads a null-terminated array of key, value strings.
+/// Reads a null-terminated array of key, value strings, in their order.
 ///
 /// # Safety
 /// `definition` is null or points to such an array.
-unsafe fn read_pairs(definition: *const *const c_char) -> HashMap<String, String> {
-    let mut pairs = HashMap::new();
+unsafe fn read_pairs(definition: *const *const c_char) -> Vec<(String, String)> {
+    let mut pairs = Vec::new();
     if definition.is_null() {
         return pairs;
     }
@@ -92,7 +92,7 @@ unsafe fn read_pairs(definition: *const *const c_char) -> HashMap<String, String
         while !(*definition.add(i)).is_null() {
             let key = string_from_c(*definition.add(i));
             let value = string_from_c(*definition.add(i + 1));
-            pairs.insert(key, value);
+            pairs.push((key, value));
             i += 2;
         }
     }
@@ -220,7 +220,7 @@ pub unsafe extern "C" fn NewCustomEngine(
     table_handle: usize,
 ) -> usize {
     // SAFETY: the caller passes a valid array or null.
-    let pairs = unsafe { read_pairs(definition) };
+    let pairs: HashMap<_, _> = unsafe { read_pairs(definition) }.into_iter().collect();
     let make = |dict, table| {
         let im = InputMethod::from_definition("Custom", &pairs);
         let mut engine = BambooEngine::new(im, dict, table);

@@ -11,10 +11,11 @@ pub struct MacroTable {
 }
 
 impl MacroTable {
-    /// Keys are stored lowercased, as `get` looks them up; a key written in lower case wins over
-    /// the same key written with capitals.
-    pub fn new(entries: HashMap<String, String>) -> Self {
-        let mut table = HashMap::with_capacity(entries.len());
+    /// Keys are stored lowercased, as `get` looks them up. A key written in lower case wins over
+    /// the same key written with capitals; among those, the first in `entries` wins, as in Go.
+    pub fn new(entries: impl IntoIterator<Item = (String, String)>) -> Self {
+        let entries = entries.into_iter();
+        let mut table = HashMap::with_capacity(entries.size_hint().0);
         for (key, value) in entries {
             let lower = key.to_lowercase();
             if key == lower || !table.contains_key(&lower) {
@@ -41,12 +42,7 @@ mod tests {
     use super::*;
 
     fn table(pairs: &[(&str, &str)]) -> MacroTable {
-        MacroTable::new(
-            pairs
-                .iter()
-                .map(|&(k, v)| (k.to_string(), v.to_string()))
-                .collect(),
-        )
+        MacroTable::new(pairs.iter().map(|&(k, v)| (k.to_string(), v.to_string())))
     }
 
     #[test]
@@ -77,5 +73,13 @@ mod tests {
             assert_eq!(t.get(key), Some("Việt Nam"), "{key}");
         }
         assert_eq!(t.get("KO"), Some("không"), "the lower-case key wins");
+    }
+
+    #[test]
+    fn macro_table_first_capitalized_key_wins() {
+        let t = table(&[("KO", "Kansas"), ("Ko", "Korea")]);
+        assert_eq!(t.get("ko"), Some("Kansas"));
+        let t = table(&[("Ko", "Korea"), ("KO", "Kansas")]);
+        assert_eq!(t.get("ko"), Some("Korea"));
     }
 }
