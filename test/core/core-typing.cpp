@@ -282,6 +282,15 @@ namespace {
         vni.mutableOptions().outputCharset = "VNI Windows";
         const std::string legacy           = type(vni, "dduowc <<j ");
         check(legacy == "ñöôj ", "backspace into a VNI Windows word", legacy);
+        // A word of plain letters is the same in any charset, so it is still reopened.
+        const std::string plain = type(vni, "ban <f ");
+        check(plain == "baøn ", "backspace into a plain word in VNI Windows", plain);
+
+        // VIQR writes tone marks as ASCII symbols, so "ba`n" is not reopened either.
+        FakeResources viqr;
+        viqr.mutableOptions().outputCharset = "VIQR";
+        const std::string marked            = type(viqr, "banf <s ");
+        check(marked == "ba`ns ", "backspace into a VIQR word", marked);
     }
 
     // After a click elsewhere the text before the cursor is not our word, so it is not reopened.

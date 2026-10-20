@@ -243,6 +243,12 @@ namespace ngosen {
         return (c >= 0xC0 && c <= 0x24F && c != 0xD7 && c != 0xF7) || (c >= 0x1E00 && c <= 0x1EFF);
     }
 
+    // Plain ASCII letters are written the same in every charset, so the engine can rebuild them.
+    static bool isPlainLetters(std::string committed) {
+        ngosen::utf8::eraseLastCodepoint(committed);
+        return std::all_of(committed.begin(), committed.end(), [](char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); });
+    }
+
     void TypingState::reopenLastWord() {
         // The user may have clicked elsewhere; only an app that reports its text can tell us.
         if (!typedBeforeCursor(lastWord_) || !ngosen::utf8::validate(lastWord_)) {
@@ -285,8 +291,9 @@ namespace ngosen {
         hasHistory_ = false;
         ResetEngine(bambooEngine_.handle());
         oldPreBuffer_.clear();
-        // The engine rebuilds a word only from Unicode, not from a legacy charset's encoding.
-        lastWord_ = engine_->options().outputCharset == "Unicode" ? commitStr : std::string();
+        // The engine rebuilds a word from Unicode, not from a legacy charset's encoding of it.
+        const bool rebuildable = engine_->options().outputCharset == "Unicode" || isPlainLetters(commitStr);
+        lastWord_              = rebuildable ? commitStr : std::string();
     }
 
     void TypingState::replaceFromPreedit(ngosen::KeyPress& keyEvent, uint32_t currentSym, const std::string& keyUtf8) {
