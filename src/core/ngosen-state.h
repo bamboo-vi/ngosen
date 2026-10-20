@@ -349,7 +349,7 @@ namespace ngosen {
         bool startTimedWait(ngosen::KeyPress* event, int sleepTime, bool skipFrozenWait);
         bool onTimedWaitTimer(ngosen::Timer& t);
         bool waitsForRedraw() const;
-        bool lostWordAfterBounce(const Surrounding& s);
+        bool lostWordAfterBounce(const Surrounding& s, bool settling);
         void forwardBackspaces(int count);
         // True when a replacement can delete text: forwarded by the frontend or pressed through XTEST.
         bool canSendBackspaces() const;

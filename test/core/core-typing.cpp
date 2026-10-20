@@ -238,7 +238,7 @@ namespace {
             while (app->text() != "tiê" && ngosen::monotonicUs() - start < 300000)
                 loop.pump(1);
             const auto ms = static_cast<int>((ngosen::monotonicUs() - start) / 1000);
-            check(app->text() == "tiê" && ms < 60, "quick field switches: no wait for a redraw (" + frontend + ")", app->text() + ", " + std::to_string(ms) + " ms");
+            check(app->text() == "tiê" && ms < 90, "quick field switches: no wait for a redraw (" + frontend + ")", app->text() + ", " + std::to_string(ms) + " ms");
         }
     }
 

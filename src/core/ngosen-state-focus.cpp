@@ -46,7 +46,8 @@ namespace ngosen {
             lastBounceAt_ = now;
         } else {
             clearAllBuffers();
-            fieldBounces_ = 0;
+            fieldBounces_         = 0;
+            checkWordAfterBounce_ = false;
         }
 
         if (isFocusIn && host_->field().frontend == "dbus" && !s.isValid()) {

@@ -363,12 +363,13 @@ namespace ngosen {
         return before.substr(std::min<size_t>(lastSurroundingCursor_, before.size())) != now.substr(std::min<size_t>(s.cursor(), now.size()));
     }
 
-    // A quick switch to another field on the same context comes back like a bounce.
-    bool TypingState::lostWordAfterBounce(const Surrounding& s) {
-        if (!checkWordAfterBounce_ || is_deleting_.load(std::memory_order_acquire) || unreportedCommitLength_ > 0)
+    // A quick switch to another field on the same context comes back like a bounce. The first settled
+    // report after it tells which: the same field still has the word before the cursor.
+    bool TypingState::lostWordAfterBounce(const Surrounding& s, bool settling) {
+        if (!checkWordAfterBounce_ || is_deleting_.load(std::memory_order_acquire) || deferred_commit_pending_ || unreportedCommitLength_ > 0)
             return false;
         checkWordAfterBounce_ = false;
-        if (oldPreBuffer_.empty() || s.cursor() != s.anchor())
+        if (settling || realMode != ngosen::Mode::Sen || oldPreBuffer_.empty() || s.cursor() != s.anchor())
             return false;
         const std::u32string word   = ngosen::utf8::decode(oldPreBuffer_);
         const std::u32string before = ngosen::utf8::decode(s.text()).substr(0, s.cursor());
@@ -391,9 +392,10 @@ namespace ngosen {
             ngosen::utf8::decode(s.text())[lastSurroundingCursor_] == passed_key_->sym;
         const bool settling = ngosen::monotonicUs() - lastInputAtUs_ < CaretSettleUs;
         // A spreadsheet reports a click on another cell only as that cell's text with the cursor at its start.
+        const bool lostWord = lostWordAfterBounce(s, settling);
         const bool newField =
             (hasLastSurrounding_ && !sameText && s.cursor() == 0 && s.anchor() == 0 && !oldPreBuffer_.empty() && (unreportedCommitLength_ == 0 || textAfterCursorChanged(s))) ||
-            (!settling && lostWordAfterBounce(s));
+            lostWord;
         // Firefox repeats the old state before the echo, so only a change ends the wait.
         if (jumped || !sameText)
             unreportedCommitLength_ = 0;
