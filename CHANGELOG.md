@@ -12,9 +12,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
-- Gõ Sen trong Chrome/Chromium trên Wayland không còn để nguyên `ddungs rooif` thay vì `đúng rồi` ở ô bình luận
-  TikTok, hay không ghép dấu ở từ đầu tiên trong ô Draft.js khi chữ gợi ý biến mất. Ngó Sen giờ giữ từ đang gõ
-  khi ô mất focus rồi có lại ngay sau khi trang vẽ lại ô (#176).
+- Gõ Sen trong Chrome/Chromium trên Wayland không còn để nguyên `ddungs rooif` thay vì `đúng rồi` trong bình
+  luận TikTok hay không ghép dấu ở từ đầu ô Draft.js khi chữ gợi ý biến mất. Chrome trên GNOME cũng hết lỗi mất
+  chữ trong bình luận TikTok và ô Draft.js thường: `xin chào` thành `xin ch`, `đẹp` thành `ẹp`. Ngó Sen giữ từ
+  khi ô mất focus rồi có lại ngay, chờ trang vẽ lại ô xong mới commit từ đã gõ (#176).
 
 ### Tài liệu
 
