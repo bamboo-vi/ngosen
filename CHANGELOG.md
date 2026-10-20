@@ -10,7 +10,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
-## [1.5.5-1] — 20/10/2026
+## [1.5.5-1] — 21/10/2026
 
 Sửa lỗi gõ dấu trên thanh địa chỉ Firefox Flatpak khi autofill và lỗi macro có chữ viết tắt viết hoa.
 Tải ở [ngosen-1.5.5-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.5-1).
