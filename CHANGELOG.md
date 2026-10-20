@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Tài liệu
+
+- Viết lại mẫu báo lỗi cho Ngó Sen: ưu tiên “Kiểm tra máy tôi…” để tự điền báo cáo, yêu cầu nhật ký từ
+  “Lưu nhật ký gõ”, chế độ gõ (Gõ Sen, Gạch chân, Chọn Emoji), app và Wayland hay X11; hướng dẫn lấy log
+  fcitx5 hoặc backtrace khi fcitx5 bị treo. (#188)
+
 ## [1.5.4-1] — 20/10/2026
 
 Version sửa lỗi: Gõ Sen trong Chrome/Chromium trên Wayland ghép dấu đúng hơn ở TikTok và Draft.js;
