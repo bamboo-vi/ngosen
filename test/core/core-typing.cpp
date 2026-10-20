@@ -672,27 +672,60 @@ namespace {
         check(host->preedit() == "viết", "preedit: a new tone mark goes on the rebuilt word", host->preedit());
     }
 
-    // An address bar fills in a suggestion after the cursor and selects it. Typing its next letter
-    // leaves the text as it was and moves the cursor one step, which is not a click.
+    // An address bar fills in a suggestion after the cursor. Typing its next letter leaves the text
+    // as it was and moves the cursor one step, which is not a click. Edge reports the suggestion
+    // selected; Firefox reports no selection.
     void testTypingIntoSuggestion() {
+        for (const bool selected : {true, false}) {
+            realMode = ngosen::Mode::Sen;
+            FakeLoop            loop;
+            FakeResources       resources;
+            auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, selected ? "microsoft-edge" : "firefox"));
+            FakeHost*           host  = owned.get();
+            ngosen::TypingState state(&resources, std::move(owned));
+
+            const std::string   suggestion = "ngosen.github.io";
+            const std::string   what       = selected ? "selected suggestion: " : "unselected suggestion: ";
+            host->setSurrounding("", 0);
+            state.surroundingUpdated();
+            for (unsigned int typed = 1; typed <= 3; ++typed) {
+                press(state, static_cast<uint32_t>(suggestion[typed - 1]));
+                // Later than the caret settling time, as both browsers report it.
+                loop.pump(45);
+                host->setSurrounding(suggestion, typed, selected ? static_cast<unsigned int>(suggestion.size()) : typed);
+                state.surroundingUpdated();
+            }
+            check(press(state, static_cast<uint32_t>('s')), what + "s is taken as a tone key", "s went to the app as a plain key");
+            loop.pump(200);
+            const std::string last = host->commits().empty() ? std::string() : host->commits().back();
+            check(last == "ó", what + "ngo then s makes ngó", last);
+        }
+    }
+
+    // Without a selection, a click one letter to the right looks like a step into a suggestion,
+    // except that it comes long after the key.
+    void testClickAfterTypingIsNotSuggestion() {
         realMode = ngosen::Mode::Sen;
         FakeLoop            loop;
         FakeResources       resources;
-        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "microsoft-edge"));
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "firefox"));
         FakeHost*           host  = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
 
-        const std::string   suggestion = "ngosen.github.io";
-        host->setSurrounding("", 0);
+        host->setSurrounding("on", 0);
         state.surroundingUpdated();
-        for (unsigned int typed = 1; typed <= 3; ++typed) {
-            press(state, static_cast<uint32_t>(suggestion[typed - 1]));
-            // Later than the caret settling time, as Edge reports it.
-            loop.pump(45);
-            host->setSurrounding(suggestion, typed, static_cast<unsigned int>(suggestion.size()));
-            state.surroundingUpdated();
-        }
-        check(press(state, static_cast<uint32_t>('s')), "suggestion: ngo then s makes ngó", "s went to the app as a plain key");
+        press(state, static_cast<uint32_t>('c'));
+        loop.pump(45);
+        host->setSurrounding("con", 1);
+        state.surroundingUpdated();
+        press(state, static_cast<uint32_t>('o'));
+        loop.pump(45);
+        host->setSurrounding("coon", 2);
+        state.surroundingUpdated();
+        loop.pump(300);
+        host->setSurrounding("coon", 3);
+        state.surroundingUpdated();
+        check(!press(state, static_cast<uint32_t>('s')), "click one letter on: s starts a new word", "s was taken as a tone key for co");
     }
 
     void testRecorderLimits() {
@@ -764,6 +797,7 @@ int main() {
     testRecorderLimits();
     testFocusBounce();
     testTypingIntoSuggestion();
+    testClickAfterTypingIsNotSuggestion();
     testHomeDictionaryPath();
     testWithoutToneMark();
     testBackspaceRemovesTone(true);

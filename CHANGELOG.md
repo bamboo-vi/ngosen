@@ -12,21 +12,23 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
-- Gõ dấu trên thanh địa chỉ Firefox cài từ Flatpak khi đang autofill URL (phần chữ sau con trỏ được chọn)
-  không còn làm rối từ: `gox` ra `gõ` thay vì `goõ` hoặc `gox`, `dduowcj` ra `được` thay vì `dđược`,
-  `daaus` ra `dấu` thay vì `daáu`. Trước đây app Flatpak báo app ID `org.mozilla.firefox` thay cho `firefox`
-  nên Ngó Sen không nhận ra. Giờ Ngó Sen nhận ra app cài từ Flatpak theo tên thường của app; log gõ ghi cả
-  hai tên, như `firefox (org.mozilla.firefox)` (#200, #204).
+- Gõ dấu trên thanh địa chỉ Firefox cài từ Flatpak khi đang autofill URL (phần địa chỉ tự điền
+  sau con trỏ được bôi đen) không còn làm rối từ: `ee` ra `ê` thay vì `eê`, `es` ra `é` thay vì
+  `eé`, `dduowcj` ra `được` thay vì `dđược`. Trước đây app Flatpak báo app ID `org.mozilla.firefox`
+  thay cho `firefox` nên Ngó Sen không nhận ra. Giờ Ngó Sen nhận ra app cài từ Flatpak theo tên
+  thường của app; log gõ ghi cả hai tên, như `firefox (org.mozilla.firefox)` (#200, #204).
 - Macro có chữ viết tắt lưu bằng chữ hoa, như `VN` → `Việt Nam`, giờ mở rộng được; trước đây không bao giờ
   khớp. Nếu cùng chữ viết tắt được lưu với nhiều cách viết hoa, Ngó Sen dùng bản viết thường, nếu không có
   thì dùng bản lưu đầu tiên. Trình sửa macro trong cửa sổ cài đặt coi `VN` và `vn` là cùng chữ viết tắt,
   đề nghị cập nhật thay vì thêm bản thứ hai (#194).
-- Gõ Sen sửa lỗi khi backspace về từ vừa gõ để thêm dấu (tính năng từ #142): macro kết thúc bằng ký tự
-  không phải chữ cái, như `q` → `“quá”` hay `vv` → `vân vân…`, giờ giữ nguyên nội dung. Trước đây gõ `q`,
-  Space, backspace, `s` ra `“qua”s` thay vì `“quá”s`; với `vv` thì ra `vân van…s`. Với charset VNI Windows,
-  từ đã mã hóa giờ bắt đầu từ mới như trước #142, sửa lỗi gõ `dduowc`, Space, backspace, backspace, `j`
-  ra chữ rối `ñöä`. Từ chưa có chữ tiếng Việt vẫn mở lại được trong VNI Windows / TCVN3: gõ `ban`, Space,
-  backspace, `f` ra `bàn` (#199).
+- Test tự động phát hiện Gõ Sen có thể dựng lại sai macro kết thúc bằng dấu ngoặc kép hoặc dấu ba chấm
+  khi backspace về từ vừa gõ (`q` → `“quá”`, rồi backspace và `s` ra `“qua”s`), hoặc từ dùng charset
+  VNI Windows (ra `ñöä`). Bản trước không gặp lỗi này khi test trên Ubuntu GNOME và Linux Mint trong ô GTK,
+  LibreOffice Writer, xterm, nên thay đổi chỉ để phòng lỗi. Từ thường vẫn mở lại được trong VNI Windows /
+  TCVN3: `ban`, Space, backspace, `f` ra `bàn` (#199).
+- Trên thanh địa chỉ Firefox, khi Firefox autofill địa chỉ (gõ `g` điền thành `google.com/`), gõ chữ trùng với
+  chữ tiếp theo của địa chỉ bị hiểu nhầm là bấm chuột, làm mất từ đang gõ: `gox` ra `gox`, `daaus` ra `daáu`.
+  Giờ `gox` ra `gõ` và `daaus` ra `dấu`. Đã test với Firefox cài từ Flatpak trên Ubuntu GNOME (#209).
 
 ### Tài liệu
 
