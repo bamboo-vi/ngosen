@@ -263,11 +263,7 @@ namespace ngosen {
         } else {
             bool wasAutoCapitalized = (currentSym != keyEvent.sym());
             if (!addedPart.empty() && (keyUtf8 != addedPart || wasAutoCapitalized)) {
-                // Prevent auto-capitalized character replacement from stripping out Vietnamese chars
-                if (addedPart.size() > 1 && addedPart.back() == ' ') {
-                    // Stripping the trigger key (space) from addedPart
-                    addedPart.pop_back();
-                }
+                // The key is accepted, so the commit carries its text (#178).
                 commit(addedPart);
                 NGOSEN_INFO("Commit: " + addedPart);
                 keyEvent.accept();
