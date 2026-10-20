@@ -13,7 +13,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Tài liệu
 
 - Viết lại form yêu cầu tính năng ngắn hơn, thêm form báo lỗi cài đặt hoặc cập nhật; issue mới phải đi qua
-  một form, không còn mở issue trống. (#190)
+  một form, không còn mở issue trống; câu hỏi chuyển sang mục Hỏi đáp ở Discussions. (#190)
 
 ## [1.5.4-2] — 20/10/2026
 

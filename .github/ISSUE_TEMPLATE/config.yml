@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Hỏi đáp
+    url: https://github.com/ngosen/ngosen/discussions/categories/q-a
+    about: Hỏi cách dùng hay cách cài Ngó Sen, không phải báo lỗi.
   - name: Hướng dẫn cài và lỗi thường gặp
     url: https://github.com/ngosen/ngosen#cài
     about: Cách cài Ngó Sen và xử lý các lỗi thường gặp.
