@@ -47,6 +47,9 @@ fn test_determine_macro_case() {
         ("abc", MacroCase::AllSmall),
         ("ABC", MacroCase::AllCapital),
         ("aBc", MacroCase::NoChange),
+        ("Abc", MacroCase::Capitalized),
+        ("ABc", MacroCase::NoChange),
+        ("Đô", MacroCase::Capitalized),
         ("123", MacroCase::NoChange),
         ("", MacroCase::NoChange),
         ("áộ", MacroCase::AllSmall),
@@ -96,6 +99,8 @@ fn test_expand_macro() {
     assert_eq!(e.expand_macro("vn", "Việt Nam"), "việt nam");
     assert_eq!(e.expand_macro("VN", "việt nam"), "VIỆT NAM");
     assert_eq!(e.expand_macro("Vn", "Việt Nam"), "Việt Nam");
+    assert_eq!(e.expand_macro("Ko", "không"), "Không");
+    assert_eq!(e.expand_macro("kO", "không"), "không");
     e.auto_capitalize_macro = false;
     e.time_format = "%H:%M".to_string();
     let now = e.expand_macro("now", "giờ $TIME");
