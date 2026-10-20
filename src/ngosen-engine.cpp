@@ -17,6 +17,9 @@
 #include "ngosen-icon-resolver.h"
 #include "ngosen-plasma-theme.h"
 #include "ngosen-fcitx-host.h"
+#ifdef NGOSEN_HAS_DBUS
+#include "ngosen-dbus-object.h"
+#endif
 #include <optional>
 #include <utility>
 
@@ -28,6 +31,11 @@
 #include <fcitx-utils/utf8.h>
 #include <fcitx-utils/eventdispatcher.h>
 #include <fcitx-utils/misc.h>
+#include <fcitx-utils/fs.h>
+#include <fcitx-utils/unixfd.h>
+#ifdef NGOSEN_HAS_DBUS
+#include <dbus_public.h>
+#endif
 
 #include <algorithm>
 #include <atomic>
@@ -39,6 +47,8 @@
 
 #include <fcntl.h>
 #include <sstream>
+#include <sys/stat.h>
+#include <unistd.h>
 
 namespace fcitx {
     constexpr const char* CharsetActionPrefix = "ngosen-charset-";
@@ -325,6 +335,15 @@ namespace fcitx {
         saveLogAction_->setIcon("document-save");
         connections_.emplace_back(saveLogAction_->connect<SimpleAction::Activated>([this](InputContext* ic) { saveTypingLog(ic); }));
         uiManager.registerAction("ngosen-save-log", saveLogAction_.get());
+#ifdef NGOSEN_HAS_DBUS
+        if (auto* dbusAddon = dbus()) {
+            dbusObject_ = std::make_unique<NgoSenDBusObject>(this);
+            if (!dbusAddon->call<IDBusModule::bus>()->addObjectVTable(NgoSenDBusObject::Path, NgoSenDBusObject::Interface, *dbusObject_)) {
+                NGOSEN_WARN("Could not register " << NgoSenDBusObject::Path << " on D-Bus; ngosen-save-log will not work");
+                dbusObject_.reset();
+            }
+        }
+#endif
 
 #if NGOSEN_USE_MODERN_FCITX_API
         std::string configDir = (StandardPaths::global().userDirectory(StandardPathsType::Config) / "fcitx5" / "conf").string();
@@ -1088,26 +1107,39 @@ namespace fcitx {
             });
     }
 
-    void NgoSenEngine::saveTypingLog(InputContext* ic) {
-        const std::string     stateHome = getEnv("XDG_STATE_HOME");
-        std::filesystem::path dir       = stateHome.empty() ? std::filesystem::path(getEnv("HOME")) / ".local" / "state" : std::filesystem::path(stateHome);
-        dir /= "ngosen";
+    std::filesystem::path NgoSenEngine::typingLogDir() {
+        const std::string stateHome = getEnv("XDG_STATE_HOME");
+        const auto        dir       = stateHome.empty() ? std::filesystem::path(getEnv("HOME")) / ".local" / "state" : std::filesystem::path(stateHome);
+        return dir / "ngosen";
+    }
+
+    std::filesystem::path NgoSenEngine::writeTypingLog() {
+        const auto      dir = typingLogDir();
         std::error_code error;
         std::filesystem::create_directories(dir, error);
+        // The log holds what the user typed, possibly passwords; keep it from other users.
+        std::filesystem::permissions(dir, std::filesystem::perms::owner_all, error);
 
         char       stamp[32];
         const auto now = std::time(nullptr);
         std::tm    local{};
         localtime_r(&now, &local);
         std::strftime(stamp, sizeof(stamp), "%Y%m%d-%H%M%S", &local);
-        const auto    path = dir / (std::string("typing-") + stamp + ".log");
-        std::ofstream out(path);
-        out << "# Ngó Sen " << NGOSEN_VERSION << " typing log. It holds what you typed just before saving; read it before sharing.\n"
-            << "# desktop=" << getEnv("XDG_CURRENT_DESKTOP") << " session=" << getEnv("XDG_SESSION_TYPE") << "\n"
-            << recorder_.dump();
-        out.close();
+        const auto        path = dir / (std::string("typing-") + stamp + ".log");
+        const std::string text = std::string("# Ngó Sen ") + NGOSEN_VERSION + " typing log. It holds what you typed just before saving; read it before sharing.\n" +
+            "# desktop=" + getEnv("XDG_CURRENT_DESKTOP") + " session=" + getEnv("XDG_SESSION_TYPE") + "\n" + recorder_.dump();
 
-        const std::string message = out ? _("Typing log saved: ") + path.string() : _("Could not save the typing log to ") + dir.string();
+        UnixFD fd = UnixFD::own(open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600));
+        if (!fd.isValid())
+            return {};
+        // A log saved earlier in the same second keeps its old mode otherwise.
+        const bool written = fchmod(fd.fd(), 0600) == 0 && fs::safeWrite(fd.fd(), text.data(), text.size()) == static_cast<ssize_t>(text.size());
+        return written && close(fd.release()) == 0 ? path : std::filesystem::path();
+    }
+
+    void NgoSenEngine::saveTypingLog(InputContext* ic) {
+        const auto        path    = writeTypingLog();
+        const std::string message = !path.empty() ? _("Typing log saved: ") + path.string() : _("Could not save the typing log to ") + typingLogDir().string();
         NGOSEN_INFO(message);
         if (ic == nullptr)
             return;

@@ -49,6 +49,13 @@ include(ECMUninstallTarget)
 
 find_package(Fcitx5Core ${REQUIRED_FCITX_VERSION} REQUIRED)
 find_package(Fcitx5ModuleEmoji REQUIRED)
+# Missing when fcitx5 is built without D-Bus; ngosen-save-log then has nothing to call.
+find_package(Fcitx5ModuleDBus)
+if (Fcitx5ModuleDBus_FOUND)
+    add_definitions(-DNGOSEN_HAS_DBUS)
+    list(APPEND ngosen_fcitx_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-dbus-object.cpp)
+    set(NGOSEN_DBUS_MODULE Fcitx5::Module::DBus)
+endif()
 find_package(Pthread REQUIRED)
 find_package(Gettext REQUIRED)
 
