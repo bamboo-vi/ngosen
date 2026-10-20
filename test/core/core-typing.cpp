@@ -187,6 +187,20 @@ namespace {
         const std::vector<uint32_t> keys{'t', 'i', 'e', 'e', 'n', 'g', 's'};
         const std::string           text = ngosen::test::typeInApp(field, quirks, keys, std::vector<int>(keys.size(), 100));
         check(text == "tiếng", "redrawing editor: commit after the redraw", text);
+
+        // A box that redraws after each of our backspaces only, with over a second of plain words in between.
+        quirks.keyStepMs                   = 10;
+        quirks.redrawsOnlyOnDeletion       = true;
+        const std::string           spaced = "tieengs xin xin xin chaof";
+        const std::vector<uint32_t> spacedKeys(spaced.begin(), spaced.end());
+        int                         slowest = 0;
+        const std::string           after   = ngosen::test::typeInApp(field, quirks, spacedKeys, std::vector<int>(spacedKeys.size(), 100), &slowest);
+        // The first word may be lost: nothing has shown yet that the box redraws.
+        const std::string tail = " xin xin xin chào";
+        check(after.size() >= tail.size() && after.compare(after.size() - tail.size(), tail.size(), tail) == 0, "redrawing editor: commit after the redraw following a pause",
+              after);
+        // Three backspaces take 30 ms and their last redraw 7 ms more; the wait gives up at 100 ms.
+        check(slowest < 60, "redrawing editor: commit once the redraws are done", std::to_string(slowest) + " ms");
     }
 
     // Backspacing from after a word into it and typing on continues that word; kitty reports no

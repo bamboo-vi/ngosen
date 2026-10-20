@@ -13,10 +13,9 @@ namespace ngosen {
     namespace {
         // Focus that comes back sooner than this left only for a moment (Chromium on X11 bounces it).
         constexpr int64_t FocusBounceMs = 100;
-        // A field that bounces this often redraws after every edit (TikTok comments in Chrome).
-        constexpr int64_t BounceRunMs = 1000;
-        // Such a field drops a commit that arrives before the redraw our backspaces cause (#175), so
-        // the commit waits until a bounce has come and gone, but no longer than RedrawWaitMs.
+        // A field that bounces again and again redraws its editor (Draft.js in Chrome on GNOME) and
+        // drops a commit that arrives before the redraw our backspaces cause (#175), so the commit
+        // waits until those bounces have come and gone, but no longer than RedrawWaitMs.
         constexpr int64_t RedrawSettleMs = 8;
         constexpr int64_t RedrawWaitMs   = 100;
 
@@ -37,10 +36,16 @@ namespace ngosen {
         realMode = targetMode;
         if (bounce) {
             NGOSEN_INFO("Focus bounce: keep word buffers");
-            recentBounces_ = now - lastBounceAt_ < BounceRunMs ? recentBounces_ + 1 : 1;
-            lastBounceAt_  = now;
-        } else
+            ++fieldBounces_;
+            if (now - static_cast<int64_t>(surr_wait_started_at_ / 1000) < RedrawWaitMs) {
+                waitBounces_   = bouncedInWait_ == surr_wait_started_at_ ? waitBounces_ + 1 : 1;
+                bouncedInWait_ = surr_wait_started_at_;
+            }
+            lastBounceAt_ = now;
+        } else {
             clearAllBuffers();
+            fieldBounces_ = 0;
+        }
 
         if (isFocusIn && host_->field().frontend == "dbus" && !s.isValid()) {
             NGOSEN_INFO("Skip clearAllBuffers");
@@ -82,10 +87,11 @@ namespace ngosen {
     bool TypingState::waitsForRedraw() const {
         const int64_t now     = nowMs();
         const auto    started = static_cast<int64_t>(surr_wait_started_at_ / 1000);
-        const bool    redraws = recentBounces_ >= 2 && started - lastBounceAt_ < BounceRunMs;
-        if (!redraws || now - started >= RedrawWaitMs)
+        if (fieldBounces_ < 2 || now - started >= RedrawWaitMs)
             return false;
-        return lastBounceAt_ < started || now - lastBounceAt_ < RedrawSettleMs || !host_->hasFocus();
+        // Each deleted character brings its own redraw.
+        const int bounces = bouncedInWait_ == surr_wait_started_at_ ? waitBounces_ : 0;
+        return bounces < deletedChars_ || now - lastBounceAt_ < RedrawSettleMs || !host_->hasFocus();
     }
 
 } // namespace ngosen

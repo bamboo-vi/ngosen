@@ -155,7 +155,10 @@ namespace ngosen {
         int64_t                  lastDeactivateTime_    = 0;     ///< ms on CLOCK_MONOTONIC
         int64_t                  deletionInterruptedAt_ = 0;     ///< when deactivate() cut an in-flight replacement (0 = none)
         int64_t                  lastBounceAt_          = 0;     ///< ms on CLOCK_MONOTONIC
-        int                      recentBounces_         = 0;     ///< bounces less than a second apart
+        int                      fieldBounces_          = 0;     ///< bounces since focus came in
+        int                      waitBounces_           = 0;     ///< bounces during the wait that started at bouncedInWait_
+        uint64_t                 bouncedInWait_         = 0;     ///< surr_wait_started_at_ of the wait those bounces came in
+        int                      deletedChars_          = 0;     ///< characters the current replacement deletes
         bool                     tracking_modifier_tap_ = false; ///< Selected modifier held, waiting for consecutive keyup
         bool                     macro_skip_            = false; ///< Macro disabled for the current word
 

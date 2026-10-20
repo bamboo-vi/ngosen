@@ -70,7 +70,7 @@ namespace ngosen::test {
         return text + host->preedit();
     }
 
-    std::string typeInApp(const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs) {
+    std::string typeInApp(const Field& field, AppQuirks quirks, const std::vector<uint32_t>& keys, const std::vector<int>& gapsMs, int* slowestCommitMs) {
         realMode = Mode::Sen;
         realtextLen.store(0);
         FakeLoop      loop;
@@ -84,6 +84,8 @@ namespace ngosen::test {
             loop.pump(gapsMs[i]);
         }
         loop.pump(300);
+        if (slowestCommitMs != nullptr)
+            *slowestCommitMs = app->slowestCommitMs();
         return app->text();
     }
 
@@ -115,6 +117,10 @@ namespace ngosen::test {
     }
 
     void FakeApp::commitText(const std::string& text) {
+        if (forwardedAt_ > 0) {
+            slowestCommitMs_ = std::max(slowestCommitMs_, static_cast<int>((monotonicUs() - forwardedAt_) / 1000));
+            forwardedAt_     = 0;
+        }
         if ((quirks_.dropsCommitsInReport && inReport_) || !focused_ || redraws_ > 0)
             return;
         later(quirks_.lagMs, [this, text] { insert(utf8::decode(text)); });
@@ -123,6 +129,8 @@ namespace ngosen::test {
     void FakeApp::forwardKey(EditKey key, bool release) {
         if (key != EditKey::BackSpace || release || monotonicUs() < busyUntilUs_)
             return;
+        if (forwardedAt_ == 0)
+            forwardedAt_ = monotonicUs();
         if (quirks_.keyStepMs > 0) {
             later(quirks_.keyStepMs * ++queuedKeys_, [this] {
                 --queuedKeys_;
@@ -188,7 +196,8 @@ namespace ngosen::test {
         text_.insert(cursor_, text);
         cursor_ += text.size();
         changed();
-        redrawAfterEdit();
+        if (!quirks_.redrawsOnlyOnDeletion)
+            redrawAfterEdit();
     }
 
     void FakeApp::redrawAfterEdit() {
