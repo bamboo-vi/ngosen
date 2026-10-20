@@ -42,6 +42,9 @@ func TestDetermineMacroCase(t *testing.T) {
 		{"abc", VnCaseAllSmall},
 		{"ABC", VnCaseAllCapital},
 		{"aBc", VnCaseNoChange},
+		{"Abc", VnCaseCapitalized},
+		{"ABc", VnCaseNoChange},
+		{"Đô", VnCaseCapitalized},
 		{"123", VnCaseNoChange},
 		{"", VnCaseNoChange},
 		{"áộ", VnCaseAllSmall},
@@ -113,7 +116,18 @@ func TestExpandMacro(t *testing.T) {
 		t.Errorf("expandMacro all-capital got [%s] expected [VIỆT NAM]", got)
 	}
 	if got := e.expandMacro("Vn", "Việt Nam"); got != "Việt Nam" {
-		t.Errorf("expandMacro mixed got [%s] expected [Việt Nam] (unchanged)", got)
+		t.Errorf("expandMacro capitalized got [%s] expected [Việt Nam]", got)
+	}
+	if got := e.expandMacro("Ko", "không"); got != "Không" {
+		t.Errorf("expandMacro capitalized got [%s] expected [Không]", got)
+	}
+	if got := e.expandMacro("kO", "không"); got != "không" {
+		t.Errorf("expandMacro mixed got [%s] expected [không] (unchanged)", got)
+	}
+	for text, want := range map[string]string{"iPhone": "iPhone", "iOS": "iOS", "ßa": "ßa", "đi": "Đi"} {
+		if got := e.expandMacro("Ab", text); got != want {
+			t.Errorf("expandMacro capitalized %s got [%s] expected [%s]", text, got, want)
+		}
 	}
 	e.autoCapitalizeMacro = false
 	// $TIME substitution

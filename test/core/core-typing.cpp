@@ -186,6 +186,22 @@ namespace {
         check(text == "em không a", "macro keeps its space", text);
     }
 
+    // With Capitalize Macro on, an abbreviation typed with a capital first letter capitalizes the
+    // text, unless the text has capitals of its own.
+    void testMacroCapitalized() {
+        const std::vector<std::pair<std::string, std::string>> cases{
+            {"Ko", "Không "}, {"kO", "không "}, {"Ip", "iPhone "}, {"Io", "iOS "}, {"Bt", "ßa "},
+        };
+        for (const auto& [typed, want] : cases) {
+            FakeResources resources;
+            resources.setMacros({{"ko", "không"}, {"ip", "iPhone"}, {"io", "iOS"}, {"bt", "ßa"}});
+            std::vector<uint32_t> keys(typed.begin(), typed.end());
+            keys.push_back(' ');
+            const std::string text = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));
+            check(text == want, "capitalized macro: " + typed, text);
+        }
+    }
+
     // TikTok's comment box in Chrome under GNOME applies our backspaces late and loses a commit that
     // arrives before the redraw they cause (#175).
     void testCommitAfterEditorRedraw() {
@@ -686,6 +702,7 @@ int main() {
     testCommitAfterEditorRedraw();
     testQuickSwitchesNoRedrawWait();
     testMacroKeepsSpace();
+    testMacroCapitalized();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);
     {

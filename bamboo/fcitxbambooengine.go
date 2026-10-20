@@ -62,6 +62,7 @@ const (
 	VnCaseAllSmall uint8 = iota + 1
 	VnCaseAllCapital
 	VnCaseNoChange
+	VnCaseCapitalized
 )
 
 func determineMacroCase(str string) uint8 {
@@ -72,9 +73,13 @@ func determineMacroCase(str string) uint8 {
 		} else if unicode.IsUpper(c) {
 			hasUpper = true
 		}
-		if hasLower && hasUpper {
-			return VnCaseNoChange
+	}
+	if hasLower && hasUpper {
+		first, size := utf8.DecodeRuneInString(str)
+		if unicode.IsUpper(first) && strings.IndexFunc(str[size:], unicode.IsUpper) < 0 {
+			return VnCaseCapitalized
 		}
+		return VnCaseNoChange
 	}
 	if hasLower {
 		return VnCaseAllSmall
@@ -139,9 +144,21 @@ func (e *FcitxBambooEngine) expandMacro(str, macroText string) string {
 			return strings.ToLower(macroText)
 		case VnCaseAllCapital:
 			return strings.ToUpper(macroText)
+		case VnCaseCapitalized:
+			return capitalizeFirst(macroText)
 		}
 	}
 	return macroText
+}
+
+// capitalizeFirst upper-cases the first letter of text written in lower case; text with capitals,
+// such as iPhone, stays as written.
+func capitalizeFirst(text string) string {
+	first, size := utf8.DecodeRuneInString(text)
+	if size == 0 || strings.IndexFunc(text, unicode.IsUpper) >= 0 {
+		return text
+	}
+	return string(unicode.ToUpper(first)) + text[size:]
 }
 
 func (e *FcitxBambooEngine) getMacroText() (bool, string) {

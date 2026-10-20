@@ -74,6 +74,7 @@ pub enum MacroCase {
     AllSmall,
     AllCapital,
     NoChange,
+    Capitalized,
 }
 
 pub fn determine_macro_case(s: &str) -> MacroCase {
@@ -82,7 +83,32 @@ pub fn determine_macro_case(s: &str) -> MacroCase {
     match (has_lower, has_upper) {
         (true, false) => MacroCase::AllSmall,
         (false, true) => MacroCase::AllCapital,
+        (true, true) => {
+            let mut chars = s.chars();
+            let first_upper = chars.next().is_some_and(char::is_uppercase);
+            if first_upper && !chars.any(char::is_uppercase) {
+                MacroCase::Capitalized
+            } else {
+                MacroCase::NoChange
+            }
+        }
         _ => MacroCase::NoChange,
+    }
+}
+
+/// Upper-cases the first letter of text written in lower case; text with capitals, such as iPhone,
+/// stays as written. A letter whose upper case is several letters (ß) stays too, as in Go.
+fn capitalize_first(s: &str) -> String {
+    let mut chars = s.chars();
+    let Some(first) = chars.next() else {
+        return String::new();
+    };
+    let mut upper = first.to_uppercase();
+    match (upper.next(), upper.next()) {
+        (Some(u), None) if !s.chars().any(char::is_uppercase) => {
+            std::iter::once(u).chain(chars).collect()
+        }
+        _ => s.to_string(),
     }
 }
 
@@ -172,6 +198,7 @@ impl BambooEngine {
             match determine_macro_case(s) {
                 MacroCase::AllSmall => return text.to_lowercase(),
                 MacroCase::AllCapital => return text.to_uppercase(),
+                MacroCase::Capitalized => return capitalize_first(&text),
                 MacroCase::NoChange => {}
             }
         }
