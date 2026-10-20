@@ -259,6 +259,31 @@ namespace {
         }
     }
 
+    // What we committed may differ from what the engine can take back: a macro's text ending in a
+    // symbol, or a word in a legacy charset.
+    void testBackspaceIntoCommittedText() {
+        const Field    field = makeField("wayland", true);
+        const uint32_t bs    = ngosen::key::BackSpace;
+        const auto     type  = [&](FakeResources& resources, const std::string& keys) {
+            std::vector<uint32_t> syms;
+            for (const char c : keys)
+                syms.push_back(c == '<' ? bs : static_cast<uint32_t>(c));
+            return ngosen::test::typeInApp(resources, field, {}, syms, std::vector<int>(syms.size(), 100));
+        };
+        FakeResources macros;
+        macros.setMacros({{"q", "“quá”"}, {"vv", "vân vân…"}});
+        const std::string quote = type(macros, "q <s ");
+        check(quote == "“quá”s ", "backspace into a macro ending in a quote", quote);
+        const std::string ellipsis = type(macros, "vv <s ");
+        check(ellipsis == "vân vân…s ", "backspace into a macro ending in an ellipsis", ellipsis);
+
+        // VNI Windows writes "đươ" as "ñöô"; the word is not reopened, so j starts a new one.
+        FakeResources vni;
+        vni.mutableOptions().outputCharset = "VNI Windows";
+        const std::string legacy           = type(vni, "dduowc <<j ");
+        check(legacy == "ñöôj ", "backspace into a VNI Windows word", legacy);
+    }
+
     // After a click elsewhere the text before the cursor is not our word, so it is not reopened.
     void testBackspaceAfterMovingAway() {
         realMode = ngosen::Mode::Sen;
@@ -684,6 +709,7 @@ int main() {
         testBackspaceIntoLastWord("xim", false, xtest);
         setXTestSenderForTest({});
     }
+    testBackspaceIntoCommittedText();
     testBackspaceAfterMovingAway();
     testBackspaceAfterCtrlBackspace();
     testResentBackspace();
