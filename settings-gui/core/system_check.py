@@ -32,6 +32,7 @@ class Facts:
     distro: str = ""
     fcitx_version: str = ""
     ngosen_version: str = ""
+    addon_replaced: bool = False
 
     @property
     def session(self):
@@ -76,6 +77,14 @@ def evaluate(facts):
             )
         ]
     found = []
+    if facts.addon_replaced:
+        found.append(
+            Finding(
+                WARN,
+                _("fcitx5 still runs Ngó Sen from before the update"),
+                _("Log out and back in to start the installed version."),
+            )
+        )
     if not facts.ngosen_in_group:
         found.append(
             Finding(
@@ -174,6 +183,7 @@ def collect(dbus_handler, ngosen_version="", env=None):
     facts.fcitx_version = _fcitx_version()
     facts.ibus_running = _process_running("ibus-daemon")
     facts.kwin_input_method = _kwin_input_method(env)
+    facts.addon_replaced = runs_replaced_addon()
     names = dbus_handler.input_method_names()
     facts.fcitx_running = names is not None
     facts.ngosen_in_group = "ngosen" in (names or [])
@@ -209,6 +219,28 @@ def _process_running(name):
         try:
             with open(f"/proc/{pid}/comm", encoding="utf-8") as f:
                 if f.read().strip() == name:
+                    return True
+        except OSError:
+            continue
+    return False
+
+
+def runs_replaced_addon(proc="/proc"):
+    """Whether a running fcitx5 still uses a Ngó Sen library that an update has replaced.
+
+    Updating the package does not restart fcitx5, so it keeps typing with the old code.
+    """
+    try:
+        pids = [p for p in os.listdir(proc) if p.isdigit()]
+    except OSError:
+        return False
+    for pid in pids:
+        try:
+            with open(os.path.join(proc, pid, "comm"), encoding="utf-8") as f:
+                if f.read().strip() != "fcitx5":
+                    continue
+            with open(os.path.join(proc, pid, "maps"), encoding="utf-8") as f:
+                if any(line.rstrip().endswith("/libngosen.so (deleted)") for line in f):
                     return True
         except OSError:
             continue

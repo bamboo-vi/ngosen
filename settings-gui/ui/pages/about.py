@@ -4,7 +4,7 @@
 
 from i18n import _
 from qtpy.QtCore import Qt, QUrl
-from qtpy.QtGui import QDesktopServices
+from qtpy.QtGui import QColor, QDesktopServices, QPalette
 from qtpy.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -15,6 +15,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from core import system_check
 from ui import brand
 from ui.typography import mute
 
@@ -78,6 +79,21 @@ class AboutPage(QWidget):
         version.setAlignment(Qt.AlignCenter)
         mute(version)
         layout.addWidget(version, alignment=Qt.AlignCenter)
+
+        if system_check.runs_replaced_addon():
+            replaced = QLabel(
+                _(
+                    "Typing still uses the Ngó Sen that ran before the update. "
+                    "Log out and back in to start version {}."
+                ).format(__version__)
+            )
+            replaced.setObjectName("AddonReplaced")
+            replaced.setWordWrap(True)
+            replaced.setAlignment(Qt.AlignCenter)
+            palette = replaced.palette()
+            palette.setColor(QPalette.WindowText, QColor(brand.pick(replaced, brand.ERROR_BORDER)))
+            replaced.setPalette(palette)
+            layout.addWidget(replaced)
 
         desc = QLabel(_("Modern, fast, and stable Vietnamese input method for Linux."))
         desc.setWordWrap(True)
