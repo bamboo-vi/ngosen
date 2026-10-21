@@ -32,7 +32,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Sau khi update gói Ngó Sen, fcitx5 vẫn dùng version cũ để gõ cho đến khi đăng xuất hoặc fcitx5 khởi động lại,
   nhưng trang Giới thiệu trong cửa sổ cài đặt đã hiện số version mới, dễ khiến người dùng báo lỗi nhầm version.
   Giờ trang này hiện dòng đỏ dưới số version khi fcitx5 còn chạy Ngó Sen từ trước update, nhắc đăng xuất rồi
-  đăng nhập lại; "Kiểm tra máy tôi…" cũng liệt kê tình trạng này là cảnh báo (#PR).
+  đăng nhập lại; "Kiểm tra máy tôi…" cũng liệt kê tình trạng này là cảnh báo (#212).
 
 ### Tài liệu
 
