@@ -1105,6 +1105,18 @@ msgid "Two input methods compete for keys; stop IBus from starting at login."
 msgstr ""
 
 #: settings-gui/core/system_check.py
+msgid "fcitx5 still runs Ngó Sen from before the update"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Log out and back in to start the installed version."
+msgstr ""
+
+#: settings-gui/ui/pages/about.py
+msgid "Typing still uses the Ngó Sen that ran before the update. Log out and back in to start version {}."
+msgstr ""
+
+#: settings-gui/core/system_check.py
 msgid "Qt apps have no input method"
 msgstr ""
 

@@ -4,7 +4,7 @@
 
 from i18n import _
 from qtpy.QtCore import Qt, QUrl
-from qtpy.QtGui import QDesktopServices
+from qtpy.QtGui import QColor, QDesktopServices, QPalette
 from qtpy.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -15,6 +15,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from core import system_check
 from ui import brand
 from ui.typography import mute
 
@@ -22,6 +23,12 @@ try:
     from version import __version__
 except ImportError:
     __version__ = "dev version"  # Fallback for local development
+
+
+def _color_warning(label):
+    palette = label.palette()
+    palette.setColor(QPalette.WindowText, QColor(brand.pick(label, brand.ERROR_BORDER)))
+    label.setPalette(palette)
 
 
 class AboutPage(QWidget):
@@ -78,6 +85,19 @@ class AboutPage(QWidget):
         version.setAlignment(Qt.AlignCenter)
         mute(version)
         layout.addWidget(version, alignment=Qt.AlignCenter)
+
+        if system_check.runs_replaced_addon():
+            replaced = QLabel(
+                _(
+                    "Typing still uses the Ngó Sen that ran before the update. "
+                    "Log out and back in to start version {}."
+                ).format(__version__)
+            )
+            replaced.setObjectName("AddonReplaced")
+            replaced.setWordWrap(True)
+            replaced.setAlignment(Qt.AlignCenter)
+            layout.addWidget(replaced)
+            brand.follow_theme(replaced, _color_warning)
 
         desc = QLabel(_("Modern, fast, and stable Vietnamese input method for Linux."))
         desc.setWordWrap(True)

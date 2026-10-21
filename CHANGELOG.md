@@ -29,6 +29,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Trên thanh địa chỉ Firefox, khi Firefox autofill địa chỉ (gõ `g` điền thành `google.com/`), gõ chữ trùng với
   chữ tiếp theo của địa chỉ bị hiểu nhầm là bấm chuột, làm mất từ đang gõ: `gox` ra `gox`, `daaus` ra `daáu`.
   Giờ `gox` ra `gõ` và `daaus` ra `dấu`. Đã test với Firefox cài từ Flatpak trên Ubuntu GNOME (#209).
+- Sau khi update gói Ngó Sen, fcitx5 vẫn dùng version cũ để gõ cho đến khi đăng xuất hoặc fcitx5 khởi động lại,
+  nhưng trang Giới thiệu trong cửa sổ cài đặt đã hiện số version mới, dễ khiến người dùng báo lỗi nhầm version.
+  Giờ trang này hiện dòng đỏ dưới số version khi fcitx5 còn chạy Ngó Sen từ trước update, nhắc đăng xuất rồi
+  đăng nhập lại; "Kiểm tra máy tôi…" cũng liệt kê tình trạng này là cảnh báo (#212).
 - Log gõ lưu từ menu khay giữ được đoạn gõ dài hơn: browser như Edge và Chrome báo cùng nội dung ô nhiều lần
   mỗi phím, khiến phần lớn 400 event cuối là các dòng lặp, chỉ còn khoảng 12 giây gõ; từ gõ sai trước đó
   một chút đã mất khỏi log. Giờ nội dung báo giống hệt lần ngay trước không được lưu lại. Với một log thực
