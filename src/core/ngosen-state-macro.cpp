@@ -141,7 +141,9 @@ namespace ngosen {
             return;
         }
         if (!keyEvent.isRelease()) {
-            tracking_modifier_tap_ = true;
+            // Releasing Ctrl first from a held Shift+Ctrl is a chord, not a tap.
+            constexpr uint32_t held = ngosen::modifier::Shift | ngosen::modifier::Ctrl | ngosen::modifier::Alt | ngosen::modifier::Super;
+            tracking_modifier_tap_  = (keyEvent.states() & held) == 0;
             return;
         }
         if (!tracking_modifier_tap_)
@@ -160,24 +162,18 @@ namespace ngosen {
 
     void TypingState::lockWord() {
         lock_word_pending_ = false;
-        if (realMode == ngosen::Mode::Preedit) {
-            EngineCommitPreedit(bambooEngine_.handle());
-            ngosen::UniqueCPtr<char> pulled(EnginePullCommit(bambooEngine_.handle()));
-            if (pulled && (*pulled.get() != 0))
-                commit(pulled.get());
-            ResetEngine(bambooEngine_.handle());
-            host_->resetPanel();
-            host_->refreshPreedit();
-            host_->refreshPanel();
-        } else if (realMode != ngosen::Mode::Emoji) {
-            // The word is already in the app; the engine only has to forget it. Off mode keeps a word for macros too.
-            ResetEngine(bambooEngine_.handle());
-            oldPreBuffer_.clear();
-            lastWord_.clear();
-            hasHistory_ = false;
-        } else {
+        if (realMode == ngosen::Mode::Emoji)
             return;
-        }
+        // A tap between words leaves the last word open to Backspace.
+        ngosen::UniqueCPtr<char> preedit(EnginePullPreedit(bambooEngine_.handle()));
+        if (!preedit || *preedit.get() == 0)
+            return;
+        commitBuffer();
+        // The word is already in the app; the engine only has to forget it. Off mode keeps a word for macros too.
+        ResetEngine(bambooEngine_.handle());
+        oldPreBuffer_.clear();
+        lastWord_.clear();
+        hasHistory_ = false;
         NGOSEN_INFO("Word locked");
     }
 

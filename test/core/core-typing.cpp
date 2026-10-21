@@ -821,12 +821,12 @@ namespace {
         }
     }
 
-    // ^ is a Ctrl tap and + a Shift tap.
+    // ^ is a Ctrl tap, + a Shift tap and < a backspace.
     void expectTyped(FakeResources& resources, const Field& field, const std::string& typed, const std::string& want, const std::string& what, ngosen::test::AppQuirks quirks = {},
                      int gapMs = 30) {
         std::vector<uint32_t> keys;
         for (char c : typed)
-            keys.push_back(c == '^' ? ngosen::key::Control_L : c == '+' ? ngosen::key::Shift_L : static_cast<uint32_t>(c));
+            keys.push_back(c == '^' ? ngosen::key::Control_L : c == '+' ? ngosen::key::Shift_L : c == '<' ? ngosen::key::BackSpace : static_cast<uint32_t>(c));
         const std::string text = ngosen::test::typeInApp(resources, field, quirks, keys, std::vector<int>(keys.size(), gapMs));
         check(text == want, what, text);
     }
@@ -853,7 +853,36 @@ namespace {
         ngosen::test::AppQuirks slow;
         slow.lagMs = 40;
         FakeResources lagging;
-        expectTyped(lagging, makeField("wayland", true), "tunx^ ", "tũn ", "lock: Ctrl during a replacement", slow, 10);
+        // s finishes the replacement on arrival and must not join the word locked before it.
+        expectTyped(lagging, makeField("wayland", true), "tunx^s ", "tũns ", "lock: Ctrl during a replacement", slow, 10);
+        // A tap between words does not close the last one to Backspace.
+        FakeResources plain;
+        expectTyped(plain, makeField("wayland", true), "ban ^<f ", "bàn ", "lock: Ctrl after a word");
+    }
+
+    // Letting go of Ctrl before Shift in a Shift+Ctrl chord is not a tap.
+    void testLockWordNotOnChord() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<ngosen::test::FakeApp>(loop, makeField("wayland", true), ngosen::test::AppQuirks{});
+        auto*               app   = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        app->attach(&state);
+        for (char c : std::string("vieet"))
+            app->type(static_cast<uint32_t>(c));
+        loop.pump(30);
+        const auto modifierKey = [&](uint32_t sym, bool release, uint32_t states) {
+            FakeKey key(sym, release, states);
+            state.keyEvent(key);
+        };
+        modifierKey(ngosen::key::Shift_L, false, 0);
+        modifierKey(ngosen::key::Control_L, false, ngosen::modifier::Shift);
+        modifierKey(ngosen::key::Control_L, true, ngosen::modifier::Shift | ngosen::modifier::Ctrl);
+        modifierKey(ngosen::key::Shift_L, true, ngosen::modifier::Shift);
+        app->type('j');
+        loop.pump(300);
+        check(app->text() == "việt", "lock: Shift+Ctrl chord keeps the word open", app->text());
     }
 
     // The engine already commits the preedit on Ctrl or Alt; a bare Shift never reaches it.
@@ -893,6 +922,7 @@ int main() {
     testMacroKeepsSpace();
     testLockWord();
     testLockWordPreedit();
+    testLockWordNotOnChord();
     testMacroCapitalized();
     testMacroKeyCase();
     testBackspaceIntoLastWord("wayland", true);
