@@ -128,6 +128,9 @@ Filed by others, confirmed here:
   with Firefox 157, with a protocol log: https://bugzilla.mozilla.org/show_bug.cgi?id=2080478#c2
 - Chromium's GTK IM path reports no surrounding text; confirmed with fcitx5's capability flags on
   KDE Plasma with Chromium 154 (#220): https://issues.chromium.org/issues/40146869#comment20
+- GTK 4 IM modules cannot deliver a forwarded key to the widget; confirmed on GNOME 51 with GTK
+  4.24.1, where IBus's GTK 4 module dropped 19 of 19 forwarded Backspaces and its GTK 3 module
+  applied them (#225): https://gitlab.gnome.org/GNOME/gtk/-/issues/3465
 
 Filed by others:
 
