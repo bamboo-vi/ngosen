@@ -972,7 +972,7 @@ msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid ""
-"Tap it to keep the word as it is: tunx then Ctrl gives tũn, with no restore "
+"Tap the key alone to keep the word as shown: tunx, Ctrl → tũn, with no restore "
 "or macro. Alt also shows the menu bar in some apps."
 msgstr ""
 

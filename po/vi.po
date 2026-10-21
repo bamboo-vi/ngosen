@@ -1037,11 +1037,11 @@ msgstr "Gõ windows vẫn ra windows."
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid ""
-"Tap it to keep the word as it is: tunx then Ctrl gives tũn, with no restore "
+"Tap the key alone to keep the word as shown: tunx, Ctrl → tũn, with no restore "
 "or macro. Alt also shows the menu bar in some apps."
 msgstr ""
-"Nhấp phím này để giữ nguyên chữ đang gõ: tunx rồi Ctrl ra tũn, không tự khôi "
-"phục, không bung gõ tắt. Alt còn làm hiện thanh menu ở một số app."
+"Bấm rồi thả riêng phím để giữ nguyên từ: tunx, Ctrl → tũn, không khôi phục hay "
+"bung macro. Alt còn hiện thanh menu ở một số app."
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tone marks can also go at the end of the word."

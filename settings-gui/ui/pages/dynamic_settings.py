@@ -86,7 +86,7 @@ HINTS = {
     "SpellCheck": N_("Words that are not Vietnamese get no tone marks."),
     "AutoNonVnRestore": N_("Typing windows still gives windows."),
     "LockWordModifier": N_(
-        "Tap it to keep the word as it is: tunx then Ctrl gives tũn, with no restore or macro. Alt also shows the menu bar in some apps."
+        "Tap the key alone to keep the word as shown: tunx, Ctrl → tũn, with no restore or macro. Alt also shows the menu bar in some apps."
     ),
     "FreeMarking": N_("Tone marks can also go at the end of the word."),
     "BackspaceRemovesTone": N_(
