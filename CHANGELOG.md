@@ -37,6 +37,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Gói Debian 12 dùng lõi gõ Rust như các gói khác; cách gõ không đổi. Ngó Sen bỏ lõi Go.
   Debian 12 đã có Rust 1.96 trong security updates (`rustc-web`, `cargo-web`).
   Build từ source cần Rust 1.88+ và cargo, không cần Go (#223).
+- Plugin Ngó Sen nhỏ đi khoảng một phần ba (2,1 MB còn 1,4 MB trên Fedora 44) nhờ bỏ phần code không dùng
+  khi build; cách gõ không đổi (#224).
 
 ### Sửa
 
