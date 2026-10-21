@@ -1,6 +1,4 @@
-Version 1.5.4-1 phát hành ngày 20/10/2026; 1.5.4-2 chỉ tăng lần đóng gói để đưa mẫu báo lỗi mới (#188) lên nhánh mặc định của GitHub, code chương trình giữ nguyên. Mẫu báo lỗi bắt đầu từ “Kiểm tra máy tôi…”, yêu cầu log từ “Lưu nhật ký gõ”, chế độ gõ, app và Wayland hay X11, kèm hướng dẫn lấy log fcitx5 hoặc backtrace khi fcitx5 bị treo. Tài liệu `docs/typing-without-preedit.md` nói rõ nhận định về surrounding text của Chromium chỉ áp dụng cho GTK IM (#184) và liệt kê các báo lỗi upstream do người khác gửi (#186). Ai đã cài 1.5.4-1 không cần cập nhật, vì lên 1.5.4-2 không thay đổi gì khi gõ.
-
-Version 1.5.4 sửa lỗi Gõ Sen trong Chrome/Chromium trên Wayland: bình luận TikTok không còn để nguyên `ddungs rooif` thay vì `đúng rồi`, từ đầu ô Draft.js ghép dấu khi chữ gợi ý biến mất. Chrome trên GNOME cũng sửa lỗi mất chữ trong bình luận TikTok và ô Draft.js thường (`xin chào` thành `xin ch`, `đẹp` thành `ẹp`): Ngó Sen giữ từ khi ô mất focus rồi có lại ngay, chờ trang vẽ lại ô mới commit. Tuy vậy, từ đầu có dấu thanh gõ ngay sau khi bấm vào ô Draft.js trong Chrome trên GNOME đôi lúc vẫn mất chữ; các từ sau bình thường. Macro `e` → `em` giữ dấu cách, nên `e ko` ra `em không` thay vì `emkhông`. README thêm hướng dẫn dùng repo để update bằng dnf, apt, pacman hoặc zypper; tài liệu “Cách người Việt gõ” giải thích kiểu gõ không preedit. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.5.5 phát hành ngày 21/10/2026, sửa lỗi gõ trong thanh địa chỉ Firefox khi Firefox autofill địa chỉ. Firefox cài từ Flatpak báo app ID `org.mozilla.firefox` nên Ngó Sen không nhận ra: `ee` ra `eê`, `es` ra `eé`, `dduowcj` ra `dđược` (#200, #204); nay Ngó Sen nhận ra app Flatpak theo tên thường dùng. Khi gõ chữ trùng với chữ tiếp theo của địa chỉ autofill, Ngó Sen tưởng là bấm chuột và bỏ từ đang gõ: `gox` vẫn là `gox`, `daaus` ra `daáu` (#209); nay ra `gõ`, `dấu`. Macro có từ viết tắt lưu bằng chữ hoa như `VN` → `Việt Nam` nay bung được; trình sửa macro coi `VN` và `vn` là cùng một từ viết tắt (#194). Thêm kiểm tra bảo vệ khi backspace vào macro kết thúc bằng dấu ngoặc kép hoặc vào từ trong VNI Windows (#199); trường hợp này do test tự động tìm thấy, chưa gặp trong app. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -32,13 +30,21 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 
 ## Đã test những gì
 
-Version 1.5.4-2 không được gõ thử lại trên VM; các test gõ của 1.5.4-1 dưới đây vẫn áp dụng vì code chương trình giống hệt 1.5.4-1.
+Gói 1.5.5 từ PR phát hành #208 được gõ thử trên VM ngày 20–21/10/2026, dùng Gõ Sen, Telex, trừ lượt VNI Windows ghi riêng bên dưới.
 
-Ngày 20/10/2026, bản build từ nhánh `patch` (cùng code chương trình với 1.5.4-1), chép đè lên gói đã cài trên máy ảo, được test bằng Gõ Sen, Telex. Gõ `tieengs vieetj xin chaof cacs banj hoom nay trowif ddepj quas ddungs rooif` → `tiếng việt xin chào các bạn hôm nay trời đẹp quá đúng rồi` trên hai trang test: ô Draft.js thường và ô vẽ lại sau mỗi phím.
+Ubuntu 26.04 (GNOME Wayland, gói `resolute`), Firefox cài từ Flatpak, thanh địa chỉ khi Firefox autofill: `gox` → `gõ`, `daaus` → `dấu`, `ee` → `ê`, `es` → `é`, `dduowcj` → `được`, mỗi trường hợp đúng 3/3 lượt. Với 1.5.4-3 trên cùng VM: `ee` → `eê` 3/3 lượt, `gox` vẫn là `gox` 3/3 lượt, `daaus` → `daáu` 3/3 lượt.
 
-Ubuntu 26.04 (GNOME Wayland, gói `resolute`): Chrome đúng 6/6 lượt, không mất commit; Firefox đúng 4/4 lượt; ô chữ GTK3 đúng 2/2 lượt. Với macro `e` → `em`, `ko` → `không`, gõ `e ko a` ra `em không a` trong ô chữ GTK3 và Chrome. Ô bình luận TikTok thật trong Chrome trên Ubuntu đã được gõ thử khi test #176, đúng 23/23 từ; không được thử lại trên gói cuối.
+Ubuntu 26.04 và Linux Mint 22.1 (Cinnamon X11, gói `noble`), ô chữ GTK3, macro `VN` → `Việt Nam` và `q` → `“quá”`: gõ `Vn VN q`, Space, backspace, `s` ra `Việt Nam VIỆT NAM “quá”s` (1.5.4-3 ra `Vn VN “quá”s`). Câu 13 từ `tieengs vieetj xin chaof cacs banj hoom nay trowif ddepj quas ddungs rooif` ra `tiếng việt xin chào các bạn hôm nay trời đẹp quá đúng rồi` trên cả hai VM.
 
-Linux Mint 22.1 (Cinnamon X11, gói `noble`): Chromium đúng 4/4 lượt. CachyOS (KDE Plasma Wayland, gói Arch): Chromium đúng 6/6 lượt trên hai trang Draft.js và một ô textarea thường.
+Ubuntu 26.04, ô chữ GTK3: bấm vào trong văn bản ngay sau khi gõ vẫn được nhận là bấm chuột, đúng 2/2 lượt và thêm một lượt trên gói cuối.
+
+Linux Mint 22.1, xterm: mở lại từ cuối vẫn được, `vieetj`, Space, backspace, `s` → `viết`; với VNI Windows, `ban`, Space, backspace, `f` → `baøn`.
+
+CachyOS, Fedora, Debian, openSUSE và Kali chưa được gõ thử với 1.5.5.
+
+Gói 1.5.4-1, ngày 20/10/2026: Ubuntu 26.04 (GNOME Wayland, gói `resolute`): Chrome đúng 6/6 lượt, không mất commit; Firefox đúng 4/4 lượt; ô chữ GTK3 đúng 2/2 lượt. Với macro `e` → `em`, `ko` → `không`, gõ `e ko a` ra `em không a` trong ô chữ GTK3 và Chrome. Ô bình luận TikTok thật trong Chrome trên Ubuntu đã được gõ thử khi test #176, đúng 23/23 từ; không được thử lại trên gói cuối.
+
+Gói 1.5.4-1, ngày 20/10/2026: Linux Mint 22.1 (Cinnamon X11, gói `noble`): Chromium đúng 4/4 lượt. CachyOS (KDE Plasma Wayland, gói Arch): Chromium đúng 6/6 lượt trên hai trang Draft.js và một ô textarea thường.
 
 Gói 1.5.3 (PR #151, sau các sửa cuối) được test ngày 19/10/2026 bằng cách gửi phím vào VM, dùng Gõ Sen, Telex. Mỗi lượt gõ hai lần cùng một dòng: `duyeet`, space, 5 backspace, `yeejt` → `duyệt`; `toan`, space, 2 backspace, `nf` → `toàn`; `ban`, space, 1 backspace, `f` → `bàn`; rồi `tieengs vieetj xin chaof cacs banj, hoom nay trowif ddepj quas` → `tiếng việt xin chào các bạn, hôm nay trời đẹp quá`. Linux Mint 22.1 (Cinnamon X11, gói `noble`): GTK3 text box, GTK3 text box ép dùng XIM và xed đều đúng; xterm (XIM) đúng 5/10 lượt, các lượt còn lại lỗi vài từ khi phím dồn tới; bản 1.5.2 trên cùng máy lỗi 2/5 lượt nên lỗi này đã có trước 1.5.3. Ubuntu 26.04 (GNOME Wayland, gói `resolute`): GTK3 text box, gnome-text-editor và xterm đều đúng; Wine 11.20 Notepad đúng cả ba trường hợp backspace, nhưng 2/4 dòng có một hoặc hai từ lỗi (`chaà`, `tiêễn`), so với 4/4 dòng lỗi ở bản 1.5.2 trên cùng máy; các lỗi còn lại đến từ Wine.
 
