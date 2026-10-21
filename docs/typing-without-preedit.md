@@ -98,8 +98,8 @@ request. "Fix" is what the client could change; none of these need a protocol ch
   in an SDL game except real key presses, which only XTEST on X11 can send. Fix: implement
   `delete_surrounding_text` in SDL's Wayland and IBus text-input code.
 - **LibreOffice** runs Backspace as an asynchronous shortcut, so a commit sent right after it lands
-  before the deletion. Calc over Wayland text-input reports the field only once a key reaches it,
-  not when a cell is selected. Fix: apply forwarded Backspace in order with commits; report focus
+  before the deletion. With its Qt and KDE interface, the default on KDE Plasma, Calc reports the
+  field only once a key reaches it, not when a cell is selected. Fix: apply forwarded Backspace in order with commits; report focus
   on cell selection.
 - **Wine over XIM under Xwayland** applies forwarded key events after a later commit (#158).
   Fix: process X key events in order with XIM commits.
@@ -131,6 +131,12 @@ Filed by others, confirmed here:
 - GTK 4 IM modules cannot deliver a forwarded key to the widget; confirmed on GNOME 51 with GTK
   4.24.1, where IBus's GTK 4 module dropped 19 of 19 forwarded Backspaces and its GTK 3 module
   applied them (#225): https://gitlab.gnome.org/GNOME/gtk/-/issues/3465
+- LibreOffice runs Backspace as an asynchronous shortcut, so text committed after it lands first;
+  confirmed in Writer 26.8.1 with an IBus test engine, 17 of 19 edits (#227):
+  https://bugs.documentfoundation.org/show_bug.cgi?id=139807
+- LibreOffice's Qt and KDE interface tells the input method nothing when the cursor moves by mouse
+  click; confirmed in Calc 26.8.1 on KDE Plasma with a Wayland protocol log (#227):
+  https://bugs.documentfoundation.org/show_bug.cgi?id=173064
 
 Filed by others:
 

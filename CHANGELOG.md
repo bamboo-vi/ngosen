@@ -33,6 +33,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - "How Vietnamese people type" thêm GTK issue 3465 vào lỗi người khác báo, được xác nhận ở đây: GTK IM module
   của input method không chuyển được Backspace đã forward đến ô nhập GTK 4. Test GNOME 51, GTK 4.24.1 qua
   GTK 4 module của IBus: mất 19/19 Backspace đã forward (theo dõi ở #225) (#226)
+- "How Vietnamese people type" thêm hai lỗi LibreOffice người khác báo, test Ngó Sen xác nhận (theo dõi ở #227):
+  LibreOffice bug 139807: Backspace chạy như shortcut bất đồng bộ, commit ngay sau lại đến trước (Writer 26.8.1: 17/19 edit).
+  LibreOffice bug 173064: Calc dùng giao diện Qt và KDE (mặc định trên KDE Plasma) không báo input method khi click
+  cell khác; trang nói rõ lỗi ở giao diện Qt và KDE, không phải Wayland nói chung (#228)
 
 ## [1.5.5-1] — 21/10/2026
 
