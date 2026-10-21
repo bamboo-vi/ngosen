@@ -161,7 +161,7 @@ namespace ngosen {
         int                      deletedChars_          = 0;     ///< characters the current replacement deletes
         bool                     checkWordAfterBounce_  = false; ///< focus came back too fast to tell whether it is the same field
         bool                     tracking_modifier_tap_ = false; ///< Selected modifier held, waiting for consecutive keyup
-        bool                     macro_skip_            = false; ///< Macro disabled for the current word
+        bool                     lock_word_pending_     = false; ///< The lock key was tapped during a replacement
 
         struct Retype {
             std::string typed;
@@ -428,14 +428,14 @@ namespace ngosen {
         void replaceDuringReplay(const std::vector<KeyEntry>& keys, size_t i, std::string& out, const std::string& deletedPart, const std::string& addedPart);
 
         /**
-         * @brief Checks if the key symbol matches the configured macro-skip modifier.
+         * @brief Checks if the key symbol matches the configured lock-word modifier.
          * @param sym Key symbol to check.
-         * @return True if the key is the configured trigger modifier (left/right same).
+         * @return True if the key is the configured modifier (left/right same).
          */
-        bool isMacroSkipModifier(uint32_t sym) const;
+        bool isLockWordModifier(uint32_t sym) const;
 
         /**
-         * @brief Tracks a modifier tap (keydown then consecutive keyup) to skip macro.
+         * @brief Tracks a modifier tap (keydown then consecutive keyup) to lock the word.
          * @param keyEvent The modifier key event.
          */
         void handleModifierTap(const ngosen::KeyPress& keyEvent);
@@ -446,14 +446,9 @@ namespace ngosen {
         void cancelModifierTap();
 
         /**
-         * @brief Re-enables macro when the current word ends (engine preedit empty).
+         * @brief Keeps the word being typed as it is shown: no more tone marks, restore or macro.
          */
-        void reEnableMacroAfterWordEnd();
-
-        /**
-         * @brief Clears the macro-skip state and re-syncs the engine.
-         */
-        void resetMacroSkip();
+        void lockWord();
 
         // Everything sent to the app goes through here, so the typing logic does not call fcitx5 directly.
         std::unique_ptr<ngosen::Host> host_;

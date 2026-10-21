@@ -63,16 +63,16 @@ namespace fcitx {
     FCITX_CONFIG_ENUM_NAME_WITH_I18N(BracketTransformMode, N_("Disabled"), N_("Non-Start"), N_("Everywhere"));
 
     /**
-     * @brief Modifier that toggles macro skip for the next word.
+     * @brief Modifier whose tap keeps the word being typed as it is.
      */
-    enum class MacroSkipTriggerModifier : std::uint8_t {
+    enum class LockWordModifier : std::uint8_t {
         Disabled = 0,
         Shift    = 1,
         Ctrl     = 2,
         Alt      = 3,
     };
 
-    FCITX_CONFIG_ENUM_NAME_WITH_I18N(MacroSkipTriggerModifier, N_("Disabled"), N_("Shift"), N_("Ctrl"), N_("Alt"));
+    FCITX_CONFIG_ENUM_NAME_WITH_I18N(LockWordModifier, N_("Disabled"), N_("Shift"), N_("Ctrl"), N_("Alt"));
 
     /**
      * @brief Icon theme options.
@@ -224,9 +224,8 @@ namespace fcitx {
                                                                                                         BracketTransformMode::Disabled};
 
         Option<bool> spellCheck{this, "SpellCheck", _("Enable Spell Check Using Dictionary"), true}; Option<bool> enableMacro{this, "EnableMacro", _("Enable Macro"), true};
-        Option<bool>                                                                           capitalizeMacro{this, "CapitalizeMacro", _("Capitalize Macro"), true};
-        OptionWithAnnotation<MacroSkipTriggerModifier, MacroSkipTriggerModifierI18NAnnotation> macroSkipTriggerModifier{
-            this, "MacroSkipTriggerModifier", _("Modifier to Skip Macro for Next Word"), MacroSkipTriggerModifier::Disabled};
+        Option<bool> capitalizeMacro{this, "CapitalizeMacro", _("Capitalize Macro"), true}; OptionWithAnnotation<LockWordModifier, LockWordModifierI18NAnnotation> lockWordModifier{
+            this, "LockWordModifier", _("Key to Keep the Word as Typed"), LockWordModifier::Ctrl};
         Option<bool> autoCapitalizeAfterPunctuation{this, "AutoCapitalizeAfterPunctuation", _("Auto capitalize after sentence-ending punctuation (. ! ? Enter)"), false};
         Option<bool> doubleSpaceToPeriod{this, "DoubleSpaceToPeriod", _("Double Space to Period"), false};
         Option<bool> doubleHyphenToEmDash{this, "DoubleHyphenToEmDash", _("Double Hyphen to Em-Dash (--)"), false};

@@ -164,10 +164,10 @@
     {}
    ],
    [
-    "MacroSkipTriggerModifier",
+    "LockWordModifier",
     "Enum",
-    "Modifier to Skip Macro for Next Word",
-    "Disabled",
+    "Key to Keep the Word as Typed",
+    "Ctrl",
     {
      "EnumI18n": {
       "0": "Disabled",

@@ -139,7 +139,7 @@ msgid "Capitalize Macro"
 msgstr ""
 
 #: src/ngosen-config.h:235
-msgid "Modifier to Skip Macro for Next Word"
+msgid "Key to Keep the Word as Typed"
 msgstr ""
 
 #: src/ngosen-config.h:236
@@ -645,10 +645,6 @@ msgstr ""
 msgid "Macro in Off Mode"
 msgstr ""
 
-#: settings-gui/ui/pages/macro_editor.py:84
-msgid "Modifier to Skip Macro for Next Word:"
-msgstr ""
-
 #: settings-gui/ui/pages/macro_editor.py:93
 msgid "Search macros..."
 msgstr ""
@@ -828,14 +824,6 @@ msgid ""
 "When disabled, macros are only available in active typing modes."
 msgstr ""
 
-#: settings-gui/ui/helpers.py:34
-msgid ""
-"Press and release the selected modifier key before typing to skip macro "
-"expansion for the next word.\n"
-"If another key is pressed between the modifier's press and release, the skip "
-"is cancelled."
-msgstr ""
-
 #: settings-gui/ui/main_window.py:33
 #: settings-gui/io.github.ngosen.NgoSen.Settings.desktop.in:2
 msgid "Ngó Sen Settings"
@@ -980,6 +968,12 @@ msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Typing windows still gives windows."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid ""
+"Tap the key alone to keep the word as shown: tunx, Ctrl → tũn, with no restore "
+"or macro. Alt also shows the menu bar in some apps."
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
