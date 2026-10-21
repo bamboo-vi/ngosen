@@ -82,9 +82,10 @@ request. "Fix" is what the client could change; none of these need a protocol ch
   drops it after the first update (swaywm/sway#9191).
   Fix: report surrounding text through the GTK IM module as the Wayland text-input path does.
 - **Firefox and its forks** (Firefox ESR on Debian, Zen, LibreWolf, Waterfox, Floorp, Mullvad
-  Browser, GNU IceCat) set no URL input purpose on the address bar, so an input method cannot tell
-  it from a text field and has to guess from the text after the cursor (#161, #162, #164).
-  Fix: set `GTK_INPUT_PURPOSE_URL` on the address bar.
+  Browser, GNU IceCat) set no URL input purpose on the address bar on Linux, so an input method
+  cannot tell it from a text field and has to guess from the text after the cursor (#161, #162,
+  #164). The address bar uses the `mozAwesomebar` input mode, which Firefox maps to URL on Windows
+  and Android but not on GTK. Fix: map it to `GTK_INPUT_PURPOSE_URL`.
 - **GNOME Shell's IBus bridge**, which every app under GNOME goes through, delivers surrounding
   text tens of milliseconds late and often one edit behind. Fix: forward the client's surrounding
   text synchronously with the key event, or at least before the next key.
@@ -111,6 +112,8 @@ Filed by Ngó Sen:
 
 - Ubuntu 26.04, mutter: key events lost under GNOME 50 (the "forward-keys" extension in the
   README works around it): https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/2169784
+- Firefox's address bar reports a free-form input purpose instead of URL on GTK; measured on KDE
+  Plasma with Firefox 157 (#215): https://bugzilla.mozilla.org/show_bug.cgi?id=2084459
 
 Filed by others, confirmed here:
 
