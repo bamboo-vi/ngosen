@@ -25,6 +25,12 @@ except ImportError:
     __version__ = "dev version"  # Fallback for local development
 
 
+def _color_warning(label):
+    palette = label.palette()
+    palette.setColor(QPalette.WindowText, QColor(brand.pick(label, brand.ERROR_BORDER)))
+    label.setPalette(palette)
+
+
 class AboutPage(QWidget):
     def __init__(self, dbus_handler=None, parent=None):
         super().__init__(parent)
@@ -90,10 +96,8 @@ class AboutPage(QWidget):
             replaced.setObjectName("AddonReplaced")
             replaced.setWordWrap(True)
             replaced.setAlignment(Qt.AlignCenter)
-            palette = replaced.palette()
-            palette.setColor(QPalette.WindowText, QColor(brand.pick(replaced, brand.ERROR_BORDER)))
-            replaced.setPalette(palette)
             layout.addWidget(replaced)
+            brand.follow_theme(replaced, _color_warning)
 
         desc = QLabel(_("Modern, fast, and stable Vietnamese input method for Linux."))
         desc.setWordWrap(True)

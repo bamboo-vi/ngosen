@@ -210,19 +210,30 @@ def _fcitx_version():
     return out.stdout.strip()
 
 
-def _process_running(name):
+def _pids_named(name, proc="/proc"):
+    """Directories under proc of this user's processes called name."""
     try:
-        pids = [p for p in os.listdir("/proc") if p.isdigit()]
+        pids = [p for p in os.listdir(proc) if p.isdigit()]
     except OSError:
-        return False
+        return []
+    uid = os.getuid()
+    found = []
     for pid in pids:
+        path = os.path.join(proc, pid)
         try:
-            with open(f"/proc/{pid}/comm", encoding="utf-8") as f:
+            if os.stat(path).st_uid != uid:
+                continue
+            # Any process can pick a name that is not UTF-8.
+            with open(os.path.join(path, "comm"), encoding="utf-8", errors="replace") as f:
                 if f.read().strip() == name:
-                    return True
+                    found.append(path)
         except OSError:
             continue
-    return False
+    return found
+
+
+def _process_running(name):
+    return bool(_pids_named(name))
 
 
 def runs_replaced_addon(proc="/proc"):
@@ -230,16 +241,9 @@ def runs_replaced_addon(proc="/proc"):
 
     Updating the package does not restart fcitx5, so it keeps typing with the old code.
     """
-    try:
-        pids = [p for p in os.listdir(proc) if p.isdigit()]
-    except OSError:
-        return False
-    for pid in pids:
+    for path in _pids_named("fcitx5", proc):
         try:
-            with open(os.path.join(proc, pid, "comm"), encoding="utf-8") as f:
-                if f.read().strip() != "fcitx5":
-                    continue
-            with open(os.path.join(proc, pid, "maps"), encoding="utf-8") as f:
+            with open(os.path.join(path, "maps"), encoding="utf-8", errors="replace") as f:
                 if any(line.rstrip().endswith("/libngosen.so (deleted)") for line in f):
                     return True
         except OSError:

@@ -148,11 +148,13 @@ class ReplacedAddonTest(unittest.TestCase):
 
     def process(self, pid, comm, maps):
         os.mkdir(os.path.join(self.proc, pid))
-        with open(os.path.join(self.proc, pid, "comm"), "w", encoding="utf-8") as f:
-            f.write(comm + "\n")
-        if maps is not None:
-            with open(os.path.join(self.proc, pid, "maps"), "w", encoding="utf-8") as f:
-                f.write(maps)
+        files = {"comm": comm + ("\n" if isinstance(comm, str) else b"\n"), "maps": maps}
+        for name, content in files.items():
+            if content is None:
+                continue
+            data = content.encode() if isinstance(content, str) else content
+            with open(os.path.join(self.proc, pid, name), "wb") as f:
+                f.write(data)
 
     def test_fcitx5_holding_a_deleted_addon(self):
         self.process(
@@ -171,6 +173,22 @@ class ReplacedAddonTest(unittest.TestCase):
         )
         self.process("12", "fcitx5", None)
         self.assertFalse(system_check.runs_replaced_addon(self.proc))
+
+    def test_names_and_paths_that_are_not_utf8(self):
+        self.process("9", b"\xffname", None)
+        maps = (
+            b"7f00-7f10 r--p 0 00:1f 41 /usr/share/fonts/caf\xe9.ttf\n"
+            b"7f10-7f20 r-xp 0 00:1f 42 /usr/lib64/fcitx5/libngosen.so (deleted)\n"
+        )
+        self.process("10", "fcitx5", maps)
+        self.assertTrue(system_check.runs_replaced_addon(self.proc))
+
+    def test_another_users_fcitx5_does_not_count(self):
+        self.process(
+            "10", "fcitx5", "7f00-7f10 r-xp 0 00:1f 42 /usr/lib64/fcitx5/libngosen.so (deleted)\n"
+        )
+        with mock.patch("os.getuid", return_value=os.getuid() + 1):
+            self.assertFalse(system_check.runs_replaced_addon(self.proc))
 
     def test_evaluate_warns_about_a_replaced_addon(self):
         found = system_check.evaluate(facts("wayland", "ubuntu:GNOME", addon_replaced=True))
