@@ -39,6 +39,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   Build từ source cần Rust 1.88+ và cargo, không cần Go (#223).
 - Plugin Ngó Sen nhỏ đi khoảng một phần ba (2,1 MB còn 1,4 MB trên Fedora 44) nhờ bỏ phần code không dùng
   khi build; cách gõ không đổi (#224).
+- Cập nhật Ngó Sen bằng `install.sh` thì fcitx5 tự nạp bản mới, gõ được ngay mà không cần đăng xuất; các app đang
+  mở vẫn gõ tiếp được. Riêng KDE Wayland vẫn cần đăng xuất rồi đăng nhập lại (#230).
 
 ### Sửa
 
