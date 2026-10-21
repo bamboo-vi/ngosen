@@ -26,6 +26,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Trang "How Vietnamese people type" (`docs/typing-without-preedit.md`) thêm lỗi Firefox do Ngó Sen báo:
   address bar trên Linux không báo input purpose là URL cho input method (Bugzilla 2084459, theo dõi ở #215).
   Trang cũng giải thích Firefox báo input purpose là URL trên Windows và Android, nhưng không báo trên Linux (#216).
+- "How Vietnamese people type" sửa nhận định GNOME Shell báo surrounding text trễ hàng chục ms, chậm một edit:
+  GNOME 51/IBus báo trong vài ms. GTK 3/4 app thường xử lý commit trước Backspace input method vừa forward,
+  khiến Backspace xóa chữ mới; trang giải thích và dẫn lỗi Ngó Sen báo (GTK issue 8431). Cũng liệt kê lỗi
+  đã xác nhận trước đó: Chromium GTK IM không báo surrounding text (Chromium issue 40146869, theo dõi ở #220) (#221)
 
 ## [1.5.5-1] — 21/10/2026
 

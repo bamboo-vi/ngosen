@@ -58,8 +58,8 @@ delete.
 
 | Path | Used for | Where it breaks |
 | --- | --- | --- |
-| Forwarded Backspace key events | The default: GTK 3 and Qt apps through the fcitx5 modules, Chromium and Electron apps, snap apps with the fcitx4 GTK module, clients of the Wayland frontends (KDE Plasma text-input; Sway and Hyprland input-method-v2), XIM clients under Xwayland. | Fields with inline autocompletion: a Backspace removes the suggested text first, so `cowf` in an address bar comes out as `coờ`. GTK 4 IM modules drop forwarded keys. LibreOffice runs Backspace asynchronously, so the next commit overtakes it. |
-| `deleteSurroundingText` | Clients where forwarded keys fail: GTK 4 apps through fcitx5-gtk4 or IBus, and LibreOffice. | Needs the client to report surrounding text. Under GNOME Shell's IBus bridge the surrounding text arrives tens of milliseconds late and often one edit behind, so checks built on it have to wait. |
+| Forwarded Backspace key events | The default: GTK 3 and Qt apps through the fcitx5 modules, Chromium and Electron apps, snap apps with the fcitx4 GTK module, clients of the Wayland frontends (KDE Plasma text-input; Sway and Hyprland input-method-v2), XIM clients under Xwayland. | Fields with inline autocompletion: a Backspace removes the suggested text first, so `cowf` in an address bar comes out as `coờ`. GTK 4 IM modules drop forwarded keys. GTK apps on Wayland text-input often apply a commit before the Backspace forwarded just ahead of it. LibreOffice runs Backspace asynchronously, so the next commit overtakes it. |
+| `deleteSurroundingText` | Clients where forwarded keys fail: GTK 4 apps through fcitx5-gtk4 or IBus, and LibreOffice. | Needs the client to report surrounding text. |
 | Select and overtype (Shift+Left, then commit) | Chromium-based browsers over D-Bus, whose address bar selects an inline autocompletion after the typed text; optionally Facebook's composers. | Terminals that match the same flags print the Shift+Left instead of selecting. |
 | Synthetic keys through XTEST | XIM clients on an X11 session: Wine, WordCraft, SDL games. | Needs X11. Under Xwayland, XTEST asks the user for permission first, so Wine gets key events sent to its window instead. |
 | A committed DEL character | GTK 4 VTE terminals (Ptyxis, GNOME Console), which take neither forwarded keys nor surrounding text but pass committed text to the shell, where DEL erases like Backspace. | Only terminals. |
@@ -86,9 +86,10 @@ request. "Fix" is what the client could change; none of these need a protocol ch
   cannot tell it from a text field and has to guess from the text after the cursor (#161, #162,
   #164). The address bar uses the `mozAwesomebar` input mode, which Firefox maps to URL on Windows
   and Android but not on GTK. Fix: map it to `GTK_INPUT_PURPOSE_URL`.
-- **GNOME Shell's IBus bridge**, which every app under GNOME goes through, delivers surrounding
-  text tens of milliseconds late and often one edit behind. Fix: forward the client's surrounding
-  text synchronously with the key event, or at least before the next key.
+- **GTK 3 and GTK 4 on Wayland text-input**, which GTK apps use under GNOME by default, apply a
+  commit before a key event that arrived just before it, so a forwarded Backspace followed by a
+  commit often deletes the new text instead of the old. Fix: apply key events and text-input
+  events in the order they arrive.
 - **GTK 4 IM modules** (fcitx5-gtk4 and IBus's GTK 4 module) drop forwarded key events and do not
   pass on the terminal input purpose that VTE sets, so GTK 4 terminals get neither deletion path.
   Fix: deliver forwarded keys to the widget as the GTK 3 modules do, and pass the input purpose
@@ -114,6 +115,9 @@ Filed by Ngó Sen:
   README works around it): https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/2169784
 - Firefox's address bar reports a free-form input purpose instead of URL on GTK; measured on KDE
   Plasma with Firefox 157 (#215): https://bugzilla.mozilla.org/show_bug.cgi?id=2084459
+- GTK applies a text-input commit before a key event received earlier, so a forwarded Backspace
+  deletes the committed text; measured with an IBus test engine on GNOME 51, GTK 3.24 and 4.24:
+  https://gitlab.gnome.org/GNOME/gtk/-/issues/8431
 
 Filed by others, confirmed here:
 
@@ -122,6 +126,8 @@ Filed by others, confirmed here:
 - Firefox on Wayland text-input sends surrounding text one edit late, so an input method that
   deletes surrounding text corrupts the word, even with 1.5 s between keys; confirmed on KDE Plasma
   with Firefox 157, with a protocol log: https://bugzilla.mozilla.org/show_bug.cgi?id=2080478#c2
+- Chromium's GTK IM path reports no surrounding text; confirmed with fcitx5's capability flags on
+  KDE Plasma with Chromium 154 (#220): https://issues.chromium.org/issues/40146869#comment20
 
 Filed by others:
 
