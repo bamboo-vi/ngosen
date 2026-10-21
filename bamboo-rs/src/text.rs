@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-//! Character classes the per-key logic needs. `bamboo-core` keeps its own copies private, so
-//! these follow the Go core's `utils.go`.
+//! Character classes the per-key logic needs; `bamboo-core` keeps its own copies private.
 
 const VOWELS: &str = "aàáảãạăằắẳẵặâầấẩẫậeèéẻẽẹêềếểễệiìíỉĩịoòóỏõọôồốổỗộơờớởỡợuùúủũụưừứửữựyỳýỷỹỵ";
 

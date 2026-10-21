@@ -21,7 +21,7 @@ Cảm ơn bạn quan tâm đến việc đóng góp cho Ngó Sen! Tài liệu n�
 
 - GCC hoặc Clang với hỗ trợ C++17
 - CMake >= 3.16
-- Go 1.20+ (cho bamboo engine); Rust 1.88+ và cargo chỉ khi thử lõi Rust bằng `-DNGOSEN_RUST_CORE=ON`
+- Rust 1.88+ và cargo (cho lõi gõ)
 - Fcitx5 development headers
 - Git
 
@@ -31,9 +31,6 @@ Cảm ơn bạn quan tâm đến việc đóng góp cho Ngó Sen! Tài liệu n�
 # Clone repository
 git clone https://github.com/ngosen/ngosen.git
 cd ngosen
-
-# Khởi tạo submodules
-git submodule update --init --recursive
 
 # Build
 mkdir build && cd build

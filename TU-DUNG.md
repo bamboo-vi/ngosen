@@ -21,14 +21,13 @@ Cấu hình cũ trong `~/.config/fcitx5/conf/lotus*.conf` được tự chép sa
 **2. Cài công cụ dựng.**
 
 ```
-sudo pacman -S --needed cmake extra-cmake-modules gcc go git python make pkgconf fcitx5 hicolor-icon-theme python-qtpy python-dbus librsvg libxcb
+sudo pacman -S --needed cmake extra-cmake-modules gcc rust git python make pkgconf fcitx5 hicolor-icon-theme python-qtpy python-dbus librsvg libxcb
 ```
 
-**3. Tải mã và dựng.** Phải cài vào `/usr`, vì fcitx5 tìm bộ gõ ở đó. Nhớ
-`--recurse-submodules`, vì lõi ghép dấu nằm ở kho con `bamboo-core`.
+**3. Tải mã và dựng.** Phải cài vào `/usr`, vì fcitx5 tìm bộ gõ ở đó.
 
 ```
-git clone --recurse-submodules -b main https://github.com/ngosen/ngosen.git
+git clone -b main https://github.com/ngosen/ngosen.git
 cd ngosen
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib
 cmake --build build -j8
@@ -51,7 +50,7 @@ sudo systemctl daemon-reload
 **5. Thêm bộ gõ.** Khởi động lại fcitx5 (hoặc đăng xuất rồi đăng nhập lại), mở "Fcitx5 Configuration"
 và thêm Ngó Sen. Trên KDE Wayland: System Settings → Virtual Keyboard → chọn "Fcitx 5".
 
-**Cập nhật bản mới về sau:** trong thư mục `ngosen`, chạy `git pull --recurse-submodules`, lặp lại
+**Cập nhật bản mới về sau:** trong thư mục `ngosen`, chạy `git pull`, lặp lại
 bước 3, rồi khởi động lại fcitx5:
 
 ```
@@ -81,7 +80,7 @@ inputs.ngosen.url = "git+file:///home/ten-ban/ngosen";
 
 Flake chỉ thấy các tệp git đang theo dõi, nên tệp mới phải `git add` trước khi dựng. Đang sửa mã mà
 muốn dựng lại nhanh thì chạy `nix develop` để mở shell có đủ công cụ, rồi dựng và chạy test như mục
-Chạy bộ kiểm bên dưới, thêm `-DNGOSEN_RUST_CORE=ON` vì gói Nix dùng lõi Rust.
+Chạy bộ kiểm bên dưới.
 
 ## Chạy bộ kiểm
 

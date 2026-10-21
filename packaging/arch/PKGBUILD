@@ -23,8 +23,7 @@ build() {
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr \
         -DCMAKE_INSTALL_LIBDIR=/usr/lib \
-        -DBUILD_TESTING=ON \
-        -DNGOSEN_RUST_CORE=ON
+        -DBUILD_TESTING=ON
     cmake --build build
 }
 

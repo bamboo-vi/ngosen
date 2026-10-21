@@ -21,7 +21,7 @@ Thank you for your interest in contributing to Ngó Sen! This document guides yo
 
 - GCC or Clang with C++17 support
 - CMake >= 3.16
-- Go 1.20+ (for bamboo engine); Rust 1.88+ with cargo only to try the Rust core with `-DNGOSEN_RUST_CORE=ON`
+- Rust 1.88+ with cargo (for the typing core)
 - Fcitx5 development headers
 - Git
 
@@ -31,9 +31,6 @@ Thank you for your interest in contributing to Ngó Sen! This document guides yo
 # Clone repository
 git clone https://github.com/ngosen/ngosen.git
 cd ngosen
-
-# Initialize submodules
-git submodule update --init --recursive
 
 # Build
 mkdir build && cd build
