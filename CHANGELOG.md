@@ -29,6 +29,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Trên thanh địa chỉ Firefox, khi Firefox autofill địa chỉ (gõ `g` điền thành `google.com/`), gõ chữ trùng với
   chữ tiếp theo của địa chỉ bị hiểu nhầm là bấm chuột, làm mất từ đang gõ: `gox` ra `gox`, `daaus` ra `daáu`.
   Giờ `gox` ra `gõ` và `daaus` ra `dấu`. Đã test với Firefox cài từ Flatpak trên Ubuntu GNOME (#209).
+- Log gõ lưu từ menu khay giữ được đoạn gõ dài hơn: browser như Edge và Chrome báo cùng nội dung ô nhiều lần
+  mỗi phím, khiến phần lớn 400 event cuối là các dòng lặp, chỉ còn khoảng 12 giây gõ; từ gõ sai trước đó
+  một chút đã mất khỏi log. Giờ nội dung báo giống hệt lần ngay trước không được lưu lại. Với một log thực
+  tế từ Edge, 401 dòng còn 118 dòng, nên log giữ được đoạn gõ dài gấp khoảng ba lần (#PR).
 
 ### Tài liệu
 

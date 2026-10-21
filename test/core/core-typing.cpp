@@ -742,6 +742,21 @@ namespace {
         const std::string kept = fields.dump();
         check(has(kept, "\tfield\tfrontend=xim\n") && has(kept, "\t4\n"), "recorder: keeps the field of the kept keys", kept);
 
+        ngosen::Recorder reports(10);
+        reports.addSurrounding("\"a|\"");
+        reports.addSurrounding("\"a|\"");
+        reports.add("key", "down b");
+        reports.addSurrounding("\"a|\"");
+        reports.addSurrounding("\"ab|\"");
+        const std::string once = reports.dump();
+        const auto        n    = [&](const std::string& s) {
+            size_t count = 0;
+            for (size_t at = once.find(s); at != std::string::npos; at = once.find(s, at + 1))
+                ++count;
+            return count;
+        };
+        check(n("\tapp\t\"a|\"\n") == 2 && n("\tapp\t\"ab|\"\n") == 1, "recorder: drops a report that repeats the one just before", once);
+
         const std::string text = std::string(100, 'a') + "ê" + std::string(30, 'b');
         const std::string seen = ngosen::describeSurrounding(ngosen::Surrounding(text, 101, 101));
         const std::string want = "\"…" + std::string(39, 'a') + "ê|" + std::string(10, 'b') + "…\" cursor=101 anchor=101 length=131";
