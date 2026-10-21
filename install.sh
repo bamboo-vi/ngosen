@@ -13,6 +13,7 @@ SOURCE_GUIDE="https://github.com/ngosen/ngosen/blob/main/TU-DUNG.md"
 assume_yes=0
 setup_session=1
 session_changes=()
+fcitx5_reloaded=0
 manager=
 pattern=
 workdir=
@@ -312,6 +313,30 @@ has_ngosen_in_profile() {
     grep -qs '^Name=ngosen$' "$(config_home)/fcitx5/profile"
 }
 
+# The running fcitx5 starts a new copy of itself, which keeps the session's environment and stays
+# in the session; started from here it would get the terminal's. Fails when none runs or when
+# fcitx5 declines, as it does when KWin started it.
+restart_fcitx5() {
+    local old new tries=10
+    old=$(pgrep -u "$(id -u)" -x fcitx5 | head -n 1) || return 1
+    dbus-send --session --print-reply --dest=org.fcitx.Fcitx5 /controller \
+        org.fcitx.Fcitx.Controller1.Restart >/dev/null 2>&1 || return 1
+    while [ "$tries" -gt 0 ]; do
+        sleep 0.5
+        new=$(pgrep -u "$(id -u)" -x fcitx5 | head -n 1 || true)
+        [ -n "$new" ] && [ "$new" != "$old" ] && return 0
+        tries=$((tries - 1))
+    done
+    return 1
+}
+
+# An fcitx5 that ran without the addon drops ngosen from the profile as it exits, hence the second
+# check.
+reload_fcitx5() {
+    has_ngosen_in_profile && restart_fcitx5 && has_ngosen_in_profile || return 1
+    fcitx5_reloaded=1
+}
+
 has_trigger_keys() {
     grep -qs '^\[Hotkey/TriggerKeys\]' "$(config_home)/fcitx5/config"
 }
@@ -351,6 +376,7 @@ EOF
 # fcitx5 writes its profile back when it exits, so it is stopped before the profile is edited.
 configure_fcitx5() {
     local was_running=0
+    reload_fcitx5 && return 0
     # Stopped before the check too: one running without the addon has already dropped ngosen.
     stop_fcitx5 && was_running=1
     add_ngosen_to_profile
@@ -484,7 +510,7 @@ setup_kde_session() {
         session_changes+=("KDE tự chạy fcitx5 làm bộ gõ (Virtual Keyboard: Fcitx 5)")
     fi
     configure_fcitx5
-    if [ "${#session_changes[@]}" -eq 0 ]; then
+    if [ "${#session_changes[@]}" -eq 0 ] && [ "$fcitx5_reloaded" -eq 0 ]; then
         say "Xong. Đăng xuất rồi đăng nhập lại để dùng bản mới."
         return
     fi
@@ -494,7 +520,11 @@ setup_kde_session() {
 report_session_changes() {
     local change
     if [ "${#session_changes[@]}" -eq 0 ]; then
-        say "Xong. Khởi động lại fcitx5 để dùng bản mới:  fcitx5 -rd"
+        if [ "$fcitx5_reloaded" -eq 1 ]; then
+            say "Xong. fcitx5 đã nạp bản mới, gõ được ngay."
+        else
+            say "Xong. Khởi động lại fcitx5 để dùng bản mới:  fcitx5 -rd"
+        fi
         return
     fi
     say "Đã đặt fcitx5 và Ngó Sen làm bộ gõ:"
@@ -678,6 +708,10 @@ main() {
     fi
 
     say ""
+    if [ "$(id -u)" -ne 0 ] && reload_fcitx5; then
+        say "Xong. fcitx5 đã nạp bản mới, gõ được ngay."
+        return
+    fi
     say "Xong. Việc còn lại:"
     say "  1. Khởi động lại fcitx5:  fcitx5 -rd"
     say "     KDE Wayland: đăng xuất rồi đăng nhập lại."
