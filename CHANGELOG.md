@@ -12,6 +12,28 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Sau khi update gói Ngó Sen, fcitx5 vẫn dùng version cũ để gõ cho đến khi đăng xuất hoặc fcitx5 khởi động lại,
+  nhưng trang Giới thiệu trong cửa sổ cài đặt đã hiện số version mới, dễ khiến người dùng báo lỗi nhầm version.
+  Giờ trang này hiện dòng đỏ dưới số version khi fcitx5 còn chạy Ngó Sen từ trước update, nhắc đăng xuất rồi
+  đăng nhập lại; "Kiểm tra máy tôi…" cũng liệt kê tình trạng này là cảnh báo (#212).
+- Log gõ lưu từ menu khay giữ được đoạn gõ dài hơn: browser như Edge và Chrome báo cùng nội dung ô nhiều lần
+  mỗi phím, khiến phần lớn 400 event cuối là các dòng lặp, chỉ còn khoảng 12 giây gõ; từ gõ sai trước đó
+  một chút đã mất khỏi log. Giờ nội dung báo giống hệt lần ngay trước không được lưu lại. Với một log thực
+  tế từ Edge, 401 dòng còn 118 dòng, nên log giữ được đoạn gõ dài gấp khoảng ba lần (#213).
+
+### Tài liệu
+
+- Trang "How Vietnamese people type" (`docs/typing-without-preedit.md`) thêm lỗi Firefox do Ngó Sen báo:
+  address bar trên Linux không báo input purpose là URL cho input method (Bugzilla 2084459, theo dõi ở #215).
+  Trang cũng giải thích Firefox báo input purpose là URL trên Windows và Android, nhưng không báo trên Linux (#216).
+
+## [1.5.5-1] — 21/10/2026
+
+Sửa lỗi gõ dấu trên thanh địa chỉ Firefox Flatpak khi autofill và lỗi macro có chữ viết tắt viết hoa.
+Tải ở [ngosen-1.5.5-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.5-1).
+
+### Sửa
+
 - Gõ dấu trên thanh địa chỉ Firefox cài từ Flatpak khi đang autofill URL (phần địa chỉ tự điền
   sau con trỏ được bôi đen) không còn làm rối từ: `ee` ra `ê` thay vì `eê`, `es` ra `é` thay vì
   `eé`, `dduowcj` ra `được` thay vì `dđược`. Trước đây app Flatpak báo app ID `org.mozilla.firefox`
@@ -29,22 +51,16 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Trên thanh địa chỉ Firefox, khi Firefox autofill địa chỉ (gõ `g` điền thành `google.com/`), gõ chữ trùng với
   chữ tiếp theo của địa chỉ bị hiểu nhầm là bấm chuột, làm mất từ đang gõ: `gox` ra `gox`, `daaus` ra `daáu`.
   Giờ `gox` ra `gõ` và `daaus` ra `dấu`. Đã test với Firefox cài từ Flatpak trên Ubuntu GNOME (#209).
-- Sau khi update gói Ngó Sen, fcitx5 vẫn dùng version cũ để gõ cho đến khi đăng xuất hoặc fcitx5 khởi động lại,
-  nhưng trang Giới thiệu trong cửa sổ cài đặt đã hiện số version mới, dễ khiến người dùng báo lỗi nhầm version.
-  Giờ trang này hiện dòng đỏ dưới số version khi fcitx5 còn chạy Ngó Sen từ trước update, nhắc đăng xuất rồi
-  đăng nhập lại; "Kiểm tra máy tôi…" cũng liệt kê tình trạng này là cảnh báo (#212).
-- Log gõ lưu từ menu khay giữ được đoạn gõ dài hơn: browser như Edge và Chrome báo cùng nội dung ô nhiều lần
-  mỗi phím, khiến phần lớn 400 event cuối là các dòng lặp, chỉ còn khoảng 12 giây gõ; từ gõ sai trước đó
-  một chút đã mất khỏi log. Giờ nội dung báo giống hệt lần ngay trước không được lưu lại. Với một log thực
-  tế từ Edge, 401 dòng còn 118 dòng, nên log giữ được đoạn gõ dài gấp khoảng ba lần (#213).
+
+## [1.5.4-3] — 20/10/2026
+
+Chỉ tăng lần đóng gói để đưa các form GitHub mới (#190) lên nhánh mặc định của GitHub, code chương trình giữ nguyên như 1.5.4-1 và 1.5.4-2.
+Tải ở [ngosen-1.5.4-3](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.4-3).
 
 ### Tài liệu
 
 - Viết lại form yêu cầu tính năng ngắn hơn, thêm form báo lỗi cài đặt hoặc cập nhật; issue mới phải đi qua
   một form, không còn mở issue trống; câu hỏi chuyển sang mục Hỏi đáp ở Discussions. (#190)
-- Trang "How Vietnamese people type" (`docs/typing-without-preedit.md`) thêm lỗi Firefox do Ngó Sen báo:
-  address bar trên Linux không báo input purpose là URL cho input method (Bugzilla 2084459, theo dõi ở #215).
-  Trang cũng giải thích Firefox báo input purpose là URL trên Windows và Android, nhưng không báo trên Linux (#216).
 
 ## [1.5.4-2] — 20/10/2026
 
