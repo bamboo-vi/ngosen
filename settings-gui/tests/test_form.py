@@ -46,6 +46,10 @@ class TypingPageTest(unittest.TestCase):
         hints = [w.text() for w in cb.parentWidget().findChildren(QLabel)]
         self.assertIn("Typing windows still gives windows.", hints)
 
+    def test_lock_key_sits_under_tone_marks(self):
+        labels = row_labels(form_of(self.page))
+        self.assertLess(labels.index("Tone marks:"), labels.index("Key to Keep the Word as Typed:"))
+
     def test_hints_take_one_line(self):
         self.page.resize(760, 900)
         self.page.show()
