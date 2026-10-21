@@ -116,11 +116,12 @@ Filed by others, confirmed here:
 
 - Sway drops the surrounding text Chromium sends over Wayland text-input; confirmed on Sway 1.12
   with Chromium 154 and fcitx5: https://github.com/swaywm/sway/issues/9191#issuecomment-6287333263
+- Firefox on Wayland text-input sends surrounding text one edit late, so an input method that
+  deletes surrounding text corrupts the word, even with 1.5 s between keys; confirmed on KDE Plasma
+  with Firefox 157, with a protocol log: https://bugzilla.mozilla.org/show_bug.cgi?id=2080478#c2
 
 Filed by others:
 
-- Firefox on Wayland text-input sends surrounding text one edit late, so an input method that
-  deletes surrounding text corrupts the word: https://bugzilla.mozilla.org/show_bug.cgi?id=2080478
 - SDL does not handle `delete_surrounding_text`: https://github.com/libsdl-org/SDL/issues/15987
 
 The other behaviours above are not yet reported upstream. Reports should carry a minimal
