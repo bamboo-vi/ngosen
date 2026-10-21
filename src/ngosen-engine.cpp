@@ -120,6 +120,9 @@ namespace fcitx {
             migrateLegacyModeOrder(config);
             moveOption(config, "ShowModeUinput", "ShowModeSen");
             moveOption(config, "ShortcutUinput", "ShortcutSen");
+            // The key that skipped macros now keeps the whole word; the old default, Disabled, gives way to Ctrl.
+            if (const auto* skip = config.valueByPath("MacroSkipTriggerModifier"); skip != nullptr && *skip != "Disabled")
+                moveOption(config, "MacroSkipTriggerModifier", "LockWordModifier");
         }
 
         bool isSwitchKey(const GlobalConfig& config, const Key& key) {
@@ -499,12 +502,12 @@ namespace fcitx {
         o.waitSurroundingProbeEvery        = config_.waitSurroundingProbeEvery.value();
         o.surrDeleteSleepMs                = config_.surrDeleteSleepMs.value();
         o.surrCommitSleepMs                = config_.surrCommitSleepMs.value();
-        switch (config_.macroSkipTriggerModifier.value()) {
-            case MacroSkipTriggerModifier::Shift: o.macroSkipKey = ngosen::MacroSkipKey::Shift; break;
-            case MacroSkipTriggerModifier::Ctrl: o.macroSkipKey = ngosen::MacroSkipKey::Ctrl; break;
-            case MacroSkipTriggerModifier::Alt: o.macroSkipKey = ngosen::MacroSkipKey::Alt; break;
-            case MacroSkipTriggerModifier::Disabled:
-            default: o.macroSkipKey = ngosen::MacroSkipKey::None; break;
+        switch (config_.lockWordModifier.value()) {
+            case LockWordModifier::Shift: o.lockWordKey = ngosen::LockWordKey::Shift; break;
+            case LockWordModifier::Ctrl: o.lockWordKey = ngosen::LockWordKey::Ctrl; break;
+            case LockWordModifier::Alt: o.lockWordKey = ngosen::LockWordKey::Alt; break;
+            case LockWordModifier::Disabled:
+            default: o.lockWordKey = ngosen::LockWordKey::None; break;
         }
     }
 

@@ -80,6 +80,17 @@ int main() {
         check(std::string("setConfig Mode=\"") + legacy + "\" gives Sen", engine.config().mode.value() == fcitx::NgoSenMode::Sen);
     }
 
+    // The macro skip key became the lock key; its old default, Disabled, becomes the new default.
+    for (const auto& [skip, want] : {std::pair{"Disabled", fcitx::LockWordModifier::Ctrl}, {"Shift", fcitx::LockWordModifier::Shift}, {"Alt", fcitx::LockWordModifier::Alt}}) {
+        {
+            std::ofstream file(confFile, std::ios::trunc);
+            file << "MacroSkipTriggerModifier=" << skip << "\n";
+        }
+        TestInstance        upgraded;
+        fcitx::NgoSenEngine upgradedEngine(&upgraded.instance);
+        check(std::string("MacroSkipTriggerModifier=") + skip + " sets the lock key", upgradedEngine.config().lockWordModifier.value() == want);
+    }
+
     // Per-app rules store the mode as a number: 1 = Smooth, 2 = Uinput, 3 = Super Smooth, 4 = Surrounding
     // Text, 8 = Minecraft.
     for (int legacy : {1, 2, 3, 4, 8}) {

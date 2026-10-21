@@ -140,8 +140,8 @@ msgid "Capitalize Macro"
 msgstr "Gõ tắt chữ hoa"
 
 #: src/ngosen-config.h:235
-msgid "Modifier to Skip Macro for Next Word"
-msgstr "Phím để bỏ qua gõ tắt cho từ hiện tại"
+msgid "Key to Keep the Word as Typed"
+msgstr "Phím chốt chữ"
 
 #: src/ngosen-config.h:236
 msgid "Auto capitalize after sentence-ending punctuation (. ! ? Enter)"
@@ -662,10 +662,6 @@ msgstr ". Bạn có chắc chắn?"
 msgid "Macro in Off Mode"
 msgstr "Gõ tắt trong chế độ \"Tắt\""
 
-#: settings-gui/ui/pages/macro_editor.py:84
-msgid "Modifier to Skip Macro for Next Word:"
-msgstr "Phím để bỏ qua gõ tắt cho từ tới:"
-
 #: settings-gui/ui/pages/macro_editor.py:93
 msgid "Search macros..."
 msgstr "Tìm từ gõ tắt..."
@@ -860,17 +856,6 @@ msgstr ""
 "Cho phép gõ tắt hoạt động khi chế độ gõ đang là \"Tắt\"\n"
 "Khi vô hiệu hoá, gõ tắt chỉ khả dụng trong các chế độ gõ được kích hoạt."
 
-#: settings-gui/ui/helpers.py:34
-msgid ""
-"Press and release the selected modifier key before typing to skip macro "
-"expansion for the next word.\n"
-"If another key is pressed between the modifier's press and release, the skip "
-"is cancelled."
-msgstr ""
-"Ấn phím được chọn trước khi gõ để bỏ qua phím tắt cho từ tiếp theo.\n"
-"Nếu có phím được nhấn cùng phím này trước khi nhả phím, việc bỏ qua sẽ bị "
-"huỷ."
-
 #: settings-gui/ui/main_window.py:33
 #: settings-gui/io.github.ngosen.NgoSen.Settings.desktop.in:2
 msgid "Ngó Sen Settings"
@@ -1049,6 +1034,14 @@ msgstr "Từ không phải tiếng Việt thì không thêm dấu."
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Typing windows still gives windows."
 msgstr "Gõ windows vẫn ra windows."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid ""
+"Tap it to keep the word as it is: tunx then Ctrl gives tũn, with no restore "
+"or macro. Alt also shows the menu bar in some apps."
+msgstr ""
+"Nhấp phím này để giữ nguyên chữ đang gõ: tunx rồi Ctrl ra tũn, không tự khôi "
+"phục, không bung gõ tắt. Alt còn làm hiện thanh menu ở một số app."
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tone marks can also go at the end of the word."

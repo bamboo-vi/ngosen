@@ -40,7 +40,7 @@ namespace {
         c.setValueByPath("EnableMacro", "False");
         c.setValueByPath("EnableMacroInOffMode", "True");
         c.setValueByPath("CapitalizeMacro", "False");
-        c.setValueByPath("MacroSkipTriggerModifier", "Ctrl");
+        c.setValueByPath("LockWordModifier", "Alt");
         c.setValueByPath("AutoCapitalizeAfterPunctuation", "True");
         c.setValueByPath("DoubleSpaceToPeriod", "True");
         c.setValueByPath("DoubleHyphenToEmDash", "True");
@@ -88,12 +88,12 @@ namespace {
         check(step + ": WaitSurroundingProbeEvery", o.waitSurroundingProbeEvery == c.waitSurroundingProbeEvery.value());
         check(step + ": SurrDeleteSleepMs", o.surrDeleteSleepMs == c.surrDeleteSleepMs.value());
         check(step + ": SurrCommitSleepMs", o.surrCommitSleepMs == c.surrCommitSleepMs.value());
-        const auto skip = c.macroSkipTriggerModifier.value();
-        const auto want = skip == fcitx::MacroSkipTriggerModifier::Shift ? ngosen::MacroSkipKey::Shift :
-            skip == fcitx::MacroSkipTriggerModifier::Ctrl                ? ngosen::MacroSkipKey::Ctrl :
-            skip == fcitx::MacroSkipTriggerModifier::Alt                 ? ngosen::MacroSkipKey::Alt :
-                                                                           ngosen::MacroSkipKey::None;
-        check(step + ": MacroSkipTriggerModifier", o.macroSkipKey == want);
+        const auto lock = c.lockWordModifier.value();
+        const auto want = lock == fcitx::LockWordModifier::Shift ? ngosen::LockWordKey::Shift :
+            lock == fcitx::LockWordModifier::Ctrl                ? ngosen::LockWordKey::Ctrl :
+            lock == fcitx::LockWordModifier::Alt                 ? ngosen::LockWordKey::Alt :
+                                                                   ngosen::LockWordKey::None;
+        check(step + ": LockWordModifier", o.lockWordKey == want);
     }
 
 } // namespace
@@ -107,7 +107,7 @@ int main() {
     engine.setConfig(changedConfig());
     check("the changed values took effect",
           engine.config().inputMethod.value() == "VNI" && engine.config().waitSurroundingTimeoutMs.value() == 222 &&
-              engine.config().macroSkipTriggerModifier.value() == fcitx::MacroSkipTriggerModifier::Ctrl);
+              engine.config().lockWordModifier.value() == fcitx::LockWordModifier::Alt);
     checkMatches("settings window", engine);
 
     TestInputContext context(&testInstance.instance);

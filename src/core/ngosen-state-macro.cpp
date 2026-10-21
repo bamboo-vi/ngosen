@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  */
-// TypingState: macros, double space to period, double hyphen to em dash, and the macro skip key.
+// TypingState: macros, double space to period, double hyphen to em dash, and the key that locks a word.
 #include "ngosen-state.h"
 #include "ngosen-keysym.h"
 #include "ngosen-log.h"
@@ -125,60 +125,60 @@ namespace ngosen {
         }
     }
 
-    bool TypingState::isMacroSkipModifier(uint32_t sym) const {
-        const auto trigger = engine_->options().macroSkipKey;
-        switch (trigger) {
-            case ngosen::MacroSkipKey::Shift: return sym == ngosen::key::Shift_L || sym == ngosen::key::Shift_R;
-            case ngosen::MacroSkipKey::Ctrl: return sym == ngosen::key::Control_L || sym == ngosen::key::Control_R;
-            case ngosen::MacroSkipKey::Alt: return sym == ngosen::key::Alt_L || sym == ngosen::key::Alt_R;
-            case ngosen::MacroSkipKey::None:
+    bool TypingState::isLockWordModifier(uint32_t sym) const {
+        switch (engine_->options().lockWordKey) {
+            case ngosen::LockWordKey::Shift: return sym == ngosen::key::Shift_L || sym == ngosen::key::Shift_R;
+            case ngosen::LockWordKey::Ctrl: return sym == ngosen::key::Control_L || sym == ngosen::key::Control_R;
+            case ngosen::LockWordKey::Alt: return sym == ngosen::key::Alt_L || sym == ngosen::key::Alt_R;
+            case ngosen::LockWordKey::None:
             default: return false;
         }
     }
 
     void TypingState::handleModifierTap(const ngosen::KeyPress& keyEvent) {
-        const auto trigger = engine_->options().macroSkipKey;
-        if (trigger == ngosen::MacroSkipKey::None || !engine_->options().enableMacro) {
-            return;
-        }
-        if (!isMacroSkipModifier(keyEvent.sym())) {
+        if (!isLockWordModifier(keyEvent.sym())) {
             tracking_modifier_tap_ = false;
             return;
         }
-        if (keyEvent.isRelease()) {
-            if (tracking_modifier_tap_) {
-                tracking_modifier_tap_ = false;
-                macro_skip_            = true;
-                EngineSetMacroEnabled(bambooEngine_.handle(), 0);
-                NGOSEN_INFO("Macro skip enabled for next word");
-            }
-        } else {
+        if (!keyEvent.isRelease()) {
             tracking_modifier_tap_ = true;
+            return;
         }
+        if (!tracking_modifier_tap_)
+            return;
+        tracking_modifier_tap_ = false;
+        // Keys typed while a replacement is in flight replay after it; lock the word once they have.
+        if (is_deleting_.load(std::memory_order_acquire))
+            lock_word_pending_ = true;
+        else
+            lockWord();
     }
 
     void TypingState::cancelModifierTap() {
         tracking_modifier_tap_ = false;
     }
 
-    void TypingState::reEnableMacroAfterWordEnd() {
-        if (!macro_skip_) {
+    void TypingState::lockWord() {
+        lock_word_pending_ = false;
+        if (realMode == ngosen::Mode::Preedit) {
+            EngineCommitPreedit(bambooEngine_.handle());
+            ngosen::UniqueCPtr<char> pulled(EnginePullCommit(bambooEngine_.handle()));
+            if (pulled && (*pulled.get() != 0))
+                commit(pulled.get());
+            ResetEngine(bambooEngine_.handle());
+            host_->resetPanel();
+            host_->refreshPreedit();
+            host_->refreshPanel();
+        } else if (realMode != ngosen::Mode::Emoji) {
+            // The word is already in the app; the engine only has to forget it. Off mode keeps a word for macros too.
+            ResetEngine(bambooEngine_.handle());
+            oldPreBuffer_.clear();
+            lastWord_.clear();
+            hasHistory_ = false;
+        } else {
             return;
         }
-        ngosen::UniqueCPtr<char> preedit(EnginePullPreedit(bambooEngine_.handle()));
-        if (preedit && *preedit.get() != 0) {
-            return;
-        }
-        macro_skip_ = false;
-        EngineSetMacroEnabled(bambooEngine_.handle(), engine_->options().enableMacro ? 1 : 0);
-    }
-
-    void TypingState::resetMacroSkip() {
-        tracking_modifier_tap_ = false;
-        macro_skip_            = false;
-        if (bambooEngine_) {
-            EngineSetMacroEnabled(bambooEngine_.handle(), engine_->options().enableMacro ? 1 : 0);
-        }
+        NGOSEN_INFO("Word locked");
     }
 
 } // namespace ngosen

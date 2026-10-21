@@ -49,7 +49,8 @@ namespace ngosen {
             bambooEngine_.reset(NewEngine(engine_->options().inputMethod.data(), engine_->dictionary(), engine_->macroTable()));
         }
         setOption();
-        resetMacroSkip();
+        tracking_modifier_tap_ = false;
+        lock_word_pending_     = false;
     }
 
     void TypingState::setOption() {
@@ -414,7 +415,6 @@ namespace ngosen {
                 break;
             }
         }
-        reEnableMacroAfterWordEnd();
     }
 
     bool TypingState::skipsKey(ngosen::KeyPress& keyEvent) {
@@ -426,14 +426,11 @@ namespace ngosen {
             }
             return true;
         }
-        if (realMode == ngosen::Mode::Preedit) {
-            if (keyEvent.isBareShift())
+        if (keyEvent.isModifier()) {
+            handleModifierTap(keyEvent);
+            if (realMode != ngosen::Mode::Preedit || keyEvent.isBareShift())
                 return true;
         } else {
-            if (keyEvent.isModifier()) {
-                handleModifierTap(keyEvent);
-                return true;
-            }
             cancelModifierTap();
         }
         if (keyEvent.isRelease())
@@ -486,6 +483,9 @@ namespace ngosen {
             isPrevPunctuation_       = false;
             needEngineReset.store(false);
         }
+
+        if (lock_word_pending_ && !is_deleting_.load(std::memory_order_acquire))
+            lockWord();
 
         // A key that beats the deferred commit must not land before it.
         flushDeferredCommit();
@@ -626,7 +626,8 @@ namespace ngosen {
         if (is_deleting_.load(std::memory_order_acquire)) {
             return;
         }
-        resetMacroSkip();
+        tracking_modifier_tap_ = false;
+        lock_word_pending_     = false;
         // GTK resets the context when Enter inserts a new line; the sentence started there still capitalizes.
         const bool keepCapitalize = shouldCapitalize_ && !isFocusOut;
 
@@ -706,7 +707,8 @@ namespace ngosen {
         if (is_deleting_.load(std::memory_order_acquire)) {
             return;
         }
-        resetMacroSkip();
+        tracking_modifier_tap_ = false;
+        lock_word_pending_     = false;
         oldPreBuffer_.clear();
         lastWord_.clear();
         hasHistory_ = false;

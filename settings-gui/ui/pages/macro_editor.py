@@ -79,16 +79,6 @@ class MacroEditorPage(BaseEditorPage):
 
         toggles_layout.addStretch()
 
-        skip_layout = QHBoxLayout()
-        skip_layout.setSpacing(5)
-        skip_layout.addWidget(QLabel(_("Modifier to Skip Macro for Next Word:")))
-        self.cb_skip_modifier = QComboBox()
-        self.cb_skip_modifier.setFixedWidth(150)
-        self.cb_skip_modifier.currentIndexChanged.connect(self._on_item_changed)
-        skip_layout.addWidget(self.cb_skip_modifier)
-        add_help_icon(skip_layout, "MacroSkipTriggerModifier")
-        skip_layout.addStretch()
-
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText(_("Search macros..."))
         self.search_input.setClearButtonEnabled(True)
@@ -96,7 +86,6 @@ class MacroEditorPage(BaseEditorPage):
         self.search_input.textChanged.connect(self.on_search_changed)
 
         toggles_card.content_layout.addLayout(toggles_layout)
-        toggles_card.content_layout.addLayout(skip_layout)
         main_layout.addWidget(toggles_card)
 
         # Main content area
@@ -248,21 +237,6 @@ class MacroEditorPage(BaseEditorPage):
                     str(values.get("EnableMacroInOffMode", "False")).lower() == "true"
                 )
 
-                # Populate macro skip modifier trigger
-                skip_choices = [
-                    ("Disabled", _("Disabled")),
-                    ("Shift", _("Shift")),
-                    ("Ctrl", _("Ctrl")),
-                    ("Alt", _("Alt")),
-                ]
-                self.cb_skip_modifier.clear()
-                for data_val, display in skip_choices:
-                    self.cb_skip_modifier.addItem(display, data_val)
-                skip_val = values.get("MacroSkipTriggerModifier", "Disabled")
-                skip_idx = self.cb_skip_modifier.findData(skip_val)
-                if skip_idx >= 0:
-                    self.cb_skip_modifier.setCurrentIndex(skip_idx)
-
                 # Set time format (default %H:%M)
                 time_fmt = values.get("TimeFormat", "%H:%M")
                 index = self.input_time_format.findData(time_fmt)
@@ -343,7 +317,6 @@ class MacroEditorPage(BaseEditorPage):
             "EnableMacro": self.cb_enable.isChecked(),
             "CapitalizeMacro": self.cb_capitalize.isChecked(),
             "EnableMacroInOffMode": self.cb_enable_off_mode.isChecked(),
-            "MacroSkipTriggerModifier": self.cb_skip_modifier.currentData(),
             "TimeFormat": self.input_time_format.currentText(),
             "DateFormat": self.input_date_format.currentText(),
         }
@@ -358,7 +331,6 @@ class MacroEditorPage(BaseEditorPage):
             values["EnableMacroInOffMode"] = (
                 "True" if self.cb_enable_off_mode.isChecked() else "False"
             )
-            values["MacroSkipTriggerModifier"] = self.cb_skip_modifier.currentData()
             values["TimeFormat"] = self.input_time_format.currentText()
             values["DateFormat"] = self.input_date_format.currentText()
             if not self.dbus.set_config(values):

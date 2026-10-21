@@ -806,15 +806,73 @@ namespace {
         check(!ngosen::ignoresForwardedKeys(gtk3), "quirks: key order fix means GTK3", "true");
     }
 
-    // Tapping Shift or Ctrl alone mid-word, as when reaching for a shortcut and letting go, keeps the
-    // word open so a later tone key still applies to it.
+    // Tapping a modifier other than the lock key mid-word, as when reaching for a shortcut and letting
+    // go, keeps the word open so a later tone key still applies to it.
     void testModifierTapKeepsWord() {
         for (const auto& [frontend, surroundingText] : {std::pair<const char*, bool>{"wayland", true}, {"ibus", false}}) {
             for (const uint32_t modifier : {ngosen::key::Shift_L, ngosen::key::Control_L}) {
+                FakeResources resources;
+                if (modifier == ngosen::key::Control_L)
+                    resources.mutableOptions().lockWordKey = ngosen::LockWordKey::None;
                 const std::vector<uint32_t> keys{'v', 'i', 'e', 'e', 't', modifier, 'j'};
-                const std::string           text = ngosen::test::typeInApp(makeField(frontend, surroundingText), {}, keys, std::vector<int>(keys.size(), 100));
+                const std::string           text = ngosen::test::typeInApp(resources, makeField(frontend, surroundingText), {}, keys, std::vector<int>(keys.size(), 100));
                 check(text == "việt", std::string("modifier tap: ") + frontend + (modifier == ngosen::key::Shift_L ? " Shift" : " Ctrl") + " keeps vieet open", text);
             }
+        }
+    }
+
+    // ^ is a Ctrl tap and + a Shift tap.
+    void expectTyped(FakeResources& resources, const Field& field, const std::string& typed, const std::string& want, const std::string& what, ngosen::test::AppQuirks quirks = {},
+                     int gapMs = 30) {
+        std::vector<uint32_t> keys;
+        for (char c : typed)
+            keys.push_back(c == '^' ? ngosen::key::Control_L : c == '+' ? ngosen::key::Shift_L : static_cast<uint32_t>(c));
+        const std::string text = ngosen::test::typeInApp(resources, field, quirks, keys, std::vector<int>(keys.size(), gapMs));
+        check(text == want, what, text);
+    }
+
+    // Tapping the lock key keeps the word as shown, like Ctrl in UniKey: no more tone marks, no
+    // restore of an invalid word, no macro (#218).
+    void testLockWord() {
+        for (const auto& [frontend, surroundingText] : {std::pair<const char*, bool>{"wayland", true}, {"ibus", false}}) {
+            const Field   field = makeField(frontend, surroundingText);
+            const auto    where = std::string(" (") + frontend + ")";
+            FakeResources resources;
+            resources.setMacros({{"ko", "không"}});
+            expectTyped(resources, field, "tunx ko ", "tunx không ", "lock: tunx is restored and ko expands without the key" + where);
+            // tũn is kept, s after the tap is a letter, ko stays, and the word after a locked one is restored again.
+            expectTyped(resources, field, "tunx^ a^sk ko^ tunx ", "tũn ask ko tunx ", "lock: Ctrl keeps the word as shown" + where);
+        }
+        FakeResources shift;
+        shift.mutableOptions().lockWordKey = ngosen::LockWordKey::Shift;
+        expectTyped(shift, makeField("wayland", true), "tunx+ ", "tũn ", "lock: Shift when chosen");
+        FakeResources off;
+        off.mutableOptions().lockWordKey = ngosen::LockWordKey::None;
+        expectTyped(off, makeField("wayland", true), "tunx^ ", "tunx ", "lock: Ctrl does nothing when disabled");
+        // A tap right after a tone key lands while that replacement is still in flight.
+        ngosen::test::AppQuirks slow;
+        slow.lagMs = 40;
+        FakeResources lagging;
+        expectTyped(lagging, makeField("wayland", true), "tunx^ ", "tũn ", "lock: Ctrl during a replacement", slow, 10);
+    }
+
+    // The engine already commits the preedit on Ctrl or Alt; a bare Shift never reaches it.
+    void testLockWordPreedit() {
+        for (const auto [lockKey, modifier] : {std::pair{ngosen::LockWordKey::Ctrl, ngosen::key::Control_L}, {ngosen::LockWordKey::Shift, ngosen::key::Shift_L}}) {
+            realMode = ngosen::Mode::Preedit;
+            FakeLoop      loop;
+            FakeResources resources;
+            resources.mutableOptions().lockWordKey = lockKey;
+            auto                owned              = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+            FakeHost*           host               = owned.get();
+            ngosen::TypingState state(&resources, std::move(owned));
+
+            for (char c : std::string("tunx"))
+                press(state, static_cast<uint32_t>(c));
+            press(state, modifier);
+            press(state, ngosen::key::space);
+            const std::string name = modifier == ngosen::key::Shift_L ? "Shift" : "Ctrl";
+            check(join(host->commits()) == "['tũn'][' ']", "lock preedit: " + name + " commits tũn as shown", join(host->commits()));
         }
     }
 
@@ -833,6 +891,8 @@ int main() {
     testCommitAfterEditorRedraw();
     testQuickSwitchesNoRedrawWait();
     testMacroKeepsSpace();
+    testLockWord();
+    testLockWordPreedit();
     testMacroCapitalized();
     testMacroKeyCase();
     testBackspaceIntoLastWord("wayland", true);
