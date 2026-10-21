@@ -23,6 +23,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Tài liệu
 
+- Trang "How Vietnamese people type" chuyển Firefox Bugzilla 2080478 từ lỗi người khác báo sang lỗi Ngó Sen xác nhận:
+  Firefox trên Wayland báo surrounding text trễ một edit, nên input method xoá theo surrounding text sẽ gõ sai chữ.
+  Test KDE Plasma, Firefox 157 vẫn sai dù cách phím 1,5 s; protocol log đã đính kèm bug Firefox (#211)
 - Trang "How Vietnamese people type" (`docs/typing-without-preedit.md`) thêm lỗi Firefox do Ngó Sen báo:
   address bar trên Linux không báo input purpose là URL cho input method (Bugzilla 2084459, theo dõi ở #215).
   Trang cũng giải thích Firefox báo input purpose là URL trên Windows và Android, nhưng không báo trên Linux (#216).
