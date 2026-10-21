@@ -142,6 +142,13 @@ namespace ngosen {
         add("field", detail);
     }
 
+    void Recorder::addSurrounding(const std::string& detail) {
+        // Browsers repeat the same report several times per key, which would push the keys out.
+        if (!events_.empty() && events_.back().kind == "app" && events_.back().detail == detail)
+            return;
+        add("app", detail);
+    }
+
     std::string Recorder::dump() const {
         std::string out;
         if (events_.empty())
