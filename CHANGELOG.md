@@ -30,6 +30,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   GNOME 51/IBus báo trong vài ms. GTK 3/4 app thường xử lý commit trước Backspace input method vừa forward,
   khiến Backspace xóa chữ mới; trang giải thích và dẫn lỗi Ngó Sen báo (GTK issue 8431). Cũng liệt kê lỗi
   đã xác nhận trước đó: Chromium GTK IM không báo surrounding text (Chromium issue 40146869, theo dõi ở #220) (#221)
+- "How Vietnamese people type" thêm GTK issue 3465 vào lỗi người khác báo, được xác nhận ở đây: GTK IM module
+  của input method không chuyển được Backspace đã forward đến ô nhập GTK 4. Test GNOME 51, GTK 4.24.1 qua
+  GTK 4 module của IBus: mất 19/19 Backspace đã forward (theo dõi ở #225) (#226)
 
 ## [1.5.5-1] — 21/10/2026
 
