@@ -2,7 +2,7 @@ add_subdirectory(core)
 
 add_library(ngosen MODULE ngosen.cpp ${ngosen_fcitx_sources})
 set_target_properties(ngosen PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_options(ngosen PRIVATE "-Wl,-exclude-libs,ALL")
+target_link_options(ngosen PRIVATE "-Wl,-exclude-libs,ALL" "-Wl,--gc-sections")
 target_link_libraries(ngosen
 	ngosen_core
 	Fcitx5::Core
