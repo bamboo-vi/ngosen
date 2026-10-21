@@ -25,6 +25,8 @@ namespace ngosen {
         void add(const std::string& kind, const std::string& detail);
         // Adds a field event unless it is the field of the last one.
         void addField(const std::string& detail);
+        // Adds what the app reports about its text unless the last event is the same report.
+        void addSurrounding(const std::string& detail);
         // One event per line: milliseconds since the first kept event, kind and detail, tab separated.
         std::string dump() const;
         void        clear() {
