@@ -44,7 +44,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   một form, không còn mở issue trống; câu hỏi chuyển sang mục Hỏi đáp ở Discussions. (#190)
 - Trang "How Vietnamese people type" (`docs/typing-without-preedit.md`) thêm lỗi Firefox do Ngó Sen báo:
   address bar trên Linux không báo input purpose là URL cho input method (Bugzilla 2084459, theo dõi ở #215).
-  Trang cũng giải thích Firefox báo input purpose là URL trên Windows và Android, nhưng không báo trên Linux (#PR)
+  Trang cũng giải thích Firefox báo input purpose là URL trên Windows và Android, nhưng không báo trên Linux (#216).
 
 ## [1.5.4-2] — 20/10/2026
 
