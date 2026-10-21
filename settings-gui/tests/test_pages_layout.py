@@ -38,6 +38,14 @@ class LayoutTest(unittest.TestCase):
         # The page margins are 40px a side; a squeezed label gets only its text hint width.
         self.assertGreater(desc.width(), page.width() - 120)
 
+    def test_about_page_says_when_fcitx5_runs_the_old_addon(self):
+        for replaced in (False, True):
+            with mock.patch("core.system_check.runs_replaced_addon", return_value=replaced):
+                page = AboutPage()
+            self.addCleanup(page.close)
+            notice = page.findChild(QLabel, "AddonReplaced")
+            self.assertEqual(notice is not None, replaced)
+
     def test_backup_buttons_sit_in_the_bottom_bar(self):
         window = NgoSenSettingsWindow(dbus_handler=FakeDBusHandler())
         texts = {b.text().replace("&", "") for b in window.findChildren(QPushButton)}
