@@ -32,6 +32,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   không thêm dấu, tự khôi phục hay bung macro; phím tiếp theo bắt đầu từ mới. Gõ `tunx`, Ctrl rồi Space
   giữ `tũn`. Thay tuỳ chọn bỏ qua gõ tắt; ai đã chọn Shift, Ctrl hoặc Alt vẫn giữ phím đó (#219).
 
+### Thay đổi
+
+- Gói Debian 12 dùng lõi gõ Rust như các gói khác; cách gõ không đổi. Ngó Sen bỏ lõi Go.
+  Debian 12 đã có Rust 1.96 trong security updates (`rustc-web`, `cargo-web`).
+  Build từ source cần Rust 1.88+ và cargo, không cần Go (#223).
+
 ### Sửa
 
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong

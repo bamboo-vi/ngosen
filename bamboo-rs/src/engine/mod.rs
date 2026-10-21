@@ -97,7 +97,7 @@ pub fn determine_macro_case(s: &str) -> MacroCase {
 }
 
 /// Upper-cases the first letter of text written in lower case; text with capitals, such as iPhone,
-/// stays as written. A letter whose upper case is several letters (ß) stays too, as in Go.
+/// stays as written. A letter whose upper case is several letters (ß) stays too.
 fn capitalize_first(s: &str) -> String {
     let mut chars = s.chars();
     let Some(first) = chars.next() else {
@@ -136,8 +136,8 @@ pub fn input_method_by_name(name: &str) -> InputMethod {
         .unwrap_or_default()
 }
 
-/// The Go core's default flags: free tone marking, standard tone style and w → ư everywhere.
-/// Its auto-correct flag had no effect, so the crate's auto-correct stays off.
+/// Free tone marking, standard tone style and w → ư everywhere. Auto restore does the job of
+/// the crate's auto-correct, so that stays off.
 pub fn default_config() -> Config {
     Config::builder()
         .free_tone_marking(true)

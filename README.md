@@ -216,11 +216,11 @@ và `lotus*.conf` nếu từng dùng version trước 1.1.0. Muốn xoá sạch 
 Dựa trên mã của [fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus) và
 [VMK](https://github.com/thanhpy2009/VMK). Giấy phép GPL-3.0-or-later.
 
-Lõi biến `tieengs` thành `tiếng` được viết lại bằng Rust. Lõi gõ có hai bản, đều giấy phép MIT:
-bản Rust là [bamboo-core](https://github.com/bamboo-vi/bamboo-core) của
-[@nguyen10t2](https://github.com/nguyen10t2), dùng trong mọi gói trừ gói cho Debian 12; bản Go là
-[bamboo-core](https://github.com/BambooEngine/bamboo-core) của [@t1ld3x](https://github.com/t1ld3x),
-dùng trong gói cho Debian 12.
+Lõi biến `tieengs` thành `tiếng` là bản Rust [bamboo-core](https://github.com/bamboo-vi/bamboo-core) của
+[@nguyen10t2](https://github.com/nguyen10t2), port từ bản Go
+[bamboo-core](https://github.com/BambooEngine/bamboo-core) của
+[@t1ld3x](https://github.com/t1ld3x). Cả hai dự án dùng giấy phép MIT.
+Mọi gói Ngó Sen, kể cả Debian 12, đều dùng bản Rust.
 
 Issue và pull request trước ngày 10/10/2026 nằm ở repo lưu trữ
 [ngosen/ngosen-fork-archive](https://github.com/ngosen/ngosen-fork-archive).
@@ -241,11 +241,10 @@ agent writes the code, then the maintainer measures and uses it daily. It is lic
 and published as is, with no promise of support.
 
 Since 1.0, Ngó Sen has two typing modes, Gõ Sen (for fast typing, browsers and Electron apps) and Preedit,
-and uses the Bamboo composition core ported from Go to Rust.
-Both cores are MIT licensed: the Rust [bamboo-core](https://github.com/bamboo-vi/bamboo-core) by
-[@nguyen10t2](https://github.com/nguyen10t2), used by most packages, and the Go
-[bamboo-core](https://github.com/BambooEngine/bamboo-core) by [@t1ld3x](https://github.com/t1ld3x),
-used by the Debian 12 package.
+and uses the Rust [bamboo-core](https://github.com/bamboo-vi/bamboo-core) by
+[@nguyen10t2](https://github.com/nguyen10t2), ported from the original Go
+[bamboo-core](https://github.com/BambooEngine/bamboo-core) by [@t1ld3x](https://github.com/t1ld3x).
+Both projects are MIT licensed. All Ngó Sen packages, including Debian 12, use the Rust core.
 
 Ngó Sen targets fcitx5 only. The IBus engine was dropped and remains unmaintained on `feat/ibus-engine`.
 If you reuse Ngó Sen's code, keep the GPL and its notices, including when an AI tool rewrites it.

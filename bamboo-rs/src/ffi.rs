@@ -117,7 +117,7 @@ fn bracket_mode(value: c_int) -> BracketMode {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn Init() {
-    // The Go core ignored SIGPIPE for the whole fcitx5 process; keep that.
+    // A write to a closed pipe must not end the whole fcitx5 process.
     // SAFETY: setting a signal to SIG_IGN has no other effect.
     unsafe {
         libc::signal(libc::SIGPIPE, libc::SIG_IGN);

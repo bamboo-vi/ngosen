@@ -8,7 +8,6 @@ specfile := $(or $(wildcard $(filter /%,$(spec))),$(topdir)/$(patsubst /%,%,$(or
 srpm:
 	dnf -y install git-core rpm-build
 	git config --global --add safe.directory $(topdir)
-	# The Rust core is vendored in-tree; the Go submodule is not needed.
 	set -e; \
 	version=$$(rpmspec -q --srpm --qf '%{version}' $(specfile)); \
 	sources=$$(mktemp -d); \

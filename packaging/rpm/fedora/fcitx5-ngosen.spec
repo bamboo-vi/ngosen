@@ -34,7 +34,7 @@ Ngó Sen is a Vietnamese input method for fcitx5.
 %setup -q -n %{name}-%{version}
 
 %build
-%cmake -DNGOSEN_BYTECOMPILE_PYTHON:BOOL=OFF -DBUILD_TESTING:BOOL=ON -DNGOSEN_RUST_CORE:BOOL=ON
+%cmake -DNGOSEN_BYTECOMPILE_PYTHON:BOOL=OFF -DBUILD_TESTING:BOOL=ON
 %cmake_build
 
 %install

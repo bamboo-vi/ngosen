@@ -5,9 +5,8 @@
  */
 
 /*
- * The typing core's C interface, matching the header cgo generated for the Go core. Handles are
- * opaque numbers, 0 meaning none; DeleteObject frees any of them. Returned strings and arrays
- * are allocated with malloc and freed by the caller.
+ * The typing core's C interface. Handles are opaque numbers, 0 meaning none; DeleteObject frees
+ * any of them. Returned strings and arrays are allocated with malloc and freed by the caller.
  */
 
 #ifndef BAMBOO_CORE_H

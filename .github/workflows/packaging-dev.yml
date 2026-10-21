@@ -58,8 +58,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: recursive
 
       - name: Put the commit in a next branch build's version
         if: github.event_name == 'push' && github.ref == 'refs/heads/next'
@@ -72,9 +70,8 @@ jobs:
         uses: jtdor/build-deb-action@473136f14a42a231124c1f7cefaedfe941203c38 # v1.9.1
         with:
           docker-image: ${{ matrix.distro }}
-          apt-opts: ${{ matrix.rust && '-o APT::Build-Profiles=pkg.ngosen.rust' || '' }}
           buildpackage-opts: >-
-            --build=binary --no-sign ${{ matrix.rust && '--build-profiles=pkg.ngosen.rust' || '' }}
+            --build=binary --no-sign
 
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v7
@@ -95,8 +92,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: recursive
 
       - name: Put the commit in a next branch build's version
         if: github.event_name == 'push' && github.ref == 'refs/heads/next'
@@ -148,8 +143,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: recursive
 
       - name: Put the commit in a next branch build's version
         if: github.event_name == 'push' && github.ref == 'refs/heads/next'
@@ -194,8 +187,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: recursive
 
       - name: Put the commit in a next branch build's version
         if: github.event_name == 'push' && github.ref == 'refs/heads/next'

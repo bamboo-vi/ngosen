@@ -3,8 +3,7 @@
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-//! The `$TIME` and `$DATE` macro formats: a fixed subset of strftime, always in English, the
-//! way the Go core rendered them.
+//! The `$TIME` and `$DATE` macro formats: a fixed subset of strftime, always in English.
 
 const MONTHS: [&str; 12] = [
     "January",

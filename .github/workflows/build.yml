@@ -40,8 +40,7 @@ jobs:
         run: misc/check-new-names.sh origin/main
 
   check:
-    # The Go builds keep the names that branch protection requires.
-    name: Build and test (${{ matrix.compiler }}${{ matrix.core == 'rust' && ', rust core' || '' }})
+    name: Build and test (${{ matrix.compiler }})
     runs-on: ubuntu-latest
     container: archlinux:latest
 
@@ -49,22 +48,18 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [gcc, clang]
-        core: [go]
         include:
           - compiler: gcc
             cxx_compiler: g++
           - compiler: clang
             cxx_compiler: clang++
-          - compiler: gcc
-            cxx_compiler: g++
-            core: rust
     env:
       CC: ${{ matrix.compiler }}
       CXX: ${{ matrix.cxx_compiler }}
     steps:
       - name: Install dependencies
         run: |
-          pacman -Syu --noconfirm base-devel clang cmake ninja extra-cmake-modules fmt libuv boost git go systemd-libs extra-cmake-modules python librsvg rust
+          pacman -Syu --noconfirm base-devel clang cmake ninja extra-cmake-modules fmt libuv boost git systemd-libs extra-cmake-modules python librsvg rust
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global --add safe.directory "$GITHUB_WORKSPACE/ngosen"
           git config --global --add safe.directory "$GITHUB_WORKSPACE/fcitx5"
@@ -113,20 +108,19 @@ jobs:
       - uses: actions/checkout@v7
         with:
           path: ngosen
-          submodules: true
       # Scanned on pushes to the branches instead of every pull request; the scan doubles this job's time.
       - name: Init CodeQL
-        if: matrix.compiler == 'gcc' && matrix.core == 'go' && github.event_name != 'pull_request'
+        if: matrix.compiler == 'gcc' && github.event_name != 'pull_request'
         uses: github/codeql-action/init@v4.38.1
         with:
-          languages: cpp,go
+          languages: cpp
           source-root: ngosen
       - name: Build and Install Ngó Sen
         uses: fcitx/github-actions@cmake
         with:
           path: ngosen
           cmake-option: >-
-            -DBUILD_TESTING=ON ${{ matrix.core == 'rust' && '-DNGOSEN_RUST_CORE=ON' || '' }}
+            -DBUILD_TESTING=ON
       - name: Discover tests
         run: |
           ctest --test-dir ngosen/build -N
@@ -134,7 +128,7 @@ jobs:
         run: |
           ctest --test-dir ngosen/build --output-on-failure --no-tests=error -j"$(nproc)"
       - name: CodeQL Analysis
-        if: matrix.compiler == 'gcc' && matrix.core == 'go' && github.event_name != 'pull_request'
+        if: matrix.compiler == 'gcc' && github.event_name != 'pull_request'
         uses: github/codeql-action/analyze@v4.38.1
         with:
           checkout_path: ngosen
@@ -149,14 +143,13 @@ jobs:
       - name: Install dependencies
         run: |
           apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates g++ cmake make golang-go git
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates g++ cmake make cargo-1.91 rustc-1.91 git
       - uses: actions/checkout@v7
-        with:
-          submodules: true
       - name: No fcitx5 package
         run: "! dpkg -l | grep -i fcitx"
       - name: Build
         run: |
+          export PATH="/usr/lib/rust-1.91/bin:$PATH"
           cmake -S . -B build -DNGOSEN_CORE_ONLY=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build build -j"$(nproc)"
       - name: Test
@@ -171,27 +164,6 @@ jobs:
       - uses: cachix/install-nix-action@v31
       - name: Build, test and load into fcitx5
         run: nix flake check -L
-
-  go-test:
-    name: Go test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: true
-      - uses: actions/setup-go@v7
-        with:
-          go-version: '1.18'
-      - name: Test
-        working-directory: bamboo
-        run: go test -race ./...
-      - name: Vet
-        working-directory: bamboo
-        run: go vet ./...
-      - name: gofmt
-        working-directory: bamboo
-        run: |
-          test -z "$(gofmt -l *_test.go)"
 
   rust-check:
     name: Rust core lint and minimum version

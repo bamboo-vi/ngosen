@@ -61,7 +61,6 @@ stdenv.mkDerivation {
   dontWrapQtApps = true;
 
   cmakeFlags = [
-    (lib.cmakeBool "NGOSEN_RUST_CORE" true)
     (lib.cmakeBool "BUILD_TESTING" true)
     (lib.cmakeBool "NGOSEN_BYTECOMPILE_PYTHON" false)
   ];
