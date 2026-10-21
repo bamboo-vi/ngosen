@@ -144,11 +144,6 @@ pub extern "C" fn EnginePullCommit(engine: usize) -> *mut c_char {
     handles::with_engine(engine, |e| c_string(&e.pull_commit())).unwrap_or(std::ptr::null_mut())
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn EngineSetMacroEnabled(engine: usize, enabled: u8) {
-    handles::with_engine(engine, |e| e.macro_enabled = enabled != 0);
-}
-
 /// # Safety
 /// `option` is null or points to a valid option struct.
 #[unsafe(no_mangle)]

@@ -42,7 +42,6 @@ extern uint8_t   EngineProcessKeyEvent(uintptr_t engine, uint32_t keyVal, uint32
 extern char*     EnginePullPreedit(uintptr_t engine);
 extern void      EngineCommitPreedit(uintptr_t engine);
 extern char*     EnginePullCommit(uintptr_t engine);
-extern void      EngineSetMacroEnabled(uintptr_t engine, uint8_t enabled);
 extern void      EngineSetOption(uintptr_t engine, FcitxBambooEngineOption* option);
 extern uintptr_t NewEngine(cchar* name, uintptr_t dictHandle, uintptr_t tableHandle);
 extern uintptr_t NewCustomEngine(char** definition, uintptr_t dictHandle, uintptr_t tableHandle);
