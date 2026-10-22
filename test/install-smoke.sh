@@ -138,6 +138,7 @@ check_session_files() {
         check "the Fcitx 5 launcher is hidden" has_line "$hidden_launcher" 'NoDisplay=true'
     fi
     check "profile lists ngosen" has_line "$profile" 'Name=ngosen'
+    check "profile has no keyboard next to ngosen" lacks_line "$profile" 'Name=keyboard-us'
     check "trigger keys are left to fcitx5" lacks_line "$config" '0=Control+Shift_L'
 }
 
@@ -207,6 +208,31 @@ check_reinstall_over_running_fcitx5() {
     bus=
 }
 
+# A profile from before Ngó Sen had its own toggle key lists a keyboard next to it, and fcitx5's
+# Ctrl+Space switched between them; the first start of this version drops the keyboard.
+check_old_profile_cleanup() {
+    local settings=$home/.config/fcitx5/conf/ngosen.conf
+    bus=$(sudo -u "$user" dbus-daemon --session --fork --print-address=1 | head -n 1)
+    as_user mkdir -p "$(dirname "$settings")"
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    printf 'InputMethod=Telex\n' | as_user tee "$settings" >/dev/null
+
+    check "fcitx5 starts with the old profile" start_fcitx5
+    check "fcitx5 stops" stop_fcitx5
+    check "the keyboard next to ngosen is dropped" lacks_line "$profile" 'Name=keyboard-us'
+    check "ngosen stays in the profile" has_line "$profile" 'Name=ngosen'
+    check "older settings keep Ctrl+Space" has_line "$settings" '0=Control+space'
+
+    printf '\n[Groups/0/Items/1]\nName=keyboard-us\nLayout=\n' | as_user tee -a "$profile" >/dev/null
+    check "fcitx5 starts with the keyboard added back" start_fcitx5
+    check "fcitx5 stops again" stop_fcitx5
+    check "a keyboard added back stays" has_line "$profile" 'Name=keyboard-us'
+
+    pkill -u "$user" dbus-daemon || :
+    bus=
+}
+
 main() {
     prepare_system
 
@@ -223,6 +249,9 @@ main() {
 
     echo "== reinstall over a running fcitx5"
     check_reinstall_over_running_fcitx5
+
+    echo "== profile from before the toggle key"
+    check_old_profile_cleanup
 
     finish
 }

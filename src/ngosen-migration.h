@@ -27,6 +27,10 @@ namespace ngosen {
     // drops `from` instead. Returns whether the profile changed.
     bool renameProfileInputMethod(fcitx::RawConfig& profile, const std::string& from, const std::string& to);
 
+    // Removes the keyboard from each group holding only `inputMethod` and one keyboard layout, so
+    // fcitx5's switch key reaches Ngó Sen. The layout moves to the group's default layout if unset.
+    bool dropLoneKeyboard(fcitx::RawConfig& profile, const std::string& inputMethod);
+
     // Copies dir/old to dir/new for each pair where only the old file exists. The old file stays, so
     // going back to an earlier version keeps its settings. Returns the new names that were written.
     std::vector<std::string> copyLegacyFiles(const std::filesystem::path& dir, const std::vector<std::pair<std::string, std::string>>& names);

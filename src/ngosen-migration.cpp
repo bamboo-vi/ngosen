@@ -5,6 +5,8 @@
  */
 #include "ngosen-migration.h"
 
+#include <fcitx-utils/stringutils.h>
+
 #include <fstream>
 #include <system_error>
 
@@ -23,10 +25,31 @@ namespace ngosen {
     }
 
     namespace {
+        const std::string KeyboardPrefix = "keyboard-";
+
         struct ProfileItem {
             std::string name;
             std::string layout;
         };
+
+        std::vector<ProfileItem> readItems(const fcitx::RawConfig& items) {
+            std::vector<ProfileItem> list;
+            for (const auto& key : items.subItems()) {
+                const auto* name   = items.valueByPath(key + "/Name");
+                const auto* layout = items.valueByPath(key + "/Layout");
+                list.push_back({name ? *name : "", layout ? *layout : ""});
+            }
+            return list;
+        }
+
+        void writeItems(fcitx::RawConfig& items, const std::vector<ProfileItem>& list) {
+            items.removeAll();
+            for (size_t i = 0; i < list.size(); ++i) {
+                const auto key = std::to_string(i);
+                items.setValueByPath(key + "/Name", list[i].name);
+                items.setValueByPath(key + "/Layout", list[i].layout);
+            }
+        }
 
         bool renameInGroup(fcitx::RawConfig& group, const std::string& from, const std::string& to) {
             bool changed = false;
@@ -38,16 +61,12 @@ namespace ngosen {
             if (!items) {
                 return changed;
             }
-            std::vector<ProfileItem> kept;
-            bool                     hasTarget = false;
-            bool                     hasSource = false;
-            for (const auto& key : items->subItems()) {
-                const auto* name   = items->valueByPath(key + "/Name");
-                const auto* layout = items->valueByPath(key + "/Layout");
-                ProfileItem item{name ? *name : "", layout ? *layout : ""};
+            auto kept      = readItems(*items);
+            bool hasTarget = false;
+            bool hasSource = false;
+            for (const auto& item : kept) {
                 hasTarget = hasTarget || item.name == to;
                 hasSource = hasSource || item.name == from;
-                kept.push_back(std::move(item));
             }
             if (!hasSource) {
                 return changed;
@@ -62,12 +81,36 @@ namespace ngosen {
                 }
                 renamed.push_back(std::move(item));
             }
-            items->removeAll();
-            for (size_t i = 0; i < renamed.size(); ++i) {
-                const auto key = std::to_string(i);
-                items->setValueByPath(key + "/Name", renamed[i].name);
-                items->setValueByPath(key + "/Layout", renamed[i].layout);
+            writeItems(*items, renamed);
+            return true;
+        }
+
+        bool dropKeyboardInGroup(fcitx::RawConfig& group, const std::string& inputMethod) {
+            auto items = group.get("Items");
+            if (!items) {
+                return false;
             }
+            const auto         list     = readItems(*items);
+            const ProfileItem* own      = nullptr;
+            const ProfileItem* keyboard = nullptr;
+            for (const auto& item : list) {
+                if (item.name == inputMethod && !own) {
+                    own = &item;
+                } else if (fcitx::stringutils::startsWith(item.name, KeyboardPrefix) && !keyboard) {
+                    keyboard = &item;
+                } else {
+                    // A second layout or another input method needs fcitx5's switch key.
+                    return false;
+                }
+            }
+            if (!own || !keyboard) {
+                return false;
+            }
+            if (const auto* layout = group.valueByPath("Default Layout"); !layout || layout->empty()) {
+                group.setValueByPath("Default Layout", keyboard->name.substr(KeyboardPrefix.size()));
+            }
+            group.setValueByPath("DefaultIM", inputMethod);
+            writeItems(*items, {*own});
             return true;
         }
     } // namespace
@@ -81,6 +124,20 @@ namespace ngosen {
         for (const auto& key : groups->subItems()) {
             if (auto group = groups->get(key)) {
                 changed = renameInGroup(*group, from, to) || changed;
+            }
+        }
+        return changed;
+    }
+
+    bool dropLoneKeyboard(fcitx::RawConfig& profile, const std::string& inputMethod) {
+        auto groups = profile.get("Groups");
+        if (!groups) {
+            return false;
+        }
+        bool changed = false;
+        for (const auto& key : groups->subItems()) {
+            if (auto group = groups->get(key)) {
+                changed = dropKeyboardInGroup(*group, inputMethod) || changed;
             }
         }
         return changed;

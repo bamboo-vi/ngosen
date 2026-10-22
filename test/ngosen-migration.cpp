@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 /**
  * @file ngosen-migration.cpp
- * @brief Unit test: settings saved under the lotus names carry over to the ngosen names.
+ * @brief Unit test: settings saved under the lotus names carry over to the ngosen names, and a
+ * keyboard left next to Ngó Sen is dropped from the profile.
  *
  * fcitx5 drops a profile entry whose input method does not exist, so a user upgrading from a
  * version that registered "lotus" would lose Ngó Sen from the input method list.
@@ -100,6 +101,42 @@ namespace {
         check("an empty profile changes nothing", !ngosen::renameProfileInputMethod(empty, "lotus", "ngosen"));
     }
 
+    void testDropKeyboard() {
+        auto profile = parse("[Groups/0]\nName=Default\nDefault Layout=\nDefaultIM=keyboard-de-neo\n\n"
+                             "[Groups/0/Items/0]\nName=keyboard-de-neo\nLayout=\n\n"
+                             "[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n"
+                             "[GroupOrder]\n0=Default\n");
+        check("a keyboard next to Ngó Sen is dropped", ngosen::dropLoneKeyboard(profile, "ngosen"));
+        check("Ngó Sen is the only item", value(profile, "Groups/0/Items/0/Name") == "ngosen" && !profile.get("Groups/0/Items/1"));
+        check("Ngó Sen is the default input method", value(profile, "Groups/0/DefaultIM") == "ngosen");
+        check("the keyboard's layout becomes the group's", value(profile, "Groups/0/Default Layout") == "de-neo");
+        check("a second pass changes nothing", !ngosen::dropLoneKeyboard(profile, "ngosen"));
+
+        profile = parse("[Groups/0]\nName=Default\nDefault Layout=fr\nDefaultIM=ngosen\n\n"
+                        "[Groups/0/Items/0]\nName=ngosen\nLayout=\n\n"
+                        "[Groups/0/Items/1]\nName=keyboard-us\nLayout=\n");
+        check("a keyboard after Ngó Sen is dropped", ngosen::dropLoneKeyboard(profile, "ngosen"));
+        check("a group layout already set is kept", value(profile, "Groups/0/Default Layout") == "fr");
+    }
+
+    void testKeepOtherInputMethods() {
+        auto twoLayouts = parse("[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n"
+                                "[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n"
+                                "[Groups/0/Items/1]\nName=keyboard-fr\nLayout=\n\n"
+                                "[Groups/0/Items/2]\nName=ngosen\nLayout=\n");
+        check("two keyboards are kept", !ngosen::dropLoneKeyboard(twoLayouts, "ngosen"));
+        auto mozc = parse("[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n"
+                          "[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n"
+                          "[Groups/0/Items/1]\nName=mozc\nLayout=\n\n"
+                          "[Groups/0/Items/2]\nName=ngosen\nLayout=\n");
+        check("a group with another input method is kept", !ngosen::dropLoneKeyboard(mozc, "ngosen"));
+        auto mozcOnly = parse("[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=mozc\n\n"
+                              "[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n"
+                              "[Groups/0/Items/1]\nName=mozc\nLayout=\n");
+        check("a group without Ngó Sen is kept", !ngosen::dropLoneKeyboard(mozcOnly, "ngosen"));
+        check("its keyboard stays", value(mozcOnly, "Groups/0/Items/0/Name") == "keyboard-us");
+    }
+
     void testCopyFiles() {
         const auto dir = std::filesystem::temp_directory_path() / "ngosen-migration-files";
         std::filesystem::remove_all(dir);
@@ -151,6 +188,8 @@ int main() {
     testRename();
     testBothListed();
     testOtherGroups();
+    testDropKeyboard();
+    testKeepOtherInputMethods();
     testCopyFiles();
     testProcessesNamed();
     if (failures == 0) {

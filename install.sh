@@ -13,6 +13,7 @@ SOURCE_GUIDE="https://github.com/ngosen/ngosen/blob/main/TU-DUNG.md"
 assume_yes=0
 setup_session=1
 session_changes=()
+keyboard_dropped=0
 fcitx5_reloaded=0
 manager=
 pattern=
@@ -333,42 +334,66 @@ restart_fcitx5() {
 # An fcitx5 that ran without the addon drops ngosen from the profile as it exits, hence the second
 # check.
 reload_fcitx5() {
+    local had_keyboard=0
+    has_keyboard_in_profile && had_keyboard=1
     has_ngosen_in_profile && restart_fcitx5 && has_ngosen_in_profile || return 1
     fcitx5_reloaded=1
+    if [ "$had_keyboard" -eq 1 ] && ! has_keyboard_in_profile; then
+        keyboard_dropped=1
+    fi
 }
 
-has_trigger_keys() {
-    grep -qs '^\[Hotkey/TriggerKeys\]' "$(config_home)/fcitx5/config"
+has_keyboard_in_profile() {
+    grep -qs '^Name=keyboard-' "$(config_home)/fcitx5/profile"
 }
 
-add_ngosen_to_profile() {
-    local profile layout items
-    profile="$(config_home)/fcitx5/profile"
-    has_ngosen_in_profile && return 0
-    if [ -f "$profile" ]; then
-        items=$(grep -c '^\[Groups/0/Items/' "$profile" || true)
-        printf '\n[Groups/0/Items/%s]\nName=ngosen\nLayout=\n' "$items" >>"$profile"
-        sed -i 's/^DefaultIM=keyboard-.*/DefaultIM=ngosen/' "$profile"
+# The key the engine picks: settings from before its toggle key keep Ctrl+Space.
+toggle_key_name() {
+    local conf
+    conf="$(config_home)/fcitx5/conf/ngosen.conf"
+    if [ -f "$conf" ] && { ! grep -qs '^SettingsVersion=' "$conf" || grep -qs '^0=Control+space$' "$conf"; }; then
+        printf 'Ctrl+Space'
     else
-        layout=$(gnome_layout)
-        mkdir -p "$(dirname "$profile")"
-        cat >"$profile" <<EOF
+        printf 'Ctrl+Shift'
+    fi
+}
+
+write_ngosen_profile() {
+    local profile=$1 layout=$2
+    mkdir -p "$(dirname "$profile")"
+    cat >"$profile" <<EOF
 [Groups/0]
 Name=Default
 Default Layout=$layout
 DefaultIM=ngosen
 
 [Groups/0/Items/0]
-Name=keyboard-$layout
-Layout=
-
-[Groups/0/Items/1]
 Name=ngosen
 Layout=
 
 [GroupOrder]
 0=Default
 EOF
+}
+
+add_ngosen_to_profile() {
+    local profile layout items
+    profile="$(config_home)/fcitx5/profile"
+    has_ngosen_in_profile && return 0
+    if [ ! -f "$profile" ]; then
+        write_ngosen_profile "$profile" "$(gnome_layout)"
+    else
+        items=$(grep -c '^\[Groups/0/Items/' "$profile" || true)
+        # fcitx5's first profile holds one keyboard; Ngó Sen switches English itself, so it takes
+        # the keyboard's place and keeps its layout.
+        if [ "$items" -eq 1 ] && has_keyboard_in_profile && ! grep -qs '^\[Groups/[1-9]' "$profile"; then
+            layout=$(sed -n 's/^Default Layout=//p' "$profile" | head -n 1)
+            layout=${layout:-$(sed -n 's/^Name=keyboard-//p' "$profile" | head -n 1)}
+            write_ngosen_profile "$profile" "$layout"
+        else
+            printf '\n[Groups/0/Items/%s]\nName=ngosen\nLayout=\n' "$items" >>"$profile"
+            sed -i 's/^DefaultIM=keyboard-.*/DefaultIM=ngosen/' "$profile"
+        fi
     fi
     session_changes+=("thêm Ngó Sen vào danh sách bộ gõ")
 }
@@ -519,6 +544,9 @@ setup_kde_session() {
 
 report_session_changes() {
     local change
+    if [ "$keyboard_dropped" -eq 1 ]; then
+        say "Ngó Sen giờ là bộ gõ duy nhất trong fcitx5, tự chuyển tiếng Anh/Việt bằng $(toggle_key_name)."
+    fi
     if [ "${#session_changes[@]}" -eq 0 ]; then
         if [ "$fcitx5_reloaded" -eq 1 ]; then
             say "Xong. fcitx5 đã nạp bản mới, gõ được ngay."
@@ -533,9 +561,7 @@ report_session_changes() {
     done
     say ""
     say "Xong. Đăng xuất rồi đăng nhập lại là gõ được tiếng Việt."
-    if ! has_trigger_keys; then
-        say "Bấm Ctrl+Space để chuyển qua lại tiếng Việt và tiếng Anh."
-    fi
+    say "Bấm $(toggle_key_name) để chuyển qua lại tiếng Việt và tiếng Anh."
     say "Tài khoản khác trên máy này: đăng nhập vào tài khoản đó rồi chạy lại lệnh cài."
 }
 
