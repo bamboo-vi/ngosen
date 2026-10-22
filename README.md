@@ -1,8 +1,8 @@
 # Ngó Sen
 
-Ngó Sen là bộ gõ tiếng Việt cho fcitx5 trên Linux, được **vibecode**. fcitx5 chạy được trên GNOME, KDE, Xfce,
-Sway và Hyprland, có nhiều tính năng và nhẹ RAM. Chỉ làm cho fcitx5 cũng đỡ công giữ nhiều bản. Mã IBus cũ ở nhánh
-`feat/ibus-engine`, không còn được bảo trì.
+Ngó Sen là bộ gõ tiếng Việt được **vibecode** cho fcitx5 trên Linux, cho trải nghiệm gõ như UniKey trên Windows.
+fcitx5 chạy được trên GNOME, KDE, Xfce, Sway và Hyprland, có nhiều tính năng và nhẹ RAM. Chỉ làm cho fcitx5 cũng
+đỡ công giữ nhiều bản. Mã IBus cũ ở nhánh `feat/ibus-engine`, không còn được bảo trì.
 
 Cửa sổ cài đặt dùng giao diện sáng, tối của máy trên KDE và GNOME. Đổi gì lưu ngay, có nút Hoàn tác.
 
