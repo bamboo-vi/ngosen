@@ -321,7 +321,7 @@ msgid "Version {}"
 msgstr ""
 
 #: settings-gui/ui/pages/about.py:90
-msgid "Modern, fast, and stable Vietnamese input method for Linux."
+msgid "Vietnamese input method for fcitx5 on Linux that types like UniKey on Windows."
 msgstr ""
 
 #: settings-gui/ui/pages/about.py:103
