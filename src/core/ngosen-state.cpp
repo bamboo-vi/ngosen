@@ -392,6 +392,9 @@ namespace ngosen {
         if (handleKeyDuringReplacement(keyEvent, currentSym) || handleDoubledKey(keyEvent, currentSym))
             return;
 
+        // Vietnamese typed since then, so the English noted is no longer right before the cursor.
+        if (realMode != ngosen::Mode::Off)
+            forgetKeysWhileOff();
         switch (realMode) {
             case ngosen::Mode::Sen: {
                 live_key_ = KeyEntry{.sym = currentSym, .state = keyEvent.states()};

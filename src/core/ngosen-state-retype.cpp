@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-// TypingState: offering to retype, with marks, what was typed while another input method was on.
+// TypingState: offering to retype, with marks, what was typed in English.
 #include "ngosen-app-quirks.h"
 #include "ngosen-clock.h"
 #include "ngosen-globals.h"
@@ -121,10 +121,13 @@ namespace ngosen {
     }
 
     void TypingState::offerRetype() {
+        retype_.reset();
+        // Still English: keep the text for the toggle key.
+        if (realMode != ngosen::Mode::Sen && realMode != ngosen::Mode::Preedit)
+            return;
         const std::string typed = std::move(typedWhileOff_);
         typedWhileOff_.clear();
-        retype_.reset();
-        if (!bambooEngine_ || !engine_->options().retypeAfterSwitch || typed.empty() || (realMode != ngosen::Mode::Sen && realMode != ngosen::Mode::Preedit))
+        if (!bambooEngine_ || !engine_->options().retypeAfterSwitch || typed.empty())
             return;
         // Without either, Tab could not remove what was typed.
         if (!canSendBackspaces() && !host_->field().surroundingText)
