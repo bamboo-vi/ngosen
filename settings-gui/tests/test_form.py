@@ -91,6 +91,15 @@ class TypingPageTest(unittest.TestCase):
         app.processEvents()
         self.assertEqual(form_of(self.page).rowWrapPolicy(), QFormLayout.DontWrapRows)
 
+    def test_labels_go_above_fields_when_larger_text_does_not_fit(self):
+        font = self.page.font()
+        font.setPointSizeF(font.pointSizeF() * 1.4)
+        self.page.setFont(font)
+        self.page.resize(760, 600)
+        self.page.show()
+        app.processEvents()
+        self.assertFalse(self.page.scroll.horizontalScrollBar().isVisible())
+
 
 class ShortcutsPageTest(unittest.TestCase):
     def test_mode_keys_fit_in_the_list(self):
