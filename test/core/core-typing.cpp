@@ -987,6 +987,15 @@ namespace {
 
 } // namespace
 
+// GLFW (Minecraft) under XIM keeps the time of the last Backspace press and drops older ones.
+void testForwardedKeysNewerThanTyped() {
+    ngosen::test::AppQuirks glfw;
+    glfw.dropsOldKeyPresses          = true;
+    const std::vector<uint32_t> keys = {ngosen::key::BackSpace, 't', 'i', 'e', 'e', 'n', 'g', 's'};
+    const std::string           text = ngosen::test::typeInApp(makeField("xim", false, "glfw"), glfw, keys, std::vector<int>(keys.size(), 20));
+    check(text == "tiếng", "glfw: forwarded backspaces are newer than a typed one", text);
+}
+
 int main() {
     testQuirks();
     testPreeditTelex();
@@ -995,6 +1004,7 @@ int main() {
     testSenForwards("wayland", true);
     testSenForwards("wayland_v2", true);
     testSenForwards("xim", false);
+    testForwardedKeysNewerThanTyped();
     testKeyDuringReplacement();
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();

@@ -32,8 +32,9 @@ namespace ngosen::test {
     };
 
     struct ForwardedKey {
-        EditKey key;
-        bool    release;
+        EditKey  key;
+        bool     release;
+        uint32_t time = 0;
     };
 
     // An app field that records what the typing logic sends and reports the surrounding text the
@@ -45,8 +46,8 @@ namespace ngosen::test {
         void commitText(const std::string& text) override {
             commits_.push_back(text);
         }
-        void forwardKey(EditKey key, bool release) override {
-            forwarded_.push_back({key, release});
+        void forwardKey(EditKey key, bool release, uint32_t time) override {
+            forwarded_.push_back({key, release, time});
         }
         void deleteSurrounding(int offset, unsigned int size) override {
             deletes_.emplace_back(offset, size);

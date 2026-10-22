@@ -34,6 +34,7 @@ namespace ngosen::test {
         bool takesXTest             = false; // gets backspaces as XTEST presses, which come back to the input method first
         int  redrawAfterEditMs      = 0;     // bounces focus this long after each edit and drops commits until then, as TikTok in Chrome does
         bool redrawsOnlyOnDeletion  = false; // redraws after deletions but not insertions, as a plain Draft.js box in Chrome on GNOME does
+        bool dropsOldKeyPresses     = false; // drops a Backspace press not newer than the last one, as GLFW does under XIM
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -54,7 +55,7 @@ namespace ngosen::test {
         }
 
         void        commitText(const std::string& text) override;
-        void        forwardKey(EditKey key, bool release) override;
+        void        forwardKey(EditKey key, bool release, uint32_t time) override;
         void        deleteSurrounding(int offset, unsigned int size) override;
         bool        pressSystemKeys(int count) override;
 
@@ -109,6 +110,7 @@ namespace ngosen::test {
         bool                                inReport_        = false;
         bool                                focused_         = true;
         uint64_t                            forwardedAt_     = 0;
+        uint32_t                            lastBackSpaceAt_ = 0;
         int                                 slowestCommitMs_ = 0;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
