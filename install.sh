@@ -358,7 +358,8 @@ toggle_key_name() {
     local dir key
     dir="$(config_home)/fcitx5/conf"
     key=$(awk '/^\[/ { section = $0 } section == "[ToggleKey]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$dir/ngosen.conf" 2>/dev/null)
-    if [ -z "$key" ] && { [ -f "$dir/lotus.conf" ] || [ -f "$dir/ngosen.conf" ]; } &&
+    if [ -z "$key" ] && { [ -f "$dir/lotus.conf" ] || [ -f "$dir/ngosen.conf" ] ||
+        { has_keyboard_in_profile && has_ngosen_in_profile; }; } &&
         ! grep -qs '^SettingsVersion=' "$dir/ngosen.conf"; then
         # Not upgraded yet: Ngó Sen takes over fcitx5's switch key, Ctrl+Space by default.
         key=$(awk '/^\[/ { section = $0 } section == "[Hotkey/TriggerKeys]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$(config_home)/fcitx5/config" 2>/dev/null)

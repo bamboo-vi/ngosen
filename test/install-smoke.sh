@@ -240,6 +240,15 @@ check_old_profile_cleanup() {
     check "fcitx5's switch key becomes the toggle key" has_line "$settings" '0=Super+space'
     as_user rm -f "$config"
 
+    # Users who never changed a setting have no ngosen.conf at all.
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    as_user rm -f "$settings"
+    check "fcitx5 starts with an old profile and no settings" start_fcitx5
+    check "fcitx5 stops after that" stop_fcitx5
+    check "the keyboard is dropped without settings" lacks_keyboard "$profile"
+    check "no settings keep Ctrl+Space" has_line "$settings" '0=Control+space'
+
     pkill -u "$user" dbus-daemon || :
     bus=
 }

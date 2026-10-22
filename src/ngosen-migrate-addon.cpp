@@ -30,7 +30,7 @@ namespace {
       public:
         explicit NgoSenMigration(fcitx::Instance* instance) {
             copyUserFiles();
-            updateProfile(instance->willTryReplace(), std::filesystem::exists(confDir() / "ngosen.conf"));
+            updateProfile(instance->willTryReplace());
         }
 
       private:
@@ -77,7 +77,7 @@ namespace {
             bool dropped = false;
         };
 
-        static void updateProfile(bool replacing, bool hasSettings) {
+        static void updateProfile(bool replacing) {
 #if NGOSEN_USE_MODERN_FCITX_API
             const auto type = fcitx::StandardPathsType::PkgConfig;
             // With fcitx5-lotus installed, "lotus" in the profile is that input method; leave it.
@@ -86,12 +86,12 @@ namespace {
             const auto type   = fcitx::StandardPath::Type::PkgConfig;
             const bool rename = fcitx::StandardPath::global().locate(fcitx::StandardPath::Type::PkgData, "inputmethod/lotus.conf").empty();
 #endif
-            // Settings not upgraded yet are from before Ngó Sen had its own toggle key, when users
-            // reached it through fcitx5's switch from the keyboard. Only then, so a keyboard the user
-            // adds back stays.
+            // Settings not upgraded yet, or none at all for users who never changed one, are from
+            // before Ngó Sen had its own toggle key, when users reached it through fcitx5's switch
+            // from the keyboard. Only then, so a keyboard the user adds back stays.
             fcitx::RawConfig settings;
             fcitx::readAsIni(settings, type, "conf/ngosen.conf");
-            const bool dropKeyboard = hasSettings && settings.valueByPath("SettingsVersion") == nullptr;
+            const bool dropKeyboard = settings.valueByPath("SettingsVersion") == nullptr;
 
             const auto readChanged = [=](fcitx::RawConfig& profile) {
                 fcitx::readAsIni(profile, type, "profile");
