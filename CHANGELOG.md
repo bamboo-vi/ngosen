@@ -35,7 +35,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   terminal (#240, #241).
 - Tuỳ chọn "Tự viết hoa chữ đầu văn bản và đầu dòng" (thử nghiệm, mặc định tắt) ở trang Gõ chữ, nhóm Gõ nhanh:
   gõ `xin` vào ô trống hoặc đầu dòng mới ra `Xin`. Không áp dụng ở thanh địa chỉ, ô mật khẩu, app không cho
-  bộ gõ đọc chữ trong ô, và GNOME (#238, #241).
+  bộ gõ đọc chữ trong ô, và GNOME. App GTK trên Plasma, COSMIC, Sway, Hyprland chưa viết hoa đầu dòng mới
+  sau Enter (#238, #241).
 
 ### Thay đổi
 
