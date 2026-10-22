@@ -76,6 +76,7 @@ namespace {
         check(step + ": EnableMacroInOffMode", o.enableMacroInOffMode == c.enableMacroInOffMode.value());
         check(step + ": CapitalizeMacro", o.capitalizeMacro == c.capitalizeMacro.value());
         check(step + ": AutoCapitalizeAfterPunctuation", o.autoCapitalizeAfterPunctuation == c.autoCapitalizeAfterPunctuation.value());
+        check(step + ": CapitalizeStartOfText", o.capitalizeStartOfText == c.capitalizeStartOfText.value());
         check(step + ": DoubleSpaceToPeriod", o.doubleSpaceToPeriod == c.doubleSpaceToPeriod.value());
         check(step + ": DoubleHyphenToEmDash", o.doubleHyphenToEmDash == c.doubleHyphenToEmDash.value());
         check(step + ": MessengerSelectOvertype", o.messengerSelectOvertype == c.messengerSelectOvertype.value());

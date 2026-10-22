@@ -40,6 +40,9 @@ namespace ngosen {
         unsigned int anchor() const {
             return anchor_;
         }
+        bool operator==(const Surrounding& other) const {
+            return valid_ == other.valid_ && text_ == other.text_ && cursor_ == other.cursor_ && anchor_ == other.anchor_;
+        }
 
       private:
         bool         valid_ = false;

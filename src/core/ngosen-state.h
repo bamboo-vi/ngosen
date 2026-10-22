@@ -162,6 +162,8 @@ namespace ngosen {
         bool                     checkWordAfterBounce_  = false; ///< focus came back too fast to tell whether it is the same field
         bool                     tracking_modifier_tap_ = false; ///< Selected modifier held, waiting for consecutive keyup
         bool                     lock_word_pending_     = false; ///< The lock key was tapped during a replacement
+        bool                     keySinceReport_        = false; ///< no changed report since the last key; reportAtKey_ is the text then
+        Surrounding              reportAtKey_;
 
         struct Retype {
             std::string typed;
@@ -196,6 +198,7 @@ namespace ngosen {
         bool     skipsKey(ngosen::KeyPress& keyEvent);
         void     settleBeforeKey();
         uint32_t trackCapitalization(ngosen::KeyPress& keyEvent);
+        bool     atStartOfLine() const;
         bool     handleKeyDuringReplacement(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         bool     handleDoubledKey(ngosen::KeyPress& keyEvent, uint32_t currentSym);
 

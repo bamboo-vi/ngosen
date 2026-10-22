@@ -63,6 +63,7 @@ SETTINGS_MAP = {
             "DoubleSpaceToPeriod",
             "DoubleHyphenToEmDash",
             "AutoCapitalizeAfterPunctuation",
+            "CapitalizeStartOfText",
             "RetypeAfterSwitch",
         ],
     },

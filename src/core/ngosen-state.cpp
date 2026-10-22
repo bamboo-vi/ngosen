@@ -371,6 +371,10 @@ namespace ngosen {
 
     void TypingState::keyEvent(ngosen::KeyPress& keyEvent) {
         handleKey(keyEvent);
+        if (!keyEvent.isRelease() && !keyEvent.isModifier()) {
+            keySinceReport_ = true;
+            reportAtKey_    = host_->surrounding();
+        }
         // A report with the cursor at the end of the text tells how long the text is.
         const ngosen::Surrounding s = host_->surrounding();
         if (ngosen::utf8::length(s.text()) == s.cursor())
@@ -500,14 +504,42 @@ namespace ngosen {
         }
     }
 
+    bool TypingState::atStartOfLine() const {
+        const Field field = host_->field();
+        // Only a field that reports its text can tell; where the report lags it may still show the old text.
+        if (!field.surroundingText || field.url || field.password || ngosen::surroundingTextLags(field))
+            return false;
+        // GTK over Wayland reports the text from before a paste or a new line it inserts itself.
+        if (keySinceReport_)
+            return false;
+        // The app does not hold a word still being typed, so ask the engine whether one is.
+        const ngosen::UniqueCPtr<char> word(EnginePullPreedit(bambooEngine_.handle()));
+        if (word && *word.get() != 0)
+            return false;
+        const Surrounding s = host_->surrounding();
+        if (!s.isValid())
+            return false;
+        const std::string& t  = s.text();
+        auto               it = t.begin();
+        for (unsigned int i = 0; i < s.cursor() && it != t.end(); ++i)
+            it = ngosen::utf8::nextChar(it, t.end());
+        std::string before(t.begin(), it);
+        while (!before.empty() && (before.back() == ' ' || before.back() == '\t'))
+            before.pop_back();
+        return before.empty() || before.back() == '\n';
+    }
+
     uint32_t TypingState::trackCapitalization(ngosen::KeyPress& keyEvent) {
-        uint32_t currentSym = keyEvent.sym();
-        if (!engine_->options().autoCapitalizeAfterPunctuation || realMode == ngosen::Mode::Off)
+        uint32_t       currentSym = keyEvent.sym();
+        const Options& options    = engine_->options();
+        if ((!options.autoCapitalizeAfterPunctuation && !options.capitalizeStartOfText) || realMode == ngosen::Mode::Off)
             return currentSym;
         // Ignore auto-capitalize side-effects if we're processing automated replacement backspaces
         if (is_deleting_.load(std::memory_order_acquire) && ngosen::key::isBackspace(currentSym))
             return currentSym;
 
+        if (!shouldCapitalize_ && options.capitalizeStartOfText && !keyEvent.hasModifier() && currentSym >= ngosen::key::a && currentSym <= ngosen::key::z)
+            shouldCapitalize_ = atStartOfLine();
         if (shouldCapitalize_) {
             if (currentSym >= ngosen::key::a && currentSym <= ngosen::key::z) {
                 auto upperSym = currentSym - (ngosen::key::a - ngosen::key::A);
@@ -519,6 +551,8 @@ namespace ngosen {
             }
         }
 
+        if (!options.autoCapitalizeAfterPunctuation)
+            return currentSym;
         switch (currentSym) {
             case ngosen::key::period:
             case ngosen::key::exclam:
@@ -633,6 +667,8 @@ namespace ngosen {
         }
         tracking_modifier_tap_ = false;
         lock_word_pending_     = false;
+        if (isFocusOut)
+            keySinceReport_ = false;
         // GTK resets the context when Enter inserts a new line; the sentence started there still capitalizes.
         const bool keepCapitalize = shouldCapitalize_ && !isFocusOut;
 

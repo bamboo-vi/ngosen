@@ -126,6 +126,86 @@ namespace {
         check(afterFocusOut == "bantôi", "auto-capitalize: leaving the field forgets the sentence start", afterFocusOut);
     }
 
+    // Types in a field that already holds text before the cursor; capitalizeStartOfText is on unless off is set.
+    std::string typeAtStart(Field field, const std::string& before, const std::string& keys, bool off = false, ngosen::Mode mode = ngosen::Mode::Preedit) {
+        realMode = mode;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.mutableOptions().capitalizeStartOfText = !off;
+        auto                owned                        = std::make_unique<FakeHost>(loop, field);
+        FakeHost*           host                         = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding(before, static_cast<unsigned int>(ngosen::utf8::length(before)));
+        for (const char c : keys)
+            press(state, static_cast<uint32_t>(c));
+        std::string text;
+        for (const auto& commit : host->commits())
+            text += commit;
+        return text + host->preedit();
+    }
+
+    // Pastes into an empty field with Ctrl+V, after which the app reports report, or nothing when it is null.
+    std::string typeAfterPaste(const char* report) {
+        realMode = ngosen::Mode::Preedit;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.mutableOptions().capitalizeStartOfText = true;
+        auto                owned                        = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host                         = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding("", 0);
+        FakeKey paste('v', false, ngosen::modifier::Ctrl);
+        state.keyEvent(paste);
+        FakeKey pasteUp('v', true, ngosen::modifier::Ctrl);
+        state.keyEvent(pasteUp);
+        if (report != nullptr) {
+            host->setSurrounding(report, static_cast<unsigned int>(ngosen::utf8::length(report)));
+            state.surroundingUpdated();
+        }
+        for (const char c : std::string("xin"))
+            press(state, static_cast<uint32_t>(c));
+        std::string text;
+        for (const auto& commit : host->commits())
+            text += commit;
+        return text + host->preedit();
+    }
+
+    void testCapitalizeStartOfText() {
+        const Field field = makeField("wayland", true);
+        std::string text  = typeAtStart(field, "", "xin");
+        check(text == "Xin", "start of text: the first letter in an empty field is upper case", text);
+        text = typeAtStart(field, "abc\n", "xin");
+        check(text == "Xin", "start of text: the first letter of a line is upper case", text);
+        text = typeAtStart(field, "abc ", "xin");
+        check(text == "xin", "start of text: a word after other text stays lower case", text);
+        text = typeAtStart(field, "", "ddi");
+        check(text == "Đi", "start of text: dd at the start gives Đ", text);
+        text = typeAtStart(field, "", "awn");
+        check(text == "Ăn", "start of text: aw at the start gives Ă", text);
+        text = typeAtStart(field, "", "xin", true);
+        check(text == "xin", "start of text: nothing changes with the option off", text);
+        FakeResources resources;
+        resources.mutableOptions().capitalizeStartOfText = true;
+        const std::vector<uint32_t> keys{'x', 'i', 'n', ' ', 'c', 'h', 'a', 'o', 'f'};
+        text = ngosen::test::typeInApp(resources, field, {}, keys, std::vector<int>(keys.size(), 20));
+        check(text == "Xin chào", "start of text: only the first word is upper case in Sen mode", text);
+
+        Field url = field;
+        url.url   = true;
+        text      = typeAtStart(url, "", "xin");
+        check(text == "xin", "start of text: an address bar stays lower case", text);
+        text = typeAtStart(makeField("wayland", false), "", "xin");
+        check(text == "xin", "start of text: a field that does not report its text stays lower case", text);
+        text = typeAtStart(makeField("ibus", true), "", "xin");
+        check(text == "xin", "start of text: a field whose report lags stays lower case", text);
+        text = typeAfterPaste(nullptr);
+        check(text == "xin", "start of text: a paste the app has not reported yet stays lower case", text);
+        text = typeAfterPaste("");
+        check(text == "xin", "start of text: a report still showing the field before the paste is not trusted", text);
+        text = typeAfterPaste("abc\n");
+        check(text == "Xin", "start of text: once the app reports the paste, a new line is upper case", text);
+    }
+
     void testSenForwards(const std::string& frontend, bool surroundingText) {
         realMode = ngosen::Mode::Sen;
         FakeLoop            loop;
@@ -911,6 +991,7 @@ int main() {
     testQuirks();
     testPreeditTelex();
     testAutoCapitalize();
+    testCapitalizeStartOfText();
     testSenForwards("wayland", true);
     testSenForwards("wayland_v2", true);
     testSenForwards("xim", false);

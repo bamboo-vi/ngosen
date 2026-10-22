@@ -262,7 +262,16 @@ msgstr ""
 msgid "Auto Non-VN Restore"
 msgstr ""
 
-msgid "Auto Capitalize Sentences"
+msgid "Auto Capitalize"
+msgstr ""
+
+msgid "After . ! ? and Enter"
+msgstr ""
+
+msgid "Start of text or line"
+msgstr ""
+
+msgid "Capitalize the first letter of the text or of a line"
 msgstr ""
 
 #: src/ngosen-engine.cpp:252

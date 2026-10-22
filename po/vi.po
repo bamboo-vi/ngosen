@@ -263,8 +263,17 @@ msgstr "Kiểm tra chính tả"
 msgid "Auto Non-VN Restore"
 msgstr "Tự động khôi phục với từ không phải tiếng Việt"
 
-msgid "Auto Capitalize Sentences"
-msgstr "Tự viết hoa đầu câu"
+msgid "Auto Capitalize"
+msgstr "Tự viết hoa"
+
+msgid "After . ! ? and Enter"
+msgstr "Sau dấu . ! ? và Enter"
+
+msgid "Start of text or line"
+msgstr "Đầu văn bản, đầu dòng"
+
+msgid "Capitalize the first letter of the text or of a line"
+msgstr "Tự viết hoa chữ đầu văn bản và đầu dòng (thử nghiệm)"
 
 #: src/ngosen-engine.cpp:252
 msgid "Settings"

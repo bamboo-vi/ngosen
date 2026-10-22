@@ -208,6 +208,13 @@
     {}
    ],
    [
+    "CapitalizeStartOfText",
+    "Boolean",
+    "Capitalize the first letter of the text or of a line",
+    "False",
+    {}
+   ],
+   [
     "DoubleSpaceToPeriod",
     "Boolean",
     "Double Space to Period",
