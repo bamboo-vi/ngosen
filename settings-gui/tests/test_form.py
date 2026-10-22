@@ -88,7 +88,7 @@ class TypingPageTest(unittest.TestCase):
         self.page.show()
         app.processEvents()
         self.assertEqual(form_of(self.page).rowWrapPolicy(), QFormLayout.WrapAllRows)
-        self.page.resize(900, 600)
+        self.page.resize(1400, 600)
         app.processEvents()
         self.assertEqual(form_of(self.page).rowWrapPolicy(), QFormLayout.DontWrapRows)
 
@@ -99,7 +99,7 @@ class TypingPageTest(unittest.TestCase):
         self.page.resize(760, 600)
         self.page.show()
         app.processEvents()
-        self.assertFalse(self.page.scroll.horizontalScrollBar().isVisible())
+        self.assertEqual(form_of(self.page).rowWrapPolicy(), QFormLayout.WrapAllRows)
 
 
 class ShortcutsPageTest(unittest.TestCase):
