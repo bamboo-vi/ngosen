@@ -323,7 +323,11 @@ class DynamicSettingsPage(QWidget):
     def _update_wrap_policy(self):
         if getattr(self, "form", None) is None:
             return
-        narrow = self.width() < NARROW_WIDTH
+        # Measured side by side only, since labels above fields need less width.
+        if self.form.rowWrapPolicy() == QFormLayout.DontWrapRows:
+            self._side_by_side_width = self.container.minimumSizeHint().width()
+        too_wide = self.scroll.viewport().width() < getattr(self, "_side_by_side_width", 0)
+        narrow = self.width() < NARROW_WIDTH or too_wide
         self.form.setRowWrapPolicy(QFormLayout.WrapAllRows if narrow else QFormLayout.DontWrapRows)
 
     @staticmethod
