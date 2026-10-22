@@ -64,7 +64,8 @@ class TypingPageTest(unittest.TestCase):
             self.assertLess(hint.height(), 2 * hint.fontMetrics().lineSpacing(), hint.text())
 
     def test_long_hint_wraps_instead_of_scrolling(self):
-        self.page.resize(760, 900)
+        # Narrow enough to wrap whether the labels sit beside or above the fields.
+        self.page.resize(600, 900)
         self.page.show()
         app.processEvents()
         hint = next(
