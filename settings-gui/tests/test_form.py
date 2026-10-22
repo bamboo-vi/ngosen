@@ -64,7 +64,8 @@ class TypingPageTest(unittest.TestCase):
             self.assertLess(hint.height(), 2 * hint.fontMetrics().lineSpacing(), hint.text())
 
     def test_long_hint_wraps_instead_of_scrolling(self):
-        self.page.resize(760, 900)
+        # Narrow enough to wrap whether the labels sit beside or above the fields.
+        self.page.resize(600, 900)
         self.page.show()
         app.processEvents()
         hint = next(
@@ -87,9 +88,18 @@ class TypingPageTest(unittest.TestCase):
         self.page.show()
         app.processEvents()
         self.assertEqual(form_of(self.page).rowWrapPolicy(), QFormLayout.WrapAllRows)
-        self.page.resize(900, 600)
+        self.page.resize(1400, 600)
         app.processEvents()
         self.assertEqual(form_of(self.page).rowWrapPolicy(), QFormLayout.DontWrapRows)
+
+    def test_labels_go_above_fields_when_larger_text_does_not_fit(self):
+        font = self.page.font()
+        font.setPointSizeF(font.pointSizeF() * 1.4)
+        self.page.setFont(font)
+        self.page.resize(760, 600)
+        self.page.show()
+        app.processEvents()
+        self.assertEqual(form_of(self.page).rowWrapPolicy(), QFormLayout.WrapAllRows)
 
 
 class ShortcutsPageTest(unittest.TestCase):

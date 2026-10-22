@@ -16,6 +16,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - KDE Plasma Wayland: app X11 chạy qua XWayland, như Minecraft 26.2 trở về trước hay xterm, không gõ được tiếng
   Việt mà chỉ ra chữ Telex thô, vì lệnh cài chưa đặt biến `XMODIFIERS`. Giờ lệnh cài đặt biến này; đăng xuất rồi
   đăng nhập lại để áp dụng (#251).
+- Sửa trang Gõ chữ trong cửa sổ cài đặt bị cắt chữ và hiện thanh cuộn ngang khi dùng font hệ thống lớn (#250).
+- Trên GNOME khi chưa cài Qt theme, thanh cuộn trong cửa sổ cài đặt nay mảnh, bo tròn, không có nút mũi tên
+  và theo theme sáng/tối (#252).
 - Trên GNOME, cửa sổ cài đặt đổi sáng/tối theo GNOME khi mở và khi chuyển chế độ. Trước đây chuyển sang tối
   thì cửa sổ vẫn sáng và ô tick mất viền. Cần Qt 6.8 trở lên; Qt cũ hơn vẫn dùng giao diện sáng như trước (#253).
 - Gõ Sen trong app dùng GLFW chạy qua XWayland, như Minecraft Java: sau khi bấm Backspace một lần, chữ cũ không
