@@ -15,6 +15,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Phím riêng chuyển tiếng Anh/Việt; ở tiếng Anh, gõ như không có bộ gõ. Nhớ chế độ qua lần đăng xuất.
   Cài mới bắt đầu ở tiếng Anh, dùng Ctrl+Shift như UniKey; đã cài từ trước giữ Ctrl+Space.
   App có chế độ riêng thì phím chuyển đổi riêng app đó. Menu ` chỉ mở ở tiếng Việt; tiếng Anh gõ dấu ` (#234)
+- Thêm ô "Phím chuyển Anh/Việt" ở đầu trang Phím tắt trong cửa sổ cài đặt, gợi ý dùng Ctrl+Shift
+  như UniKey nếu đang dùng phím khác; nhắc phím chuyển của fcitx5 vẫn đưa sang bộ gõ khác còn trong nhóm. (#242)
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím Anh/Việt của Ngó Sen hay chuyển sang
   Ngó Sen thì chữ đổi ngay thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ"
   (#82, #232, #239).
