@@ -84,7 +84,6 @@ namespace fcitx {
     }
 
     namespace {
-        // Whether a modifier other than the one `key` presses or releases is down.
         bool otherModifierHeld(const Key& key) {
             return (key.states() & ~Key::keySymToStates(key.sym()) & KeyStates{KeyState::Ctrl_Alt_Shift, KeyState::Super}) != 0;
         }
@@ -1021,7 +1020,7 @@ namespace fcitx {
             return false;
         }
         // Ctrl+Space: offer the retype once Ctrl is up too.
-        retypeOnRelease_ = otherModifierHeld(key);
+        retypeOnRelease_ = realMode == NgoSenMode::Off && otherModifierHeld(key);
         toggleVietnamese(keyEvent.inputContext(), !retypeOnRelease_);
         keyEvent.filterAndAccept();
         return true;

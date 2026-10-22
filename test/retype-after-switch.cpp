@@ -170,6 +170,33 @@ int main() {
     engine.keyEvent(entry, ctrlUp);
     check(offerShown(*writer) == "abc tieengs vieetj → abc tiếng việt", "Ctrl+Space offers once Ctrl is up", offerShown(*writer));
 
+    auto notes = std::make_unique<TestInputContext>(&testInstance.instance, "kwrite");
+    notes->setCapabilityFlags(fcitx::CapabilityFlag::SurroundingText);
+    notes->focusIn();
+    fcitx::InputContextEvent notesFocus(notes.get(), fcitx::EventType::InputContextFocusIn);
+    engine.activate(entry, notesFocus);
+    const auto switchWithCtrlSpace = [&](fcitx::KeySym between = FcitxKey_None) {
+        fcitx::KeyEvent down(notes.get(), fcitx::Key(FcitxKey_Control_L), false);
+        engine.keyEvent(entry, down);
+        fcitx::KeyEvent space(notes.get(), fcitx::Key(FcitxKey_space, ctrl), false);
+        engine.keyEvent(entry, space);
+        if (between != FcitxKey_None) {
+            fcitx::KeyEvent other(notes.get(), fcitx::Key(between, ctrl), false);
+            engine.keyEvent(entry, other);
+        }
+        fcitx::KeyEvent up(notes.get(), fcitx::Key(FcitxKey_Control_L, ctrl), true);
+        engine.keyEvent(entry, up);
+        return offerShown(*notes);
+    };
+    switchWithCtrlSpace();
+    typeInEnglish(engine, entry, *notes, "abc tieengs");
+    offer = switchWithCtrlSpace(FcitxKey_a);
+    check(offer == "(no offer)", "a key before Ctrl comes up drops the offer", offer);
+    switchWithCtrlSpace();
+    typeInEnglish(engine, entry, *notes, "abc vieetj");
+    offer = switchWithCtrlSpace();
+    check(offer == "abc vieetj → abc việt", "a dropped offer is not offered with later English", offer);
+
     if (failures == 0)
         std::cout << "all retype-after-switch checks passed\n";
     return failures == 0 ? 0 : 1;
