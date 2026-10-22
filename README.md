@@ -44,7 +44,9 @@ Lệnh cài thêm Ngó Sen vào danh sách bộ gõ và thiết lập theo deskt
   cũng gõ được.
 - Xfce, Cinnamon, MATE (X11, Debian và Ubuntu): dùng im-config đặt fcitx5 làm bộ gõ.
 
-Cài xong, đăng xuất rồi đăng nhập lại; nhấn rồi thả Ctrl+Shift như UniKey để chuyển giữa tiếng Anh và tiếng Việt, biểu tượng khay hiện chữ V khi đang gõ tiếng Việt. Nếu đã cài Ngó Sen từ trước, bạn vẫn dùng Ctrl+Space; muốn đổi phím, mở cửa sổ cài đặt, mục Phím tắt.
+Cài xong, đăng xuất rồi đăng nhập lại; nhấn rồi thả Ctrl+Shift như UniKey để chuyển giữa tiếng Anh
+và tiếng Việt, biểu tượng khay hiện chữ V khi đang gõ tiếng Việt. Nếu đã cài Ngó Sen từ trước, bạn vẫn
+dùng phím chuyển cũ (thường là Ctrl+Space); muốn đổi phím, mở cửa sổ cài đặt, mục Phím tắt.
 Các bước thiết lập chỉ áp dụng cho tài khoản chạy lệnh. Tài khoản khác trên cùng máy cần đăng nhập vào
 đó rồi chạy lại lệnh cài.
 

@@ -81,9 +81,6 @@ SETTINGS_MAP = {
     },
 }
 
-# Either Ctrl with either Shift, in either order: the key UniKey uses.
-CTRL_SHIFT = ["Control+Shift_L", "Control+Shift_R", "Shift+Control_L", "Shift+Control_R"]
-
 # One line under a setting, saying what the user sees.
 HINTS = {
     "ToggleKey": N_("Tap it alone to switch. The tray icon shows V while typing Vietnamese."),
@@ -379,15 +376,29 @@ class DynamicSettingsPage(QWidget):
 
     def _render_toggle_key(self, item):
         key, type_str, label, default, annotations = item
-        val = self.current_values.get(key, default)
-        keys = [val[i] for i in sorted(val, key=int)] if isinstance(val, dict) else []
+        # The default is Ctrl+Shift: either Ctrl with either Shift, in either order, as in UniKey.
+        ctrl_shift = default if isinstance(default, dict) else {}
 
-        is_ctrl_shift = sorted(keys) == sorted(CTRL_SHIFT)
-        # Shown without a side, since either Ctrl and either Shift work.
-        editor = HotkeyEditorWidget("Control+Shift" if is_ctrl_shift else (keys[0] if keys else ""))
+        def is_ctrl_shift():
+            val = self.current_values.get(key, default)
+            return isinstance(val, dict) and sorted(val.values()) == sorted(ctrl_shift.values())
+
+        def shown_key():
+            val = self.current_values.get(key, default)
+            first = val.get("0", "") if isinstance(val, dict) else ""
+            # Without a side, since either Ctrl and either Shift work.
+            return "Control+Shift" if is_ctrl_shift() else first
+
+        editor = HotkeyEditorWidget(shown_key())
         editor.setFixedWidth(235)
-        field = self._with_hint(editor, key)
-        layout = field.layout()
+        field = QWidget()
+        layout = QVBoxLayout(field)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(editor)
+        hint = HintLabel(_(HINTS[key]))
+        mute(hint)
+        layout.addWidget(hint)
 
         # The key editor cannot record a key made of modifiers alone, so Ctrl+Shift gets a button.
         offer = QWidget()
@@ -398,20 +409,24 @@ class DynamicSettingsPage(QWidget):
         offer_layout.addWidget(offer_text)
         offer_layout.addWidget(use_ctrl_shift)
         offer_layout.addStretch(1)
-        offer.setVisible(not is_ctrl_shift)
+        offer.setVisible(not is_ctrl_shift())
         layout.addWidget(offer)
 
-        def changed(text):
-            self.update_config(key, {"0": text} if text else {})
-            offer.setVisible(True)
-
         def choose_ctrl_shift():
-            self.update_config(key, {str(i): k for i, k in enumerate(CTRL_SHIFT)})
-            editor.hotkey_capture.current_key = "Control+Shift"
-            editor.hotkey_capture._update_display()
+            self.update_config(key, dict(ctrl_shift))
+            editor.set_key(shown_key())
             offer.setVisible(False)
 
-        # The Ctrl+Shift variants are one key to the user, so a new key replaces all of them.
+        def changed(text):
+            # Without a toggle key there is no way back to Vietnamese, so clearing restores Ctrl+Shift.
+            if not text:
+                choose_ctrl_shift()
+                return
+            # The Ctrl+Shift entries are one key to the user; other extra keys still work.
+            new = {"0": text} if is_ctrl_shift() else self._with_first_key(key, text)
+            self.update_config(key, new)
+            offer.setVisible(not is_ctrl_shift())
+
         editor.textChanged.connect(changed)
         use_ctrl_shift.clicked.connect(choose_ctrl_shift)
 

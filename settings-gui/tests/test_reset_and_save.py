@@ -8,7 +8,7 @@ from unittest import mock
 
 from qtpy.QtCore import QEvent
 from qtpy.QtWidgets import QCheckBox, QLabel, QMessageBox, QPushButton
-from support import FakeDBusHandler, app
+from support import DEFAULTS, FakeDBusHandler, app
 from ui.components import HotkeyEditorWidget
 from ui.main_window import NgoSenSettingsWindow
 from ui.pages.dict_editor import DictEditorPage
@@ -155,6 +155,27 @@ class ToggleKeyTest(unittest.TestCase):
         self.assertTrue(page.save_data())
         self.assertEqual(fake.values["ToggleKey"], {"0": "F12"})
         self.assertTrue(self.offer(page).isVisible())
+
+    def test_clearing_the_key_restores_ctrl_shift(self):
+        fake = FakeDBusHandler({"ToggleKey": {"0": "Control+space"}})
+        page = self.page(fake)
+        page.findChildren(HotkeyEditorWidget)[0].btn_clear.click()
+        self.assertTrue(page.save_data())
+        self.assertEqual(fake.values["ToggleKey"], DEFAULTS["ToggleKey"])
+
+    def test_a_new_key_keeps_keys_copied_from_fcitx5(self):
+        fake = FakeDBusHandler({"ToggleKey": {"0": "Control+space", "1": "Zenkaku_Hankaku"}})
+        page = self.page(fake)
+        page.findChildren(HotkeyEditorWidget)[0].hotkey_capture.textChanged.emit("F12")
+        self.assertTrue(page.save_data())
+        self.assertEqual(fake.values["ToggleKey"], {"0": "F12", "1": "Zenkaku_Hankaku"})
+
+    def test_ctrl_shift_ends_a_recording(self):
+        page = self.page(FakeDBusHandler({"ToggleKey": {"0": "Control+space"}}))
+        capture = page.findChildren(HotkeyEditorWidget)[0].hotkey_capture
+        capture.setChecked(True)
+        self.offer(page).click()
+        self.assertFalse(capture.isChecked())
 
     def test_other_input_methods_get_a_hint(self):
         hint = "fcitx5 has other input methods too; its own key still switches to them."
