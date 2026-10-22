@@ -294,8 +294,8 @@ namespace fcitx {
             auto& commit = static_cast<CommitStringEvent&>(event);
             stateFor(commit.inputContext())->noteCommit(commit.text());
         });
-        // Keys reach this watcher whichever input method is on, so text typed before switching to
-        // Ngó Sen can be retyped with marks.
+        // Text typed in another input method of the group, before fcitx5 switches to Ngó Sen; in
+        // English Ngó Sen notes the keys itself.
         keyWhileOffWatcher_ = instance_->watchEvent(EventType::InputContextKeyEvent, EventWatcherPhase::PreInputMethod, [this](Event& event) {
             auto& keyEvent = static_cast<KeyEvent&>(event);
             auto* ic       = keyEvent.inputContext();
@@ -1048,6 +1048,8 @@ namespace fcitx {
         NGOSEN_INFO(std::string("Toggle key: ") + (turnOn ? "Vietnamese" : "English") + " in " + app);
         setMode(mode, ic);
         instance_->showCustomInputMethodInformation(ic, turnOn ? "vi" : "en");
+        if (turnOn)
+            stateFor(ic)->offerRetype();
     }
 
     void NgoSenEngine::setAppRule(const std::string& appName, NgoSenMode mode) {

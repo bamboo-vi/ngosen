@@ -166,7 +166,7 @@ namespace {
         check(!host->candidates(), "focus coming in does not offer old text", "offered");
     }
 
-    // Types text in the app as if another input method were on, switches Ngó Sen on, then presses keys.
+    // Types text in the app while Ngó Sen types English, switches Vietnamese on, then presses keys.
     std::string retypeInApp(const Field& field, Mode mode, const std::string& typed, const std::vector<uint32_t>& after, AppQuirks quirks = {}) {
         realMode = Mode::Off;
         realtextLen.store(0);
@@ -178,7 +178,6 @@ namespace {
         ngosen::TypingState state(&resources, std::move(owned));
         app->attach(&state);
         for (const char c : typed) {
-            noteWhileOff(state, static_cast<uint32_t>(c));
             app->type(static_cast<uint32_t>(c));
             loop.pump(5);
         }
@@ -262,7 +261,6 @@ namespace {
         ngosen::TypingState state(&resources, std::move(owned));
         app->attach(&state);
         for (const char c : std::string("tieengs vieetj")) {
-            noteWhileOff(state, static_cast<uint32_t>(c));
             app->type(static_cast<uint32_t>(c));
             loop.pump(5);
         }
