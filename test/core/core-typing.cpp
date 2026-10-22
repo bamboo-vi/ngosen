@@ -144,6 +144,32 @@ namespace {
         return text + host->preedit();
     }
 
+    // Pastes into an empty field with Ctrl+V, after which the app reports report, or nothing when it is null.
+    std::string typeAfterPaste(const char* report) {
+        realMode = ngosen::Mode::Preedit;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.mutableOptions().capitalizeStartOfText = true;
+        auto                owned                        = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host                         = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding("", 0);
+        FakeKey paste('v', false, ngosen::modifier::Ctrl);
+        state.keyEvent(paste);
+        FakeKey pasteUp('v', true, ngosen::modifier::Ctrl);
+        state.keyEvent(pasteUp);
+        if (report != nullptr) {
+            host->setSurrounding(report, static_cast<unsigned int>(ngosen::utf8::length(report)));
+            state.surroundingUpdated();
+        }
+        for (const char c : std::string("xin"))
+            press(state, static_cast<uint32_t>(c));
+        std::string text;
+        for (const auto& commit : host->commits())
+            text += commit;
+        return text + host->preedit();
+    }
+
     void testCapitalizeStartOfText() {
         const Field field = makeField("wayland", true);
         std::string text  = typeAtStart(field, "", "xin");
@@ -172,6 +198,12 @@ namespace {
         check(text == "xin", "start of text: a field that does not report its text stays lower case", text);
         text = typeAtStart(makeField("ibus", true), "", "xin");
         check(text == "xin", "start of text: a field whose report lags stays lower case", text);
+        text = typeAfterPaste(nullptr);
+        check(text == "xin", "start of text: a paste the app has not reported yet stays lower case", text);
+        text = typeAfterPaste("");
+        check(text == "xin", "start of text: a report still showing the field before the paste is not trusted", text);
+        text = typeAfterPaste("abc\n");
+        check(text == "Xin", "start of text: once the app reports the paste, a new line is upper case", text);
     }
 
     void testSenForwards(const std::string& frontend, bool surroundingText) {

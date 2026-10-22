@@ -279,6 +279,8 @@ namespace ngosen {
             checkCursorJump();
         surr_silent_        = false;
         surr_silent_streak_ = 0;
+        if (!(host_->surrounding() == reportAtKey_))
+            keySinceReport_ = false;
         if (key_report_pending_) {
             // Calc answers our Shift with an empty field when the key went to a cell not being edited.
             const auto s = host_->surrounding();

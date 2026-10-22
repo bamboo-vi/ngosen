@@ -371,6 +371,10 @@ namespace ngosen {
 
     void TypingState::keyEvent(ngosen::KeyPress& keyEvent) {
         handleKey(keyEvent);
+        if (!keyEvent.isRelease() && !keyEvent.isModifier()) {
+            keySinceReport_ = true;
+            reportAtKey_    = host_->surrounding();
+        }
         // A report with the cursor at the end of the text tells how long the text is.
         const ngosen::Surrounding s = host_->surrounding();
         if (ngosen::utf8::length(s.text()) == s.cursor())
@@ -499,6 +503,9 @@ namespace ngosen {
         const Field field = host_->field();
         // Only a field that reports its text can tell; where the report lags it may still show the old text.
         if (!field.surroundingText || field.url || field.password || ngosen::surroundingTextLags(field))
+            return false;
+        // GTK over Wayland reports the text from before a paste or a new line it inserts itself.
+        if (keySinceReport_)
             return false;
         // The app does not hold a word still being typed, so ask the engine whether one is.
         const ngosen::UniqueCPtr<char> word(EnginePullPreedit(bambooEngine_.handle()));
@@ -655,6 +662,8 @@ namespace ngosen {
         }
         tracking_modifier_tap_ = false;
         lock_word_pending_     = false;
+        if (isFocusOut)
+            keySinceReport_ = false;
         // GTK resets the context when Enter inserts a new line; the sentence started there still capitalizes.
         const bool keepCapitalize = shouldCapitalize_ && !isFocusOut;
 
