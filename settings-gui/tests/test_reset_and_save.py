@@ -7,8 +7,8 @@ import unittest
 from unittest import mock
 
 from qtpy.QtCore import QEvent
-from qtpy.QtWidgets import QCheckBox, QMessageBox
-from support import FakeDBusHandler, app
+from qtpy.QtWidgets import QCheckBox, QLabel, QMessageBox, QPushButton
+from support import DEFAULTS, FakeDBusHandler, app
 from ui.components import HotkeyEditorWidget
 from ui.main_window import NgoSenSettingsWindow
 from ui.pages.dict_editor import DictEditorPage
@@ -105,10 +105,86 @@ class HotkeyTest(unittest.TestCase):
     def test_editing_first_hotkey_keeps_the_others(self):
         fake = FakeDBusHandler({"ModeMenuKey": {"0": "grave", "1": "Control+space"}})
         page = DynamicSettingsPage(fake, category=SettingsCategory.SHORTCUTS)
-        editor = page.findChildren(HotkeyEditorWidget)[0]
+        editor = page.findChildren(HotkeyEditorWidget)[1]
         editor.hotkey_capture.textChanged.emit("F12")
         self.assertTrue(page.save_data())
         self.assertEqual(fake.values["ModeMenuKey"], {"0": "F12", "1": "Control+space"})
+
+
+class ToggleKeyTest(unittest.TestCase):
+    def page(self, fake):
+        page = DynamicSettingsPage(fake, category=SettingsCategory.SHORTCUTS)
+        page.show()
+        return page
+
+    def offer(self, page):
+        return next(b for b in page.findChildren(QPushButton) if b.text() == "Use Ctrl+Shift")
+
+    def test_toggle_key_comes_first(self):
+        page = self.page(FakeDBusHandler())
+        self.assertEqual(
+            page.findChildren(HotkeyEditorWidget)[0].hotkey_capture.current_key, "Control+Shift"
+        )
+
+    def test_ctrl_shift_users_get_no_offer(self):
+        page = self.page(FakeDBusHandler())
+        self.assertFalse(self.offer(page).isVisible())
+
+    def test_ctrl_space_users_can_switch_to_ctrl_shift(self):
+        fake = FakeDBusHandler({"ToggleKey": {"0": "Control+space"}})
+        page = self.page(fake)
+        button = self.offer(page)
+        self.assertTrue(button.isVisible())
+        button.click()
+        self.assertTrue(page.save_data())
+        self.assertEqual(
+            fake.values["ToggleKey"],
+            {
+                "0": "Control+Shift_L",
+                "1": "Control+Shift_R",
+                "2": "Shift+Control_L",
+                "3": "Shift+Control_R",
+            },
+        )
+        self.assertFalse(button.isVisible())
+
+    def test_a_new_key_replaces_every_ctrl_shift(self):
+        fake = FakeDBusHandler()
+        page = self.page(fake)
+        page.findChildren(HotkeyEditorWidget)[0].hotkey_capture.textChanged.emit("F12")
+        self.assertTrue(page.save_data())
+        self.assertEqual(fake.values["ToggleKey"], {"0": "F12"})
+        self.assertTrue(self.offer(page).isVisible())
+
+    def test_clearing_the_key_restores_ctrl_shift(self):
+        fake = FakeDBusHandler({"ToggleKey": {"0": "Control+space"}})
+        page = self.page(fake)
+        page.findChildren(HotkeyEditorWidget)[0].btn_clear.click()
+        self.assertTrue(page.save_data())
+        self.assertEqual(fake.values["ToggleKey"], DEFAULTS["ToggleKey"])
+
+    def test_a_new_key_keeps_keys_copied_from_fcitx5(self):
+        fake = FakeDBusHandler({"ToggleKey": {"0": "Control+space", "1": "Zenkaku_Hankaku"}})
+        page = self.page(fake)
+        page.findChildren(HotkeyEditorWidget)[0].hotkey_capture.textChanged.emit("F12")
+        self.assertTrue(page.save_data())
+        self.assertEqual(fake.values["ToggleKey"], {"0": "F12", "1": "Zenkaku_Hankaku"})
+
+    def test_ctrl_shift_ends_a_recording(self):
+        page = self.page(FakeDBusHandler({"ToggleKey": {"0": "Control+space"}}))
+        capture = page.findChildren(HotkeyEditorWidget)[0].hotkey_capture
+        capture.setChecked(True)
+        self.offer(page).click()
+        self.assertFalse(capture.isChecked())
+
+    def test_other_input_methods_get_a_hint(self):
+        hint = "fcitx5 has other input methods too; its own key still switches to them."
+        page = self.page(FakeDBusHandler())
+        self.assertIn(hint, [label.text() for label in page.findChildren(QLabel)])
+        alone = FakeDBusHandler()
+        alone.input_method_names = lambda: ["ngosen"]
+        page = self.page(alone)
+        self.assertNotIn(hint, [label.text() for label in page.findChildren(QLabel)])
 
 
 class DictionaryTest(unittest.TestCase):

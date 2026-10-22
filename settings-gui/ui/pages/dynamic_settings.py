@@ -67,7 +67,7 @@ SETTINGS_MAP = {
         ],
     },
     SettingsCategory.SHORTCUTS: {
-        N_("Hotkeys"): ["ModeMenuKey", "CycleModeKey"],
+        N_("Hotkeys"): ["ToggleKey", "ModeMenuKey", "CycleModeKey"],
         MODE_SWITCHING: [
             "ShortcutSen",
             "ShortcutPreedit",
@@ -83,6 +83,7 @@ SETTINGS_MAP = {
 
 # One line under a setting, saying what the user sees.
 HINTS = {
+    "ToggleKey": N_("Tap it alone to switch. The tray icon shows V while typing Vietnamese."),
     "SpellCheck": N_("Words that are not Vietnamese get no tone marks."),
     "AutoNonVnRestore": N_("Typing windows still gives windows."),
     "LockWordModifier": N_(
@@ -272,7 +273,9 @@ class DynamicSettingsPage(QWidget):
                     item = self.all_metadata.get(k)
                     if not item:
                         continue
-                    if k in ["ModeMenuKey", "CycleModeKey"] or item[1] == "Hotkey":
+                    if k == "ToggleKey":
+                        self._render_toggle_key(item)
+                    elif k in ["ModeMenuKey", "CycleModeKey"] or item[1] == "Hotkey":
                         self._render_hotkey(item)
                     elif k == "Mode":
                         self._render_mode_buttons(item)
@@ -370,6 +373,71 @@ class DynamicSettingsPage(QWidget):
             lambda text, k=key: self.update_config(k, self._with_first_key(k, text))
         )
         self.form.addRow(_(label) + ":", self._with_hint(hk_btn, key))
+
+    def _render_toggle_key(self, item):
+        key, type_str, label, default, annotations = item
+        # The default is Ctrl+Shift: either Ctrl with either Shift, in either order, as in UniKey.
+        ctrl_shift = default if isinstance(default, dict) else {}
+
+        def is_ctrl_shift():
+            val = self.current_values.get(key, default)
+            return isinstance(val, dict) and sorted(val.values()) == sorted(ctrl_shift.values())
+
+        def shown_key():
+            val = self.current_values.get(key, default)
+            first = val.get("0", "") if isinstance(val, dict) else ""
+            # Without a side, since either Ctrl and either Shift work.
+            return "Control+Shift" if is_ctrl_shift() else first
+
+        editor = HotkeyEditorWidget(shown_key())
+        editor.setFixedWidth(235)
+        field = QWidget()
+        layout = QVBoxLayout(field)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(editor)
+        hint = HintLabel(_(HINTS[key]))
+        mute(hint)
+        layout.addWidget(hint)
+
+        # The key editor cannot record a key made of modifiers alone, so Ctrl+Shift gets a button.
+        offer = QWidget()
+        offer_layout = QHBoxLayout(offer)
+        offer_layout.setContentsMargins(0, 4, 0, 0)
+        offer_text = QLabel(_("Switch with Ctrl+Shift, as in UniKey?"))
+        use_ctrl_shift = QPushButton(_("Use Ctrl+Shift"))
+        offer_layout.addWidget(offer_text)
+        offer_layout.addWidget(use_ctrl_shift)
+        offer_layout.addStretch(1)
+        offer.setVisible(not is_ctrl_shift())
+        layout.addWidget(offer)
+
+        def choose_ctrl_shift():
+            self.update_config(key, dict(ctrl_shift))
+            editor.set_key(shown_key())
+            offer.setVisible(False)
+
+        def changed(text):
+            # Without a toggle key there is no way back to Vietnamese, so clearing restores Ctrl+Shift.
+            if not text:
+                choose_ctrl_shift()
+                return
+            # The Ctrl+Shift entries are one key to the user; other extra keys still work.
+            new = {"0": text} if is_ctrl_shift() else self._with_first_key(key, text)
+            self.update_config(key, new)
+            offer.setVisible(not is_ctrl_shift())
+
+        editor.textChanged.connect(changed)
+        use_ctrl_shift.clicked.connect(choose_ctrl_shift)
+
+        others = [n for n in (self.dbus.input_method_names() or []) if n != "ngosen"]
+        if others:
+            hint = HintLabel(
+                _("fcitx5 has other input methods too; its own key still switches to them.")
+            )
+            mute(hint)
+            layout.addWidget(hint)
+        self.form.addRow(_(label) + ":", field)
 
     def _with_first_key(self, key, text):
         # Only the first key of a list is shown; the others still work and must survive an edit.

@@ -256,10 +256,14 @@ class HotkeyEditorWidget(QWidget):
     def _on_hotkey_changed(self, text):
         self.textChanged.emit(text)
 
-    def _on_clear(self):
-        self.hotkey_capture.current_key = ""
+    def set_key(self, text):
+        """Shows `text` as the key, ending a recording, without emitting textChanged."""
+        self.hotkey_capture.current_key = text
         self.hotkey_capture.setChecked(False)
         self.hotkey_capture._update_display()
+
+    def _on_clear(self):
+        self.set_key("")
         self.textChanged.emit("")
 
 
