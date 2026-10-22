@@ -230,6 +230,16 @@ check_old_profile_cleanup() {
     check "fcitx5 stops again" stop_fcitx5
     check "a keyboard added back stays" has_line "$profile" 'Name=keyboard-us'
 
+    # fcitx5 switches only between two input methods, so its own switch key moves to Ngó Sen.
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    printf 'InputMethod=Telex\n' | as_user tee "$settings" >/dev/null
+    printf '[Hotkey/TriggerKeys]\n0=Super+space\n' | as_user tee "$config" >/dev/null
+    check "fcitx5 starts with its own switch key" start_fcitx5
+    check "fcitx5 stops once more" stop_fcitx5
+    check "fcitx5's switch key becomes the toggle key" has_line "$settings" '0=Super+space'
+    as_user rm -f "$config"
+
     pkill -u "$user" dbus-daemon || :
     bus=
 }

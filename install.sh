@@ -357,13 +357,13 @@ has_keyboard_in_profile() {
 toggle_key_name() {
     local dir key
     dir="$(config_home)/fcitx5/conf"
-    if [ -f "$dir/ngosen.conf" ]; then
-        grep -qs '^SettingsVersion=' "$dir/ngosen.conf" || key=Control+space
-    elif [ -f "$dir/lotus.conf" ]; then
-        key=Control+space
-    fi
-    if [ -z "${key:-}" ]; then
-        key=$(awk '/^\[/ { section = $0 } section == "[ToggleKey]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$dir/ngosen.conf" 2>/dev/null)
+    key=$(awk '/^\[/ { section = $0 } section == "[ToggleKey]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$dir/ngosen.conf" 2>/dev/null)
+    if [ -z "$key" ]; then
+        if [ -f "$dir/ngosen.conf" ]; then
+            grep -qs '^SettingsVersion=' "$dir/ngosen.conf" || key=Control+space
+        elif [ -f "$dir/lotus.conf" ]; then
+            key=Control+space
+        fi
     fi
     case "${key:-}" in
         "" | Control+Shift_L | Control+Shift_R | Shift+Control_L | Shift+Control_R) printf 'Ctrl+Shift' ;;

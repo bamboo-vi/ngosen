@@ -134,7 +134,7 @@ namespace {
         auto chosen = parse("[ToggleKey]\n0=Alt+z\n");
         check("a toggle key already set stays", !ngosen::copySwitchKeys(fcitxConfig, chosen) && value(chosen, "ToggleKey/0") == "Alt+z");
         fcitx::RawConfig defaults;
-        check("fcitx5's default keys copy nothing", !ngosen::copySwitchKeys(defaults, settings));
+        check("no switch key in fcitx5's config copies nothing", !ngosen::copySwitchKeys(defaults, settings));
     }
 
     void testKeepOtherInputMethods() {

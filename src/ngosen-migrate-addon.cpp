@@ -123,8 +123,11 @@ namespace {
                 FCITX_INFO() << "Ngó Sen: removed the keyboard next to Ngó Sen from the fcitx5 profile";
                 fcitx::RawConfig fcitxConfig;
                 fcitx::readAsIni(fcitxConfig, type, "config");
-                if (ngosen::copySwitchKeys(fcitxConfig, settings)) {
-                    fcitx::safeSaveAsIni(settings, type, "conf/ngosen.conf");
+                // Read again: a previous fcitx5 may have saved it on the way out.
+                fcitx::RawConfig current;
+                fcitx::readAsIni(current, type, "conf/ngosen.conf");
+                if (ngosen::copySwitchKeys(fcitxConfig, current)) {
+                    fcitx::safeSaveAsIni(current, type, "conf/ngosen.conf");
                 }
             }
         }
