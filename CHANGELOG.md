@@ -12,6 +12,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Sửa mô tả ở trang Giới thiệu trong cửa sổ cài đặt cho khớp với README (#249).
 - Gõ Sen trong app dùng GLFW chạy qua XWayland, như Minecraft Java: sau khi bấm Backspace một lần, chữ cũ không
   còn bị xoá khi thêm dấu (`tieengs` ra `tieêngếng`). Nguyên nhân là GLFW bỏ qua phím Backspace có thời điểm
   không mới hơn lần bấm trước, mà Ngó Sen gửi phím với thời điểm 0 (#247).

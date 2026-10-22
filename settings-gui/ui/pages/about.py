@@ -99,7 +99,9 @@ class AboutPage(QWidget):
             layout.addWidget(replaced)
             brand.follow_theme(replaced, _color_warning)
 
-        desc = QLabel(_("Modern, fast, and stable Vietnamese input method for Linux."))
+        desc = QLabel(
+            _("Vietnamese input method for fcitx5 on Linux that types like UniKey on Windows.")
+        )
         desc.setWordWrap(True)
         desc.setAlignment(Qt.AlignCenter)
         desc.setObjectName("AboutDescription")

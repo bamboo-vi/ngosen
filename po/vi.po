@@ -322,8 +322,8 @@ msgid "Version {}"
 msgstr "Phiên bản {}"
 
 #: settings-gui/ui/pages/about.py:90
-msgid "Modern, fast, and stable Vietnamese input method for Linux."
-msgstr "Bộ gõ tiếng việt hiện đại, nhanh và ổn định cho Linux."
+msgid "Vietnamese input method for fcitx5 on Linux that types like UniKey on Windows."
+msgstr "Bộ gõ tiếng Việt cho fcitx5 trên Linux, gõ như UniKey trên Windows."
 
 #: settings-gui/ui/pages/about.py:103
 msgid "Report Bug"
