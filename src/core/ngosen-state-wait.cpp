@@ -231,8 +231,7 @@ namespace ngosen {
 
     void TypingState::forwardBackspaces(int count) {
         for (int i = 0; i < count; ++i) {
-            host_->forwardKey(ngosen::EditKey::BackSpace, false);
-            host_->forwardKey(ngosen::EditKey::BackSpace, true);
+            forwardTap(ngosen::EditKey::BackSpace);
         }
     }
 
@@ -286,8 +285,7 @@ namespace ngosen {
         is_deleting_.store(true, std::memory_order_release);
         if (ngosen::reportsFieldOnlyOnKey(host_->field())) {
             // The key itself never reaches the app, so give it one that types nothing.
-            host_->forwardKey(ngosen::EditKey::Shift, false);
-            host_->forwardKey(ngosen::EditKey::Shift, true);
+            forwardTap(ngosen::EditKey::Shift);
         }
         key_report_timer_ = host_->startTimer(ngosen::monotonicUs() + KeyReportWaitUs, 0, [this](ngosen::Timer&) {
             finishKeyReportWait(true, true);

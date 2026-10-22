@@ -114,8 +114,8 @@ namespace ngosen {
         ic_->commitString(text);
     }
 
-    void FcitxHost::forwardKey(EditKey key, bool release) {
-        ic_->forwardKey(toFcitxKey(key), release);
+    void FcitxHost::forwardKey(EditKey key, bool release, uint32_t time) {
+        ic_->forwardKey(toFcitxKey(key), release, static_cast<int>(time));
     }
 
     void FcitxHost::deleteSurrounding(int offset, unsigned int size) {

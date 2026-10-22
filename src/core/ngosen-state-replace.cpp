@@ -343,8 +343,7 @@ namespace ngosen {
             rightPresses = overtype_char_count_; // the field only moved the cursor, nothing selected
         }
         for (int i = 0; i < rightPresses; ++i) {
-            host_->forwardKey(ngosen::EditKey::Right, false);
-            host_->forwardKey(ngosen::EditKey::Right, true);
+            forwardTap(ngosen::EditKey::Right);
         }
         NGOSEN_INFO("Overtype gave up after " + std::to_string((ngosen::monotonicUs() - overtype_started_at_) / 1000) + " ms, moved cursor right " + std::to_string(rightPresses));
         overtype_pending_   = false;

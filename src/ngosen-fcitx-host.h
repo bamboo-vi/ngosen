@@ -24,7 +24,7 @@ namespace ngosen {
         FcitxHost(fcitx::InputContext* ic, fcitx::Instance* instance) : ic_(ic), instance_(instance) {}
 
         void                         commitText(const std::string& text) override;
-        void                         forwardKey(EditKey key, bool release) override;
+        void                         forwardKey(EditKey key, bool release, uint32_t time) override;
         void                         deleteSurrounding(int offset, unsigned int size) override;
         bool                         pressSystemKeys(int count) override;
 
