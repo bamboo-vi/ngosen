@@ -5,6 +5,7 @@ set_target_properties(ngosen PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_options(ngosen PRIVATE "-Wl,-exclude-libs,ALL" "-Wl,--gc-sections")
 target_link_libraries(ngosen
 	ngosen_core
+	ngosen_migration
 	Fcitx5::Core
 	Fcitx5::Config
   Fcitx5::Module::Emoji

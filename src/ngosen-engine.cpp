@@ -17,6 +17,7 @@
 #include "ngosen-icon-resolver.h"
 #include "ngosen-plasma-theme.h"
 #include "ngosen-fcitx-host.h"
+#include "ngosen-migration.h"
 #ifdef NGOSEN_HAS_DBUS
 #include "ngosen-dbus-object.h"
 #endif
@@ -121,25 +122,6 @@ namespace fcitx {
 #else
             return StandardPath::global().userDirectory(StandardPath::Type::Config) + "/fcitx5/conf";
 #endif
-        }
-
-        constexpr int SettingsVersion = 1;
-
-        // Settings saved before the toggle key existed, when fcitx5 switched to Ngó Sen with Ctrl+Space
-        // and the saved mode said whether it typed Vietnamese, keep both. Returns whether to save.
-        bool upgradeSettings(RawConfig& config, bool saved) {
-            if (const auto* version = config.valueByPath("SettingsVersion"); version != nullptr && std::atoi(version->c_str()) >= SettingsVersion)
-                return false;
-            if (saved) {
-                if (config.get("ToggleKey") == nullptr)
-                    config.setValueByPath("ToggleKey/0", "Control+space");
-                if (config.valueByPath("VietnameseOn") == nullptr) {
-                    const auto* mode = config.valueByPath("Mode");
-                    config.setValueByPath("VietnameseOn", mode != nullptr && *mode == "OFF" ? "False" : "True");
-                }
-            }
-            config.setValueByPath("SettingsVersion", std::to_string(SettingsVersion));
-            return true;
         }
 
         void migrateLegacyMode(RawConfig& config) {
@@ -436,7 +418,7 @@ namespace fcitx {
         RawConfig raw;
         readAsIni(raw, "conf/ngosen.conf");
         migrateLegacyMode(raw);
-        const bool upgraded = upgradeSettings(raw, std::filesystem::exists(userConfigDir() + "/ngosen.conf"));
+        const bool upgraded = ngosen::upgradeSettings(raw, std::filesystem::exists(userConfigDir() + "/ngosen.conf"));
         config_.load(raw);
         if (upgraded)
             saveConfig();

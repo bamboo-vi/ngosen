@@ -30,21 +30,25 @@ namespace {
       public:
         explicit NgoSenMigration(fcitx::Instance* instance) {
             copyUserFiles();
-            renameInProfile(instance->willTryReplace());
+            updateProfile(instance->willTryReplace(), std::filesystem::exists(confDir() / "ngosen.conf"));
         }
 
       private:
+        static std::filesystem::path confDir() {
+#if NGOSEN_USE_MODERN_FCITX_API
+            return fcitx::StandardPaths::global().userDirectory(fcitx::StandardPathsType::PkgConfig) / "conf";
+#else
+            return fcitx::StandardPath::global().userDirectory(fcitx::StandardPath::Type::PkgConfig) + "/conf";
+#endif
+        }
+
         static void copyUserFiles() {
 #if NGOSEN_USE_MODERN_FCITX_API
-            const auto& paths   = fcitx::StandardPaths::global();
-            const auto  confDir = paths.userDirectory(fcitx::StandardPathsType::PkgConfig) / "conf";
-            const auto  dataDir = paths.userDirectory(fcitx::StandardPathsType::PkgData);
+            const auto dataDir = fcitx::StandardPaths::global().userDirectory(fcitx::StandardPathsType::PkgData);
 #else
-            const auto&                 paths = fcitx::StandardPath::global();
-            const std::filesystem::path confDir(paths.userDirectory(fcitx::StandardPath::Type::PkgConfig) + "/conf");
-            const std::filesystem::path dataDir(paths.userDirectory(fcitx::StandardPath::Type::PkgData));
+            const std::filesystem::path dataDir(fcitx::StandardPath::global().userDirectory(fcitx::StandardPath::Type::PkgData));
 #endif
-            for (const auto& name : ngosen::copyLegacyFiles(confDir, ngosen::legacyConfigFiles())) {
+            for (const auto& name : ngosen::copyLegacyFiles(confDir(), ngosen::legacyConfigFiles())) {
                 FCITX_INFO() << "Ngó Sen: copied settings to " << name;
             }
             ngosen::copyLegacyFiles(dataDir, {{"lotus/vietnamese.cm.dict", "ngosen/vietnamese.cm.dict"}});
@@ -68,38 +72,65 @@ namespace {
             return waited;
         }
 
-        static void renameInProfile(bool replacing) {
-            // With fcitx5-lotus installed, "lotus" in the profile is that input method; leave it.
+        struct ProfileChanges {
+            bool renamed = false;
+            bool dropped = false;
+        };
+
+        static void updateProfile(bool replacing, bool hasSettings) {
 #if NGOSEN_USE_MODERN_FCITX_API
-            if (!fcitx::StandardPaths::global().locate(fcitx::StandardPathsType::PkgData, "inputmethod/lotus.conf").empty()) {
-                return;
-            }
             const auto type = fcitx::StandardPathsType::PkgConfig;
+            // With fcitx5-lotus installed, "lotus" in the profile is that input method; leave it.
+            const bool rename = fcitx::StandardPaths::global().locate(fcitx::StandardPathsType::PkgData, "inputmethod/lotus.conf").empty();
 #else
-            if (!fcitx::StandardPath::global().locate(fcitx::StandardPath::Type::PkgData, "inputmethod/lotus.conf").empty()) {
-                return;
-            }
-            const auto type = fcitx::StandardPath::Type::PkgConfig;
+            const auto type   = fcitx::StandardPath::Type::PkgConfig;
+            const bool rename = fcitx::StandardPath::global().locate(fcitx::StandardPath::Type::PkgData, "inputmethod/lotus.conf").empty();
 #endif
-            const auto readRenamed = [type](fcitx::RawConfig& profile) {
+            // Settings not upgraded yet are from before Ngó Sen had its own toggle key, when users
+            // reached it through fcitx5's switch from the keyboard. Only then, so a keyboard the user
+            // adds back stays.
+            fcitx::RawConfig settings;
+            fcitx::readAsIni(settings, type, "conf/ngosen.conf");
+            const bool dropKeyboard = hasSettings && settings.valueByPath("SettingsVersion") == nullptr;
+
+            const auto readChanged = [=](fcitx::RawConfig& profile) {
                 fcitx::readAsIni(profile, type, "profile");
-                return ngosen::renameProfileInputMethod(profile, ngosen::LegacyInputMethod, ngosen::InputMethod);
+                ProfileChanges changes;
+                changes.renamed = rename && ngosen::renameProfileInputMethod(profile, ngosen::LegacyInputMethod, ngosen::InputMethod);
+                changes.dropped = dropKeyboard && ngosen::dropLoneKeyboard(profile, ngosen::InputMethod);
+                return changes;
             };
             fcitx::RawConfig profile;
-            if (!readRenamed(profile)) {
+            auto             changes = readChanged(profile);
+            if (!changes.renamed && !changes.dropped) {
                 return;
             }
             if (replacing && waitForPreviousInstance()) {
                 // Start again from the profile it saved on the way out.
                 fcitx::RawConfig saved;
-                if (!readRenamed(saved)) {
+                changes = readChanged(saved);
+                if (!changes.renamed && !changes.dropped) {
                     return;
                 }
                 fcitx::safeSaveAsIni(saved, type, "profile");
             } else {
                 fcitx::safeSaveAsIni(profile, type, "profile");
             }
-            FCITX_INFO() << "Ngó Sen: renamed the input method in the fcitx5 profile";
+            if (changes.renamed) {
+                FCITX_INFO() << "Ngó Sen: renamed the input method in the fcitx5 profile";
+            }
+            if (changes.dropped) {
+                FCITX_INFO() << "Ngó Sen: removed the keyboard next to Ngó Sen from the fcitx5 profile";
+                fcitx::RawConfig fcitxConfig;
+                fcitx::readAsIni(fcitxConfig, type, "config");
+                // Read again: a previous fcitx5 may have saved it on the way out.
+                fcitx::RawConfig current;
+                fcitx::readAsIni(current, type, "conf/ngosen.conf");
+                ngosen::copySwitchKeys(fcitxConfig, current);
+                // Now, not when the engine first loads, or the next start drops a keyboard added back.
+                ngosen::upgradeSettings(current, true);
+                fcitx::safeSaveAsIni(current, type, "conf/ngosen.conf");
+            }
         }
     };
 
