@@ -1047,7 +1047,12 @@ namespace fcitx {
         }
         NGOSEN_INFO(std::string("Toggle key: ") + (turnOn ? "Vietnamese" : "English") + " in " + app);
         setMode(mode, ic);
+#if NGOSEN_USE_MODERN_FCITX_API
         instance_->showCustomInputMethodInformation(ic, turnOn ? "vi" : "en");
+#else
+        // Shows "Ngó Sen (OFF)" or the input method; older fcitx5 has no custom text here.
+        instance_->showInputMethodInformation(ic);
+#endif
     }
 
     void NgoSenEngine::setAppRule(const std::string& appName, NgoSenMode mode) {
