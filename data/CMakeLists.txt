@@ -43,7 +43,7 @@ endforeach()
 
 add_custom_target(ngosen_icons ALL DEPENDS ${NGOSEN_PNG_OUTPUTS})
 
-# GNOME's top bar fits icons to their box and its own icons nearly fill it, so the margin that
+# GNOME's top bar fits icons to a 16 px box that its own icons nearly fill, so the margin that
 # matches other trays leaves Ngó Sen's tile smaller there.
 foreach(ICON ${NGOSEN_STATUS_ICONS})
     set(ICON_SVG "${CMAKE_CURRENT_SOURCE_DIR}/icons/hicolor/scalable/apps/${ICON}.svg")
@@ -54,7 +54,7 @@ foreach(ICON ${NGOSEN_STATUS_ICONS})
     endif()
     math(EXPR CX "(2 * ${CMAKE_MATCH_1} + ${CMAKE_MATCH_3}) / 2")
     math(EXPR CY "(2 * ${CMAKE_MATCH_2} + ${CMAKE_MATCH_4}) / 2")
-    string(REGEX REPLACE "(<svg[^>]*>)" "\\1<g transform=\"translate(${CX} ${CY}) scale(1.15) translate(-${CX} -${CY})\">" SVG "${SVG}")
+    string(REGEX REPLACE "(<svg[^>]*>)" "\\1<g transform=\"translate(${CX} ${CY}) scale(1.3) translate(-${CX} -${CY})\">" SVG "${SVG}")
     string(REPLACE "</svg>" "</g></svg>" SVG "${SVG}")
     set(OUT "${CMAKE_CURRENT_BINARY_DIR}/icons/gnome/${ICON}-gnome.svg")
     file(WRITE ${OUT} "${SVG}")
