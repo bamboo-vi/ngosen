@@ -1273,3 +1273,23 @@ msgstr "fcitx5 không trả lời."
 #: settings-gui/save_log.py
 msgid "No desktop session bus. Run this as your own user in a desktop terminal."
 msgstr "Không thấy session bus của desktop. Hãy chạy lệnh này bằng user của bạn, trong terminal của desktop."
+
+#: src/ngosen-config.h
+msgid "Switch Between English and Vietnamese"
+msgstr "Phím chuyển Anh/Việt"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tap it alone to switch. The tray icon shows V while typing Vietnamese."
+msgstr "Nhấp riêng phím này để chuyển. Biểu tượng khay hiện chữ V khi đang gõ tiếng Việt."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Switch with Ctrl+Shift, as in UniKey?"
+msgstr "Chuyển bằng Ctrl+Shift như UniKey?"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Use Ctrl+Shift"
+msgstr "Dùng Ctrl+Shift"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "fcitx5 has other input methods too; its own key still switches to them."
+msgstr "fcitx5 còn bộ gõ khác; phím chuyển của fcitx5 vẫn đưa sang các bộ gõ đó."

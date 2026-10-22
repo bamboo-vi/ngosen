@@ -71,6 +71,23 @@
     }
    ],
    [
+    "ToggleKey",
+    "List|Key",
+    "Switch Between English and Vietnamese",
+    {
+     "0": "Control+Shift_L",
+     "1": "Control+Shift_R",
+     "2": "Shift+Control_L",
+     "3": "Shift+Control_R"
+    },
+    {
+     "ListConstrain": {
+      "AllowModifierLess": "True",
+      "AllowModifierOnly": "True"
+     }
+    }
+   ],
+   [
     "ModeMenuKey",
     "List|Key",
     "Mode Menu Hotkey",

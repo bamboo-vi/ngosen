@@ -67,7 +67,7 @@ SETTINGS_MAP = {
         ],
     },
     SettingsCategory.SHORTCUTS: {
-        N_("Hotkeys"): ["ModeMenuKey", "CycleModeKey"],
+        N_("Hotkeys"): ["ToggleKey", "ModeMenuKey", "CycleModeKey"],
         MODE_SWITCHING: [
             "ShortcutSen",
             "ShortcutPreedit",
@@ -81,8 +81,12 @@ SETTINGS_MAP = {
     },
 }
 
+# Either Ctrl with either Shift, in either order: the key UniKey uses.
+CTRL_SHIFT = ["Control+Shift_L", "Control+Shift_R", "Shift+Control_L", "Shift+Control_R"]
+
 # One line under a setting, saying what the user sees.
 HINTS = {
+    "ToggleKey": N_("Tap it alone to switch. The tray icon shows V while typing Vietnamese."),
     "SpellCheck": N_("Words that are not Vietnamese get no tone marks."),
     "AutoNonVnRestore": N_("Typing windows still gives windows."),
     "LockWordModifier": N_(
@@ -272,7 +276,9 @@ class DynamicSettingsPage(QWidget):
                     item = self.all_metadata.get(k)
                     if not item:
                         continue
-                    if k in ["ModeMenuKey", "CycleModeKey"] or item[1] == "Hotkey":
+                    if k == "ToggleKey":
+                        self._render_toggle_key(item)
+                    elif k in ["ModeMenuKey", "CycleModeKey"] or item[1] == "Hotkey":
                         self._render_hotkey(item)
                     elif k == "Mode":
                         self._render_mode_buttons(item)
@@ -370,6 +376,53 @@ class DynamicSettingsPage(QWidget):
             lambda text, k=key: self.update_config(k, self._with_first_key(k, text))
         )
         self.form.addRow(_(label) + ":", self._with_hint(hk_btn, key))
+
+    def _render_toggle_key(self, item):
+        key, type_str, label, default, annotations = item
+        val = self.current_values.get(key, default)
+        keys = [val[i] for i in sorted(val, key=int)] if isinstance(val, dict) else []
+
+        is_ctrl_shift = sorted(keys) == sorted(CTRL_SHIFT)
+        # Shown without a side, since either Ctrl and either Shift work.
+        editor = HotkeyEditorWidget("Control+Shift" if is_ctrl_shift else (keys[0] if keys else ""))
+        editor.setFixedWidth(235)
+        field = self._with_hint(editor, key)
+        layout = field.layout()
+
+        # The key editor cannot record a key made of modifiers alone, so Ctrl+Shift gets a button.
+        offer = QWidget()
+        offer_layout = QHBoxLayout(offer)
+        offer_layout.setContentsMargins(0, 4, 0, 0)
+        offer_text = QLabel(_("Switch with Ctrl+Shift, as in UniKey?"))
+        use_ctrl_shift = QPushButton(_("Use Ctrl+Shift"))
+        offer_layout.addWidget(offer_text)
+        offer_layout.addWidget(use_ctrl_shift)
+        offer_layout.addStretch(1)
+        offer.setVisible(not is_ctrl_shift)
+        layout.addWidget(offer)
+
+        def changed(text):
+            self.update_config(key, {"0": text} if text else {})
+            offer.setVisible(True)
+
+        def choose_ctrl_shift():
+            self.update_config(key, {str(i): k for i, k in enumerate(CTRL_SHIFT)})
+            editor.hotkey_capture.current_key = "Control+Shift"
+            editor.hotkey_capture._update_display()
+            offer.setVisible(False)
+
+        # The Ctrl+Shift variants are one key to the user, so a new key replaces all of them.
+        editor.textChanged.connect(changed)
+        use_ctrl_shift.clicked.connect(choose_ctrl_shift)
+
+        others = [n for n in (self.dbus.input_method_names() or []) if n != "ngosen"]
+        if others:
+            hint = HintLabel(
+                _("fcitx5 has other input methods too; its own key still switches to them.")
+            )
+            mute(hint)
+            layout.addWidget(hint)
+        self.form.addRow(_(label) + ":", field)
 
     def _with_first_key(self, key, text):
         # Only the first key of a list is shown; the others still work and must survive an edit.
