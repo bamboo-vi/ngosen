@@ -115,8 +115,6 @@ namespace fcitx {
             }
         }
 
-        // Settings saved before the toggle key existed, when fcitx5 switched to Ngó Sen with Ctrl+Space
-        // and Ngó Sen always typed Vietnamese, keep both. Returns whether the settings need saving.
         std::string userConfigDir() {
 #if NGOSEN_USE_MODERN_FCITX_API
             return (StandardPaths::global().userDirectory(StandardPathsType::Config) / "fcitx5" / "conf").string();
@@ -125,16 +123,22 @@ namespace fcitx {
 #endif
         }
 
+        constexpr int SettingsVersion = 1;
+
+        // Settings saved before the toggle key existed, when fcitx5 switched to Ngó Sen with Ctrl+Space
+        // and the saved mode said whether it typed Vietnamese, keep both. Returns whether to save.
         bool upgradeSettings(RawConfig& config, bool saved) {
-            if (config.valueByPath("SettingsVersion") != nullptr)
+            if (const auto* version = config.valueByPath("SettingsVersion"); version != nullptr && std::atoi(version->c_str()) >= SettingsVersion)
                 return false;
             if (saved) {
                 if (config.get("ToggleKey") == nullptr)
                     config.setValueByPath("ToggleKey/0", "Control+space");
-                if (config.valueByPath("VietnameseOn") == nullptr)
-                    config.setValueByPath("VietnameseOn", "True");
+                if (config.valueByPath("VietnameseOn") == nullptr) {
+                    const auto* mode = config.valueByPath("Mode");
+                    config.setValueByPath("VietnameseOn", mode != nullptr && *mode == "OFF" ? "False" : "True");
+                }
             }
-            config.setValueByPath("SettingsVersion", "1");
+            config.setValueByPath("SettingsVersion", std::to_string(SettingsVersion));
             return true;
         }
 
@@ -960,6 +964,7 @@ namespace fcitx {
 
     std::optional<std::string> NgoSenEngine::appRuleName(const std::string& appName) const {
         std::lock_guard<std::mutex> lock(appRulesMutex_);
+        // Exact match wins so a "foo.desktop" rule can still override "foo".
         for (const auto& name : {appName, stripDesktopSuffix(appName)}) {
             if (appRules_.count(name) > 0)
                 return name;
@@ -968,16 +973,12 @@ namespace fcitx {
     }
 
     std::optional<NgoSenMode> NgoSenEngine::findAppRule(const std::string& appName) const {
+        const auto name = appRuleName(appName);
+        if (!name)
+            return std::nullopt;
         std::lock_guard<std::mutex> lock(appRulesMutex_);
-        auto                        it = appRules_.find(appName);
-        if (it == appRules_.end()) {
-            // Exact match wins so a "foo.desktop" rule can still override "foo".
-            it = appRules_.find(stripDesktopSuffix(appName));
-        }
-        if (it != appRules_.end()) {
-            return it->second;
-        }
-        return std::nullopt;
+        const auto                  it = appRules_.find(*name);
+        return it == appRules_.end() ? std::nullopt : std::optional<NgoSenMode>(it->second);
     }
 
     NgoSenMode NgoSenEngine::vietnameseMode() const {
@@ -1012,8 +1013,10 @@ namespace fcitx {
         }
         // A modifier-only key such as Ctrl+Shift would otherwise fire inside Ctrl+Shift+T.
         if (key.isModifier()) {
+            // A held key repeats; the hold counts from the first press.
+            if (!toggleTapArmed_)
+                toggleTapTime_ = now(CLOCK_MONOTONIC);
             toggleTapArmed_ = true;
-            toggleTapTime_  = now(CLOCK_MONOTONIC);
             return false;
         }
         toggleVietnamese(keyEvent.inputContext());

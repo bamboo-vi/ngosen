@@ -159,6 +159,15 @@ int main() {
     keys.ctrlShift(*kate);
     check(realMode.load() != before, "Ctrl+Shift does not switch with older settings", modeName(realMode.load()));
 
+    {
+        std::ofstream file(std::string(getenv("XDG_CONFIG_HOME")) + "/fcitx5/conf/ngosen.conf");
+        file << "Mode=OFF\n";
+    }
+    engine.reloadConfig();
+    auto mail = std::make_unique<TestInputContext>(&testInstance.instance, "mail");
+    keys.focus(*mail);
+    check(realMode.load() == ngosen::Mode::Off, "older settings with OFF as the mode start in English", modeName(realMode.load()));
+
     // The word being typed is finished in the mode it was typed in. A Ctrl press commits the preedit
     // anyway, so the key here is one without modifiers.
     fcitx::RawConfig preedit;
@@ -178,9 +187,14 @@ int main() {
 
 #if NGOSEN_USE_MODERN_FCITX_API
     // Held past fcitx5's limit for modifier-only keys, as around a Ctrl+Shift+click.
+    fcitx::RawConfig limit;
+    limit.setValueByPath("Hotkey/ModifierOnlyKeyTimeout", "100");
+    testInstance.instance.globalConfig().load(limit, true);
     keys.send(*notes, fcitx::Key(FcitxKey_Control_L), false);
     keys.send(*notes, fcitx::Key(FcitxKey_Shift_L, fcitx::KeyStates{fcitx::KeyState::Ctrl}), false);
-    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    // A held key repeats, and the repeat must not restart the hold.
+    keys.send(*notes, fcitx::Key(FcitxKey_Shift_L, fcitx::KeyStates{fcitx::KeyState::Ctrl}), false);
     keys.send(*notes, fcitx::Key(FcitxKey_Shift_L, fcitx::KeyStates{fcitx::KeyState::Ctrl, fcitx::KeyState::Shift}), true);
     check(realMode.load() == ngosen::Mode::Off, "a long Ctrl+Shift hold does not switch", modeName(realMode.load()));
 #endif
