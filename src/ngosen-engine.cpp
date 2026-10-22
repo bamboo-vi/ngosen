@@ -554,7 +554,11 @@ namespace fcitx {
     }
 
     std::string NgoSenEngine::subMode(const InputMethodEntry& /*entry*/, InputContext& /*inputContext*/) {
-        return *config_.inputMethod;
+        switch (realMode) {
+            case NgoSenMode::Off: return _("OFF");
+            case NgoSenMode::Emoji: return _("Emoji Picker");
+            default: return *config_.inputMethod;
+        }
     }
 
     void NgoSenEngine::activate(const InputMethodEntry& /*entry*/, InputContextEvent& event) {

@@ -96,6 +96,10 @@ int main() {
         realMode         = mode;
         const auto label = engine.subModeLabel(entry, *context);
         check(label.empty(), "no panel label in " + modeName(mode), label);
+        // The switch popup still has to tell Off and the emoji picker apart.
+        const auto subMode  = engine.subMode(entry, *context);
+        const auto expected = mode == ngosen::Mode::Sen ? "Telex" : mode == ngosen::Mode::Off ? "OFF" : "Emoji Picker";
+        check(subMode == expected, "switch popup names " + modeName(mode), subMode);
     }
 
     return failures == 0 ? 0 : 1;
