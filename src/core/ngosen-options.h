@@ -37,6 +37,7 @@ namespace ngosen {
         bool        capitalizeMacro                = false;
         LockWordKey lockWordKey                    = LockWordKey::None;
         bool        autoCapitalizeAfterPunctuation = false;
+        bool        capitalizeStartOfText          = false;
         bool        doubleSpaceToPeriod            = false;
         bool        doubleHyphenToEmDash           = false;
         bool        retypeAfterSwitch              = true;

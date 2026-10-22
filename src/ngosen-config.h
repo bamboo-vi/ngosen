@@ -227,6 +227,7 @@ namespace fcitx {
         Option<bool> capitalizeMacro{this, "CapitalizeMacro", _("Capitalize Macro"), true}; OptionWithAnnotation<LockWordModifier, LockWordModifierI18NAnnotation> lockWordModifier{
             this, "LockWordModifier", _("Key to Keep the Word as Typed"), LockWordModifier::Ctrl};
         Option<bool> autoCapitalizeAfterPunctuation{this, "AutoCapitalizeAfterPunctuation", _("Auto capitalize after sentence-ending punctuation (. ! ? Enter)"), false};
+        Option<bool> capitalizeStartOfText{this, "CapitalizeStartOfText", _("Capitalize the first letter of the text or of a line"), false};
         Option<bool> doubleSpaceToPeriod{this, "DoubleSpaceToPeriod", _("Double Space to Period"), false};
         Option<bool> doubleHyphenToEmDash{this, "DoubleHyphenToEmDash", _("Double Hyphen to Em-Dash (--)"), false};
         Option<bool> retypeAfterSwitch{this, "RetypeAfterSwitch", _("Retype text typed before switching on"), true};

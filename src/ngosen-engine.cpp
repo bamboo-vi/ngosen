@@ -322,8 +322,17 @@ namespace fcitx {
         initToggleAction(macroAction_, config_.enableMacro, "ngosen-macro", "document-edit", _("Macro"), _("Macro"), uiManager);
         initToggleAction(capitalizeMacroAction_, config_.capitalizeMacro, "ngosen-capitalizemacro", "format-text-uppercase", _("Capitalize Macro"), _("Capitalize Macro"),
                          uiManager);
-        initToggleAction(autoCapitalizeAction_, config_.autoCapitalizeAfterPunctuation, "ngosen-autocapitalize", "format-text-capitalize", _("Auto Capitalize Sentences"),
-                         _("Auto Capitalize Sentences"), uiManager);
+        autoCapitalizeAction_ = std::make_unique<SimpleAction>();
+        autoCapitalizeAction_->setShortText(_("Auto Capitalize"));
+        autoCapitalizeAction_->setIcon("format-text-capitalize");
+        uiManager.registerAction("ngosen-autocapitalize", autoCapitalizeAction_.get());
+        autoCapitalizeMenu_ = std::make_unique<Menu>();
+        autoCapitalizeAction_->setMenu(autoCapitalizeMenu_.get());
+        initToggleAction(capitalizeSentencesAction_, config_.autoCapitalizeAfterPunctuation, "ngosen-capitalize-sentences", "", _("After . ! ? and Enter"),
+                         _("After . ! ? and Enter"), uiManager);
+        initToggleAction(capitalizeStartAction_, config_.capitalizeStartOfText, "ngosen-capitalize-start", "", _("Start of text or line"), _("Start of text or line"), uiManager);
+        autoCapitalizeMenu_->addAction(capitalizeSentencesAction_.get());
+        autoCapitalizeMenu_->addAction(capitalizeStartAction_.get());
         initToggleAction(autoNonVnRestoreAction_, config_.autoNonVnRestore, "ngosen-autonvnrestore", "edit-undo", _("Auto Restore Invalid Words"), _("Auto Non-VN Restore"),
                          uiManager);
         initToggleAction(enableDictionaryAction_, config_.enableDictionary, "ngosen-dictionary", "accessories-dictionary", _("Custom Dictionary"), _("Custom Dictionary"),
@@ -491,6 +500,7 @@ namespace fcitx {
         o.enableMacroInOffMode             = config_.enableMacroInOffMode.value();
         o.capitalizeMacro                  = config_.capitalizeMacro.value();
         o.autoCapitalizeAfterPunctuation   = config_.autoCapitalizeAfterPunctuation.value();
+        o.capitalizeStartOfText            = config_.capitalizeStartOfText.value();
         o.doubleSpaceToPeriod              = config_.doubleSpaceToPeriod.value();
         o.doubleHyphenToEmDash             = config_.doubleHyphenToEmDash.value();
         o.retypeAfterSwitch                = config_.retypeAfterSwitch.value();
@@ -521,7 +531,8 @@ namespace fcitx {
         updateAction(nullptr, spellCheckAction_, config_.spellCheck, _("Spell Check"));
         updateAction(nullptr, macroAction_, config_.enableMacro, _("Macro"));
         updateAction(nullptr, capitalizeMacroAction_, config_.capitalizeMacro, _("Capitalize Macro"));
-        updateAction(nullptr, autoCapitalizeAction_, config_.autoCapitalizeAfterPunctuation, _("Auto Capitalize Sentences"));
+        updateAction(nullptr, capitalizeSentencesAction_, config_.autoCapitalizeAfterPunctuation, _("After . ! ? and Enter"));
+        updateAction(nullptr, capitalizeStartAction_, config_.capitalizeStartOfText, _("Start of text or line"));
         updateAction(nullptr, autoNonVnRestoreAction_, config_.autoNonVnRestore, _("Auto Non-VN Restore"));
         updateAction(nullptr, enableDictionaryAction_, config_.enableDictionary, _("Custom Dictionary"));
     }

@@ -196,6 +196,7 @@ namespace ngosen {
         bool     skipsKey(ngosen::KeyPress& keyEvent);
         void     settleBeforeKey();
         uint32_t trackCapitalization(ngosen::KeyPress& keyEvent);
+        bool     atStartOfLine() const;
         bool     handleKeyDuringReplacement(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         bool     handleDoubledKey(ngosen::KeyPress& keyEvent, uint32_t currentSym);
 
