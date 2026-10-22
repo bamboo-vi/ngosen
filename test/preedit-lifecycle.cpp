@@ -49,6 +49,7 @@ int main() {
     // Step 1: Configure the engine in Preedit mode with Telex input method
     fcitx::RawConfig config;
     config.setValueByPath("Mode", "Preedit");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Telex");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Preedit || engine.config().inputMethod.value() != "Telex") {

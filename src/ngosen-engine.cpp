@@ -25,6 +25,8 @@
 
 #include <fcitx-config/iniparser.h>
 #include <fcitx/globalconfig.h>
+#include <fcitx/inputmethodgroup.h>
+#include <fcitx/inputmethodmanager.h>
 #include <fcitx/menu.h>
 #include <fcitx/userinterfacemanager.h>
 #include <fcitx-utils/event.h>
@@ -111,6 +113,33 @@ namespace fcitx {
             if (value != nullptr && config.valueByPath(to) == nullptr) {
                 config.setValueByPath(to, *value);
             }
+        }
+
+        std::string userConfigDir() {
+#if NGOSEN_USE_MODERN_FCITX_API
+            return (StandardPaths::global().userDirectory(StandardPathsType::Config) / "fcitx5" / "conf").string();
+#else
+            return StandardPath::global().userDirectory(StandardPath::Type::Config) + "/fcitx5/conf";
+#endif
+        }
+
+        constexpr int SettingsVersion = 1;
+
+        // Settings saved before the toggle key existed, when fcitx5 switched to Ngó Sen with Ctrl+Space
+        // and the saved mode said whether it typed Vietnamese, keep both. Returns whether to save.
+        bool upgradeSettings(RawConfig& config, bool saved) {
+            if (const auto* version = config.valueByPath("SettingsVersion"); version != nullptr && std::atoi(version->c_str()) >= SettingsVersion)
+                return false;
+            if (saved) {
+                if (config.get("ToggleKey") == nullptr)
+                    config.setValueByPath("ToggleKey/0", "Control+space");
+                if (config.valueByPath("VietnameseOn") == nullptr) {
+                    const auto* mode = config.valueByPath("Mode");
+                    config.setValueByPath("VietnameseOn", mode != nullptr && *mode == "OFF" ? "False" : "True");
+                }
+            }
+            config.setValueByPath("SettingsVersion", std::to_string(SettingsVersion));
+            return true;
         }
 
         void migrateLegacyMode(RawConfig& config) {
@@ -348,17 +377,13 @@ namespace fcitx {
         }
 #endif
 
-#if NGOSEN_USE_MODERN_FCITX_API
-        std::string configDir = (StandardPaths::global().userDirectory(StandardPathsType::Config) / "fcitx5" / "conf").string();
-#else
-        std::string configDir = StandardPath::global().userDirectory(StandardPath::Type::Config) + "/fcitx5/conf";
-#endif
+        const std::string configDir = userConfigDir();
 
         if (!std::filesystem::exists(configDir)) {
             std::filesystem::create_directories(configDir);
         }
         reloadConfig();
-        realMode = config_.mode.value();
+        realMode = globalMode();
         instance_->inputContextManager().registerProperty("NgoSenState", &factory_);
         appRulesPath_ = configDir + "/ngosen-app-rules.conf";
         loadAppRules();
@@ -411,7 +436,10 @@ namespace fcitx {
         RawConfig raw;
         readAsIni(raw, "conf/ngosen.conf");
         migrateLegacyMode(raw);
+        const bool upgraded = upgradeSettings(raw, std::filesystem::exists(userConfigDir() + "/ngosen.conf"));
         config_.load(raw);
+        if (upgraded)
+            saveConfig();
         readAsIni(customKeymap_, CustomKeymapFile);
         readAsIni(macroTables_, MacroTableFile);
         macroTableObject_.reset(newMacroTable(macroTables_));
@@ -576,6 +604,12 @@ namespace fcitx {
         std::string appName = getProgramName(ic);
         NGOSEN_INFO("App name: " + appName);
 
+        // Next to other input methods fcitx5 owns the switch, so picking Ngó Sen there means Vietnamese.
+        if (event.type() == EventType::InputContextSwitchInputMethod && !*config_.vietnameseOn && instance_->inputMethodManager().currentGroup().inputMethodList().size() > 1) {
+            config_.vietnameseOn.setValue(true);
+            saveConfig();
+        }
+
         const NgoSenMode targetMode = getAppRule(appName);
         NGOSEN_INFO("Target mode: " + ngosen::ModeI18NAnnotation::toString(targetMode));
 
@@ -607,6 +641,9 @@ namespace fcitx {
             closeModeMenuPanel(ic, true);
         }
 
+        if (handleToggleKey(keyEvent))
+            return;
+
         if (isSelectingAppMode_) {
             handleModeMenuKey(keyEvent);
             return;
@@ -618,7 +655,8 @@ namespace fcitx {
             return;
         }
 
-        if (!keyEvent.isRelease() && !config_.modeMenuKey->empty() && keyEvent.key().checkKeyList(*config_.modeMenuKey)) {
+        // In English the menu key types its character; ` is common in code and Markdown.
+        if (realMode != NgoSenMode::Off && !keyEvent.isRelease() && !config_.modeMenuKey->empty() && keyEvent.key().checkKeyList(*config_.modeMenuKey)) {
             openModeMenu(ic);
             keyEvent.filterAndAccept();
             return;
@@ -758,7 +796,7 @@ namespace fcitx {
             else if (name == "Off")
                 mode = NgoSenMode::Off;
             else if (name == "Default")
-                mode = config().mode.value();
+                mode = globalMode();
             else
                 continue;
 
@@ -925,16 +963,100 @@ namespace fcitx {
     }
 
     NgoSenMode NgoSenEngine::getAppRule(const std::string& appName) const {
+        return findAppRule(appName).value_or(globalMode());
+    }
+
+    std::optional<std::string> NgoSenEngine::appRuleName(const std::string& appName) const {
         std::lock_guard<std::mutex> lock(appRulesMutex_);
-        auto                        it = appRules_.find(appName);
-        if (it == appRules_.end()) {
-            // Exact match wins so a "foo.desktop" rule can still override "foo".
-            it = appRules_.find(stripDesktopSuffix(appName));
+        // Exact match wins so a "foo.desktop" rule can still override "foo".
+        for (const auto& name : {appName, stripDesktopSuffix(appName)}) {
+            if (appRules_.count(name) > 0)
+                return name;
         }
-        if (it != appRules_.end()) {
-            return it->second;
+        return std::nullopt;
+    }
+
+    std::optional<NgoSenMode> NgoSenEngine::findAppRule(const std::string& appName) const {
+        const auto name = appRuleName(appName);
+        if (!name)
+            return std::nullopt;
+        std::lock_guard<std::mutex> lock(appRulesMutex_);
+        const auto                  it = appRules_.find(*name);
+        return it == appRules_.end() ? std::nullopt : std::optional<NgoSenMode>(it->second);
+    }
+
+    NgoSenMode NgoSenEngine::vietnameseMode() const {
+        return config_.mode.value() == NgoSenMode::Off ? NgoSenMode::Sen : config_.mode.value();
+    }
+
+    NgoSenMode NgoSenEngine::globalMode() const {
+        return *config_.vietnameseOn ? vietnameseMode() : NgoSenMode::Off;
+    }
+
+    bool NgoSenEngine::isToggleKey(const Key& key) const {
+        return !config_.toggleKey->empty() && key.checkKeyList(*config_.toggleKey);
+    }
+
+    bool NgoSenEngine::handleToggleKey(KeyEvent& keyEvent) {
+        const Key& key = keyEvent.key();
+        if (keyEvent.isRelease()) {
+            if (!toggleTapArmed_ || !key.isModifier())
+                return false;
+            toggleTapArmed_ = false;
+#if NGOSEN_USE_MODERN_FCITX_API
+            // A long hold, such as Ctrl+Shift+click, is not a tap.
+            if (!instance_->globalConfig().checkModifierOnlyKeyTimeout(toggleTapTime_))
+                return false;
+#endif
+            toggleVietnamese(keyEvent.inputContext());
+            return true;
         }
-        return config_.mode.value();
+        if (!isToggleKey(key)) {
+            toggleTapArmed_ = false;
+            return false;
+        }
+        // A modifier-only key such as Ctrl+Shift would otherwise fire inside Ctrl+Shift+T.
+        if (key.isModifier()) {
+            // A held key repeats; the hold counts from the first press.
+            if (!toggleTapArmed_)
+                toggleTapTime_ = now(CLOCK_MONOTONIC);
+            toggleTapArmed_ = true;
+            return false;
+        }
+        toggleVietnamese(keyEvent.inputContext());
+        keyEvent.filterAndAccept();
+        return true;
+    }
+
+    void NgoSenEngine::toggleVietnamese(InputContext* ic) {
+        if (isSelectingAppMode_) {
+            closeAppModeMenu();
+            closeModeMenuPanel(ic, true);
+        } else if (auto* state = stateFor(ic)) {
+            // Finish the word being typed in the mode it was typed in.
+            state->commitBuffer();
+            state->reset();
+        }
+        const bool        turnOn = realMode == NgoSenMode::Off;
+        const NgoSenMode  mode   = turnOn ? vietnameseMode() : NgoSenMode::Off;
+        const std::string app    = getProgramName(ic);
+        // An app the user gave its own mode keeps its own switch.
+        if (const auto ruleApp = appRuleName(app)) {
+            setAppRule(*ruleApp, mode);
+            if (!isStartsWith(*ruleApp, "ctx_"))
+                saveAppRules();
+        } else {
+            config_.vietnameseOn.setValue(turnOn);
+            saveConfig();
+        }
+        NGOSEN_INFO(std::string("Toggle key: ") + (turnOn ? "Vietnamese" : "English") + " in " + app);
+        setMode(mode, ic);
+#if NGOSEN_USE_MODERN_FCITX_API
+        instance_->showCustomInputMethodInformation(ic, turnOn ? "vi" : "en");
+#else
+        // Shows "Ngó Sen (OFF)" or the input method; older fcitx5 has no custom text here.
+        instance_->showInputMethodInformation(ic);
+#endif
     }
 
     void NgoSenEngine::setAppRule(const std::string& appName, NgoSenMode mode) {
@@ -971,15 +1093,14 @@ namespace fcitx {
     std::vector<NgoSenEngine::ModeMenuItem> NgoSenEngine::modeMenuItems() {
         auto                                          getShortcut = [](const std::string& shortcut) { return Key(shortcut).sym(); };
 
-        std::unordered_map<std::string, ModeMenuItem> modeMap = {
-            {"Sen", {NgoSenMode::Sen, _("Sen"), getShortcut(*config_.shortcutSen), *config_.showModeSen}},
-            {"Preedit", {NgoSenMode::Preedit, _("Preedit"), getShortcut(*config_.shortcutPreedit), *config_.showModePreedit}},
-            {"Emoji", {NgoSenMode::Emoji, _("Emoji Picker"), getShortcut(*config_.shortcutEmoji), *config_.showModeEmoji}},
-            {"Off", {NgoSenMode::Off, _("OFF"), getShortcut(*config_.shortcutOff), *config_.showModeOff}},
-            {"Default", {config_.mode.value(), _("Default Typing"), getShortcut(*config_.shortcutDefault), *config_.showModeDefault}}};
+        std::unordered_map<std::string, ModeMenuItem> modeMap = {{"Sen", {NgoSenMode::Sen, _("Sen"), getShortcut(*config_.shortcutSen), *config_.showModeSen}},
+                                                                 {"Preedit", {NgoSenMode::Preedit, _("Preedit"), getShortcut(*config_.shortcutPreedit), *config_.showModePreedit}},
+                                                                 {"Emoji", {NgoSenMode::Emoji, _("Emoji Picker"), getShortcut(*config_.shortcutEmoji), *config_.showModeEmoji}},
+                                                                 {"Off", {NgoSenMode::Off, _("OFF"), getShortcut(*config_.shortcutOff), *config_.showModeOff}},
+                                                                 {"Default", {globalMode(), _("Default Typing"), getShortcut(*config_.shortcutDefault), *config_.showModeDefault}}};
 
-        std::vector<ModeMenuItem> allModes;
-        auto                      order = stringutils::split(*config_.modeOrder, ",");
+        std::vector<ModeMenuItem>                     allModes;
+        auto                                          order = stringutils::split(*config_.modeOrder, ",");
         for (const auto& name : order) {
             auto it = modeMap.find(name);
             if (it != modeMap.end()) {
@@ -1016,7 +1137,7 @@ namespace fcitx {
         std::unordered_set<KeySym> usedModeKeys;
 
         modeMenuMapping_.clear();
-        const NgoSenMode defaultMode = config_.mode.value();
+        const NgoSenMode defaultMode = globalMode();
 
         for (const auto& info : modeMenuItems()) {
             if (!info.visible)

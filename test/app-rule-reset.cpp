@@ -69,6 +69,7 @@ int main() {
     // Global mode Preedit, differing from the app's Off rule.
     fcitx::RawConfig config;
     config.setValueByPath("Mode", "Preedit");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Telex");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Preedit) {
@@ -92,6 +93,7 @@ int main() {
     // focused window's resolved rule.
     fcitx::RawConfig reloaded;
     reloaded.setValueByPath("Mode", "Preedit");
+    reloaded.setValueByPath("VietnameseOn", "True");
     reloaded.setValueByPath("InputMethod", "Telex");
     engine.setConfig(reloaded);
 

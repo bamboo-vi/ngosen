@@ -52,6 +52,7 @@ int main() {
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Sen");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Telex");
     config.setValueByPath("WaitSurroundingEvent", "True");
     config.setValueByPath("MessengerSelectOvertype", "True");

@@ -46,6 +46,7 @@ int main() {
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Emoji Picker");
+    config.setValueByPath("VietnameseOn", "True");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Emoji) {
         reportFailure("configure Emoji Picker", "mode=Emoji Picker", "configured mode differs", "the test cannot enter the real emoji history mode");
