@@ -84,6 +84,11 @@ namespace fcitx {
     }
 
     namespace {
+        // Whether a modifier other than the one `key` presses or releases is down.
+        bool otherModifierHeld(const Key& key) {
+            return (key.states() & ~Key::keySymToStates(key.sym()) & KeyStates{KeyState::Ctrl_Alt_Shift, KeyState::Super}) != 0;
+        }
+
         // Sen was called Uinput, and before that Smooth, Slow, Super Smooth and Minecraft; Surrounding Text
         // was merged into it. Their stored names would not parse, and fcitx would silently fall back to the
         // Preedit default.
@@ -982,10 +987,16 @@ namespace fcitx {
     bool NgoSenEngine::handleToggleKey(KeyEvent& keyEvent) {
         const Key& key = keyEvent.key();
         if (keyEvent.isRelease()) {
-            if (!toggleTapArmed_ || !key.isModifier())
+            if (!key.isModifier())
                 return false;
             // Wait for the last one, or the retype's XTEST backspaces reach the app as Ctrl+BackSpace.
-            if ((key.states() & ~Key::keySymToStates(key.sym()) & KeyStates{KeyState::Ctrl_Alt_Shift, KeyState::Super}) != 0)
+            if (otherModifierHeld(key))
+                return false;
+            if (retypeOnRelease_) {
+                retypeOnRelease_ = false;
+                stateFor(keyEvent.inputContext())->offerRetype();
+            }
+            if (!toggleTapArmed_)
                 return false;
             toggleTapArmed_ = false;
 #if NGOSEN_USE_MODERN_FCITX_API
@@ -997,7 +1008,8 @@ namespace fcitx {
             return true;
         }
         if (!isToggleKey(key)) {
-            toggleTapArmed_ = false;
+            toggleTapArmed_  = false;
+            retypeOnRelease_ = false;
             return false;
         }
         // A modifier-only key such as Ctrl+Shift would otherwise fire inside Ctrl+Shift+T.
@@ -1008,12 +1020,14 @@ namespace fcitx {
             toggleTapArmed_ = true;
             return false;
         }
-        toggleVietnamese(keyEvent.inputContext());
+        // Ctrl+Space: offer the retype once Ctrl is up too.
+        retypeOnRelease_ = otherModifierHeld(key);
+        toggleVietnamese(keyEvent.inputContext(), !retypeOnRelease_);
         keyEvent.filterAndAccept();
         return true;
     }
 
-    void NgoSenEngine::toggleVietnamese(InputContext* ic) {
+    void NgoSenEngine::toggleVietnamese(InputContext* ic, bool offerRetype) {
         if (isSelectingAppMode_) {
             closeAppModeMenu();
             closeModeMenuPanel(ic, true);
@@ -1042,7 +1056,7 @@ namespace fcitx {
         // Shows "Ngó Sen (OFF)" or the input method; older fcitx5 has no custom text here.
         instance_->showInputMethodInformation(ic);
 #endif
-        if (turnOn)
+        if (turnOn && offerRetype)
             stateFor(ic)->offerRetype();
     }
 

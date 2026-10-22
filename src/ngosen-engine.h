@@ -256,8 +256,9 @@ namespace fcitx {
         std::string                                 appRulesPath_;
         bool                                        isSelectingAppMode_ = false;
         // A modifier-only toggle key fires on release, unless another key came in between.
-        bool                             toggleTapArmed_ = false;
-        uint64_t                         toggleTapTime_  = 0;
+        bool                             toggleTapArmed_  = false;
+        uint64_t                         toggleTapTime_   = 0;
+        bool                             retypeOnRelease_ = false;
         std::string                      currentConfigureApp_;
         std::unique_ptr<EventSourceTime> cycleModeNotificationTimer_;
         std::string                      iconCacheName_;
@@ -360,7 +361,7 @@ namespace fcitx {
         bool       isToggleKey(const Key& key) const;
         // Handles the toggle key; returns whether the key was it.
         bool handleToggleKey(KeyEvent& keyEvent);
-        void toggleVietnamese(InputContext* ic);
+        void toggleVietnamese(InputContext* ic, bool offerRetype = true);
 
         /**
          * @brief Set application-specific mode rules
