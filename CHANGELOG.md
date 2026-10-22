@@ -31,6 +31,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - "Phím chốt chữ" ở trang Gõ chữ, nhóm Cách bỏ dấu (mặc định Ctrl): bấm rồi thả riêng phím để giữ nguyên từ,
   không thêm dấu, tự khôi phục hay bung macro; phím tiếp theo bắt đầu từ mới. Gõ `tunx`, Ctrl rồi Space
   giữ `tũn`. Thay tuỳ chọn bỏ qua gõ tắt; ai đã chọn Shift, Ctrl hoặc Alt vẫn giữ phím đó (#219).
+- Menu tray có thêm nút "Tự viết hoa đầu câu" để bật, tắt nhanh, ví dụ tắt khi gõ lệnh trong terminal (#240).
 
 ### Thay đổi
 
