@@ -46,8 +46,7 @@ namespace ngosen::test {
             state_ = state;
         }
         // Presses and releases a key; the app inserts it when the input method lets it through.
-        void type(uint32_t sym);
-        // The user pressed the key that switches input methods.
+        void        type(uint32_t sym);
         std::string text() const;
         // The longest time from forwarding a replacement's first backspace to its commit.
         int slowestCommitMs() const {
