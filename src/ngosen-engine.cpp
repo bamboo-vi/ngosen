@@ -1345,7 +1345,7 @@ namespace fcitx {
                              "/usr/share/icons/hicolor/24x24/status"};
         paths.fallbackDir = NGOSEN_ICON_DIR; // compile-time install dir
 
-        iconCachePath_ = resolveNgoSenIconPath({iconName, baseIconName}, paths);
+        iconCachePath_ = resolveNgoSenIconPath(trayIconNames(iconName, baseIconName, getEnv("XDG_CURRENT_DESKTOP")), paths);
         return iconCachePath_;
     }
 
