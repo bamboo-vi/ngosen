@@ -7,6 +7,7 @@
 
 #include <fcitx-utils/stringutils.h>
 
+#include <cstdlib>
 #include <fstream>
 #include <system_error>
 
@@ -145,6 +146,22 @@ namespace ngosen {
             }
         }
         return changed;
+    }
+
+    bool upgradeSettings(fcitx::RawConfig& settings, bool saved) {
+        constexpr int Version = 1;
+        if (const auto* version = settings.valueByPath("SettingsVersion"); version != nullptr && std::atoi(version->c_str()) >= Version)
+            return false;
+        if (saved) {
+            if (settings.get("ToggleKey") == nullptr)
+                settings.setValueByPath("ToggleKey/0", "Control+space");
+            if (settings.valueByPath("VietnameseOn") == nullptr) {
+                const auto* mode = settings.valueByPath("Mode");
+                settings.setValueByPath("VietnameseOn", mode != nullptr && *mode == "OFF" ? "False" : "True");
+            }
+        }
+        settings.setValueByPath("SettingsVersion", std::to_string(Version));
+        return true;
     }
 
     bool copySwitchKeys(const fcitx::RawConfig& fcitxConfig, fcitx::RawConfig& settings) {

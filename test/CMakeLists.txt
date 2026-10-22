@@ -51,6 +51,7 @@ function(ngosen_headless_test_settings target)
     )
     target_link_libraries(${target} PRIVATE
         ngosen_core
+        ngosen_migration
         Fcitx5::Core
         Fcitx5::Config
         Fcitx5::Module::Emoji
