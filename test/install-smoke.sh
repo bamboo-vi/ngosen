@@ -253,6 +253,27 @@ check_old_profile_cleanup() {
     bus=
 }
 
+install_log=$work/install.log
+install_logged() { installer --yes >"$install_log" 2>&1; }
+install_names() { grep -q "Bấm $1 " "$install_log"; }
+
+# Without a running fcitx5 the installer names the key before the addon has run, so it must
+# predict whether the keyboard goes.
+check_toggle_key_message() {
+    local settings=$home/.config/fcitx5/conf/ngosen.conf
+    as_user rm -f "$settings" "$home/.xinputrc"
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    check "install with an old profile succeeds" install_logged
+    check "it names Ctrl+Space, kept for the lone keyboard" install_names Ctrl+Space
+
+    as_user rm -f "$settings" "$home/.xinputrc"
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=mozc\nLayout=\n\n[Groups/0/Items/2]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    check "install next to another input method succeeds" install_logged
+    check "it names Ctrl+Shift, as the keyboard stays" install_names Ctrl+Shift
+}
+
 main() {
     prepare_system
 
@@ -272,6 +293,11 @@ main() {
 
     echo "== profile from before the toggle key"
     check_old_profile_cleanup
+
+    if [ "$session" = x11 ]; then
+        echo "== toggle key named before the addon runs"
+        check_toggle_key_message
+    fi
 
     finish
 }
