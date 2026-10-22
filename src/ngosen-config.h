@@ -222,7 +222,9 @@ namespace fcitx {
                                 {Key("Control+Shift_L"), Key("Control+Shift_R"), Key("Shift+Control_L"), Key("Shift+Control_R")},
                                 KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
         // What the toggle key last chose, for apps without a rule of their own.
-        HiddenOption<bool> vietnameseOn{this, "VietnameseOn", _("Vietnamese On"), false}; KeyListOption modeMenuKey{
+        HiddenOption<bool> vietnameseOn{this, "VietnameseOn", _("Vietnamese On"), false};
+        // Set once the settings were upgraded; fcitx5 leaves defaults out of the file, so nothing else tells.
+        HiddenOption<int> settingsVersion{this, "SettingsVersion", _("Settings Version"), 0}; KeyListOption modeMenuKey{
             this, "ModeMenuKey", _("Mode Menu Hotkey"), {Key("grave")}, KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
         KeyListOption cycleModeKey{this, "CycleModeKey", _("Cycle Mode Hotkey"), {}, KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
         SubConfigOption                                                                appRules{this, "AppRules", _("App Rules"), "fcitx://config/addon/ngosen/app_rules"};

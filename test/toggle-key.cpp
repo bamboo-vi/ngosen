@@ -8,11 +8,13 @@
 
 #include <fcitx/candidatelist.h>
 
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <thread>
 
 namespace {
 
@@ -113,6 +115,15 @@ int main() {
     check(realMode.load() == ngosen::Mode::Sen, "Ctrl+Shift switches to Vietnamese", modeName(realMode.load()));
     check(savedConfig().find("VietnameseOn=True") != std::string::npos, "the choice is saved", savedConfig());
 
+    // fcitx5 leaves the default toggle key out of the file the engine saved.
+    engine.reloadConfig();
+    keys.focus(*gedit);
+    check(!keys.tap(*gedit, "Control+space"), "Ctrl+Space stays unused after a reload", "kept");
+    const auto beforeReloadSwitch = realMode.load();
+    keys.ctrlShift(*gedit);
+    check(realMode.load() != beforeReloadSwitch, "Ctrl+Shift still switches after a reload", modeName(realMode.load()));
+    keys.ctrlShift(*gedit);
+
     // No app has a rule, so the switch holds everywhere.
     keys.focus(*kate);
     check(realMode.load() == ngosen::Mode::Sen, "another app follows the switch", modeName(realMode.load()));
@@ -141,11 +152,38 @@ int main() {
     }
     engine.reloadConfig();
     keys.focus(*kate);
+    check(realMode.load() == ngosen::Mode::Sen, "older settings start in Vietnamese", modeName(realMode.load()));
     const auto before = realMode.load();
     check(keys.tap(*kate, "Control+space"), "older settings switch with Ctrl+Space", "passed to the app");
     check(realMode.load() != before, "Ctrl+Space switches with older settings", modeName(realMode.load()));
     keys.ctrlShift(*kate);
     check(realMode.load() != before, "Ctrl+Shift does not switch with older settings", modeName(realMode.load()));
+
+    // The word being typed is finished in the mode it was typed in. A Ctrl press commits the preedit
+    // anyway, so the key here is one without modifiers.
+    fcitx::RawConfig preedit;
+    preedit.setValueByPath("Mode", "Preedit");
+    preedit.setValueByPath("VietnameseOn", "True");
+    preedit.setValueByPath("ToggleKey/0", "F12");
+    preedit.setValueByPath("ToggleKey/1", "Control+Shift_L");
+    engine.setConfig(preedit);
+    auto notes = std::make_unique<TestInputContext>(&testInstance.instance, "notes");
+    notes->setCapabilityFlags(fcitx::CapabilityFlag::Preedit);
+    keys.focus(*notes);
+    for (const char* key : {"v", "i", "e", "e", "t", "j"})
+        keys.tap(*notes, key);
+    keys.tap(*notes, "F12");
+    const std::string committed = notes->commits().empty() ? "(nothing)" : notes->commits().back();
+    check(committed == "việt", "switching to English commits the word in preedit", committed);
+
+#if NGOSEN_USE_MODERN_FCITX_API
+    // Held past fcitx5's limit for modifier-only keys, as around a Ctrl+Shift+click.
+    keys.send(*notes, fcitx::Key(FcitxKey_Control_L), false);
+    keys.send(*notes, fcitx::Key(FcitxKey_Shift_L, fcitx::KeyStates{fcitx::KeyState::Ctrl}), false);
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    keys.send(*notes, fcitx::Key(FcitxKey_Shift_L, fcitx::KeyStates{fcitx::KeyState::Ctrl, fcitx::KeyState::Shift}), true);
+    check(realMode.load() == ngosen::Mode::Off, "a long Ctrl+Shift hold does not switch", modeName(realMode.load()));
+#endif
 
     return failures == 0 ? 0 : 1;
 }

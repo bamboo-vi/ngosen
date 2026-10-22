@@ -257,6 +257,7 @@ namespace fcitx {
         bool                                        isSelectingAppMode_ = false;
         // A modifier-only toggle key fires on release, unless another key came in between.
         bool                             toggleTapArmed_ = false;
+        uint64_t                         toggleTapTime_  = 0;
         std::string                      currentConfigureApp_;
         std::unique_ptr<EventSourceTime> cycleModeNotificationTimer_;
         std::string                      iconCacheName_;
@@ -348,8 +349,10 @@ namespace fcitx {
          * @return Current application-specific mode rules
         */
 
-        NgoSenMode                getAppRule(const std::string& appName) const;
-        std::optional<NgoSenMode> findAppRule(const std::string& appName) const;
+        NgoSenMode getAppRule(const std::string& appName) const;
+        // The rule's own name: appName itself, or appName without ".desktop".
+        std::optional<std::string> appRuleName(const std::string& appName) const;
+        std::optional<NgoSenMode>  findAppRule(const std::string& appName) const;
         // The mode Vietnamese typing uses: the configured one, unless that is Off.
         NgoSenMode vietnameseMode() const;
         // The mode of an app without a rule: Off until the toggle key turns Vietnamese on.

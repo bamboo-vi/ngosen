@@ -115,11 +115,27 @@ namespace fcitx {
             }
         }
 
-        // Saved settings without a toggle key are from before it existed, when fcitx5 switched on
-        // Ctrl+Space; keep the key those users know. New installs get the default.
-        void keepOldToggleKey(RawConfig& config) {
-            if (config.subItemsSize() > 0 && config.get("ToggleKey") == nullptr)
-                config.setValueByPath("ToggleKey/0", "Control+space");
+        // Settings saved before the toggle key existed, when fcitx5 switched to Ngó Sen with Ctrl+Space
+        // and Ngó Sen always typed Vietnamese, keep both. Returns whether the settings need saving.
+        std::string userConfigDir() {
+#if NGOSEN_USE_MODERN_FCITX_API
+            return (StandardPaths::global().userDirectory(StandardPathsType::Config) / "fcitx5" / "conf").string();
+#else
+            return StandardPath::global().userDirectory(StandardPath::Type::Config) + "/fcitx5/conf";
+#endif
+        }
+
+        bool upgradeSettings(RawConfig& config, bool saved) {
+            if (config.valueByPath("SettingsVersion") != nullptr)
+                return false;
+            if (saved) {
+                if (config.get("ToggleKey") == nullptr)
+                    config.setValueByPath("ToggleKey/0", "Control+space");
+                if (config.valueByPath("VietnameseOn") == nullptr)
+                    config.setValueByPath("VietnameseOn", "True");
+            }
+            config.setValueByPath("SettingsVersion", "1");
+            return true;
         }
 
         void migrateLegacyMode(RawConfig& config) {
@@ -357,17 +373,13 @@ namespace fcitx {
         }
 #endif
 
-#if NGOSEN_USE_MODERN_FCITX_API
-        std::string configDir = (StandardPaths::global().userDirectory(StandardPathsType::Config) / "fcitx5" / "conf").string();
-#else
-        std::string configDir = StandardPath::global().userDirectory(StandardPath::Type::Config) + "/fcitx5/conf";
-#endif
+        const std::string configDir = userConfigDir();
 
         if (!std::filesystem::exists(configDir)) {
             std::filesystem::create_directories(configDir);
         }
         reloadConfig();
-        realMode = config_.mode.value();
+        realMode = globalMode();
         instance_->inputContextManager().registerProperty("NgoSenState", &factory_);
         appRulesPath_ = configDir + "/ngosen-app-rules.conf";
         loadAppRules();
@@ -420,8 +432,10 @@ namespace fcitx {
         RawConfig raw;
         readAsIni(raw, "conf/ngosen.conf");
         migrateLegacyMode(raw);
-        keepOldToggleKey(raw);
+        const bool upgraded = upgradeSettings(raw, std::filesystem::exists(userConfigDir() + "/ngosen.conf"));
         config_.load(raw);
+        if (upgraded)
+            saveConfig();
         readAsIni(customKeymap_, CustomKeymapFile);
         readAsIni(macroTables_, MacroTableFile);
         macroTableObject_.reset(newMacroTable(macroTables_));
@@ -774,7 +788,7 @@ namespace fcitx {
             else if (name == "Off")
                 mode = NgoSenMode::Off;
             else if (name == "Default")
-                mode = config().mode.value();
+                mode = globalMode();
             else
                 continue;
 
@@ -944,6 +958,15 @@ namespace fcitx {
         return findAppRule(appName).value_or(globalMode());
     }
 
+    std::optional<std::string> NgoSenEngine::appRuleName(const std::string& appName) const {
+        std::lock_guard<std::mutex> lock(appRulesMutex_);
+        for (const auto& name : {appName, stripDesktopSuffix(appName)}) {
+            if (appRules_.count(name) > 0)
+                return name;
+        }
+        return std::nullopt;
+    }
+
     std::optional<NgoSenMode> NgoSenEngine::findAppRule(const std::string& appName) const {
         std::lock_guard<std::mutex> lock(appRulesMutex_);
         auto                        it = appRules_.find(appName);
@@ -975,6 +998,11 @@ namespace fcitx {
             if (!toggleTapArmed_ || !key.isModifier())
                 return false;
             toggleTapArmed_ = false;
+#if NGOSEN_USE_MODERN_FCITX_API
+            // A long hold, such as Ctrl+Shift+click, is not a tap.
+            if (!instance_->globalConfig().checkModifierOnlyKeyTimeout(toggleTapTime_))
+                return false;
+#endif
             toggleVietnamese(keyEvent.inputContext());
             return true;
         }
@@ -985,6 +1013,7 @@ namespace fcitx {
         // A modifier-only key such as Ctrl+Shift would otherwise fire inside Ctrl+Shift+T.
         if (key.isModifier()) {
             toggleTapArmed_ = true;
+            toggleTapTime_  = now(CLOCK_MONOTONIC);
             return false;
         }
         toggleVietnamese(keyEvent.inputContext());
@@ -996,14 +1025,18 @@ namespace fcitx {
         if (isSelectingAppMode_) {
             closeAppModeMenu();
             closeModeMenuPanel(ic, true);
+        } else if (auto* state = stateFor(ic)) {
+            // Finish the word being typed in the mode it was typed in.
+            state->commitBuffer();
+            state->reset();
         }
         const bool        turnOn = realMode == NgoSenMode::Off;
         const NgoSenMode  mode   = turnOn ? vietnameseMode() : NgoSenMode::Off;
         const std::string app    = getProgramName(ic);
         // An app the user gave its own mode keeps its own switch.
-        if (findAppRule(app)) {
-            setAppRule(app, mode);
-            if (!isStartsWith(app, "ctx_"))
+        if (const auto ruleApp = appRuleName(app)) {
+            setAppRule(*ruleApp, mode);
+            if (!isStartsWith(*ruleApp, "ctx_"))
                 saveAppRules();
         } else {
             config_.vietnameseOn.setValue(turnOn);
