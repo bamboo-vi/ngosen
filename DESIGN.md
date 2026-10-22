@@ -35,7 +35,10 @@ Mockups the direction was chosen from: <https://claude.ai/artifact/7cDzgu8A56Mk9
 
 1. **Native first.** Use stock Qt widgets with the platform style. No global stylesheet, no custom
    palette, no custom checkbox or combo box drawing. A stylesheet is allowed only on the few
-   brand widgets below, scoped by object name.
+   brand widgets below, scoped by object name. One exception: on GNOME, Qt has no GNOME style and
+   falls back to Fusion, whose scroll bars are wide with arrows. There, and only while the style is
+   Fusion, each scroll bar gets a stylesheet for GNOME's thin rounded bar, drawn in the text colour
+   seen through (`settings-gui/ui/scroll_bars.py`).
 2. **Four brand marks, nothing more.**
    - The tray icon (`fcitx-ngosen`, a lotus-root slice on enamel green) at the top of the sidebar.
    - The wordmark "Ngó Sen" in Xanh Mono next to it, with diacritics, never in bold.
