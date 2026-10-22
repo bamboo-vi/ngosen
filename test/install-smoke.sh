@@ -132,6 +132,8 @@ check_session_files() {
         check ".xinputrc runs fcitx5" has_line "$home/.xinputrc" 'run_im fcitx5'
     elif [ "$session" = kde ]; then
         check "KWin starts fcitx5 as its input method" has_line "$kwinrc" "$kwin_im"
+        check "XWayland apps find fcitx5 through XIM" has_line "$im_env" 'XMODIFIERS=@im=fcitx'
+        check "environment.d leaves the GTK module unset" lacks_line "$im_env" 'GTK_IM_MODULE=fcitx'
     else
         check "environment.d selects fcitx" has_line "$im_env" 'GTK_IM_MODULE=fcitx'
         check "fcitx5 starts at login" test -e "$autostart"
@@ -148,6 +150,7 @@ check_uninstalled_state() {
     elif [ "$session" = kde ]; then
         # fcitx5 may serve other input methods, so KDE keeps it.
         check "KWin still starts fcitx5" has_line "$kwinrc" "$kwin_im"
+        check "XWayland apps still find fcitx5" has_line "$im_env" 'XMODIFIERS=@im=fcitx'
     else
         check "environment.d file is removed" test ! -e "$im_env"
         check "autostart entry is removed" test ! -e "$autostart"
