@@ -41,6 +41,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   khi build; cách gõ không đổi (#224).
 - Cập nhật Ngó Sen bằng `install.sh` thì fcitx5 tự nạp bản mới, gõ được ngay mà không cần đăng xuất; các app đang
   mở vẫn gõ tiếp được. Riêng KDE Wayland vẫn cần đăng xuất rồi đăng nhập lại (#230).
+- Khi tắt tiếng Việt, icon tray đổi từ V xám sang lát củ sen tròn bảy lỗ trên ô xám, cùng cỡ icon V.
+  Trên GNOME dùng extension "Input Method Panel" (kimpanel), thanh trên hiện icon Ngó Sen thay chữ "vi"
+  như KDE, Xfce, Cinnamon. Popup cạnh con trỏ khi chuyển bộ gõ trong fcitx5 hiện "Ngó Sen (Telex)" hoặc
+  "Ngó Sen (Tắt)" thay "vi" (#233).
 
 ### Sửa
 

@@ -554,7 +554,11 @@ namespace fcitx {
     }
 
     std::string NgoSenEngine::subMode(const InputMethodEntry& /*entry*/, InputContext& /*inputContext*/) {
-        return *config_.inputMethod;
+        switch (realMode) {
+            case NgoSenMode::Off: return _("OFF");
+            case NgoSenMode::Emoji: return _("Emoji Picker");
+            default: return *config_.inputMethod;
+        }
     }
 
     void NgoSenEngine::activate(const InputMethodEntry& /*entry*/, InputContextEvent& event) {
@@ -1211,11 +1215,8 @@ namespace fcitx {
     }
 
     std::string NgoSenEngine::subModeLabelImpl(const InputMethodEntry& /*entry*/, InputContext& /*inputContext*/) {
-        switch (realMode) {
-            case NgoSenMode::Off: return _("Ngó Sen - Off");
-            case NgoSenMode::Emoji: return "😄";
-            default: return "vi";
-        }
+        // GNOME's kimpanel shows any non-empty label in place of the icon.
+        return {};
     }
 
     std::string NgoSenEngine::getProgramName(InputContext* ic) {
