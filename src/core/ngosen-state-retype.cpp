@@ -19,10 +19,8 @@ namespace ngosen {
     namespace {
         // Enough for a sentence; older text is dropped a word at a time.
         constexpr size_t MaxTypedWhileOff = 200;
-        // Qt drops backspaces forwarded while it is still handling the switch key.
-        constexpr uint64_t RetypeDelayUs = 100000;
 
-        bool               isPrintableAscii(uint32_t sym) {
+        bool             isPrintableAscii(uint32_t sym) {
             return sym >= 0x20 && sym <= 0x7e;
         }
 
@@ -139,8 +137,9 @@ namespace ngosen {
         // A word Telex leaves alone is likely English typed on purpose, so then only offer.
         if (everyWordTakesMarks(typed)) {
             NGOSEN_INFO("Retype: " + typed + " -> " + marked);
-            retype_       = Retype{.typed = typed, .marked = marked, .atOnce = true};
-            retype_timer_ = host_->startTimer(ngosen::monotonicUs() + RetypeDelayUs, 0, [this](ngosen::Timer&) {
+            retype_ = Retype{.typed = typed, .marked = marked, .atOnce = true};
+            // Not from inside the switch key's handling, which the app may still be waiting on.
+            retype_timer_ = host_->startTimer(ngosen::monotonicUs(), 0, [this](ngosen::Timer&) {
                 if (retype_ && retype_->atOnce && !retype_->applied) {
                     applyRetype();
                     host_->setStatus(host_->translate("Esc: put back what was typed"));

@@ -182,7 +182,6 @@ namespace {
             app->type(static_cast<uint32_t>(c));
             loop.pump(5);
         }
-        app->pressSwitchKey();
         state.activate(mode, false);
         state.offerRetype();
         // The next key comes well after the switch key, once a retype at once has gone through.
@@ -253,11 +252,25 @@ namespace {
         check(text == "tiếng việt", "stepping app: the retype waits for every backspace", text);
     }
 
-    void testRetypeAfterSwitchKey() {
-        AppQuirks quirks;
-        quirks.switchBusyMs    = 50;
-        const std::string text = retypeInApp(makeField("wayland", true), Mode::Sen, "tieengs vieetj", {}, quirks);
-        check(text == "tiếng việt", "busy app: the retype waits until the switch key is handled", text);
+    void testRetypeRightAfterSwitchKey() {
+        realMode = Mode::Off;
+        realtextLen.store(0);
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeApp>(loop, makeField("wayland", true), AppQuirks{});
+        FakeApp*            app   = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        app->attach(&state);
+        for (const char c : std::string("tieengs vieetj")) {
+            noteWhileOff(state, static_cast<uint32_t>(c));
+            app->type(static_cast<uint32_t>(c));
+            loop.pump(5);
+        }
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        check(app->text() == "tieengs vieetj", "nothing is retyped while the switch key is handled", app->text());
+        loop.pump(20);
+        check(app->text() == "tiếng việt", "the retype goes out right after the switch key", app->text());
     }
 
     // Chromium replaces by selecting with Shift+Left through XTEST, and those keys come back to us.
@@ -338,7 +351,7 @@ int main() {
     testRetypeInApp("other", true, Mode::Sen);
     testRetypeOverSelection();
     testRetypeInSteppingApp();
-    testRetypeAfterSwitchKey();
+    testRetypeRightAfterSwitchKey();
     testHintGoesAway(ngosen::key::Tab, "Tab");
     testHintGoesAway(ngosen::key::Escape, "Esc");
     if (failures == 0)

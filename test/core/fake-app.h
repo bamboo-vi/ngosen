@@ -28,7 +28,6 @@ namespace ngosen::test {
         int  lagMs                  = 0;     // applies commits, deletions and keys this late, in order
         bool handsBackKeys          = false; // sends forwarded keys back to the input method first, as XIM clients do
         int  keyStepMs              = 0;     // applies forwarded backspaces one per step, reporting after each
-        int  switchBusyMs           = 0;     // drops forwarded keys this long after a switch key, as Qt does
         bool dropsCommitsInReport   = false; // drops commits sent while its report is handled, as wlroots does
         int  refocusWhenEmptiedMs   = 0;     // leaves focus this long when its text becomes empty, as Zed does
         bool resendsKeysWithoutText = false; // sends a key that types no text back once more, marked as repeated, as gnome-text-editor does
@@ -49,7 +48,6 @@ namespace ngosen::test {
         // Presses and releases a key; the app inserts it when the input method lets it through.
         void type(uint32_t sym);
         // The user pressed the key that switches input methods.
-        void        pressSwitchKey();
         std::string text() const;
         // The longest time from forwarding a replacement's first backspace to its commit.
         int slowestCommitMs() const {
@@ -111,7 +109,6 @@ namespace ngosen::test {
         int                                 redraws_         = 0;
         bool                                inReport_        = false;
         bool                                focused_         = true;
-        uint64_t                            busyUntilUs_     = 0;
         uint64_t                            forwardedAt_     = 0;
         int                                 slowestCommitMs_ = 0;
         std::u32string                      text_;
