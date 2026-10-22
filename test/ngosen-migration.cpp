@@ -112,11 +112,29 @@ namespace {
         check("the keyboard's layout becomes the group's", value(profile, "Groups/0/Default Layout") == "de-neo");
         check("a second pass changes nothing", !ngosen::dropLoneKeyboard(profile, "ngosen"));
 
-        profile = parse("[Groups/0]\nName=Default\nDefault Layout=fr\nDefaultIM=ngosen\n\n"
+        profile = parse("[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n"
                         "[Groups/0/Items/0]\nName=ngosen\nLayout=\n\n"
                         "[Groups/0/Items/1]\nName=keyboard-us\nLayout=\n");
         check("a keyboard after Ngó Sen is dropped", ngosen::dropLoneKeyboard(profile, "ngosen"));
-        check("a group layout already set is kept", value(profile, "Groups/0/Default Layout") == "fr");
+        check("the group layout is kept", value(profile, "Groups/0/Default Layout") == "us");
+
+        profile = parse("[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n"
+                        "[Groups/0/Items/0]\nName=keyboard-de\nLayout=\n\n"
+                        "[Groups/0/Items/1]\nName=ngosen\nLayout=\n");
+        check("a keyboard on another layout than the group's stays", !ngosen::dropLoneKeyboard(profile, "ngosen"));
+    }
+
+    void testCopySwitchKeys() {
+        auto             fcitxConfig = parse("[Hotkey/TriggerKeys]\n0=Super+space\n1=Zenkaku_Hankaku\n");
+        fcitx::RawConfig settings;
+        check("fcitx5's switch keys become the toggle key", ngosen::copySwitchKeys(fcitxConfig, settings));
+        check("the first key is copied", value(settings, "ToggleKey/0") == "Super+space");
+        check("the second key is copied", value(settings, "ToggleKey/1") == "Zenkaku_Hankaku");
+
+        auto chosen = parse("[ToggleKey]\n0=Alt+z\n");
+        check("a toggle key already set stays", !ngosen::copySwitchKeys(fcitxConfig, chosen) && value(chosen, "ToggleKey/0") == "Alt+z");
+        fcitx::RawConfig defaults;
+        check("fcitx5's default keys copy nothing", !ngosen::copySwitchKeys(defaults, settings));
     }
 
     void testKeepOtherInputMethods() {
@@ -190,6 +208,7 @@ int main() {
     testOtherGroups();
     testDropKeyboard();
     testKeepOtherInputMethods();
+    testCopySwitchKeys();
     testCopyFiles();
     testProcessesNamed();
     if (failures == 0) {

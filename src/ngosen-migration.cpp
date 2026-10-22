@@ -106,8 +106,12 @@ namespace ngosen {
             if (!own || !keyboard) {
                 return false;
             }
+            const auto keyboardLayout = keyboard->name.substr(KeyboardPrefix.size());
             if (const auto* layout = group.valueByPath("Default Layout"); !layout || layout->empty()) {
-                group.setValueByPath("Default Layout", keyboard->name.substr(KeyboardPrefix.size()));
+                group.setValueByPath("Default Layout", keyboardLayout);
+            } else if (*layout != keyboardLayout) {
+                // English was typed on the keyboard's layout; Ngó Sen alone would type it on this one.
+                return false;
             }
             group.setValueByPath("DefaultIM", inputMethod);
             writeItems(*items, {*own});
@@ -141,6 +145,19 @@ namespace ngosen {
             }
         }
         return changed;
+    }
+
+    bool copySwitchKeys(const fcitx::RawConfig& fcitxConfig, fcitx::RawConfig& settings) {
+        const auto keys = fcitxConfig.get("Hotkey/TriggerKeys");
+        if (!keys || keys->subItemsSize() == 0 || settings.get("ToggleKey")) {
+            return false;
+        }
+        for (const auto& index : keys->subItems()) {
+            if (const auto* key = keys->valueByPath(index)) {
+                settings.setValueByPath("ToggleKey/" + index, *key);
+            }
+        }
+        return true;
     }
 
     std::vector<std::string> copyLegacyFiles(const std::filesystem::path& dir, const std::vector<std::pair<std::string, std::string>>& names) {

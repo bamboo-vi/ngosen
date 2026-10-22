@@ -110,6 +110,7 @@ is_removed() { ! is_installed "$1"; }
 
 has_line() { grep -qFx -- "$2" "$1" 2>/dev/null; }
 lacks_line() { ! has_line "$@"; }
+lacks_keyboard() { ! grep -qs '^Name=keyboard-' "$1"; }
 
 profile=$home/.config/fcitx5/profile
 config=$home/.config/fcitx5/config
@@ -138,7 +139,7 @@ check_session_files() {
         check "the Fcitx 5 launcher is hidden" has_line "$hidden_launcher" 'NoDisplay=true'
     fi
     check "profile lists ngosen" has_line "$profile" 'Name=ngosen'
-    check "profile has no keyboard next to ngosen" lacks_line "$profile" 'Name=keyboard-us'
+    check "profile has no keyboard next to ngosen" lacks_keyboard "$profile"
     check "trigger keys are left to fcitx5" lacks_line "$config" '0=Control+Shift_L'
 }
 
@@ -220,7 +221,7 @@ check_old_profile_cleanup() {
 
     check "fcitx5 starts with the old profile" start_fcitx5
     check "fcitx5 stops" stop_fcitx5
-    check "the keyboard next to ngosen is dropped" lacks_line "$profile" 'Name=keyboard-us'
+    check "the keyboard next to ngosen is dropped" lacks_keyboard "$profile"
     check "ngosen stays in the profile" has_line "$profile" 'Name=ngosen'
     check "older settings keep Ctrl+Space" has_line "$settings" '0=Control+space'
 

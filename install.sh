@@ -334,27 +334,47 @@ restart_fcitx5() {
 # An fcitx5 that ran without the addon drops ngosen from the profile as it exits, hence the second
 # check.
 reload_fcitx5() {
-    local had_keyboard=0
+    local had_keyboard=0 tries=20
     has_keyboard_in_profile && had_keyboard=1
     has_ngosen_in_profile && restart_fcitx5 && has_ngosen_in_profile || return 1
     fcitx5_reloaded=1
-    if [ "$had_keyboard" -eq 1 ] && ! has_keyboard_in_profile; then
-        keyboard_dropped=1
-    fi
+    [ "$had_keyboard" -eq 1 ] || return 0
+    # The profile is final once the engine has loaded, which stamps its settings; the new fcitx5
+    # may first wait for the old one to exit.
+    while [ "$tries" -gt 0 ] && ! grep -qs '^SettingsVersion=' "$(config_home)/fcitx5/conf/ngosen.conf"; do
+        sleep 0.25
+        tries=$((tries - 1))
+    done
+    has_keyboard_in_profile || keyboard_dropped=1
 }
 
 has_keyboard_in_profile() {
     grep -qs '^Name=keyboard-' "$(config_home)/fcitx5/profile"
 }
 
-# The key the engine picks: settings from before its toggle key keep Ctrl+Space.
+# The key the engine picks: settings from before its toggle key, including lotus.conf that is
+# copied over on the next start, keep Ctrl+Space; defaults are left out of the file.
 toggle_key_name() {
-    local conf
-    conf="$(config_home)/fcitx5/conf/ngosen.conf"
-    if [ -f "$conf" ] && { ! grep -qs '^SettingsVersion=' "$conf" || grep -qs '^0=Control+space$' "$conf"; }; then
-        printf 'Ctrl+Space'
-    else
-        printf 'Ctrl+Shift'
+    local dir key
+    dir="$(config_home)/fcitx5/conf"
+    if [ -f "$dir/ngosen.conf" ]; then
+        grep -qs '^SettingsVersion=' "$dir/ngosen.conf" || key=Control+space
+    elif [ -f "$dir/lotus.conf" ]; then
+        key=Control+space
+    fi
+    if [ -z "${key:-}" ]; then
+        key=$(awk '/^\[/ { section = $0 } section == "[ToggleKey]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$dir/ngosen.conf" 2>/dev/null)
+    fi
+    case "${key:-}" in
+        "" | Control+Shift_L | Control+Shift_R | Shift+Control_L | Shift+Control_R) printf 'Ctrl+Shift' ;;
+        Control+space) printf 'Ctrl+Space' ;;
+        *) printf '%s' "$key" ;;
+    esac
+}
+
+report_dropped_keyboard() {
+    if [ "$keyboard_dropped" -eq 1 ]; then
+        say "Ngó Sen giờ là bộ gõ duy nhất trong fcitx5. Bấm $(toggle_key_name) để chuyển tiếng Anh/Việt."
     fi
 }
 
@@ -544,10 +564,8 @@ setup_kde_session() {
 
 report_session_changes() {
     local change
-    if [ "$keyboard_dropped" -eq 1 ]; then
-        say "Ngó Sen giờ là bộ gõ duy nhất trong fcitx5, tự chuyển tiếng Anh/Việt bằng $(toggle_key_name)."
-    fi
     if [ "${#session_changes[@]}" -eq 0 ]; then
+        report_dropped_keyboard
         if [ "$fcitx5_reloaded" -eq 1 ]; then
             say "Xong. fcitx5 đã nạp bản mới, gõ được ngay."
         else
@@ -559,6 +577,9 @@ report_session_changes() {
     for change in "${session_changes[@]}"; do
         say "  - $change"
     done
+    if [ "$keyboard_dropped" -eq 1 ]; then
+        say "  - Ngó Sen là bộ gõ duy nhất trong fcitx5"
+    fi
     say ""
     say "Xong. Đăng xuất rồi đăng nhập lại là gõ được tiếng Việt."
     say "Bấm $(toggle_key_name) để chuyển qua lại tiếng Việt và tiếng Anh."
@@ -735,6 +756,7 @@ main() {
 
     say ""
     if [ "$(id -u)" -ne 0 ] && reload_fcitx5; then
+        report_dropped_keyboard
         say "Xong. fcitx5 đã nạp bản mới, gõ được ngay."
         return
     fi
