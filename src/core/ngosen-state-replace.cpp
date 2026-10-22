@@ -159,8 +159,9 @@ namespace ngosen {
         if (surr_wait_timer_only_) {
             return;
         }
-        // Committing now would be lost; a field that empties itself refocuses within a few ms (#93).
-        if (ngosen::dropsCommitsWithoutFocus(host_->field())) {
+        // Committing now would be lost; a field that empties itself refocuses within a few ms (#93),
+        // and under GNOME an editor that redraws after our backspaces does too (#175).
+        if (ngosen::dropsCommitsWithoutFocus(host_->field()) || ngosen::surroundingTextLags(host_->field())) {
             return;
         }
         finishReplacement("focus lost", false);
@@ -206,6 +207,8 @@ namespace ngosen {
     } // namespace
 
     void TypingState::deliverAfterSettle(const char* reason, bool fromTimer) {
+        if (commitAfterRedraw())
+            return;
         const auto snapshot = host_->surrounding();
         int        settleMs = engine_->options().waitSurroundingSettleMs;
         if (settleMs <= 0 || !looksLikeMessengerComposer(snapshot)) {
@@ -239,8 +242,10 @@ namespace ngosen {
             surr_snapshot_trusted_ = false;
             ++surr_timeout_streak_;
             // Frozen means at least two events, all identical to the send-time snapshot. A Firefox that
-            // is merely lagging usually sends nothing or a snapshot that is still moving.
-            if (surr_wait_event_count_ >= 2 && !surr_wait_saw_other_snapshot_ && surr_wait_sent_snapshot_fresh_) {
+            // is merely lagging usually sends nothing or a snapshot that is still moving. GNOME Shell 46
+            // declares surrounding text for apps that never send any (terminals), so silence counts there.
+            const bool silent = surr_wait_event_count_ == 0 && ngosen::surroundingTextLags(host_->field());
+            if (silent || (surr_wait_event_count_ >= 2 && !surr_wait_saw_other_snapshot_ && surr_wait_sent_snapshot_fresh_)) {
                 if (++surr_frozen_streak_ >= 2 && !surr_frozen_) {
                     surr_frozen_             = true;
                     surr_frozen_probe_count_ = 0;

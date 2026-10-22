@@ -93,9 +93,7 @@ namespace ngosen {
         // Some apps (Konsole) declare surrounding text but always send it empty; nothing can match,
         // so use the sleeping path.
         const bool emptySnapshot = host_->surrounding().text().empty();
-        // GNOME Shell relays surrounding text late and one step behind (or not at all), so an
-        // event-driven wait times out and commits ahead of the backspaces. Use the timed path there.
-        const bool waitEvent = engine_->options().waitSurroundingEvent && !ngosen::surroundingTextLags(host_->field());
+        const bool waitEvent     = engine_->options().waitSurroundingEvent;
         if (waitEvent && emptySnapshot) {
             NGOSEN_INFO("Surr wait skip: empty snapshot");
         }
@@ -152,6 +150,8 @@ namespace ngosen {
                 t.rearm(surr_wait_started_at_ + timeout);
                 return true;
             }
+            if (commitAfterRedraw())
+                return false;
             finishReplacement("timeout", true);
             return false;
         });
@@ -227,6 +227,17 @@ namespace ngosen {
         }
         finishReplacement("timer", true);
         return false;
+    }
+
+    bool TypingState::commitAfterRedraw() {
+        if (!ngosen::surroundingTextLags(host_->field()) || (host_->hasFocus() && !waitsForRedraw()))
+            return false;
+        surr_wait_pending_       = true;
+        surr_wait_timer_only_    = true;
+        surr_wait_focus_retries_ = 0;
+        surr_wait_deliver_at_    = ngosen::monotonicUs() + 2000;
+        settle_timer_            = host_->startTimer(surr_wait_deliver_at_, 1000, [this](ngosen::Timer& t) { return onTimedWaitTimer(t); });
+        return true;
     }
 
     void TypingState::forwardBackspaces(int count) {

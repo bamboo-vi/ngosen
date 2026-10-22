@@ -349,6 +349,9 @@ namespace ngosen {
         bool startTimedWait(ngosen::KeyPress* event, int sleepTime, bool skipFrozenWait);
         bool onTimedWaitTimer(ngosen::Timer& t);
         bool waitsForRedraw() const;
+        // Under GNOME, leaves a finished deletion's commit to the timed wait while the field redraws
+        // or is away (#175).
+        bool commitAfterRedraw();
         bool lostWordAfterBounce(const Surrounding& s, bool settling);
         void forwardBackspaces(int count);
         // True when a replacement can delete text: forwarded by the frontend or pressed through XTEST.
