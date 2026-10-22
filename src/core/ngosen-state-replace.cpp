@@ -207,7 +207,7 @@ namespace ngosen {
     } // namespace
 
     void TypingState::deliverAfterSettle(const char* reason, bool fromTimer) {
-        if (commitAfterRedraw())
+        if (deferLaggingCommit(reason))
             return;
         const auto snapshot = host_->surrounding();
         int        settleMs = engine_->options().waitSurroundingSettleMs;
@@ -235,17 +235,19 @@ namespace ngosen {
         });
     }
 
-    void TypingState::finishReplacement(const char* reason, bool fromTimer) {
+    void TypingState::noteWaitOutcome(const char* reason) {
         const auto elapsedMs = (ngosen::monotonicUs() - surr_wait_started_at_) / 1000;
         NGOSEN_INFO("Surr wait " + std::string(reason) + " after " + std::to_string(elapsedMs) + " ms");
         if (std::string(reason) == "timeout") {
             surr_snapshot_trusted_ = false;
             ++surr_timeout_streak_;
+            if (surr_wait_event_count_ == 0 && ngosen::surroundingTextLags(host_->field()) && ++surr_silent_streak_ >= 2 && !surr_silent_) {
+                surr_silent_ = true;
+                NGOSEN_INFO("Surr silent: use the timed wait");
+            }
             // Frozen means at least two events, all identical to the send-time snapshot. A Firefox that
-            // is merely lagging usually sends nothing or a snapshot that is still moving. GNOME Shell 46
-            // declares surrounding text for apps that never send any (terminals), so silence counts there.
-            const bool silent = surr_wait_event_count_ == 0 && ngosen::surroundingTextLags(host_->field());
-            if (silent || (surr_wait_event_count_ >= 2 && !surr_wait_saw_other_snapshot_ && surr_wait_sent_snapshot_fresh_)) {
+            // is merely lagging usually sends nothing or a snapshot that is still moving.
+            if (surr_wait_event_count_ >= 2 && !surr_wait_saw_other_snapshot_ && surr_wait_sent_snapshot_fresh_) {
                 if (++surr_frozen_streak_ >= 2 && !surr_frozen_) {
                     surr_frozen_             = true;
                     surr_frozen_probe_count_ = 0;
@@ -263,6 +265,10 @@ namespace ngosen {
                 NGOSEN_INFO("Surr frozen: resume waiting");
             }
         }
+    }
+
+    void TypingState::finishReplacement(const char* reason, bool fromTimer) {
+        noteWaitOutcome(reason);
         surr_wait_pending_    = false;
         surr_wait_timer_only_ = false;
         if (!fromTimer && surr_wait_timer_) {

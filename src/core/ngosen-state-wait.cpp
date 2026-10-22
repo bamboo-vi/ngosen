@@ -92,10 +92,10 @@ namespace ngosen {
     bool TypingState::waitForDeletion(ngosen::KeyPress* event, int sleepTime) {
         // Some apps (Konsole) declare surrounding text but always send it empty; nothing can match,
         // so use the sleeping path.
-        const bool emptySnapshot = host_->surrounding().text().empty();
+        const bool emptySnapshot = host_->surrounding().text().empty() || surr_silent_;
         const bool waitEvent     = engine_->options().waitSurroundingEvent;
         if (waitEvent && emptySnapshot) {
-            NGOSEN_INFO("Surr wait skip: empty snapshot");
+            NGOSEN_INFO(surr_silent_ ? "Surr wait skip: silent app" : "Surr wait skip: empty snapshot");
         }
         bool skipFrozenWait = false;
         if (waitEvent && !emptySnapshot && surr_frozen_) {
@@ -150,7 +150,7 @@ namespace ngosen {
                 t.rearm(surr_wait_started_at_ + timeout);
                 return true;
             }
-            if (commitAfterRedraw())
+            if (deferLaggingCommit("timeout"))
                 return false;
             finishReplacement("timeout", true);
             return false;
@@ -229,13 +229,19 @@ namespace ngosen {
         return false;
     }
 
-    bool TypingState::commitAfterRedraw() {
-        if (!ngosen::surroundingTextLags(host_->field()) || (host_->hasFocus() && !waitsForRedraw()))
+    bool TypingState::deferLaggingCommit(const char* reason) {
+        if (!ngosen::surroundingTextLags(host_->field()))
             return false;
+        // A report from before the forwarded keys were applied can look like the finished deletion.
+        const uint64_t floorUs = surr_wait_started_at_ + ForwardWaitUs;
+        const uint64_t nowUs   = ngosen::monotonicUs();
+        if (nowUs >= floorUs && host_->hasFocus() && !waitsForRedraw())
+            return false;
+        noteWaitOutcome(reason);
         surr_wait_pending_       = true;
         surr_wait_timer_only_    = true;
         surr_wait_focus_retries_ = 0;
-        surr_wait_deliver_at_    = ngosen::monotonicUs() + 2000;
+        surr_wait_deliver_at_    = std::max(floorUs, nowUs + 1000);
         settle_timer_            = host_->startTimer(surr_wait_deliver_at_, 1000, [this](ngosen::Timer& t) { return onTimedWaitTimer(t); });
         return true;
     }
@@ -271,6 +277,8 @@ namespace ngosen {
             engine_->recorder().addSurrounding(report);
         if (host_->hasFocus())
             checkCursorJump();
+        surr_silent_        = false;
+        surr_silent_streak_ = 0;
         if (key_report_pending_) {
             // Calc answers our Shift with an empty field when the key went to a cell not being edited.
             const auto s = host_->surrounding();
