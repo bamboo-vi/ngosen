@@ -13,7 +13,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Thêm
 
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
-  chữ đổi luôn thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ" (#82).
+  chữ đổi ngay thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ" (#82, #232).
 - Cứu chữ không tự đổi khi trong đoạn có chữ gõ lại vẫn y nguyên (như `abc` trong `abc tieengs`), vì
   thường đó là tiếng Anh gõ có chủ ý. Khi đó chỉ hiện gợi ý `abc tieengs → abc tiếng` kèm dòng
   "Cứu chữ: Tab để đổi, Esc để giữ nguyên": Tab gõ lại có dấu, Tab lần nữa trả lại như cũ, Esc hoặc phím
