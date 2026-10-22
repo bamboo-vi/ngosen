@@ -34,10 +34,9 @@ if libxkb_path:
         print(f"Failed to load libxkbcommon: {e}")
 
 
-# Common XKB keysym name to character mapping for display
-# The order fcitx5 writes modifiers in a key name.
 MODIFIER_ORDER = ["Control", "Alt", "Super", "Shift"]
 
+# Common XKB keysym name to character mapping for display
 HOTKEY_SYM_MAP = {
     "grave": "`",
     "minus": "-",
@@ -375,6 +374,9 @@ class HotkeyCaptureWidget(QPushButton):
             Qt.Key_Meta: "Super",
         }
         if key_code in mod_map:
+            # A held key repeats.
+            if mod_map[key_code] in self.record_mods:
+                return
             # Held modifiers plus this one's own name (Shift_L), as fcitx5 writes a modifier-only key.
             held = [m for m in MODIFIER_ORDER if m in self.record_mods]
             self.modifier_key = "+".join(
@@ -384,11 +386,11 @@ class HotkeyCaptureWidget(QPushButton):
             self._update_display()
             return
 
+        self.modifier_key = ""
         if key_code == Qt.Key_unknown:
             return
 
         # It's a base key! Capture it and finalize immediately
-        self.modifier_key = ""
         base_key = self._keysym_name(event)
         # Normalize BackTab keysym to Tab to ensure Fcitx5 sees 'Shift+Tab' instead of plain 'ISO_Left_Tab'
         if base_key == "ISO_Left_Tab":
@@ -502,13 +504,7 @@ class SingleKeyCaptureWidget(HotkeyCaptureWidget):
             return
 
         # Capture base key only
-        keysym = event.nativeVirtualKey()
-        base_key = ""
-
-        if libxkb and keysym > 0:
-            buf = ctypes.create_string_buffer(64)
-            if libxkb.xkb_keysym_get_name(keysym, buf, 64) > 0:
-                base_key = buf.value.decode("utf-8")
+        base_key = self._keysym_name(event)
 
         if not base_key:
             base_key = (
