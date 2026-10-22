@@ -352,13 +352,24 @@ has_keyboard_in_profile() {
     grep -qs '^Name=keyboard-' "$(config_home)/fcitx5/profile"
 }
 
+# One group of a keyboard and ngosen on the same layout, the case the migration addon drops.
+has_lone_keyboard_in_profile() {
+    awk '/^\[/ { item = /\/Items\// }
+        !item && /^Default Layout=/ { layout = substr($0, 16) }
+        item && /^Name=/ { items++ }
+        item && /^Name=keyboard-/ { keyboards++; keyboard = substr($0, 15) }
+        item && $0 == "Name=ngosen" { own++ }
+        END { exit !(items == 2 && keyboards == 1 && own == 1 && (layout == "" || layout == keyboard)) }' \
+        "$(config_home)/fcitx5/profile" 2>/dev/null
+}
+
 # The key the engine picks: settings from before its toggle key, including lotus.conf that is
 # copied over on the next start, keep Ctrl+Space; defaults are left out of the file.
 toggle_key_name() {
     local dir key
     dir="$(config_home)/fcitx5/conf"
     key=$(awk '/^\[/ { section = $0 } section == "[ToggleKey]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$dir/ngosen.conf" 2>/dev/null)
-    if [ -z "$key" ] && { [ -f "$dir/lotus.conf" ] || [ -f "$dir/ngosen.conf" ]; } &&
+    if [ -z "$key" ] && { [ -f "$dir/lotus.conf" ] || [ -f "$dir/ngosen.conf" ] || has_lone_keyboard_in_profile; } &&
         ! grep -qs '^SettingsVersion=' "$dir/ngosen.conf"; then
         # Not upgraded yet: Ngó Sen takes over fcitx5's switch key, Ctrl+Space by default.
         key=$(awk '/^\[/ { section = $0 } section == "[Hotkey/TriggerKeys]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$(config_home)/fcitx5/config" 2>/dev/null)

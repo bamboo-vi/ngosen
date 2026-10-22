@@ -50,7 +50,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - Ngó Sen tự chuyển Anh/Việt; cập nhật bỏ bàn phím (như keyboard-us) khỏi fcitx5 một lần, giữ phím chuyển cũ.
   Không bỏ nếu có từ hai bàn phím hoặc bộ gõ khác; bàn phím thêm lại vẫn được giữ.
-  Cài mới bằng install.sh: danh sách chỉ có Ngó Sen (#237)
+  Cài mới bằng install.sh: danh sách chỉ có Ngó Sen (#237, #248)
 - Gói Debian 12 dùng lõi gõ Rust như các gói khác; cách gõ không đổi. Ngó Sen bỏ lõi Go.
   Debian 12 đã có Rust 1.96 trong security updates (`rustc-web`, `cargo-web`).
   Build từ source cần Rust 1.88+ và cargo, không cần Go (#223).
