@@ -52,6 +52,7 @@ int main() {
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Preedit");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Custom");
     config.setValueByPath("EnableCustomKeymap", "True");
     engine.setConfig(config);

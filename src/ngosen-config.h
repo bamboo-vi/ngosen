@@ -215,7 +215,14 @@ namespace fcitx {
         Option<std::string, InputMethodConstrain, DefaultMarshaller<std::string>, InputMethodAnnotation> inputMethod{
             this, "InputMethod", _("Input Method"), "Telex", InputMethodConstrain(&inputMethod), {}, InputMethodAnnotation()};
         OptionWithAnnotation<std::string, StringListAnnotation> outputCharset{this, "OutputCharset", _("Output Charset"), "Unicode", {}, {}, StringListAnnotation()};
-        KeyListOption                                           modeMenuKey{
+        // Ctrl+Shift as in UniKey, pressed in either order; ngosen-engine.cpp keeps Ctrl+Space for older installs.
+        KeyListOption toggleKey{this,
+                                "ToggleKey",
+                                _("Switch Between English and Vietnamese"),
+                                {Key("Control+Shift_L"), Key("Control+Shift_R"), Key("Shift+Control_L"), Key("Shift+Control_R")},
+                                KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
+        // What the toggle key last chose, for apps without a rule of their own.
+        HiddenOption<bool> vietnameseOn{this, "VietnameseOn", _("Vietnamese On"), false}; KeyListOption modeMenuKey{
             this, "ModeMenuKey", _("Mode Menu Hotkey"), {Key("grave")}, KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
         KeyListOption cycleModeKey{this, "CycleModeKey", _("Cycle Mode Hotkey"), {}, KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
         SubConfigOption                                                                appRules{this, "AppRules", _("App Rules"), "fcitx://config/addon/ngosen/app_rules"};

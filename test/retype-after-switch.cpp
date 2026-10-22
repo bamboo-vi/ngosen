@@ -57,6 +57,7 @@ int main() {
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Sen");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Telex");
     engine.setConfig(config);
     fcitx::InputMethodEntry entry("ngosen", "Ngó Sen", "vi", "ngosen");

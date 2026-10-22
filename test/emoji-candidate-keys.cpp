@@ -75,6 +75,7 @@ int main() {
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Emoji Picker");
+    config.setValueByPath("VietnameseOn", "True");
     engine.setConfig(config);
 
     auto context = std::make_unique<TestInputContext>(&testInstance.instance);
