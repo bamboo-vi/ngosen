@@ -11,7 +11,7 @@ import sys
 
 from i18n import setup_i18n
 from qtpy.QtWidgets import QApplication
-from ui import brand
+from ui import brand, scroll_bars
 from ui.main_window import NgoSenSettingsWindow
 
 
@@ -23,6 +23,7 @@ def main():
     app.setApplicationName("io.github.ngosen.NgoSen.Settings")
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.setWindowIcon(brand.logo_icon())
+    scroll_bars.install(app)
 
     window = NgoSenSettingsWindow()
     window.show()
