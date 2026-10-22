@@ -116,10 +116,6 @@ namespace ngosen::test {
         state_->keyEvent(up);
     }
 
-    void FakeApp::pressSwitchKey() {
-        busyUntilUs_ = monotonicUs() + static_cast<uint64_t>(quirks_.switchBusyMs) * 1000;
-    }
-
     std::string FakeApp::text() const {
         return encode(text_);
     }
@@ -135,7 +131,7 @@ namespace ngosen::test {
     }
 
     void FakeApp::forwardKey(EditKey key, bool release) {
-        if (key != EditKey::BackSpace || release || monotonicUs() < busyUntilUs_)
+        if (key != EditKey::BackSpace || release)
             return;
         if (forwardedAt_ == 0)
             forwardedAt_ = monotonicUs();
