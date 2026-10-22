@@ -106,9 +106,10 @@ namespace ngosen::test {
             state_->keyEvent(again);
         }
         if (!down.accepted()) {
-            if (sym == key::BackSpace)
+            if (sym == key::BackSpace) {
+                lastBackSpaceAt_ = time;
                 later(quirks_.lagMs, [this] { eraseBefore(1); });
-            else if (const auto text = keyText(down.appSym()); !text.empty())
+            } else if (const auto text = keyText(down.appSym()); !text.empty())
                 later(quirks_.lagMs, [this, text] { insert(utf8::decode(text)); });
         }
 
@@ -130,9 +131,14 @@ namespace ngosen::test {
         later(quirks_.lagMs, [this, text] { insert(utf8::decode(text)); });
     }
 
-    void FakeApp::forwardKey(EditKey key, bool release) {
+    void FakeApp::forwardKey(EditKey key, bool release, uint32_t time) {
         if (key != EditKey::BackSpace || release)
             return;
+        if (quirks_.dropsOldKeyPresses) {
+            if (lastBackSpaceAt_ != 0 && static_cast<int32_t>(time - lastBackSpaceAt_) <= 0)
+                return;
+            lastBackSpaceAt_ = time;
+        }
         if (forwardedAt_ == 0)
             forwardedAt_ = monotonicUs();
         if (quirks_.keyStepMs > 0) {

@@ -292,6 +292,21 @@ EOF
     session_changes+=("app dùng fcitx5 thay IBus")
 }
 
+# KWin serves Wayland apps itself; X11 apps under XWayland reach fcitx5 only through XIM.
+# GTK_IM_MODULE and QT_IM_MODULE stay unset, as fcitx5 asks for on Plasma.
+set_xim_environment() {
+    local dir file
+    dir="$(config_home)/environment.d"
+    file="$dir/90-ngosen.conf"
+    [ -e "$file" ] && return 0
+    if grep -qs '^XMODIFIERS=' "$dir"/*.conf; then
+        return 0
+    fi
+    mkdir -p "$dir"
+    echo 'XMODIFIERS=@im=fcitx' >"$file"
+    session_changes+=("app X11 chạy qua XWayland (như Minecraft bản cũ) dùng fcitx5")
+}
+
 # Prints the fcitx5 name of the first GNOME keyboard layout, e.g. "us" or "fr-azerty".
 gnome_layout() {
     local sources layout
@@ -564,6 +579,7 @@ setup_kde_session() {
         kwriteconfig6 --file kwinrc --group Wayland --key InputMethod "$launcher"
         session_changes+=("KDE tự chạy fcitx5 làm bộ gõ (Virtual Keyboard: Fcitx 5)")
     fi
+    set_xim_environment
     configure_fcitx5
     if [ "${#session_changes[@]}" -eq 0 ] && [ "$fcitx5_reloaded" -eq 0 ]; then
         say "Xong. Đăng xuất rồi đăng nhập lại để dùng bản mới."

@@ -68,6 +68,13 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Sửa biểu tượng Ngó Sen trên thanh trên cùng GNOME nhỏ hơn biểu tượng mạng, loa. (#245, #246)
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
+- Sửa mô tả ở trang Giới thiệu trong cửa sổ cài đặt cho khớp với README (#249).
+- KDE Plasma Wayland: app X11 chạy qua XWayland, như Minecraft 26.2 trở về trước hay xterm, không gõ được tiếng
+  Việt mà chỉ ra chữ Telex thô, vì lệnh cài chưa đặt biến `XMODIFIERS`. Giờ lệnh cài đặt biến này; đăng xuất rồi
+  đăng nhập lại để áp dụng (#251).
+- Gõ Sen trong app dùng GLFW chạy qua XWayland, như Minecraft Java: sau khi bấm Backspace một lần, chữ cũ không
+  còn bị xoá khi thêm dấu (`tieengs` ra `tieêngếng`). Nguyên nhân là GLFW bỏ qua phím Backspace có thời điểm
+  không mới hơn lần bấm trước, mà Ngó Sen gửi phím với thời điểm 0 (#247).
 - Sau khi update gói Ngó Sen, fcitx5 vẫn dùng version cũ để gõ cho đến khi đăng xuất hoặc fcitx5 khởi động lại,
   nhưng trang Giới thiệu trong cửa sổ cài đặt đã hiện số version mới, dễ khiến người dùng báo lỗi nhầm version.
   Giờ trang này hiện dòng đỏ dưới số version khi fcitx5 còn chạy Ngó Sen từ trước update, nhắc đăng xuất rồi
@@ -83,6 +90,23 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Tài liệu
 
 - Lộ trình thêm thông báo "Có gì mới" cho 1.6.0 và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148).
+- Trang "How Vietnamese people type" chuyển Firefox Bugzilla 2080478 từ lỗi người khác báo sang lỗi Ngó Sen xác nhận:
+  Firefox trên Wayland báo surrounding text trễ một edit, nên input method xoá theo surrounding text sẽ gõ sai chữ.
+  Test KDE Plasma, Firefox 157 vẫn sai dù cách phím 1,5 s; protocol log đã đính kèm bug Firefox (#211)
+- Trang "How Vietnamese people type" (`docs/typing-without-preedit.md`) thêm lỗi Firefox do Ngó Sen báo:
+  address bar trên Linux không báo input purpose là URL cho input method (Bugzilla 2084459, theo dõi ở #215).
+  Trang cũng giải thích Firefox báo input purpose là URL trên Windows và Android, nhưng không báo trên Linux (#216).
+- "How Vietnamese people type" sửa nhận định GNOME Shell báo surrounding text trễ hàng chục ms, chậm một edit:
+  GNOME 51/IBus báo trong vài ms. GTK 3/4 app thường xử lý commit trước Backspace input method vừa forward,
+  khiến Backspace xóa chữ mới; trang giải thích và dẫn lỗi Ngó Sen báo (GTK issue 8431). Cũng liệt kê lỗi
+  đã xác nhận trước đó: Chromium GTK IM không báo surrounding text (Chromium issue 40146869, theo dõi ở #220) (#221)
+- "How Vietnamese people type" thêm GTK issue 3465 vào lỗi người khác báo, được xác nhận ở đây: GTK IM module
+  của input method không chuyển được Backspace đã forward đến ô nhập GTK 4. Test GNOME 51, GTK 4.24.1 qua
+  GTK 4 module của IBus: mất 19/19 Backspace đã forward (theo dõi ở #225) (#226)
+- "How Vietnamese people type" thêm hai lỗi LibreOffice người khác báo, test Ngó Sen xác nhận (theo dõi ở #227):
+  LibreOffice bug 139807: Backspace chạy như shortcut bất đồng bộ, commit ngay sau lại đến trước (Writer 26.8.1: 17/19 edit).
+  LibreOffice bug 173064: Calc dùng giao diện Qt và KDE (mặc định trên KDE Plasma) không báo input method khi click
+  cell khác; trang nói rõ lỗi ở giao diện Qt và KDE, không phải Wayland nói chung (#228)
 
 ### Test
 
