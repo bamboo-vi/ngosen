@@ -339,8 +339,8 @@ reload_fcitx5() {
     has_ngosen_in_profile && restart_fcitx5 && has_ngosen_in_profile || return 1
     fcitx5_reloaded=1
     [ "$had_keyboard" -eq 1 ] || return 0
-    # The profile is final once the engine has loaded, which stamps its settings; the new fcitx5
-    # may first wait for the old one to exit.
+    # The migration addon stamps the settings after saving the profile when it drops the keyboard,
+    # and the new fcitx5 may first wait for the old one to exit.
     while [ "$tries" -gt 0 ] && ! grep -qs '^SettingsVersion=' "$(config_home)/fcitx5/conf/ngosen.conf"; do
         sleep 0.25
         tries=$((tries - 1))
@@ -358,12 +358,11 @@ toggle_key_name() {
     local dir key
     dir="$(config_home)/fcitx5/conf"
     key=$(awk '/^\[/ { section = $0 } section == "[ToggleKey]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$dir/ngosen.conf" 2>/dev/null)
-    if [ -z "$key" ]; then
-        if [ -f "$dir/ngosen.conf" ]; then
-            grep -qs '^SettingsVersion=' "$dir/ngosen.conf" || key=Control+space
-        elif [ -f "$dir/lotus.conf" ]; then
-            key=Control+space
-        fi
+    if [ -z "$key" ] && { [ -f "$dir/lotus.conf" ] || [ -f "$dir/ngosen.conf" ]; } &&
+        ! grep -qs '^SettingsVersion=' "$dir/ngosen.conf"; then
+        # Not upgraded yet: Ngó Sen takes over fcitx5's switch key, Ctrl+Space by default.
+        key=$(awk '/^\[/ { section = $0 } section == "[Hotkey/TriggerKeys]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$(config_home)/fcitx5/config" 2>/dev/null)
+        key=${key:-Control+space}
     fi
     case "${key:-}" in
         "" | Control+Shift_L | Control+Shift_R | Shift+Control_L | Shift+Control_R) printf 'Ctrl+Shift' ;;
@@ -407,8 +406,8 @@ add_ngosen_to_profile() {
         # fcitx5's first profile holds one keyboard; Ngó Sen switches English itself, so it takes
         # the keyboard's place and keeps its layout.
         if [ "$items" -eq 1 ] && has_keyboard_in_profile && ! grep -qs '^\[Groups/[1-9]' "$profile"; then
-            layout=$(sed -n 's/^Default Layout=//p' "$profile" | head -n 1)
-            layout=${layout:-$(sed -n 's/^Name=keyboard-//p' "$profile" | head -n 1)}
+            # English was typed on the keyboard's own layout, whatever the group default says.
+            layout=$(sed -n 's/^Name=keyboard-//p' "$profile" | head -n 1)
             write_ngosen_profile "$profile" "$layout"
         else
             printf '\n[Groups/0/Items/%s]\nName=ngosen\nLayout=\n' "$items" >>"$profile"
