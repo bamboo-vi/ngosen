@@ -111,7 +111,13 @@ int main() {
 
     keys.ctrlShift(*gedit, FcitxKey_T);
     check(realMode.load() == ngosen::Mode::Off, "Ctrl+Shift+T does not switch", modeName(realMode.load()));
-    keys.ctrlShift(*gedit);
+    const fcitx::KeyStates ctrl{fcitx::KeyState::Ctrl};
+    const fcitx::KeyStates both{fcitx::KeyState::Ctrl, fcitx::KeyState::Shift};
+    keys.send(*gedit, fcitx::Key(FcitxKey_Control_L), false);
+    keys.send(*gedit, fcitx::Key(FcitxKey_Shift_L, ctrl), false);
+    keys.send(*gedit, fcitx::Key(FcitxKey_Shift_L, both), true);
+    check(realMode.load() == ngosen::Mode::Off, "Ctrl+Shift waits for Ctrl to come up", modeName(realMode.load()));
+    keys.send(*gedit, fcitx::Key(FcitxKey_Control_L, ctrl), true);
     check(realMode.load() == ngosen::Mode::Sen, "Ctrl+Shift switches to Vietnamese", modeName(realMode.load()));
     check(savedConfig().find("VietnameseOn=True") != std::string::npos, "the choice is saved", savedConfig());
 

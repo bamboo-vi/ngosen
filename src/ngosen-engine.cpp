@@ -998,6 +998,9 @@ namespace fcitx {
         if (keyEvent.isRelease()) {
             if (!toggleTapArmed_ || !key.isModifier())
                 return false;
+            // Wait for the last one, or the retype's XTEST backspaces reach the app as Ctrl+BackSpace.
+            if ((key.states() & ~Key::keySymToStates(key.sym()) & KeyStates{KeyState::Ctrl_Alt_Shift, KeyState::Super}) != 0)
+                return false;
             toggleTapArmed_ = false;
 #if NGOSEN_USE_MODERN_FCITX_API
             // A long hold, such as Ctrl+Shift+click, is not a tap.
