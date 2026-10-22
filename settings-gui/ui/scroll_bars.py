@@ -45,13 +45,18 @@ class _Styler(QObject):
         return False
 
 
+def style_name(style):
+    # QStyle.name() is new in Qt 6; Qt 5's style factory leaves the name in objectName().
+    return (style.name() if hasattr(style, "name") else style.objectName()).lower()
+
+
 def install(app, environ=os.environ):
     """Styles every scroll bar the app creates; returns the filter, or None when not needed.
 
     A Qt theme the user installed (Kvantum, adwaita-qt) replaces Fusion and is left alone.
     """
     desktops = environ.get("XDG_CURRENT_DESKTOP", "").upper().split(":")
-    if "GNOME" not in desktops or app.style().name().lower() != "fusion":
+    if "GNOME" not in desktops or style_name(app.style()) != "fusion":
         return None
     styler = _Styler(app)
     app.installEventFilter(styler)

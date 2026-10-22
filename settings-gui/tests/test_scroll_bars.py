@@ -20,7 +20,7 @@ def scroll_area():
 
 class ScrollBarsTest(unittest.TestCase):
     def setUp(self):
-        self.style = app.style().name()
+        self.style = scroll_bars.style_name(app.style())
         app.setStyle("Fusion")
 
     def tearDown(self):
