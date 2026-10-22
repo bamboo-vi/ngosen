@@ -1211,11 +1211,8 @@ namespace fcitx {
     }
 
     std::string NgoSenEngine::subModeLabelImpl(const InputMethodEntry& /*entry*/, InputContext& /*inputContext*/) {
-        switch (realMode) {
-            case NgoSenMode::Off: return _("Ngó Sen - Off");
-            case NgoSenMode::Emoji: return "😄";
-            default: return "vi";
-        }
+        // GNOME's kimpanel shows any non-empty label in place of the icon.
+        return {};
     }
 
     std::string NgoSenEngine::getProgramName(InputContext* ic) {
