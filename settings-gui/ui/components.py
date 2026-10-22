@@ -34,6 +34,8 @@ if libxkb_path:
         print(f"Failed to load libxkbcommon: {e}")
 
 
+MODIFIER_ORDER = ["Control", "Alt", "Super", "Shift"]
+
 # Common XKB keysym name to character mapping for display
 HOTKEY_SYM_MAP = {
     "grave": "`",
@@ -281,6 +283,7 @@ class HotkeyCaptureWidget(QPushButton):
 
         # Local state to track held modifiers during recording
         self.record_mods = set()
+        self.modifier_key = ""
 
         # Use a layout for visual keycaps
         self.main_layout = QHBoxLayout(self)
@@ -311,6 +314,7 @@ class HotkeyCaptureWidget(QPushButton):
     def _on_toggled(self, checked):
         if checked:
             self.record_mods.clear()
+            self.modifier_key = ""
         self._update_display()
 
     def _clear_layout(self):
@@ -329,8 +333,7 @@ class HotkeyCaptureWidget(QPushButton):
                 self.main_layout.addWidget(lbl)
             else:
                 # Show current active modifiers
-                mod_order = ["Control", "Alt", "Super", "Shift"]
-                for mod in mod_order:
+                for mod in MODIFIER_ORDER:
                     if mod in self.record_mods:
                         self.main_layout.addWidget(KeyCap(HOTKEY_SYM_MAP.get(mod, mod)))
                 # Add a pulsing placeholder for the next key
@@ -371,25 +374,27 @@ class HotkeyCaptureWidget(QPushButton):
             Qt.Key_Meta: "Super",
         }
         if key_code in mod_map:
+            # A held key repeats.
+            if mod_map[key_code] in self.record_mods:
+                return
+            # Held modifiers plus this one's own name (Shift_L), as fcitx5 writes a modifier-only key.
+            held = [m for m in MODIFIER_ORDER if m in self.record_mods]
+            self.modifier_key = "+".join(
+                held + [self._keysym_name(event) or mod_map[key_code] + "_L"]
+            )
             self.record_mods.add(mod_map[key_code])
             self._update_display()
             return
 
+        self.modifier_key = ""
         if key_code == Qt.Key_unknown:
             return
 
         # It's a base key! Capture it and finalize immediately
-        keysym = event.nativeVirtualKey()
-        base_key = ""
-
-        if libxkb and keysym > 0:
-            # Use raw keysym name to ensure compatibility with Fcitx5 engine
-            buf = ctypes.create_string_buffer(64)
-            if libxkb.xkb_keysym_get_name(keysym, buf, 64) > 0:
-                base_key = buf.value.decode("utf-8")
-                # Normalize BackTab keysym to Tab to ensure Fcitx5 sees 'Shift+Tab' instead of plain 'ISO_Left_Tab'
-                if base_key == "ISO_Left_Tab":
-                    base_key = "Tab"
+        base_key = self._keysym_name(event)
+        # Normalize BackTab keysym to Tab to ensure Fcitx5 sees 'Shift+Tab' instead of plain 'ISO_Left_Tab'
+        if base_key == "ISO_Left_Tab":
+            base_key = "Tab"
 
         if not base_key:
             base_key = (
@@ -422,9 +427,23 @@ class HotkeyCaptureWidget(QPushButton):
             mods.append("Shift")
 
         mods.append(base_key)
-        self.current_key = "+".join(mods)
+        self._finish("+".join(mods))
+
+    @staticmethod
+    def _keysym_name(event):
+        """The keysym's own name, which fcitx5 reads, or "" without xkbcommon."""
+        keysym = event.nativeVirtualKey()
+        if not libxkb or keysym <= 0:
+            return ""
+        buf = ctypes.create_string_buffer(64)
+        if libxkb.xkb_keysym_get_name(keysym, buf, 64) <= 0:
+            return ""
+        return buf.value.decode("utf-8")
+
+    def _finish(self, key):
+        self.current_key = key
         self.setChecked(False)
-        self.textChanged.emit(self.current_key)
+        self.textChanged.emit(key)
 
     def _handle_release_event(self, event):
         """Processes key release to update live feedback."""
@@ -439,6 +458,10 @@ class HotkeyCaptureWidget(QPushButton):
             Qt.Key_Meta: "Super",
         }
         if key_code in mod_map:
+            # Modifiers pressed and let go with no other key make a modifier-only key, such as Ctrl+Shift.
+            if self.modifier_key:
+                self._finish(self.modifier_key)
+                return
             val = mod_map[key_code]
             if val in self.record_mods:
                 self.record_mods.remove(val)
@@ -481,13 +504,7 @@ class SingleKeyCaptureWidget(HotkeyCaptureWidget):
             return
 
         # Capture base key only
-        keysym = event.nativeVirtualKey()
-        base_key = ""
-
-        if libxkb and keysym > 0:
-            buf = ctypes.create_string_buffer(64)
-            if libxkb.xkb_keysym_get_name(keysym, buf, 64) > 0:
-                base_key = buf.value.decode("utf-8")
+        base_key = self._keysym_name(event)
 
         if not base_key:
             base_key = (

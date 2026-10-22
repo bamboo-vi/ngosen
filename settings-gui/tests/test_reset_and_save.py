@@ -170,6 +170,13 @@ class ToggleKeyTest(unittest.TestCase):
         self.assertTrue(page.save_data())
         self.assertEqual(fake.values["ToggleKey"], {"0": "F12", "1": "Zenkaku_Hankaku"})
 
+    def test_recorded_ctrl_shift_keeps_every_side(self):
+        fake = FakeDBusHandler({"ToggleKey": {"0": "Control+space"}})
+        page = self.page(fake)
+        page.findChildren(HotkeyEditorWidget)[0].hotkey_capture.textChanged.emit("Shift+Control_R")
+        self.assertTrue(page.save_data())
+        self.assertEqual(fake.values["ToggleKey"], DEFAULTS["ToggleKey"])
+
     def test_ctrl_shift_ends_a_recording(self):
         page = self.page(FakeDBusHandler({"ToggleKey": {"0": "Control+space"}}))
         capture = page.findChildren(HotkeyEditorWidget)[0].hotkey_capture

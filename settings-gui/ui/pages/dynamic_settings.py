@@ -400,7 +400,7 @@ class DynamicSettingsPage(QWidget):
         mute(hint)
         layout.addWidget(hint)
 
-        # The key editor cannot record a key made of modifiers alone, so Ctrl+Shift gets a button.
+        # Upgrades kept Ctrl+Space; UniKey's key is one click away.
         offer = QWidget()
         offer_layout = QHBoxLayout(offer)
         offer_layout.setContentsMargins(0, 4, 0, 0)
@@ -418,8 +418,9 @@ class DynamicSettingsPage(QWidget):
             offer.setVisible(False)
 
         def changed(text):
-            # Without a toggle key there is no way back to Vietnamese, so clearing restores Ctrl+Shift.
-            if not text:
+            # No key would leave no way back to Vietnamese; Ctrl+Shift recorded with either side or
+            # in either order is still all of UniKey's key.
+            if not text or text in ctrl_shift.values():
                 choose_ctrl_shift()
                 return
             # The Ctrl+Shift entries are one key to the user; other extra keys still work.
