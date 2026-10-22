@@ -86,9 +86,9 @@ namespace {
             const auto type   = fcitx::StandardPath::Type::PkgConfig;
             const bool rename = fcitx::StandardPath::global().locate(fcitx::StandardPath::Type::PkgData, "inputmethod/lotus.conf").empty();
 #endif
-            // Settings the engine has not upgraded yet are from before Ngó Sen had its own toggle key,
-            // when users reached it through fcitx5's switch from the keyboard. Only then, so a keyboard
-            // the user adds back stays; the engine keeps Ctrl+Space for them.
+            // Settings not upgraded yet are from before Ngó Sen had its own toggle key, when users
+            // reached it through fcitx5's switch from the keyboard. Only then, so a keyboard the user
+            // adds back stays.
             fcitx::RawConfig settings;
             fcitx::readAsIni(settings, type, "conf/ngosen.conf");
             const bool dropKeyboard = hasSettings && settings.valueByPath("SettingsVersion") == nullptr;
@@ -126,9 +126,10 @@ namespace {
                 // Read again: a previous fcitx5 may have saved it on the way out.
                 fcitx::RawConfig current;
                 fcitx::readAsIni(current, type, "conf/ngosen.conf");
-                if (ngosen::copySwitchKeys(fcitxConfig, current)) {
-                    fcitx::safeSaveAsIni(current, type, "conf/ngosen.conf");
-                }
+                ngosen::copySwitchKeys(fcitxConfig, current);
+                // Now, not when the engine first loads, or the next start drops a keyboard added back.
+                ngosen::upgradeSettings(current, true);
+                fcitx::safeSaveAsIni(current, type, "conf/ngosen.conf");
             }
         }
     };
