@@ -229,8 +229,12 @@ namespace ngosen {
         int  surr_frozen_streak_      = 0;
         bool surr_frozen_             = false;
         int  surr_frozen_probe_count_ = 0;
-        int  surr_timeout_streak_     = 0;    ///< two or more switches to the short timeout
-        bool surr_snapshot_trusted_   = true; ///< false after a timeout, true again on a matching event
+        // GNOME Shell 46 declares surrounding text for apps that never send any. After two silent
+        // waits, use the timed wait until a report arrives.
+        int  surr_silent_streak_    = 0;
+        bool surr_silent_           = false;
+        int  surr_timeout_streak_   = 0;    ///< two or more switches to the short timeout
+        bool surr_snapshot_trusted_ = true; ///< false after a timeout, true again on a matching event
         bool deletionLooksDone() const;
 
         // Messenger repaints its composer a few ms after the snapshot shows the deletion done, and
@@ -349,6 +353,10 @@ namespace ngosen {
         bool startTimedWait(ngosen::KeyPress* event, int sleepTime, bool skipFrozenWait);
         bool onTimedWaitTimer(ngosen::Timer& t);
         bool waitsForRedraw() const;
+        // Under GNOME, leaves a finished deletion's commit to the timed wait until the fixed wait has
+        // passed and the field is back from a redraw (#175).
+        bool deferLaggingCommit(const char* reason);
+        void noteWaitOutcome(const char* reason);
         bool lostWordAfterBounce(const Surrounding& s, bool settling);
         void forwardBackspaces(int count);
         // True when a replacement can delete text: forwarded by the frontend or pressed through XTEST.

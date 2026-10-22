@@ -167,6 +167,93 @@ namespace {
         return true;
     }
 
+    // GNOME Shell passes the forwarded keys on to the app and its reports back to us one edit at a time,
+    // sometimes later than any fixed wait. The commit waits for the report that shows the deletion.
+    bool gnomeIbusWaitsForReportedDeletion(Harness& h) {
+        auto context = h.open("window:1", "ibus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText});
+        if (!h.typeTie(*context))
+            return false;
+        pumpEventLoop(h.testInstance.instance, 1);
+        if (!h.type(*context, FcitxKey_e, true))
+            return false;
+        Harness::setSnapshot(*context, "tie", 3);
+        h.pumpUntil([&] { return !context->commits().empty(); }, nowUs() + 30000);
+        if (!context->commits().empty()) {
+            reportFailure("GNOME ibus: no commit before the app reports the deletion", "(none)", joinCommits(*context));
+            return false;
+        }
+        Harness::setSnapshot(*context, "ti", 2);
+        h.pumpUntil([&] { return !context->commits().empty(); }, nowUs() + 10000);
+        if (context->commits() != std::vector<std::string>{"ê"}) {
+            reportFailure("GNOME ibus: commit once the app reports the deletion", "['ê']", joinCommits(*context));
+            return false;
+        }
+        return true;
+    }
+
+    // A report can arrive from before the forwarded keys were applied, so a commit never goes out
+    // sooner than the fixed wait would have sent it.
+    bool gnomeIbusCommitsNoSoonerThanForwardWait(Harness& h) {
+        auto context = h.open("window:3", "ibus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText});
+        if (!h.typeTie(*context))
+            return false;
+        pumpEventLoop(h.testInstance.instance, 1);
+        const uint64_t replacedAt = nowUs();
+        if (!h.type(*context, FcitxKey_e, true))
+            return false;
+        Harness::setSnapshot(*context, "ti", 2);
+        const uint64_t committedAt = h.pumpUntil([&] { return !context->commits().empty(); }, replacedAt + 500000);
+        if (context->commits() != std::vector<std::string>{"ê"}) {
+            reportFailure("GNOME ibus early report: commit e -> ê", "['ê']", joinCommits(*context));
+            return false;
+        }
+        if (committedAt - replacedAt + ClockSlackUs < WaitUs) {
+            reportFailure("GNOME ibus early report: commit at least 15 ms after the forward", ">= 15000 us", std::to_string(committedAt - replacedAt) + " us");
+            return false;
+        }
+        return true;
+    }
+
+    // GNOME Shell 46 declares surrounding text for every app, so a terminal that never reports any
+    // would wait out every timeout. After two silent waits the fixed wait takes over until a report.
+    bool gnomeIbusStopsWaitingForSilentApp(Harness& h) {
+        auto context = h.open("window:2", "ibus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText});
+        Harness::setSnapshot(*context, "ls -l", 5);
+        // Types `word`, then `key` that changes it; returns how long the commit took.
+        auto replace = [&](const std::string& word, char key) -> uint64_t {
+            for (const char c : word)
+                if (!h.type(*context, static_cast<fcitx::KeySym>(c), false))
+                    return 0;
+            pumpEventLoop(h.testInstance.instance, 1);
+            const size_t   before     = context->commits().size();
+            const uint64_t replacedAt = nowUs();
+            if (!h.type(*context, static_cast<fcitx::KeySym>(key), true))
+                return 0;
+            const uint64_t waited = h.pumpUntil([&] { return context->commits().size() > before; }, replacedAt + 500000) - replacedAt;
+            h.type(*context, FcitxKey_space, false);
+            return waited;
+        };
+        replace("tien", 'e');
+        replace("tien", 'e');
+        const uint64_t oneKeyUs = replace("to", 'o');
+        if (oneKeyUs + ClockSlackUs < WaitUs || oneKeyUs > 30000) {
+            reportFailure("GNOME ibus silent app: fixed wait for one backspace", "15000-30000 us", std::to_string(oneKeyUs) + " us");
+            return false;
+        }
+        // Any report means the app does report, so the next replacement waits for it again.
+        Harness::setSnapshot(*context, "ls -l tô ", 9);
+        const uint64_t reportedUs = replace("tien", 'e');
+        if (reportedUs < 30000) {
+            reportFailure("GNOME ibus silent app: wait for a report once the app sends one", ">= 30000 us", std::to_string(reportedUs) + " us");
+            return false;
+        }
+        if (context->commits() != std::vector<std::string>{"ên", "ên", "ô", "ên"}) {
+            reportFailure("GNOME ibus silent app: commit each replacement", "['ên']['ên']['ô']['ên']", joinCommits(*context));
+            return false;
+        }
+        return true;
+    }
+
     // Firefox over IBus and Chromium over the fcitx4 GTK module report no surrounding text; their
     // forwarded keys queue behind the commit unless the commit waits.
     bool forwardWithoutSurroundingWaits(Harness& h, const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps) {
@@ -269,6 +356,12 @@ int main() {
     if (!gtk4DeletesThroughSurroundingText(h, "gtk4app", "dbus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText}))
         return 1;
     if (!gtk4DeletesThroughSurroundingText(h, "gtk4-im:gtk4app", "ibus", fcitx::CapabilityFlags{fcitx::CapabilityFlag::SurroundingText}))
+        return 1;
+    if (!gnomeIbusWaitsForReportedDeletion(h))
+        return 1;
+    if (!gnomeIbusCommitsNoSoonerThanForwardWait(h))
+        return 1;
+    if (!gnomeIbusStopsWaitingForSilentApp(h))
         return 1;
     if (!forwardWithoutSurroundingWaits(h, "gtk3-im:firefox", "ibus", fcitx::CapabilityFlags{}))
         return 1;
