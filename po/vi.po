@@ -263,6 +263,9 @@ msgstr "Kiểm tra chính tả"
 msgid "Auto Non-VN Restore"
 msgstr "Tự động khôi phục với từ không phải tiếng Việt"
 
+msgid "Auto Capitalize Sentences"
+msgstr "Tự viết hoa đầu câu"
+
 #: src/ngosen-engine.cpp:252
 msgid "Settings"
 msgstr "Cài đặt"

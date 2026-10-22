@@ -244,6 +244,7 @@ namespace fcitx {
         std::unique_ptr<SimpleAction>               spellCheckAction_;
         std::unique_ptr<SimpleAction>               macroAction_;
         std::unique_ptr<SimpleAction>               capitalizeMacroAction_;
+        std::unique_ptr<SimpleAction>               autoCapitalizeAction_;
         std::unique_ptr<SimpleAction>               autoNonVnRestoreAction_;
         std::unique_ptr<SimpleAction>               enableDictionaryAction_;
         std::unique_ptr<SimpleAction>               settingsAction_;

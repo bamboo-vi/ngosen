@@ -262,6 +262,9 @@ msgstr ""
 msgid "Auto Non-VN Restore"
 msgstr ""
 
+msgid "Auto Capitalize Sentences"
+msgstr ""
+
 #: src/ngosen-engine.cpp:252
 msgid "Settings"
 msgstr ""
