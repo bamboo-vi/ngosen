@@ -12,6 +12,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Gõ Sen trong app dùng GLFW chạy qua XWayland, như Minecraft Java: sau khi bấm Backspace một lần, chữ cũ không
+  còn bị xoá khi thêm dấu (`tieengs` ra `tieêngếng`). Nguyên nhân là GLFW bỏ qua phím Backspace có thời điểm
+  không mới hơn lần bấm trước, mà Ngó Sen gửi phím với thời điểm 0 (#247).
 - Sau khi update gói Ngó Sen, fcitx5 vẫn dùng version cũ để gõ cho đến khi đăng xuất hoặc fcitx5 khởi động lại,
   nhưng trang Giới thiệu trong cửa sổ cài đặt đã hiện số version mới, dễ khiến người dùng báo lỗi nhầm version.
   Giờ trang này hiện dòng đỏ dưới số version khi fcitx5 còn chạy Ngó Sen từ trước update, nhắc đăng xuất rồi

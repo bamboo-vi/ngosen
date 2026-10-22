@@ -452,8 +452,9 @@ namespace ngosen {
             keyEvent.passToApp();
             return true;
         }
-        lastPressCode_ = keyEvent.code();
-        lastPressTime_ = keyEvent.time();
+        lastPressCode_      = keyEvent.code();
+        lastPressTime_      = keyEvent.time();
+        forwardsSincePress_ = 0;
         if (const uint32_t rawSym = keyEvent.sym(); overtype_pending_ && (rawSym == ngosen::key::Left || rawSym == ngosen::key::Shift_L || rawSym == ngosen::key::Shift_R)) {
             // Our own Shift+Left selection: it must reach the app and must not be treated as the user
             // moving the cursor (that would discard the pending commit).
@@ -461,6 +462,13 @@ namespace ngosen {
             return true;
         }
         return false;
+    }
+
+    void TypingState::forwardTap(ngosen::EditKey key) {
+        // GLFW under XIM (Minecraft) drops a key press that is not newer than the last press of that key.
+        const uint32_t time = lastPressTime_ + ++forwardsSincePress_;
+        host_->forwardKey(key, false, time);
+        host_->forwardKey(key, true, time);
     }
 
     void TypingState::settleBeforeKey() {
