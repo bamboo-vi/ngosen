@@ -276,8 +276,8 @@ namespace fcitx {
             auto& commit = static_cast<CommitStringEvent&>(event);
             stateFor(commit.inputContext())->noteCommit(commit.text());
         });
-        // Keys reach this watcher whichever input method is on, so text typed before switching to
-        // Ngó Sen can be retyped with marks.
+        // Text typed in another input method of the group, before fcitx5 switches to Ngó Sen; in
+        // English Ngó Sen notes the keys itself.
         keyWhileOffWatcher_ = instance_->watchEvent(EventType::InputContextKeyEvent, EventWatcherPhase::PreInputMethod, [this](Event& event) {
             auto& keyEvent = static_cast<KeyEvent&>(event);
             auto* ic       = keyEvent.inputContext();
@@ -984,6 +984,9 @@ namespace fcitx {
         if (keyEvent.isRelease()) {
             if (!toggleTapArmed_ || !key.isModifier())
                 return false;
+            // Wait for the last one, or the retype's XTEST backspaces reach the app as Ctrl+BackSpace.
+            if ((key.states() & ~Key::keySymToStates(key.sym()) & KeyStates{KeyState::Ctrl_Alt_Shift, KeyState::Super}) != 0)
+                return false;
             toggleTapArmed_ = false;
 #if NGOSEN_USE_MODERN_FCITX_API
             // A long hold, such as Ctrl+Shift+click, is not a tap.
@@ -1039,6 +1042,8 @@ namespace fcitx {
         // Shows "Ngó Sen (OFF)" or the input method; older fcitx5 has no custom text here.
         instance_->showInputMethodInformation(ic);
 #endif
+        if (turnOn)
+            stateFor(ic)->offerRetype();
     }
 
     void NgoSenEngine::setAppRule(const std::string& appName, NgoSenMode mode) {

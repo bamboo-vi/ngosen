@@ -89,14 +89,14 @@ namespace ngosen {
         // Called for every surrounding text report of this input context.
         void surroundingUpdated();
 
-        // A key this field got while another input method was on.
+        // A key this field got in English, from Ngó Sen or another input method of the group.
         void noteKeyWhileOff(const ngosen::KeyPress& key);
-        // After activate(), when the panel is ready: shows what the keys noted above read as in
-        // Vietnamese, for Tab to retype them.
+        // When Vietnamese comes on, by activate() or the toggle key: shows what the keys noted above
+        // read as in Vietnamese, for Tab to retype them.
         void offerRetype();
         // The cursor left the text noted above: focus moved or the app reset the field.
         void forgetKeysWhileOff();
-        // The app reset the field while another input method was on.
+        // The app reset the field while typing English.
         void fieldResetWhileOff();
 
         /**

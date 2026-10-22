@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-// Text typed while another input method was on, offered for retyping when Ngó Sen comes back.
+// Text typed in English, offered for retyping when Vietnamese comes on.
 #include "fake-app.h"
 #include "fake-engine.h"
 #include "fake-host.h"
@@ -153,6 +153,63 @@ namespace {
         check(offer == "(no offer)", "nothing is noted in a password field", offer);
     }
 
+    void typeInEnglish(ngosen::TypingState& state, const std::string& text) {
+        for (const char c : text) {
+            FakeKey down(static_cast<uint32_t>(c));
+            state.keyEvent(down);
+            FakeKey up(static_cast<uint32_t>(c), true);
+            state.keyEvent(up);
+        }
+    }
+
+    // Ngó Sen types the English itself, then its toggle key turns Vietnamese on.
+    std::string offerAfterOwn(const std::function<void(ngosen::TypingState&)>& type, FakeResources& resources) {
+        realMode = Mode::Off;
+        FakeLoop            loop;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        state.activate(Mode::Off, true);
+        type(state);
+        realMode = Mode::Sen;
+        state.offerRetype();
+        loop.pump(150);
+        if (!host->candidates())
+            return host->status().empty() ? "(no offer)" : "(retyped)";
+        return host->labels().empty() ? "(empty)" : host->labels()[0];
+    }
+
+    void testOwnEnglish() {
+        FakeResources resources;
+        auto          offer = offerAfterOwn([](auto& s) { typeInEnglish(s, "abc tieengs vieetj"); }, resources);
+        check(offer == "abc tieengs vieetj → abc tiếng việt", "keys Ngó Sen lets through in English are offered", offer);
+
+        offer = offerAfterOwn(
+            [](auto& s) {
+                typeInEnglish(s, "abc tieengs vieetj");
+                s.offerRetype();
+            },
+            resources);
+        check(offer == "abc tieengs vieetj → abc tiếng việt", "an offer while still in English keeps the text", offer);
+
+        offer = offerAfterOwn(
+            [](auto& s) {
+                typeInEnglish(s, "vieetj");
+                realMode = Mode::Sen;
+                typeInEnglish(s, "xin ");
+                realMode = Mode::Off;
+                typeInEnglish(s, "abc dduwowcj");
+            },
+            resources);
+        check(offer == "abc dduwowcj → abc được", "Vietnamese typed in between drops the English before it", offer);
+
+        FakeResources macros;
+        macros.mutableOptions().enableMacroInOffMode = true;
+        macros.setMacros({{"vn", "Việt Nam"}});
+        offer = offerAfterOwn([](auto& s) { typeInEnglish(s, "vn abc dduwowcj"); }, macros);
+        check(offer == "abc dduwowcj → abc được", "a macro in English drops the keys before it", offer);
+    }
+
     void testFocusInDoesNotOffer() {
         realMode = Mode::Off;
         FakeLoop            loop;
@@ -166,7 +223,7 @@ namespace {
         check(!host->candidates(), "focus coming in does not offer old text", "offered");
     }
 
-    // Types text in the app as if another input method were on, switches Ngó Sen on, then presses keys.
+    // Types text in the app while Ngó Sen types English, switches Vietnamese on, then presses keys.
     std::string retypeInApp(const Field& field, Mode mode, const std::string& typed, const std::vector<uint32_t>& after, AppQuirks quirks = {}) {
         realMode = Mode::Off;
         realtextLen.store(0);
@@ -178,7 +235,6 @@ namespace {
         ngosen::TypingState state(&resources, std::move(owned));
         app->attach(&state);
         for (const char c : typed) {
-            noteWhileOff(state, static_cast<uint32_t>(c));
             app->type(static_cast<uint32_t>(c));
             loop.pump(5);
         }
@@ -262,7 +318,6 @@ namespace {
         ngosen::TypingState state(&resources, std::move(owned));
         app->attach(&state);
         for (const char c : std::string("tieengs vieetj")) {
-            noteWhileOff(state, static_cast<uint32_t>(c));
             app->type(static_cast<uint32_t>(c));
             loop.pump(5);
         }
@@ -344,6 +399,7 @@ int main() {
     testOffer();
     testOptionOff();
     testFocusInDoesNotOffer();
+    testOwnEnglish();
     testRetypeInApp("wayland", true, Mode::Sen);
     testRetypeInApp("xim", false, Mode::Sen);
     testRetypeInApp("wayland", true, Mode::Preedit);

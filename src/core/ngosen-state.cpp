@@ -392,6 +392,9 @@ namespace ngosen {
         if (handleKeyDuringReplacement(keyEvent, currentSym) || handleDoubledKey(keyEvent, currentSym))
             return;
 
+        // Vietnamese typed since then, so the English noted is no longer right before the cursor.
+        if (realMode != ngosen::Mode::Off)
+            forgetKeysWhileOff();
         switch (realMode) {
             case ngosen::Mode::Sen: {
                 live_key_ = KeyEntry{.sym = currentSym, .state = keyEvent.states()};
@@ -409,6 +412,7 @@ namespace ngosen {
                 break;
             }
             default: {
+                noteKeyWhileOff(keyEvent);
                 if (engine_->options().enableMacroInOffMode && engine_->options().enableMacro) {
                     handleOffModeMacro(keyEvent, currentSym);
                 }
@@ -492,6 +496,7 @@ namespace ngosen {
         if (g_mouse_clicked.load(std::memory_order_acquire) && !is_deleting_.load(std::memory_order_acquire)) {
             g_mouse_clicked.store(false, std::memory_order_release);
             clearAllBuffers();
+            forgetKeysWhileOff();
         }
     }
 
