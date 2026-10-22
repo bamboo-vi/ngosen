@@ -12,6 +12,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Thêm
 
+- Phím riêng chuyển tiếng Anh/Việt; ở tiếng Anh, gõ như không có bộ gõ. Nhớ chế độ qua lần đăng xuất.
+  Cài mới bắt đầu ở tiếng Anh, dùng Ctrl+Shift như UniKey; đã cài từ trước giữ Ctrl+Space.
+  App có chế độ riêng thì phím chuyển đổi riêng app đó. Menu ` chỉ mở ở tiếng Việt; tiếng Anh gõ dấu ` (#234)
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím chuyển sang Ngó Sen (vd. Ctrl+Space) thì
   chữ đổi ngay thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ" (#82, #232).
 - Cứu chữ không tự đổi khi trong đoạn có chữ gõ lại vẫn y nguyên (như `abc` trong `abc tieengs`), vì
