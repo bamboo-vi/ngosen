@@ -260,7 +260,7 @@ namespace {
         check(text == "tiếng việt", "busy app: the retype waits until the switch key is handled", text);
     }
 
-    // Chromium replaces by selecting with Shift+Left through XTEST, and those keys come back to us.
+    // The Chromium address bar replaces by selecting with Shift+Left through XTEST, and those keys come back to us.
     void testRetypeOverSelection() {
         constexpr uint32_t ShiftMask = 1U << 0;
         realMode                     = Mode::Off;
@@ -269,6 +269,8 @@ namespace {
         Field         field       = makeField("dbus", false);
         field.program             = "google-chrome";
         field.keyEventOrderFix    = true;
+        field.caretWidth          = 1;
+        field.caretHeight         = 17;
         auto                owned = std::make_unique<FakeHost>(loop, field);
         FakeHost*           host  = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));

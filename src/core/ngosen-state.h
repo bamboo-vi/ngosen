@@ -196,6 +196,7 @@ namespace ngosen {
         bool     skipsKey(ngosen::KeyPress& keyEvent);
         void     settleBeforeKey();
         uint32_t trackCapitalization(ngosen::KeyPress& keyEvent);
+        void     forwardTap(ngosen::EditKey key);
         bool     handleKeyDuringReplacement(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         bool     handleDoubledKey(ngosen::KeyPress& keyEvent, uint32_t currentSym);
 
@@ -259,8 +260,9 @@ namespace ngosen {
         uint64_t     lastInputAtUs_          = 0; ///< last key or commit, CLOCK_MONOTONIC us
 
         // Last key press seen, to spot one the app sends twice.
-        uint32_t lastPressCode_ = 0;
-        uint32_t lastPressTime_ = 0;
+        uint32_t lastPressCode_      = 0;
+        uint32_t lastPressTime_      = 0;
+        uint32_t forwardsSincePress_ = 0;
 
         // --- Select and overtype (Facebook composers) ---
         // Select with Shift+Left, wait for the snapshot to show the selection, then commit over it.

@@ -20,7 +20,10 @@ repository, so it comes last in both lists; its own rules are in that repository
   Wayland test machine before the release.
 - `patch` holds fixes for the current release. A bug-fix release (`X.Y.Z+1`) is cut from `patch` when a
   serious bug (lost text, hangs, no typing) is fixed; minor fixes wait for the next release.
-- After a bug-fix release, merge `main` into `next` through a PR. After a feature release, fast-forward
+- After a bug-fix release, merge `main` into `next` and into `patch` through PRs, so both carry the
+  release commit and its CHANGELOG section. Git merges CHANGELOG.md without a conflict but can put
+  the target branch's unreleased lines under the released heading; compare each released section
+  with `main` before merging. After a feature release, fast-forward
   `patch` to `main`:
   `gh api -X PATCH repos/ngosen/ngosen/git/refs/heads/patch -f sha=<merge commit on main>`.
 

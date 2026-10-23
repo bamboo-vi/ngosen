@@ -322,8 +322,8 @@ msgid "Version {}"
 msgstr "Phiên bản {}"
 
 #: settings-gui/ui/pages/about.py:90
-msgid "Modern, fast, and stable Vietnamese input method for Linux."
-msgstr "Bộ gõ tiếng việt hiện đại, nhanh và ổn định cho Linux."
+msgid "Vietnamese input method for fcitx5 on Linux that types like UniKey on Windows."
+msgstr "Bộ gõ tiếng Việt cho fcitx5 trên Linux, gõ như UniKey trên Windows."
 
 #: settings-gui/ui/pages/about.py:103
 msgid "Report Bug"
@@ -1171,6 +1171,18 @@ msgstr "IBus đang chạy song song với fcitx5"
 #: settings-gui/core/system_check.py
 msgid "Two input methods compete for keys; stop IBus from starting at login."
 msgstr "Hai bộ gõ tranh nhau phím; hãy tắt IBus tự chạy khi đăng nhập."
+
+#: settings-gui/core/system_check.py
+msgid "fcitx5 still runs Ngó Sen from before the update"
+msgstr "fcitx5 vẫn chạy Ngó Sen version cũ, trước khi cập nhật"
+
+#: settings-gui/core/system_check.py
+msgid "Log out and back in to start the installed version."
+msgstr "Đăng xuất rồi đăng nhập lại để chạy version vừa cài."
+
+#: settings-gui/ui/pages/about.py
+msgid "Typing still uses the Ngó Sen that ran before the update. Log out and back in to start version {}."
+msgstr "Bạn vẫn đang gõ bằng Ngó Sen version cũ, trước khi cập nhật. Đăng xuất rồi đăng nhập lại để dùng version {}."
 
 #: settings-gui/core/system_check.py
 msgid "Qt apps have no input method"

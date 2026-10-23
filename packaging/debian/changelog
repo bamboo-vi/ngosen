@@ -1,3 +1,20 @@
+fcitx5-ngosen (1:1.5.6-1) unstable; urgency=medium
+
+  * Sen mode on X11: Google Sheets in Chromium-based browsers no longer jumps or loses letters
+    (#258, #261).
+  * Sen mode in GLFW apps under XWayland, such as Minecraft Java: after one Backspace, adding a
+    tone no longer deletes the earlier text (#247).
+  * KDE Plasma Wayland: the installer now sets XMODIFIERS, so X11 apps under XWayland such as
+    xterm type Vietnamese (#251).
+  * The About page warns when fcitx5 still runs the Ngó Sen from before an update (#212).
+  * The typing log saved from the tray keeps about three times as much typing by skipping repeated
+    reports (#213).
+  * Settings window: About text matches the README (#249), the Typing page fits large system fonts
+    (#250), thin scrollbars on GNOME without a Qt theme (#252), and light/dark follows GNOME with
+    Qt 6.8+ (#253).
+
+ -- Nguyen Phi <nguyenphidt@gmail.com>  Fri, 23 Oct 2026 18:00:00 +0700
+
 fcitx5-ngosen (1:1.5.5-1) unstable; urgency=medium
 
   * Recognise Flatpak apps by their usual program name, so Firefox from Flatpak no longer mixes

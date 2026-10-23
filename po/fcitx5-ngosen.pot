@@ -321,7 +321,7 @@ msgid "Version {}"
 msgstr ""
 
 #: settings-gui/ui/pages/about.py:90
-msgid "Modern, fast, and stable Vietnamese input method for Linux."
+msgid "Vietnamese input method for fcitx5 on Linux that types like UniKey on Windows."
 msgstr ""
 
 #: settings-gui/ui/pages/about.py:103
@@ -1102,6 +1102,18 @@ msgstr ""
 
 #: settings-gui/core/system_check.py
 msgid "Two input methods compete for keys; stop IBus from starting at login."
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "fcitx5 still runs Ngó Sen from before the update"
+msgstr ""
+
+#: settings-gui/core/system_check.py
+msgid "Log out and back in to start the installed version."
+msgstr ""
+
+#: settings-gui/ui/pages/about.py
+msgid "Typing still uses the Ngó Sen that ran before the update. Log out and back in to start version {}."
 msgstr ""
 
 #: settings-gui/core/system_check.py

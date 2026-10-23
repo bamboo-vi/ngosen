@@ -343,8 +343,7 @@ namespace ngosen {
             rightPresses = overtype_char_count_; // the field only moved the cursor, nothing selected
         }
         for (int i = 0; i < rightPresses; ++i) {
-            host_->forwardKey(ngosen::EditKey::Right, false);
-            host_->forwardKey(ngosen::EditKey::Right, true);
+            forwardTap(ngosen::EditKey::Right);
         }
         NGOSEN_INFO("Overtype gave up after " + std::to_string((ngosen::monotonicUs() - overtype_started_at_) / 1000) + " ms, moved cursor right " + std::to_string(rightPresses));
         overtype_pending_   = false;
@@ -392,14 +391,14 @@ namespace ngosen {
 
     void TypingState::deleteAndCommit(const std::string& deletedPart, const std::string& addedPart) {
         const auto surrounding = host_->surrounding();
-        // Facebook composers only: other fields do not report a selection-only change, so the
-        // overtype would time out and drop the tone mark.
         // A BackSpace in the Chromium address bar would only remove the selected autocompletion. XTEST,
         // unlike forwardKey, keeps Shift, so widen the selection over the old text and type over both.
         if (xtestAvailable() && ngosen::selectsOverAutocompletion(host_->field()) && !deletedPart.empty()) {
             selectAndOvertype(addedPart, static_cast<int>(ngosen::utf8::length(deletedPart)), true);
             return;
         }
+        // Facebook composers only: other fields do not report a selection-only change, so the
+        // overtype would time out and drop the tone mark.
         if (engine_->options().messengerSelectOvertype && !ngosen::forwardsBackspaces(host_->field()) && looksLikeFacebookComposer(surrounding)) {
             selectAndOvertype(addedPart, static_cast<int>(ngosen::utf8::length(deletedPart)));
             return;

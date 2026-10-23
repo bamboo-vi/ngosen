@@ -56,6 +56,10 @@ namespace {
             check("flag " + expected + " maps alone, got " + describe(f), describe(f) == expected);
             check("frontend and program are copied", f.frontend == "dbus" && f.program == "gedit");
         }
+        TestInputContext context(&testInstance.instance, "chromium", "dbus");
+        context.setCursorRect(fcitx::Rect(168, 86, 169, 103));
+        const auto caret = ngosen::FcitxHost(&context, &testInstance.instance).field();
+        check("the caret size is copied", caret.caretWidth == 1 && caret.caretHeight == 17);
     }
 
     void checkSurrounding(TestInstance& testInstance) {
@@ -165,7 +169,19 @@ namespace {
         check("IBus GTK4 ignores forwarded keys", ngosen::ignoresForwardedKeys(field("ibus", "gtk4-im:nautilus")));
         auto chrome             = field("dbus", "chromium.desktop");
         chrome.keyEventOrderFix = true;
-        check("Chromium selects over autocompletion", ngosen::selectsOverAutocompletion(chrome));
+        check("a Chromium page field does not select over autocompletion", !ngosen::selectsOverAutocompletion(chrome));
+        chrome.caretWidth  = 239;
+        chrome.caretHeight = 15;
+        check("a selection in a Chromium page field does not select over autocompletion", !ngosen::selectsOverAutocompletion(chrome));
+        chrome.caretWidth  = 1;
+        chrome.caretHeight = 17;
+        check("the Chromium address bar selects over autocompletion", ngosen::selectsOverAutocompletion(chrome));
+        auto vivaldi             = field("dbus", "vivaldi-stable");
+        vivaldi.keyEventOrderFix = true;
+        vivaldi.caretHeight      = 18;
+        check("a Vivaldi field without a selection does not select over autocompletion", !ngosen::selectsOverAutocompletion(vivaldi));
+        vivaldi.caretWidth = 73;
+        check("the Vivaldi address bar autocompletion is selected over", ngosen::selectsOverAutocompletion(vivaldi));
         auto terminal             = field("dbus", "gnome-terminal-server");
         terminal.keyEventOrderFix = true;
         check("a terminal does not select over autocompletion", !ngosen::selectsOverAutocompletion(terminal));

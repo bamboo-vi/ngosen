@@ -231,8 +231,7 @@ namespace ngosen {
 
     void TypingState::forwardBackspaces(int count) {
         for (int i = 0; i < count; ++i) {
-            host_->forwardKey(ngosen::EditKey::BackSpace, false);
-            host_->forwardKey(ngosen::EditKey::BackSpace, true);
+            forwardTap(ngosen::EditKey::BackSpace);
         }
     }
 
@@ -249,10 +248,15 @@ namespace ngosen {
     }
 
     void TypingState::surroundingUpdated() {
-        engine_->recorder().add("app", host_->field().password ? "hidden" : ngosen::describeSurrounding(host_->surrounding()));
         // A wait that starts while this report is handled sees only the next report.
-        const bool waiting    = surr_wait_watching_;
-        const bool overtyping = overtype_watching_;
+        const bool        waiting    = surr_wait_watching_;
+        const bool        overtyping = overtype_watching_;
+        const std::string report     = host_->field().password ? "hidden" : ngosen::describeSurrounding(host_->surrounding());
+        // A repeat that a wait acts on stays in the log for its timing.
+        if (waiting || overtyping || key_report_pending_)
+            engine_->recorder().add("app", report);
+        else
+            engine_->recorder().addSurrounding(report);
         if (host_->hasFocus())
             checkCursorJump();
         if (key_report_pending_) {
@@ -281,8 +285,7 @@ namespace ngosen {
         is_deleting_.store(true, std::memory_order_release);
         if (ngosen::reportsFieldOnlyOnKey(host_->field())) {
             // The key itself never reaches the app, so give it one that types nothing.
-            host_->forwardKey(ngosen::EditKey::Shift, false);
-            host_->forwardKey(ngosen::EditKey::Shift, true);
+            forwardTap(ngosen::EditKey::Shift);
         }
         key_report_timer_ = host_->startTimer(ngosen::monotonicUs() + KeyReportWaitUs, 0, [this](ngosen::Timer&) {
             finishKeyReportWait(true, true);

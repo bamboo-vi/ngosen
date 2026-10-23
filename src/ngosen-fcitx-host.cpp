@@ -114,8 +114,8 @@ namespace ngosen {
         ic_->commitString(text);
     }
 
-    void FcitxHost::forwardKey(EditKey key, bool release) {
-        ic_->forwardKey(toFcitxKey(key), release);
+    void FcitxHost::forwardKey(EditKey key, bool release, uint32_t time) {
+        ic_->forwardKey(toFcitxKey(key), release, static_cast<int>(time));
     }
 
     void FcitxHost::deleteSurrounding(int offset, unsigned int size) {
@@ -148,6 +148,8 @@ namespace ngosen {
         f.url              = caps.test(fcitx::CapabilityFlag::Url);
         f.keyEventOrderFix = caps.test(fcitx::CapabilityFlag::KeyEventOrderFix);
         f.password         = caps.test(fcitx::CapabilityFlag::Password) || caps.test(fcitx::CapabilityFlag::Sensitive);
+        f.caretWidth       = ic_->cursorRect().width();
+        f.caretHeight      = ic_->cursorRect().height();
         if (f.program != ic_->program())
             f.reportedProgram = ic_->program();
         return f;

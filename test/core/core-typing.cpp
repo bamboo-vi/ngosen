@@ -728,6 +728,38 @@ namespace {
         check(!press(state, static_cast<uint32_t>('s')), "click one letter on: s starts a new word", "s was taken as a tone key for co");
     }
 
+    // Browsers repeat the same report several times per key; repeats would push the keys out of the log.
+    void testRecorderSkipsRepeatedReports() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true, "firefox"));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        typeTie(state, *host, loop, true);
+        state.surroundingUpdated();
+        state.surroundingUpdated();
+        const auto count = [&](const std::string& s) {
+            const std::string log = resources.recorder().dump();
+            size_t            n   = 0;
+            for (size_t at = log.find(s); at != std::string::npos; at = log.find(s, at + 1))
+                ++n;
+            return n;
+        };
+        const std::string tie = "\tapp\t\"tie|\" cursor=3 anchor=3 length=3\n";
+        check(count(tie) == 1, "recorder: drops a report that repeats the one just before", resources.recorder().dump());
+
+        const size_t before = count(tie);
+        press(state, static_cast<uint32_t>('e'));
+        state.surroundingUpdated();
+        state.surroundingUpdated();
+        check(count(tie) == before + 2, "recorder: keeps a repeat that a wait acts on", resources.recorder().dump());
+        host->setSurrounding("ti", 2);
+        state.surroundingUpdated();
+        loop.pump(150);
+    }
+
     void testRecorderLimits() {
         ngosen::Recorder recorder(3);
         for (int i = 0; i < 5; ++i)
@@ -758,6 +790,15 @@ namespace {
         check(!ngosen::ignoresForwardedKeys(gtk3), "quirks: key order fix means GTK3", "true");
     }
 
+    // GLFW (Minecraft) under XIM keeps the time of the last Backspace press and drops older ones.
+    void testForwardedKeysNewerThanTyped() {
+        ngosen::test::AppQuirks glfw;
+        glfw.dropsOldKeyPresses          = true;
+        const std::vector<uint32_t> keys = {ngosen::key::BackSpace, 't', 'i', 'e', 'e', 'n', 'g', 's'};
+        const std::string           text = ngosen::test::typeInApp(makeField("xim", false, "glfw"), glfw, keys, std::vector<int>(keys.size(), 20));
+        check(text == "tiếng", "glfw: forwarded backspaces are newer than a typed one", text);
+    }
+
 } // namespace
 
 int main() {
@@ -767,6 +808,7 @@ int main() {
     testSenForwards("wayland", true);
     testSenForwards("wayland_v2", true);
     testSenForwards("xim", false);
+    testForwardedKeysNewerThanTyped();
     testKeyDuringReplacement();
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
@@ -795,6 +837,7 @@ int main() {
     testRecorderNotesFieldSwitch();
     testRecorderHidesPasswords();
     testRecorderLimits();
+    testRecorderSkipsRepeatedReports();
     testFocusBounce();
     testTypingIntoSuggestion();
     testClickAfterTypingIsNotSuggestion();

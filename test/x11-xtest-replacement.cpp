@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // On an X11 session XTEST presses the keys a frontend cannot forward, and the backspaces for XIM clients.
-// Clients whose forwarding works keep it; Chromium-based clients, which report no surrounding text and whose address bar selects an inline
-// autocompletion, select the old text with Shift+Left and type over it. Under Xwayland, XIM clients get
+// Clients whose forwarding works keep it; the address bar of Chromium-based clients, which report no surrounding text, selects an inline
+// autocompletion, so there the old text is selected with Shift+Left and typed over. Under Xwayland, XIM clients get
 // their backspaces as key events sent to their window.
 #include "ngosen-engine.h"
 #include "ngosen-utils.h"
@@ -49,10 +49,11 @@ namespace {
         fcitx::InputMethodEntry&          entry;
         std::vector<int>&                 sent;
 
-        std::unique_ptr<TestInputContext> open(const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps) {
+        std::unique_ptr<TestInputContext> open(const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps, int caretWidth = 0) {
             sent.clear();
             auto context = std::make_unique<TestInputContext>(&testInstance.instance, program, frontend);
             context->setCapabilityFlags(caps);
+            context->setCursorRect(fcitx::Rect(100, 80, 100 + caretWidth, 97));
             context->focusIn();
             fcitx::InputContextEvent focus(context.get(), fcitx::EventType::InputContextFocusIn);
             engine.activate(entry, focus);
@@ -101,7 +102,7 @@ namespace {
     // would only remove that. Widening the selection with Shift+Left and typing over it replaces both.
     bool chromiumSelectsAndOvertypes(Harness& h, const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps, bool bounceFocus = false) {
         const std::string where   = frontend + " " + program + (bounceFocus ? " with focus bounce" : "") + ": ";
-        auto              context = h.open(program, frontend, caps);
+        auto              context = h.open(program, frontend, caps, 1);
         if (!h.typeTieE(*context))
             return false;
         if (h.sent != std::vector<int>{-1}) {
@@ -170,9 +171,9 @@ namespace {
     }
 
     // Clients whose forwarded keys already work keep forwarding.
-    bool keepsForwarding(Harness& h, const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps) {
+    bool keepsForwarding(Harness& h, const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps, int caretWidth = 0) {
         const std::string where   = frontend + " " + program + ": ";
-        auto              context = h.open(program, frontend, caps);
+        auto              context = h.open(program, frontend, caps, caretWidth);
         if (!h.typeTieE(*context))
             return false;
         pumpEventLoop(h.testInstance.instance, 5);
@@ -224,6 +225,12 @@ int main() {
         return 1;
     // fcitx5's XIM frontend marks a press as a repeat when the same key was released at the same time.
     if (!pressesBackSpaceThroughXTest(h, "wordcraft", "xim", fcitx::CapabilityFlags{}, fcitx::KeyStates(fcitx::KeyState::Repeat)))
+        return 1;
+    // Fields inside a web page have no autocompletion, and Google Sheets moves the text under a Shift+Left selection.
+    if (!keepsForwarding(h, "microsoft-edge", "dbus", chromeCaps))
+        return 1;
+    // A selection in a page field, such as Google Sheets autocompletion, is reported instead of the caret.
+    if (!keepsForwarding(h, "microsoft-edge", "dbus", chromeCaps, 239))
         return 1;
     // VTE terminals report no surrounding text either, but print Shift+Left as an escape sequence.
     if (!keepsForwarding(h, "gnome-terminal-server", "dbus", chromeCaps))

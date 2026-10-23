@@ -36,9 +36,9 @@ namespace ngosen {
                 recorder_.add("commit", quoted(text));
                 host_->commitText(text);
             }
-            void forwardKey(EditKey key, bool release) override {
+            void forwardKey(EditKey key, bool release, uint32_t time) override {
                 recorder_.add("forward", std::string(editKeyName(key)) + (release ? " up" : " down"));
-                host_->forwardKey(key, release);
+                host_->forwardKey(key, release, time);
             }
             void deleteSurrounding(int offset, unsigned int size) override {
                 recorder_.add("delete", "offset=" + std::to_string(offset) + " size=" + std::to_string(size));
@@ -140,6 +140,13 @@ namespace ngosen {
             return;
         lastField_ = detail;
         add("field", detail);
+    }
+
+    void Recorder::addSurrounding(const std::string& detail) {
+        // Browsers repeat the same report several times per key, which would push the keys out.
+        if (!events_.empty() && events_.back().kind == "app" && events_.back().detail == detail)
+            return;
+        add("app", detail);
     }
 
     std::string Recorder::dump() const {

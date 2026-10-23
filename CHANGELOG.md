@@ -10,6 +10,59 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.6-1] — 23/10/2026
+
+Sửa lỗi Gõ Sen trong Google Sheets trên X11 với browser dựa trên Chromium (#258, #261), trong app GLFW
+qua XWayland như Minecraft Java (#247) và lỗi lệnh cài trên KDE Plasma Wayland (#251).
+Tải ở [ngosen-1.5.6-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.6-1).
+
+### Sửa
+
+- Sửa mô tả ở trang Giới thiệu trong cửa sổ cài đặt cho khớp với README (#249).
+- KDE Plasma Wayland: app X11 chạy qua XWayland, như Minecraft 26.2 trở về trước hay xterm, không gõ được tiếng
+  Việt mà chỉ ra chữ Telex thô, vì lệnh cài chưa đặt biến `XMODIFIERS`. Giờ lệnh cài đặt biến này; đăng xuất rồi
+  đăng nhập lại để áp dụng (#251).
+- Sửa trang Gõ chữ trong cửa sổ cài đặt bị cắt chữ và hiện thanh cuộn ngang khi dùng font hệ thống lớn (#250).
+- Trên GNOME khi chưa cài Qt theme, thanh cuộn trong cửa sổ cài đặt nay mảnh, bo tròn, không có nút mũi tên
+  và theo theme sáng/tối (#252).
+- Trên GNOME, cửa sổ cài đặt đổi sáng/tối theo GNOME khi mở và khi chuyển chế độ. Trước đây chuyển sang tối
+  thì cửa sổ vẫn sáng và ô tick mất viền. Cần Qt 6.8 trở lên; Qt cũ hơn vẫn dùng giao diện sáng như trước (#253).
+- Gõ Sen trong app dùng GLFW chạy qua XWayland, như Minecraft Java: sau khi bấm Backspace một lần, chữ cũ không
+  còn bị xoá khi thêm dấu (`tieengs` ra `tieêngếng`). Nguyên nhân là GLFW bỏ qua phím Backspace có thời điểm
+  không mới hơn lần bấm trước, mà Ngó Sen gửi phím với thời điểm 0 (#247).
+- Sau khi update gói Ngó Sen, fcitx5 vẫn dùng version cũ để gõ cho đến khi đăng xuất hoặc fcitx5 khởi động lại,
+  nhưng trang Giới thiệu trong cửa sổ cài đặt đã hiện số version mới, dễ khiến người dùng báo lỗi nhầm version.
+  Giờ trang này hiện dòng đỏ dưới số version khi fcitx5 còn chạy Ngó Sen từ trước update, nhắc đăng xuất rồi
+  đăng nhập lại; "Kiểm tra máy tôi…" cũng liệt kê tình trạng này là cảnh báo (#212).
+- Log gõ lưu từ menu khay giữ được đoạn gõ dài hơn: browser như Edge và Chrome báo cùng nội dung ô nhiều lần
+  mỗi phím, khiến phần lớn 400 event cuối là các dòng lặp, chỉ còn khoảng 12 giây gõ; từ gõ sai trước đó
+  một chút đã mất khỏi log. Giờ nội dung báo giống hệt lần ngay trước không được lưu lại. Với một log thực
+  tế từ Edge, 401 dòng còn 118 dòng, nên log giữ được đoạn gõ dài gấp khoảng ba lần (#213).
+- Sửa lỗi nhảy, mất chữ khi dùng Gõ Sen trên X11 trong Google Sheets ở trình duyệt dựa trên Chromium (#258, #261).
+
+### Tài liệu
+
+- Trang "How Vietnamese people type" chuyển Firefox Bugzilla 2080478 từ lỗi người khác báo sang lỗi Ngó Sen xác nhận:
+  Firefox trên Wayland báo surrounding text trễ một edit, nên input method xoá theo surrounding text sẽ gõ sai chữ.
+  Test KDE Plasma, Firefox 157 vẫn sai dù cách phím 1,5 s; protocol log đã đính kèm bug Firefox (#211)
+- Trang "How Vietnamese people type" (`docs/typing-without-preedit.md`) thêm lỗi Firefox do Ngó Sen báo:
+  address bar trên Linux không báo input purpose là URL cho input method (Bugzilla 2084459, theo dõi ở #215).
+  Trang cũng giải thích Firefox báo input purpose là URL trên Windows và Android, nhưng không báo trên Linux (#216).
+- "How Vietnamese people type" sửa nhận định GNOME Shell báo surrounding text trễ hàng chục ms, chậm một edit:
+  GNOME 51/IBus báo trong vài ms. GTK 3/4 app thường xử lý commit trước Backspace input method vừa forward,
+  khiến Backspace xóa chữ mới; trang giải thích và dẫn lỗi Ngó Sen báo (GTK issue 8431). Cũng liệt kê lỗi
+  đã xác nhận trước đó: Chromium GTK IM không báo surrounding text (Chromium issue 40146869, theo dõi ở #220) (#221)
+- "How Vietnamese people type" thêm GTK issue 3465 vào lỗi người khác báo, được xác nhận ở đây: GTK IM module
+  của input method không chuyển được Backspace đã forward đến ô nhập GTK 4. Test GNOME 51, GTK 4.24.1 qua
+  GTK 4 module của IBus: mất 19/19 Backspace đã forward (theo dõi ở #225) (#226)
+- "How Vietnamese people type" thêm hai lỗi LibreOffice người khác báo, test Ngó Sen xác nhận (theo dõi ở #227):
+  LibreOffice bug 139807: Backspace chạy như shortcut bất đồng bộ, commit ngay sau lại đến trước (Writer 26.8.1: 17/19 edit).
+  LibreOffice bug 173064: Calc dùng giao diện Qt và KDE (mặc định trên KDE Plasma) không báo input method khi click
+  cell khác; trang nói rõ lỗi ở giao diện Qt và KDE, không phải Wayland nói chung (#228)
+- README thêm hướng dẫn tránh mất chữ đang gõ dở khi bấm chuột ở chế độ Preedit trên GNOME Wayland trong Chrome
+  và app dựa trên Chromium chạy thẳng trên Wayland. Lỗi do fcitx5 5.1.19 trở về trước, version 5.1.20 đã sửa;
+  dùng Gõ Sen hoặc gõ xong chữ bằng phím cách rồi mới bấm chuột (#266).
+
 ## [1.5.5-1] — 21/10/2026
 
 Sửa lỗi gõ dấu trên thanh địa chỉ Firefox Flatpak khi autofill và lỗi macro có chữ viết tắt viết hoa.
