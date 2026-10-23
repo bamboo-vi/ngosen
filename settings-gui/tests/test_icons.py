@@ -6,9 +6,11 @@ import tempfile
 import unittest
 
 from qtpy.QtGui import QColor, QIcon, QImage, QImageReader
+from qtpy.QtWidgets import QCheckBox
 from support import FakeDBusHandler, app  # noqa: F401
 from ui import brand
 from ui.main_window import NgoSenSettingsWindow
+from ui.pages.dynamic_settings import DynamicSettingsPage, SettingsCategory
 
 
 class FakeThemeTest(unittest.TestCase):
@@ -51,6 +53,17 @@ class SidebarIconTest(FakeThemeTest):
         }
         self.assertFalse(items["Appearance"].icon().isNull())
         self.assertFalse(items["About"].icon().isNull())
+
+
+class MenuEntryIconTest(FakeThemeTest):
+    # Adwaita has only the symbolic variant of most menu icons.
+    icons = ("character-set-symbolic",)
+
+    def test_menu_entry_shows_its_icon(self):
+        page = DynamicSettingsPage(FakeDBusHandler(), category=SettingsCategory.APPEARANCE)
+        self.addCleanup(page.close)
+        charset = next(c for c in page.findChildren(QCheckBox) if c.text() == "Charset")
+        self.assertFalse(charset.icon().isNull())
 
 
 class LogoTest(FakeThemeTest):
