@@ -1411,8 +1411,8 @@ msgid "ban. tooi → ban. Tôi. The same after Enter."
 msgstr "ban. tooi → ban. Tôi. Sau Enter cũng vậy."
 
 #: settings-gui/ui/pages/dynamic_settings.py
-msgid "xin → Xin in an empty field or on a new line. Not in address bars, on GNOME or in some apps."
-msgstr "xin → Xin ở ô trống hoặc đầu dòng mới. Không áp dụng ở thanh địa chỉ, trên GNOME và ở vài app."
+msgid "xin → Xin in an empty field or on a new line. Not in address bars or in some apps."
+msgstr "xin → Xin ở ô trống hoặc đầu dòng mới. Không áp dụng ở thanh địa chỉ và ở vài app."
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Typed tieengs vieetj before switching on? Switch on and it becomes tiếng việt. Esc gives back what you typed."

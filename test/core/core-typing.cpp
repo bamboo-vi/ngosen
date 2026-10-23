@@ -144,20 +144,20 @@ namespace {
         return text + host->preedit();
     }
 
-    // Pastes into an empty field with Ctrl+V, after which the app reports report, or nothing when it is null.
-    std::string typeAfterPaste(const char* report) {
+    // Presses sym in a field holding before, after which the app reports report, or nothing when it is null.
+    std::string typeAfterKey(const Field& field, const std::string& before, uint32_t sym, uint32_t states, const char* report) {
         realMode = ngosen::Mode::Preedit;
         FakeLoop      loop;
         FakeResources resources;
         resources.mutableOptions().capitalizeStartOfText = true;
-        auto                owned                        = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        auto                owned                        = std::make_unique<FakeHost>(loop, field);
         FakeHost*           host                         = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));
-        host->setSurrounding("", 0);
-        FakeKey paste('v', false, ngosen::modifier::Ctrl);
-        state.keyEvent(paste);
-        FakeKey pasteUp('v', true, ngosen::modifier::Ctrl);
-        state.keyEvent(pasteUp);
+        host->setSurrounding(before, static_cast<unsigned int>(ngosen::utf8::length(before)));
+        FakeKey down(sym, false, states);
+        state.keyEvent(down);
+        FakeKey up(sym, true, states);
+        state.keyEvent(up);
         if (report != nullptr) {
             host->setSurrounding(report, static_cast<unsigned int>(ngosen::utf8::length(report)));
             state.surroundingUpdated();
@@ -196,13 +196,20 @@ namespace {
         check(text == "xin", "start of text: an address bar stays lower case", text);
         text = typeAtStart(makeField("wayland", false), "", "xin");
         check(text == "xin", "start of text: a field that does not report its text stays lower case", text);
-        text = typeAtStart(makeField("ibus", true), "", "xin");
-        check(text == "xin", "start of text: a field whose report lags stays lower case", text);
-        text = typeAfterPaste(nullptr);
+        const Field ibus = makeField("ibus", true);
+        text             = typeAtStart(ibus, "", "xin");
+        check(text == "Xin", "start of text: an empty field over IBus (GNOME) is upper case", text);
+        text = typeAfterKey(ibus, "abc", ngosen::key::Return, 0, "abc\n");
+        check(text == "Xin", "start of text: a new line over IBus is upper case once GNOME reports it", text);
+        text = typeAfterKey(ibus, "", 'v', ngosen::modifier::Ctrl, nullptr);
+        check(text == "xin", "start of text: a paste GNOME has not reported yet stays lower case", text);
+
+        const Field wayland = makeField("wayland", true);
+        text                = typeAfterKey(wayland, "", 'v', ngosen::modifier::Ctrl, nullptr);
         check(text == "xin", "start of text: a paste the app has not reported yet stays lower case", text);
-        text = typeAfterPaste("");
+        text = typeAfterKey(wayland, "", 'v', ngosen::modifier::Ctrl, "");
         check(text == "xin", "start of text: a report still showing the field before the paste is not trusted", text);
-        text = typeAfterPaste("abc\n");
+        text = typeAfterKey(wayland, "", 'v', ngosen::modifier::Ctrl, "abc\n");
         check(text == "Xin", "start of text: once the app reports the paste, a new line is upper case", text);
     }
 
