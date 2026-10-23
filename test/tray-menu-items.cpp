@@ -59,6 +59,14 @@ int main() {
     check("a hidden entry leaves the menu", !has(names, "ngosen-charset") && names.size() == 9);
     check("Settings and Save typing log stay", has(names, "ngosen-settings") && has(names, "ngosen-save-log"));
 
+    // The tray keeps showing the last field's menu while the settings window has focus.
+    context.focusOut();
+    hidden.setValueByPath("ShowMenuSpellCheck", "False");
+    engine.setConfig(hidden);
+    check("the menu left in the tray changes at once", !has(menu(context), "ngosen-spellcheck"));
+    context.focusIn();
+    engine.activate(entry, in);
+
     const auto before = menu(context).size();
     engine.activate(entry, in);
     check("filling again does not repeat entries", menu(context).size() == before);

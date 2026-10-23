@@ -566,10 +566,10 @@ namespace fcitx {
         updateAction(nullptr, enableDictionaryAction_, config_.enableDictionary, _("Custom Dictionary"));
         if (!factory_.registered())
             return;
-        // The field that has focus keeps its menu until it is filled again.
+        // The tray keeps showing the last field's menu while the settings window has focus.
         instance_->inputContextManager().foreach ([this](InputContext* ic) {
             const auto shown = ic->statusArea().actions(StatusGroup::InputMethod);
-            if (ic->hasFocus() && std::find(shown.begin(), shown.end(), settingsAction_.get()) != shown.end())
+            if (std::find(shown.begin(), shown.end(), settingsAction_.get()) != shown.end())
                 fillStatusArea(ic);
             return true;
         });
