@@ -325,7 +325,7 @@ namespace fcitx {
          * 
         */
         void initToggleAction(std::unique_ptr<SimpleAction>& action, Option<bool>& option, const std::string& actionId, const std::string& iconName, const std::string& textLong,
-                              const std::string& textOnOff, UserInterfaceManager& uiManager);
+                              const char* textOnOff, UserInterfaceManager& uiManager);
 
         /**
          * @brief Update toggle action

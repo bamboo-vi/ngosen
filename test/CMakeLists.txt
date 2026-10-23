@@ -9,6 +9,8 @@ target_include_directories(ngosen_test_core PRIVATE
 target_compile_definitions(ngosen_test_core PRIVATE
     NGOSEN_SETTINGS_PATH="${CMAKE_INSTALL_FULL_BINDIR}/fcitx5-ngosen-settings"
     NGOSEN_ICON_DIR="${CMAKE_INSTALL_FULL_DATADIR}/icons/hicolor/scalable/apps"
+    # No catalog here, so tests see English whatever is installed on the machine.
+    NGOSEN_LOCALEDIR="${PROJECT_BINARY_DIR}/test/no-locale"
 )
 target_link_libraries(ngosen_test_core PRIVATE
     ngosen_core
@@ -106,6 +108,9 @@ add_ngosen_headless_test(mode_name_migration mode-name-migration.cpp "integratio
 add_ngosen_headless_test(messenger_defaults messenger-defaults.cpp "integration;mode")
 add_ngosen_headless_test(options_sync options-sync.cpp "integration;config")
 add_ngosen_headless_test(tray_menu_items tray-menu-items.cpp "integration;config")
+add_ngosen_headless_test(ui_language ui-language.cpp "integration;config")
+target_compile_definitions(ui_language PRIVATE NGOSEN_TEST_CATALOG="${PROJECT_BINARY_DIR}/po/fcitx5-ngosen-vi.mo")
+add_dependencies(ui_language fcitx5-ngosen-translation)
 add_ngosen_headless_test(typing_log_file typing-log-file.cpp "integration;log")
 add_ngosen_headless_test(host_field_mapping host-field-mapping.cpp "unit;host")
 add_ngosen_headless_test(custom_keymap custom-keymap.cpp "integration;keymap")

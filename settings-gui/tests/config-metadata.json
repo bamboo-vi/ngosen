@@ -585,6 +585,18 @@
       "2": "Dark"
      }
     }
+   ],
+   [
+    "UiLanguage",
+    "Enum",
+    "Interface Language",
+    "Vietnamese",
+    {
+     "Enum": {
+      "0": "Vietnamese",
+      "1": "English"
+     }
+    }
    ]
   ]
  ]

@@ -20,6 +20,7 @@ target_include_directories(ngosen PRIVATE
 target_compile_definitions(ngosen PRIVATE
     NGOSEN_SETTINGS_PATH=\"${CMAKE_INSTALL_FULL_BINDIR}/fcitx5-ngosen-settings\"
     NGOSEN_ICON_DIR=\"${CMAKE_INSTALL_FULL_DATADIR}/icons/hicolor/scalable/apps\"
+    NGOSEN_LOCALEDIR=\"${FCITX_INSTALL_LOCALEDIR}\"
 )
 install(TARGETS ngosen DESTINATION "${CMAKE_INSTALL_LIBDIR}/fcitx5")
 

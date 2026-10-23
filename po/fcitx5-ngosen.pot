@@ -286,6 +286,10 @@ msgstr ""
 msgid "Icon Color"
 msgstr ""
 
+#: src/ngosen-config.h
+msgid "Interface Language"
+msgstr ""
+
 #: src/ngosen-engine.cpp:215
 msgid "Charset"
 msgstr ""
@@ -1046,6 +1050,14 @@ msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tone marks can also go at the end of the word."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Language"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "The tray menu changes at once, this window the next time it opens."
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
