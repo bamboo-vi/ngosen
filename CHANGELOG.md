@@ -62,6 +62,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   Trên GNOME dùng extension "Input Method Panel" (kimpanel), thanh trên hiện icon Ngó Sen thay chữ "vi"
   như KDE, Xfce, Cinnamon. Popup cạnh con trỏ khi chuyển bộ gõ trong fcitx5 hiện "Ngó Sen (Telex)" hoặc
   "Ngó Sen (Tắt)" thay "vi" (#233).
+- Gói .deb, .rpm và Arch không còn dọn uinput server của version trước 0.5.0 khi cài hoặc nâng cấp, vì
+  fcitx5-lotus bản gốc vẫn dùng service và tài khoản `uinput_proxy` đó; gói .deb bỏ dependency `passwd`.
+  Ai tự build version cũ vẫn có các bước dọn trong TU-DUNG.md (#257).
 
 ### Sửa
 
