@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Ngó Sen contributors
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
+import os
 import unittest
 
 from qtpy.QtCore import QEvent
@@ -8,7 +9,13 @@ from qtpy.QtWidgets import QCheckBox, QComboBox, QFormLayout, QLabel, QLineEdit,
 from support import FakeDBusHandler, app
 from ui.components import SingleKeyCaptureWidget
 from ui.main_window import NgoSenSettingsWindow
-from ui.pages.dynamic_settings import DynamicSettingsPage, SettingsCategory
+from ui.pages.dynamic_settings import (
+    HINTS,
+    MENU_ENTRIES,
+    SETTINGS_MAP,
+    DynamicSettingsPage,
+    SettingsCategory,
+)
 
 
 def form_of(page):
@@ -179,6 +186,61 @@ class SidebarTest(unittest.TestCase):
         titles = [window.sidebar.item(r).text() for r in range(window.sidebar.count())]
         self.assertNotIn("General", titles)
         self.assertEqual(titles[0], "Typing")
+
+
+def vietnamese_catalog():
+    """msgid → msgstr from po/vi.po, joining continued lines."""
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "po", "vi.po")
+    entries, field = {}, None
+    msgid = msgstr = ""
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith("msgid "):
+                if msgid:
+                    entries[msgid] = msgstr
+                field, msgid, msgstr = "id", line[7:-1], ""
+            elif line.startswith("msgstr "):
+                field, msgstr = "str", line[8:-1]
+            elif line.startswith('"') and field == "id":
+                msgid += line[1:-1]
+            elif line.startswith('"') and field == "str":
+                msgstr += line[1:-1]
+    if msgid:
+        entries[msgid] = msgstr
+    return {k.replace('\\"', '"'): v for k, v in entries.items()}
+
+
+class HintTest(unittest.TestCase):
+    # The input method shows a typing example, the mode keys share one line under their list, and
+    # the menu entries are named by their checkboxes.
+    NO_HINT = {"InputMethod", *MENU_ENTRIES}
+
+    def test_every_option_explains_itself(self):
+        for category in (
+            SettingsCategory.TYPING,
+            SettingsCategory.SHORTCUTS,
+            SettingsCategory.APPEARANCE,
+        ):
+            page = DynamicSettingsPage(FakeDBusHandler(), category=category)
+            shown = {label.text() for label in page.findChildren(QLabel)}
+            for keys in SETTINGS_MAP[category].values():
+                for key in keys:
+                    if key in self.NO_HINT or key.startswith("Shortcut"):
+                        continue
+                    with self.subTest(key=key):
+                        self.assertIn(HINTS.get(key), shown)
+
+    def test_mode_keys_say_when_they_work(self):
+        page = DynamicSettingsPage(FakeDBusHandler(), category=SettingsCategory.SHORTCUTS)
+        shown = {label.text() for label in page.findChildren(QLabel)}
+        self.assertIn(HINTS["ModeOrder"], shown)
+
+    def test_every_hint_has_a_vietnamese_line(self):
+        catalog = vietnamese_catalog()
+        for key, text in HINTS.items():
+            with self.subTest(key=key):
+                self.assertTrue(catalog.get(text), text)
 
 
 if __name__ == "__main__":

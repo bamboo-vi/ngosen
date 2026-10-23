@@ -111,6 +111,41 @@ HINTS = {
     "BackspaceRemovesTone": N_(
         "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
     ),
+    "Mode": N_(
+        "Sen types straight into the app. Preedit underlines the word until it is done; use it when an app types wrong."
+    ),
+    "OutputCharset": N_(
+        "Keep Unicode unless an old document or app needs another one, such as TCVN3 (ABC). Cứu dấu works only with Unicode."
+    ),
+    "DdFreeStyle": N_("dd and Space stays đ instead of going back to dd."),
+    "ModernStyle": N_("hoà, khoẻ, thuý, tuỳ. Off: hòa, khỏe, thúy, tùy."),
+    "W2U": N_(
+        "Non-Start: nhw → như, but w alone stays w. Everywhere: w alone gives ư too. uw always gives ư."
+    ),
+    "BracketTransform": N_("ch]a → chưa, m[f → mờ. Type a bracket twice to get it back: [[ → [."),
+    "DoubleSpaceToPeriod": N_("ban and Space twice gives “ban. ”."),
+    "DoubleHyphenToEmDash": N_("a--b → a—b."),
+    "AutoCapitalizeAfterPunctuation": N_("ban. tooi → ban. Tôi. The same after Enter."),
+    "CapitalizeStartOfText": N_(
+        "xin → Xin in an empty field or on a new line. Not in address bars, on GNOME or in some apps."
+    ),
+    "RetypeAfterSwitch": N_(
+        "Typed tieengs vieetj before switching on? Switch on and it becomes tiếng việt. Esc gives back what you typed."
+    ),
+    "RetoneSelection": N_("Select nhanh, type s, then press Tab: nhánh."),
+    "ModeMenuKey": N_(
+        "Opens a menu to pick a mode for the app in use. Only while typing Vietnamese; in English the key types as usual."
+    ),
+    "CycleModeKey": N_(
+        "Moves the app in use to the next mode in the list below, and remembers it for that app."
+    ),
+    "ModeOrder": N_(
+        "With the mode menu open, press a mode's key to pick it for the app in use. Default Typing makes the app follow the switch key again."
+    ),
+    "UseLotusIcons": N_("Off: plain one-colour icons, in the colour picked below."),
+    "IconTheme": N_(
+        "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the desktop."
+    ),
 }
 
 MODE_BUTTON_ORDER = ["Sen", "Preedit", "Emoji Picker", "OFF"]
@@ -551,7 +586,7 @@ class DynamicSettingsPage(QWidget):
             layout.addWidget(button)
         brand.follow_theme(row, self._style_mode_buttons, source=self)
         self.button_groups.append(group)
-        self.form.addRow(_(label) + ":", row)
+        self.form.addRow(_(label) + ":", self._with_hint(row, key))
 
     def _style_mode_buttons(self, row):
         enamel = brand.pick(self, brand.ENAMEL)
@@ -753,6 +788,9 @@ class DynamicSettingsPage(QWidget):
         instructions.setWordWrap(True)
         mute(instructions)
         card.content_layout.addWidget(instructions)
+        keys_hint = HintLabel(_(HINTS["ModeOrder"]))
+        mute(keys_hint)
+        card.content_layout.addWidget(keys_hint)
         self.form.addRow(label, card)
 
     @staticmethod
