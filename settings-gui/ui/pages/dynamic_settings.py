@@ -112,7 +112,7 @@ HINTS = {
         "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
     ),
     "Mode": N_(
-        "Sen types straight into the app. Preedit underlines the word until it is done; use it when an app types wrong."
+        "Sen types straight into the app. Preedit underlines the word until it is done; use it in an app that Sen does not work with."
     ),
     "OutputCharset": N_(
         "Keep Unicode unless an old document or app needs another one, such as TCVN3 (ABC). Cứu dấu works only with Unicode."
@@ -140,11 +140,11 @@ HINTS = {
         "Moves the app in use to the next mode in the list below, and remembers it for that app."
     ),
     "ModeOrder": N_(
-        "With the mode menu open, press a mode's key to pick it for the app in use. Default Typing makes the app follow the switch key again."
+        "With the mode menu open, press a mode's key to pick it for the app in use. Pick Default Typing to make the app follow the switch key again."
     ),
     "UseLotusIcons": N_("Off: plain one-colour icons, in the colour picked below."),
     "IconTheme": N_(
-        "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the desktop."
+        "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the light or dark setting of the desktop."
     ),
 }
 
