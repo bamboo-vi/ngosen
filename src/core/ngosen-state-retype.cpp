@@ -197,6 +197,11 @@ namespace ngosen {
     bool TypingState::handleRetypeKey(ngosen::KeyPress& keyEvent) {
         if (keyEvent.isRelease() || keyEvent.isModifier())
             return false;
+        // The click moved the cursor away from the text the offer would replace.
+        if (g_mouse_clicked.load(std::memory_order_acquire) && !is_deleting_.load(std::memory_order_acquire)) {
+            dropRetype();
+            return false;
+        }
         const uint32_t sym = keyEvent.sym();
         if (retype_->atOnce) {
             if (is_deleting_.load(std::memory_order_acquire))

@@ -275,6 +275,51 @@ namespace {
         check(text == "abc tieengs a ", what + "another key leaves the offered text as typed", text);
     }
 
+    // Types prefix and then typed in English, switches on, clicks after the prefix, then presses keys.
+    std::string retypeAfterClick(const Field& field, const std::string& prefix, const std::string& typed, const std::vector<uint32_t>& after) {
+        realMode = Mode::Off;
+        realtextLen.store(0);
+        FakeLoop      loop;
+        FakeResources resources;
+        AppQuirks     quirks;
+        quirks.handsBackKeys      = field.frontend == "xim";
+        auto                owned = std::make_unique<FakeApp>(loop, field, quirks);
+        FakeApp*            app   = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        app->attach(&state);
+        for (const char c : prefix + typed) {
+            app->type(static_cast<uint32_t>(c));
+            loop.pump(5);
+            if (prefix.size() == app->text().size())
+                state.forgetKeysWhileOff();
+        }
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        loop.pump(150);
+        app->moveCursor(prefix.size());
+        // Fields that report no text learn of a click only from the X11 monitor.
+        if (!field.surroundingText)
+            g_mouse_clicked.store(true);
+        loop.pump(150);
+        for (const uint32_t sym : after) {
+            app->type(sym);
+            loop.pump(150);
+        }
+        loop.pump(300);
+        g_mouse_clicked.store(false);
+        return app->text();
+    }
+
+    void testClickDropsRetype(const std::string& frontend, bool surroundingText) {
+        const Field       field = makeField(frontend, surroundingText);
+        const std::string what  = frontend + ": ";
+        std::string       text  = retypeAfterClick(field, "0123456789 ", "abc tieengs", {ngosen::key::Tab});
+        check(text == "0123456789 abc tieengs", what + "Tab after a click elsewhere leaves the text alone", text);
+
+        text = retypeAfterClick(field, "0123456789 ", "tieengs vieetj", {ngosen::key::Escape});
+        check(text == "0123456789 tiếng việt", what + "Esc after a click elsewhere leaves the retyped text", text);
+    }
+
     void pressInState(ngosen::TypingState& state, uint32_t sym, uint32_t states = 0) {
         FakeKey down(sym, false, states);
         state.keyEvent(down);
@@ -408,6 +453,8 @@ int main() {
     // Deletes through the surrounding text where forwarded keys do not work.
     testRetypeInApp("other", true, Mode::Sen);
     testRetypeOverSelection();
+    testClickDropsRetype("wayland", true);
+    testClickDropsRetype("xim", false);
     testRetypeInSteppingApp();
     testRetypeRightAfterSwitchKey();
     testHintGoesAway(ngosen::key::Tab, "Tab");
