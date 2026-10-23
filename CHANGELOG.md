@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- Nếu cửa sổ cài đặt đang mở lúc fcitx5 khởi động lại (ví dụ sau khi cài version mới), đổi cài đặt hiện
+  "Đã lưu" nhưng không lưu gì. Giờ thay đổi được lưu (#279).
+
 ## [1.5.6-1] — 23/10/2026
 
 Sửa lỗi Gõ Sen trong Google Sheets trên X11 với browser dựa trên Chromium (#258, #261), trong app GLFW
