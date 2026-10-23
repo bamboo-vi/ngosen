@@ -140,11 +140,11 @@ HINTS = {
         "Moves the app in use to the next mode in the list below, and remembers it for that app."
     ),
     "ModeOrder": N_(
-        "With the mode menu open, press a mode's key to pick it for the app in use. Default Typing makes the app follow the switch key again."
+        "With the mode menu open, press a mode's key to pick it for the app in use. Pick Default Typing to make the app follow the switch key again."
     ),
     "UseLotusIcons": N_("Off: plain one-colour icons, in the colour picked below."),
     "IconTheme": N_(
-        "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the desktop."
+        "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the light or dark setting of the desktop."
     ),
 }
 
