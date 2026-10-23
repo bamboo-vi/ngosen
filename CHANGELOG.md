@@ -64,7 +64,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Tuỳ chọn "Tự viết hoa chữ đầu văn bản và đầu dòng" (thử nghiệm, mặc định tắt) ở trang Gõ chữ, nhóm Gõ nhanh:
   gõ `xin` vào ô trống hoặc đầu dòng mới ra `Xin`. Không áp dụng ở thanh địa chỉ, ô mật khẩu và app không cho
   bộ gõ đọc chữ trong ô. App GTK chạy qua Wayland (đã test trên Plasma) chưa viết hoa đầu dòng
-  mới sau Enter (#238, #241, #PR).
+  mới sau Enter (#238, #241, #283).
 
 ### Thay đổi
 
