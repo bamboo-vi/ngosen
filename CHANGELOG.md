@@ -27,7 +27,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   "Cứu chữ: Tab để đổi, Esc để giữ nguyên": Tab gõ lại có dấu, Tab lần nữa trả lại như cũ, Esc hoặc phím
   khác thì bỏ qua (#80).
 - Cứu chữ không ghi nhớ gì trong ô mật khẩu, quên đoạn đã gõ khi bấm chuột, Enter, phím mũi tên hay chuyển
-  ô, và không hiện ở app không cho bộ gõ xoá chữ (#71).
+  ô, và không hiện ở app không cho bộ gõ xoá chữ (#71). Gợi ý đang hiện cũng mất khi bấm chuột sang chỗ
+  khác, nên Tab không còn xoá nhầm chữ ở chỗ mới (#269).
 - Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
   không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
 - Khi icon hoặc menu tray bị mất hay treo, chạy `ngosen-save-log` trong terminal để lưu nhật ký gõ của Ngó Sen.
