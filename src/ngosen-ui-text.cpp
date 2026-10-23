@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "ngosen-ui-text.h"
 
+#include "ngosen-log.h"
+
 #include <cstdint>
 #include <fstream>
 #include <iterator>
@@ -69,8 +71,13 @@ namespace ngosen {
     std::string uiText(const std::string& english) {
         if (!vietnamese)
             return english;
-        if (!catalog && !loadUiCatalog(NGOSEN_LOCALEDIR "/vi/LC_MESSAGES/fcitx5-ngosen.mo"))
-            catalog.emplace();
+        if (!catalog) {
+            const std::string path = NGOSEN_LOCALEDIR "/vi/LC_MESSAGES/fcitx5-ngosen.mo";
+            if (!loadUiCatalog(path)) {
+                NGOSEN_WARN("Could not read " + path + ", the menu stays English");
+                catalog.emplace();
+            }
+        }
         const auto found = catalog->find(english);
         return found != catalog->end() ? found->second : english;
     }
