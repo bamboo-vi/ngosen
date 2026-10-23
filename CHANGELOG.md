@@ -50,6 +50,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   cả Telex và VNI đều không có dấu chọn (#274).
 - Thêm nhóm "Hiện trong menu khay" ở trang Giao diện để bỏ chọn các mục muốn ẩn khỏi menu tray.
   Mặc định hiện tất cả như trước; "Cài đặt" và "Lưu nhật ký gõ" luôn có trong menu (#275).
+- Tách Giao diện và Giới thiệu thành hai trang riêng ở thanh bên cửa sổ cài đặt, bỏ trang Khác (#276).
 - Tuỳ chọn "Tự viết hoa chữ đầu văn bản và đầu dòng" (thử nghiệm, mặc định tắt) ở trang Gõ chữ, nhóm Gõ nhanh:
   gõ `xin` vào ô trống hoặc đầu dòng mới ra `Xin`. Không áp dụng ở thanh địa chỉ, ô mật khẩu, app không cho
   bộ gõ đọc chữ trong ô, và GNOME. App GTK chạy qua Wayland (đã test trên Plasma) chưa viết hoa đầu dòng
