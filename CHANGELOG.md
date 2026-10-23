@@ -45,6 +45,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   giữ `tũn`. Thay tuỳ chọn bỏ qua gõ tắt; ai đã chọn Shift, Ctrl hoặc Alt vẫn giữ phím đó (#219).
 - Menu tray có thêm mục "Tự viết hoa" để bật, tắt nhanh từng kiểu viết hoa, ví dụ tắt khi gõ lệnh trong
   terminal (#240, #241).
+- Menu tray có thêm mục "Kiểu gõ" để chuyển nhanh giữa Telex và VNI, có dấu chọn ở kiểu đang dùng và lưu
+  ngay như khi chọn trong cửa sổ cài đặt. Các kiểu khác vẫn chọn ở trang Gõ chữ; khi dùng các kiểu đó,
+  cả Telex và VNI đều không có dấu chọn (#274).
 - Tuỳ chọn "Tự viết hoa chữ đầu văn bản và đầu dòng" (thử nghiệm, mặc định tắt) ở trang Gõ chữ, nhóm Gõ nhanh:
   gõ `xin` vào ô trống hoặc đầu dòng mới ra `Xin`. Không áp dụng ở thanh địa chỉ, ô mật khẩu, app không cho
   bộ gõ đọc chữ trong ô, và GNOME. App GTK chạy qua Wayland (đã test trên Plasma) chưa viết hoa đầu dòng
