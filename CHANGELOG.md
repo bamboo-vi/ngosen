@@ -14,6 +14,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - KDE Plasma Wayland: chọn "Cài đặt" trong menu tray thì cửa sổ cài đặt đóng ngay, không hiện ra, khi
   máy có PyQt5 do gói khác cài vào (gặp trên CachyOS). Giờ cửa sổ mở được (#278).
+- Nếu cửa sổ cài đặt đang mở lúc fcitx5 khởi động lại (ví dụ sau khi cài version mới), đổi cài đặt hiện
+  "Đã lưu" nhưng không lưu gì. Giờ thay đổi được lưu (#279).
 - Gói .deb (Debian, Ubuntu, Linux Mint…) không còn cài cả bộ PyQt6 kèm engine trình duyệt mà cửa sổ
   cài đặt không dùng. Trên Ubuntu 26.04 sạch, dung lượng thêm ngoài fcitx5 giảm từ khoảng 456 MB xuống 22 MB.
   Ngó Sen và cửa sổ cài đặt vẫn hoạt động như cũ. Các package đã cài vẫn giữ lại; dùng `sudo apt autoremove`

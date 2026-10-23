@@ -13,11 +13,22 @@ class NgoSenDBusHandler:
         self.addon_name = "fcitx://config/addon/ngosen"
         try:
             self.bus = dbus.SessionBus()
-            self.proxy = self.bus.get_object("org.fcitx.Fcitx5", "/controller")
-            self.iface = dbus.Interface(self.proxy, "org.fcitx.Fcitx.Controller1")
         except dbus.DBusException as e:
             print(f"Fcitx5 D-Bus Error: {e}")
-            self.iface = None
+            self.bus = None
+
+    @property
+    def iface(self):
+        # Looked up on each call: a proxy binds to the fcitx5 running when it is made, and the window
+        # outlives an fcitx5 restart.
+        if not self.bus:
+            return None
+        try:
+            proxy = self.bus.get_object("org.fcitx.Fcitx5", "/controller", introspect=False)
+        except dbus.DBusException as e:
+            print(f"Fcitx5 D-Bus Error: {e}")
+            return None
+        return dbus.Interface(proxy, "org.fcitx.Fcitx.Controller1")
 
     def get_config(self) -> dict:
         """Get config from Fcitx5 and convert to Python dict/list."""
