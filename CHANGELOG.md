@@ -94,6 +94,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - App GTK3 đi qua GNOME Shell không còn mất dấu khi gõ: `trơi`, `ban`, `viêt` thay vì `trời`, `bạn`, `việt`.
   Ngó Sen chờ app báo đã xoá chữ rồi mới commit chữ có dấu; terminal không báo vẫn dùng thời gian chờ
   cố định (#231).
+- Sửa lỗi nhảy, mất chữ khi dùng Gõ Sen trên X11 trong Google Sheets ở trình duyệt dựa trên Chromium (#258, #261).
 
 ### Tài liệu
 
