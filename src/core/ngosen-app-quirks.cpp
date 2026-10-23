@@ -71,6 +71,10 @@ namespace ngosen {
     bool selectsOverAutocompletion(const Field& field) {
         if ((field.frontend != "dbus" && field.frontend != "fcitx4") || !forwardsBackspaces(field) || field.surroundingText)
             return false;
+        // Chromium reports a 1 px caret for its own text fields and a zero-width one for web page fields,
+        // where Shift+Left selection makes some editors (Google Sheets) move the text.
+        if (field.caretWidth <= 0)
+            return false;
         // Terminals match the checks above too, and print Shift+Left instead of selecting.
         const std::string program = stripDesktopSuffix(field.program);
         for (const char* browser : {"chromium", "chrome", "google-chrome", "microsoft-edge", "msedge", "brave", "vivaldi", "opera"}) {

@@ -56,6 +56,9 @@ namespace {
             check("flag " + expected + " maps alone, got " + describe(f), describe(f) == expected);
             check("frontend and program are copied", f.frontend == "dbus" && f.program == "gedit");
         }
+        TestInputContext context(&testInstance.instance, "chromium", "dbus");
+        context.setCursorRect(fcitx::Rect(168, 86, 169, 103));
+        check("the caret width is copied", ngosen::FcitxHost(&context, &testInstance.instance).field().caretWidth == 1);
     }
 
     void checkSurrounding(TestInstance& testInstance) {
@@ -165,7 +168,9 @@ namespace {
         check("IBus GTK4 ignores forwarded keys", ngosen::ignoresForwardedKeys(field("ibus", "gtk4-im:nautilus")));
         auto chrome             = field("dbus", "chromium.desktop");
         chrome.keyEventOrderFix = true;
-        check("Chromium selects over autocompletion", ngosen::selectsOverAutocompletion(chrome));
+        check("a Chromium page field does not select over autocompletion", !ngosen::selectsOverAutocompletion(chrome));
+        chrome.caretWidth = 1;
+        check("the Chromium address bar selects over autocompletion", ngosen::selectsOverAutocompletion(chrome));
         auto terminal             = field("dbus", "gnome-terminal-server");
         terminal.keyEventOrderFix = true;
         check("a terminal does not select over autocompletion", !ngosen::selectsOverAutocompletion(terminal));
