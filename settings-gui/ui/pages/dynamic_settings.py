@@ -65,6 +65,7 @@ SETTINGS_MAP = {
             "AutoCapitalizeAfterPunctuation",
             "CapitalizeStartOfText",
             "RetypeAfterSwitch",
+            "RetoneSelection",
         ],
     },
     SettingsCategory.SHORTCUTS: {

@@ -236,6 +236,13 @@
     {}
    ],
    [
+    "RetoneSelection",
+    "Boolean",
+    "Change the tone of a selected word",
+    "True",
+    {}
+   ],
+   [
     "AutoNonVnRestore",
     "Boolean",
     "Auto Restore Invalid Words",

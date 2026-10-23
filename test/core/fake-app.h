@@ -35,6 +35,7 @@ namespace ngosen::test {
         int  redrawAfterEditMs      = 0;     // bounces focus this long after each edit and drops commits until then, as TikTok in Chrome does
         bool redrawsOnlyOnDeletion  = false; // redraws after deletions but not insertions, as a plain Draft.js box in Chrome on GNOME does
         bool dropsOldKeyPresses     = false; // drops a Backspace press not newer than the last one, as GLFW does under XIM
+        bool hidesSelectionEnd      = false; // reports a selection as the cursor at its start, as Firefox does
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
@@ -51,6 +52,14 @@ namespace ngosen::test {
         std::string text() const;
         // Moves the cursor without an edit, as a click does.
         void moveCursor(size_t to);
+        // Selects from anchor to cursor, as Shift+arrows or a double click do; typing replaces it.
+        void                            select(size_t anchor, size_t cursor);
+        const std::vector<std::string>& labels() const {
+            return labels_;
+        }
+        const std::string& status() const {
+            return status_;
+        }
         // The longest time from forwarding a replacement's first backspace to its commit.
         int slowestCommitMs() const {
             return slowestCommitMs_;
@@ -69,22 +78,30 @@ namespace ngosen::test {
             return focused_;
         }
 
-        void                         showPreedit(const std::string& /*text*/, bool /*underline*/) override {}
-        void                         clearPreedit() override {}
-        void                         resetPanel() override {}
-        void                         refreshPreedit() override {}
-        void                         refreshPanel() override {}
+        void showPreedit(const std::string& /*text*/, bool /*underline*/) override {}
+        void clearPreedit() override {}
+        void resetPanel() override {}
+        void refreshPreedit() override {}
+        void refreshPanel() override {}
 
-        void                         showCandidates(const std::vector<std::string>& /*labels*/, int /*pageSize*/, std::function<void(size_t)> /*onPick*/) override {}
-        void                         hideCandidates() override {}
-        std::optional<CandidatePage> candidates() const override {
-            return std::nullopt;
+        void showCandidates(const std::vector<std::string>& labels, int /*pageSize*/, std::function<void(size_t)> /*onPick*/) override {
+            labels_ = labels;
         }
-        void        highlightCandidate(int /*index*/) override {}
-        void        nextCandidatePage() override {}
-        void        prevCandidatePage() override {}
-        void        pickCandidate(int /*index*/) override {}
-        void        setStatus(const std::string& /*text*/) override {}
+        void hideCandidates() override {
+            labels_.clear();
+        }
+        std::optional<CandidatePage> candidates() const override {
+            if (labels_.empty())
+                return std::nullopt;
+            return CandidatePage{.total = static_cast<int>(labels_.size())};
+        }
+        void highlightCandidate(int /*index*/) override {}
+        void nextCandidatePage() override {}
+        void prevCandidatePage() override {}
+        void pickCandidate(int /*index*/) override {}
+        void setStatus(const std::string& text) override {
+            status_ = text;
+        }
         std::string translate(const char* text) const override {
             return text;
         }
@@ -97,6 +114,7 @@ namespace ngosen::test {
 
       private:
         void                                insert(const std::u32string& text);
+        bool                                eraseSelection();
         void                                eraseBefore(size_t count);
         void                                eraseAround(int offset, unsigned int size);
         void                                changed();
@@ -116,6 +134,9 @@ namespace ngosen::test {
         int                                 slowestCommitMs_ = 0;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
+        size_t                              anchor_ = 0;
+        std::vector<std::string>            labels_;
+        std::string                         status_;
         std::u32string                      previousText_;
         size_t                              previousCursor_ = 0;
         std::vector<std::unique_ptr<Timer>> timers_;

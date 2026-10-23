@@ -158,6 +158,10 @@ msgstr ""
 msgid "Retype text typed before switching on"
 msgstr ""
 
+#: src/ngosen-config.h:240
+msgid "Change the tone of a selected word"
+msgstr ""
+
 #: src/ngosen-config.h:239 src/ngosen-engine.cpp:246
 msgid "Auto Restore Invalid Words"
 msgstr ""
@@ -304,6 +308,10 @@ msgstr ""
 
 #: src/core/ngosen-state-retype.cpp
 msgid "Tab: retype in Vietnamese, Esc: keep"
+msgstr ""
+
+#: src/core/ngosen-state-retone.cpp
+msgid "Tab: change the tone, Esc: keep"
 msgstr ""
 
 #: src/core/ngosen-state-retype.cpp

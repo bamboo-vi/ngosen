@@ -8,6 +8,7 @@
 #include "ngosen-utf8.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdint>
 #include <string_view>
 #include <utility>
@@ -31,6 +32,12 @@ std::string stripDesktopSuffix(const std::string& program) {
         return program.substr(0, program.size() - suffix.size());
     }
     return program;
+}
+
+bool isWordChar(char32_t c) {
+    if (c < 0x80)
+        return std::isalnum(static_cast<int>(c)) != 0;
+    return (c >= 0xC0 && c <= 0x24F && c != 0xD7 && c != 0xF7) || (c >= 0x1E00 && c <= 0x1EFF);
 }
 
 std::string withoutToneMark(const std::string& word) {
