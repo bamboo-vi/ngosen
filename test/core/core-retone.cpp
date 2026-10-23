@@ -124,6 +124,12 @@ namespace {
         r                     = retone(firefox);
         check(r.offer == "nhanh → nhánh", "a repeated old report is not the answer", r.offer);
 
+        Run gnome   = nhanh();
+        gnome.field = makeField("ibus");
+        gnome.after = {ngosen::key::Tab};
+        r           = retone(gnome);
+        check(r.text == "abc nhánh xyz", "a field behind GNOME Shell's IBus bridge", r.text);
+
         Run run   = nhanh();
         run.after = {ngosen::key::Tab};
         r         = retone(run);

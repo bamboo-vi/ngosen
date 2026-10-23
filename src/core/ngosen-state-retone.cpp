@@ -57,7 +57,9 @@ namespace ngosen {
     } // namespace
 
     void TypingState::noteRetoneKey(uint32_t sym, uint32_t states, const std::string& keyUtf8) {
-        if (!engine_->options().retoneSelection || engine_->options().outputCharset != "Unicode" || host_->field().password || !reportsTextInTime())
+        // A lagging report is fine here: only the text is compared, and the wait allows for it.
+        const Field field = host_->field();
+        if (!engine_->options().retoneSelection || engine_->options().outputCharset != "Unicode" || field.password || !field.surroundingText)
             return;
         // Only a key the engine keeps as typed goes to the app, which then types it over the selection.
         UniqueCPtr<char> preedit(EnginePullPreedit(bambooEngine_.handle()));
