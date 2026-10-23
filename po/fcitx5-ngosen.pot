@@ -1324,7 +1324,7 @@ msgid "ban. tooi → ban. Tôi. The same after Enter."
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
-msgid "xin → Xin in an empty field or on a new line. Not in address bars or in some apps."
+msgid "xin → Xin in an empty field or on a new line. Not in address bars or some apps; on GNOME 47 and later, Chrome and similar apps skip an empty field."
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py

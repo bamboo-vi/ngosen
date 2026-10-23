@@ -127,7 +127,7 @@ HINTS = {
     "DoubleHyphenToEmDash": N_("a--b → a—b."),
     "AutoCapitalizeAfterPunctuation": N_("ban. tooi → ban. Tôi. The same after Enter."),
     "CapitalizeStartOfText": N_(
-        "xin → Xin in an empty field or on a new line. Not in address bars or in some apps."
+        "xin → Xin in an empty field or on a new line. Not in address bars or some apps; on GNOME 47 and later, Chrome and similar apps skip an empty field."
     ),
     "RetypeAfterSwitch": N_(
         "Typed tieengs vieetj before switching on? Switch on and it becomes tiếng việt. Esc gives back what you typed."
