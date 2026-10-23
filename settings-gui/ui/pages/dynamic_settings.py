@@ -112,7 +112,7 @@ HINTS = {
         "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
     ),
     "Mode": N_(
-        "Sen types straight into the app. Preedit underlines the word until it is done; use it when an app types wrong."
+        "Sen types straight into the app. Preedit underlines the word until it is done; use it in an app that Sen does not work with."
     ),
     "OutputCharset": N_(
         "Keep Unicode unless an old document or app needs another one, such as TCVN3 (ABC). Cứu dấu works only with Unicode."
