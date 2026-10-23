@@ -84,32 +84,7 @@ find . -type f -name '*.py' -exec sed -i '1s|^#!.*env python3|#!/usr/bin/python3
 %dir %{_datadir}/icons/breeze-dark/status/24
 %{_datadir}/icons/breeze-dark/status/*/fcitx-ngosen*.svg
 
-# Earlier versions ran fcitx5-lotus-server@<user>.service as the uinput_proxy user, with udev rules
-# granting it /dev/uinput and the pointer devices. This version needs none of it. posttrans runs after
-# the old package is gone, so no old scriptlet can restart the server.
 %posttrans
-if [ -d /run/systemd/system ]; then
-    for unit in $(systemctl list-units --all --plain --no-legend 'fcitx5-lotus-server@*' 2>/dev/null | awk '{print $1}'); do
-        systemctl stop "$unit" >/dev/null 2>&1 || :
-    done
-fi
-# The unit file is gone, so systemctl disable no longer finds the instances.
-find /etc/systemd/system -name 'fcitx5-lotus-server@*.service' -type l -delete 2>/dev/null || :
-if [ -d /run/systemd/system ]; then
-    systemctl daemon-reload >/dev/null 2>&1 || :
-    systemctl reset-failed 'fcitx5-lotus-server@*' >/dev/null 2>&1 || :
-fi
-if getent passwd uinput_proxy >/dev/null; then
-    for dev in /dev/uinput /dev/input/event*; do
-        [ -e "$dev" ] && setfacl -x u:uinput_proxy "$dev" >/dev/null 2>&1 || :
-    done
-    userdel uinput_proxy >/dev/null 2>&1 || :
-fi
-if getent group uinput_proxy >/dev/null; then
-    groupdel uinput_proxy >/dev/null 2>&1 || :
-fi
-udevadm control --reload-rules >/dev/null 2>&1 || :
-
 echo "--- Cấu hình Ngó Sen ---"
 # posttrans cannot tell an install from an upgrade. KWin starts fcitx5 itself on KDE Wayland, and
 # one started with fcitx5 -rd cannot serve Qt apps.
