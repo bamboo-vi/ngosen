@@ -10,6 +10,12 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.6-1] — 23/10/2026
+
+Sửa lỗi Gõ Sen trong Google Sheets trên X11 với browser dựa trên Chromium (#258, #261), trong app GLFW
+qua XWayland như Minecraft Java (#247) và lỗi lệnh cài trên KDE Plasma Wayland (#251).
+Tải ở [ngosen-1.5.6-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.6-1).
+
 ### Sửa
 
 - Sửa mô tả ở trang Giới thiệu trong cửa sổ cài đặt cho khớp với README (#249).
