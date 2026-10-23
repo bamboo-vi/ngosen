@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- KDE Plasma Wayland: chọn "Cài đặt" trong menu tray thì cửa sổ cài đặt đóng ngay, không hiện ra, khi
+  máy có PyQt5 do gói khác cài vào (gặp trên CachyOS). Giờ cửa sổ mở được (#278).
+
 ## [1.5.6-1] — 23/10/2026
 
 Sửa lỗi Gõ Sen trong Google Sheets trên X11 với browser dựa trên Chromium (#258, #261), trong app GLFW
