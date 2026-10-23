@@ -43,6 +43,7 @@ class SettingsCategory(Enum):
 
 
 MODE_SWITCHING = N_("Mode switching")
+TRAY_ICON = N_("Tray icon")
 
 # Under "Show in the tray menu" each checkbox names the menu entry and shows its icon.
 MENU_ENTRIES = {
@@ -91,7 +92,7 @@ SETTINGS_MAP = {
         ],
     },
     SettingsCategory.APPEARANCE: {
-        N_("Tray icon"): ["UseLotusIcons", "IconTheme"],
+        TRAY_ICON: ["UseLotusIcons", "IconTheme"],
         N_("Show in the tray menu"): list(MENU_ENTRIES),
     },
 }
@@ -246,6 +247,7 @@ class DynamicSettingsPage(QWidget):
             self.shortcut_labels.clear()
             self.shortcut_warning_labels.clear()
             self.list_widgets.clear()
+            self._tray_preview = None
 
             config_data = self.dbus.get_config()
             if not config_data:
@@ -299,6 +301,8 @@ class DynamicSettingsPage(QWidget):
                     elif item[1] == "Boolean":
                         self._render_checkbox(item, group_label)
                         group_label = ""
+                if group == TRAY_ICON:
+                    self._render_tray_preview()
 
             if self.category == SettingsCategory.TYPING:
                 self.form.addRow(self._separator())
@@ -572,6 +576,39 @@ class DynamicSettingsPage(QWidget):
         )
         self.form.addRow(group_label, self._with_hint(cb, key))
 
+    def _tray_icon_names(self):
+        """The icons the tray shows for Vietnamese and English, and whether they suit a dark panel."""
+        if str(self.current_values.get("UseLotusIcons", "True")).lower() == "true":
+            return ("fcitx-ngosen", "fcitx-ngosen-off"), brand.is_dark(self)
+        color = str(self.current_values.get("IconTheme", "Auto"))
+        dark = {"Light": False, "Dark": True}.get(color, brand.is_dark(self))
+        suffix = "-default" if dark else "-default-black"
+        return (f"fcitx-ngosen{suffix}", f"fcitx-ngosen-off{suffix}"), dark
+
+    def _render_tray_preview(self):
+        preview = QLabel()
+        preview.setObjectName("TrayIconPreview")
+        preview.setAccessibleName(_("Tray icons for Vietnamese and English"))
+        caption = HintLabel(_("Vietnamese, English"))
+        mute(caption)
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+        layout.addWidget(preview)
+        layout.addWidget(caption)
+        layout.addStretch()
+        self._tray_preview = preview
+        brand.follow_theme(preview, lambda _w: self._update_tray_preview())
+        self.form.addRow(_("In the tray:"), row)
+
+    def _update_tray_preview(self):
+        preview = getattr(self, "_tray_preview", None)
+        if preview is None:
+            return
+        names, dark = self._tray_icon_names()
+        preview.setPixmap(brand.tray_preview(names, dark))
+
     def _render_string(self, item, layout):
         key, type_str, label, default, annotations = item
         val = str(self.current_values.get(key, default))
@@ -844,6 +881,8 @@ class DynamicSettingsPage(QWidget):
         self.modified_values[key] = new_value
         self.current_values[key] = new_value
         self._last_changed_key = key
+        if key in ("UseLotusIcons", "IconTheme"):
+            self._update_tray_preview()
 
         # Real-time validation if it's a shortcut
         if key in MODE_SHORTCUT_KEYS or key in MODE_SHORTCUT_TO_VISIBILITY.values():

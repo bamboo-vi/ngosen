@@ -23,10 +23,10 @@ class LayoutTest(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
-    def test_four_pages(self):
+    def test_five_pages(self):
         window = NgoSenSettingsWindow(dbus_handler=FakeDBusHandler())
         titles = [window.sidebar.item(r).text() for r in range(window.sidebar.count())]
-        self.assertEqual(titles, ["Typing", "Macros & Dictionary", "Keys", "More"])
+        self.assertEqual(titles, ["Typing", "Macros & Dictionary", "Keys", "Appearance", "About"])
 
     def test_about_description_takes_the_page_width(self):
         page = AboutPage()

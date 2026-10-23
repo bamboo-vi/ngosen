@@ -5,8 +5,8 @@
 
 import os
 
-from qtpy.QtCore import QEvent, QObject, QStandardPaths
-from qtpy.QtGui import QFont, QFontDatabase, QIcon, QPalette
+from qtpy.QtCore import QEvent, QObject, QStandardPaths, Qt
+from qtpy.QtGui import QColor, QFont, QFontDatabase, QIcon, QPainter, QPalette, QPixmap
 
 FONT_FILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fonts", "XanhMono-Regular.ttf"
@@ -21,6 +21,8 @@ SAVED_FILL = ("#e1efe9", "#183a33")
 SAVED_BORDER = ("#1c6b5f", "#3f9c8b")
 ERROR_FILL = ("#f8e3df", "#3d1d18")
 ERROR_BORDER = ("#c2301c", "#d0533f")
+# A neutral light or dark desktop panel, behind the tray icon preview.
+PANEL = ("#e6e6e6", "#2d2d2d")
 
 _font_loaded = False
 
@@ -89,13 +91,34 @@ def theme_icon(name):
     return QIcon()
 
 
-def logo_icon():
+def installed_icon(name):
+    """The theme's icon, or the installed hicolor file if the theme lacks it."""
     # Icon loaders shorten a missing name, so themes with an "fcitx" icon (Papirus, Colloid) would
-    # show that instead; take the installed hicolor file then.
-    icon = QIcon.fromTheme(LOGO)
-    if icon.name() == LOGO:
+    # show that instead.
+    icon = QIcon.fromTheme(name)
+    if icon.name() == name:
         return icon
     path = QStandardPaths.locate(
-        QStandardPaths.GenericDataLocation, f"icons/hicolor/scalable/apps/{LOGO}.svg"
+        QStandardPaths.GenericDataLocation, f"icons/hicolor/scalable/apps/{name}.svg"
     )
     return QIcon(path) if path else QIcon()
+
+
+def logo_icon():
+    return installed_icon(LOGO)
+
+
+def tray_preview(names, dark, size=22):
+    """The given tray icons side by side on a strip shaded like a light or dark panel."""
+    pad, gap = 6, 8
+    strip = QPixmap(pad * 2 + size * len(names) + gap * (len(names) - 1), size + pad * 2)
+    strip.fill(Qt.transparent)
+    painter = QPainter(strip)
+    painter.setRenderHint(QPainter.Antialiasing)
+    painter.setPen(Qt.NoPen)
+    painter.setBrush(QColor(PANEL[1] if dark else PANEL[0]))
+    painter.drawRoundedRect(strip.rect(), 4, 4)
+    for i, name in enumerate(names):
+        painter.drawPixmap(pad + i * (size + gap), pad, installed_icon(name).pixmap(size, size))
+    painter.end()
+    return strip
