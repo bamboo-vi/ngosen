@@ -117,6 +117,13 @@ namespace ngosen::test {
         state_->keyEvent(up);
     }
 
+    void FakeApp::moveCursor(size_t to) {
+        previousText_   = text_;
+        previousCursor_ = cursor_;
+        cursor_         = to < text_.size() ? to : text_.size();
+        changed();
+    }
+
     std::string FakeApp::text() const {
         return encode(text_);
     }

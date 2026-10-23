@@ -49,6 +49,8 @@ namespace ngosen::test {
         // Presses and releases a key; the app inserts it when the input method lets it through.
         void        type(uint32_t sym);
         std::string text() const;
+        // Moves the cursor without an edit, as a click does.
+        void moveCursor(size_t to);
         // The longest time from forwarding a replacement's first backspace to its commit.
         int slowestCommitMs() const {
             return slowestCommitMs_;
