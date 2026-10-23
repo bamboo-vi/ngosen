@@ -402,14 +402,14 @@ namespace ngosen {
 
     void TypingState::deleteAndCommit(const std::string& deletedPart, const std::string& addedPart) {
         const auto surrounding = host_->surrounding();
-        // Facebook composers only: other fields do not report a selection-only change, so the
-        // overtype would time out and drop the tone mark.
         // A BackSpace in the Chromium address bar would only remove the selected autocompletion. XTEST,
         // unlike forwardKey, keeps Shift, so widen the selection over the old text and type over both.
         if (xtestAvailable() && ngosen::selectsOverAutocompletion(host_->field()) && !deletedPart.empty()) {
             selectAndOvertype(addedPart, static_cast<int>(ngosen::utf8::length(deletedPart)), true);
             return;
         }
+        // Facebook composers only: other fields do not report a selection-only change, so the
+        // overtype would time out and drop the tone mark.
         if (engine_->options().messengerSelectOvertype && !ngosen::forwardsBackspaces(host_->field()) && looksLikeFacebookComposer(surrounding)) {
             selectAndOvertype(addedPart, static_cast<int>(ngosen::utf8::length(deletedPart)));
             return;
