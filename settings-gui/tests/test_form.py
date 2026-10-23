@@ -118,6 +118,30 @@ class ShortcutsPageTest(unittest.TestCase):
             self.assertLessEqual(button.mapTo(view, button.rect().bottomRight()).x(), view.width())
 
 
+class AppearancePageTest(unittest.TestCase):
+    def setUp(self):
+        self.fake = FakeDBusHandler({"ShowMenuCharset": "True"})
+        self.page = DynamicSettingsPage(self.fake, category=SettingsCategory.APPEARANCE)
+
+    def menu_checkbox(self, text):
+        return next(c for c in self.page.findChildren(QCheckBox) if c.text() == text)
+
+    def test_menu_entries_follow_the_tray_icon(self):
+        labels = row_labels(form_of(self.page))
+        self.assertLess(labels.index("Tray icon:"), labels.index("Show in the tray menu:"))
+
+    def test_checkboxes_name_the_menu_entries(self):
+        texts = [c.text() for c in self.page.findChildren(QCheckBox)]
+        for name in ("Input Method", "Charset", "Custom Dictionary"):
+            self.assertIn(name, texts)
+        self.assertNotIn("Show Charset in the tray menu", texts)
+
+    def test_unticking_hides_the_entry(self):
+        self.menu_checkbox("Charset").click()
+        self.assertEqual(self.page.modified_values["ShowMenuCharset"], "False")
+        self.assertEqual(self.page.change_label(), "Show Charset in the tray menu")
+
+
 class SidebarTest(unittest.TestCase):
     def test_general_is_merged_into_typing(self):
         window = NgoSenSettingsWindow(dbus_handler=FakeDBusHandler())

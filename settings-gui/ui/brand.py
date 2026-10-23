@@ -81,6 +81,14 @@ def wordmark_font(pixel_size):
     return font
 
 
+def theme_icon(name):
+    """The theme's icon, or its symbolic variant for themes like Adwaita that ship only that."""
+    for candidate in (name, f"{name}-symbolic"):
+        if QIcon.hasThemeIcon(candidate):
+            return QIcon.fromTheme(candidate)
+    return QIcon()
+
+
 def logo_icon():
     # Icon loaders shorten a missing name, so themes with an "fcitx" icon (Papirus, Colloid) would
     # show that instead; take the installed hicolor file then.

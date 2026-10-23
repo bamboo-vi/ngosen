@@ -190,6 +190,38 @@ msgstr ""
 msgid "Use Ngó Sen Status Icons"
 msgstr ""
 
+#: src/ngosen-config.h
+msgid "Show Input Method in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Charset in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Spell Check in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Macro in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Capitalize Macro in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Auto Capitalize in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Auto Restore Invalid Words in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Custom Dictionary in the tray menu"
+msgstr ""
+
 #: src/ngosen-config.h:246 src/ngosen-engine.cpp:248 src/ngosen-engine.cpp:386
 msgid "Custom Dictionary"
 msgstr ""
@@ -968,6 +1000,10 @@ msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tray icon"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Show in the tray menu"
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py

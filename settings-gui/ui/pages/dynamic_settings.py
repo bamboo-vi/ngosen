@@ -10,7 +10,7 @@ from enum import Enum
 from core.dbus_handler import NgoSenDBusHandler
 from i18n import N_, _
 from qtpy.QtCore import QEvent, QSize, Qt, QTimer
-from qtpy.QtGui import QColor, QIcon, QPalette
+from qtpy.QtGui import QColor, QIcon, QPalette, QPixmap
 from qtpy.QtWidgets import (
     QButtonGroup,
     QCheckBox,
@@ -43,6 +43,18 @@ class SettingsCategory(Enum):
 
 
 MODE_SWITCHING = N_("Mode switching")
+
+# Under "Show in the tray menu" each checkbox names the menu entry and shows its icon.
+MENU_ENTRIES = {
+    "ShowMenuInputMethod": (N_("Input Method"), "input-keyboard"),
+    "ShowMenuCharset": (N_("Charset"), "character-set"),
+    "ShowMenuSpellCheck": (N_("Spell Check"), "tools-check-spelling"),
+    "ShowMenuMacro": (N_("Macro"), "document-edit"),
+    "ShowMenuCapitalizeMacro": (N_("Capitalize Macro"), "format-text-uppercase"),
+    "ShowMenuAutoCapitalize": (N_("Auto Capitalize"), "format-text-capitalize"),
+    "ShowMenuAutoRestore": (N_("Auto Restore Invalid Words"), "edit-undo"),
+    "ShowMenuDictionary": (N_("Custom Dictionary"), "accessories-dictionary"),
+}
 
 # Groups show in this order; the first checkbox of a group carries the group name.
 SETTINGS_MAP = {
@@ -80,6 +92,7 @@ SETTINGS_MAP = {
     },
     SettingsCategory.APPEARANCE: {
         N_("Tray icon"): ["UseLotusIcons", "IconTheme"],
+        N_("Show in the tray menu"): list(MENU_ENTRIES),
     },
 }
 
@@ -543,6 +556,16 @@ class DynamicSettingsPage(QWidget):
         val = self.current_values.get(key, default)
 
         cb = QCheckBox(_(label))
+        if key in MENU_ENTRIES:
+            text, icon_name = MENU_ENTRIES[key]
+            cb.setText(_(text))
+            icon = brand.theme_icon(icon_name)
+            if icon.isNull():
+                # Keep the text in line with the entries that have an icon.
+                blank = QPixmap(cb.iconSize())
+                blank.fill(Qt.transparent)
+                icon = QIcon(blank)
+            cb.setIcon(icon)
         cb.setChecked(str(val).lower() == "true")
         cb.toggled.connect(
             lambda checked, k=key: self.update_config(k, "True" if checked else "False")

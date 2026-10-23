@@ -355,6 +355,62 @@
     {}
    ],
    [
+    "ShowMenuInputMethod",
+    "Boolean",
+    "Show Input Method in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuCharset",
+    "Boolean",
+    "Show Charset in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuSpellCheck",
+    "Boolean",
+    "Show Spell Check in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuMacro",
+    "Boolean",
+    "Show Macro in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuCapitalizeMacro",
+    "Boolean",
+    "Show Capitalize Macro in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuAutoCapitalize",
+    "Boolean",
+    "Show Auto Capitalize in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuAutoRestore",
+    "Boolean",
+    "Show Auto Restore Invalid Words in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuDictionary",
+    "Boolean",
+    "Show Custom Dictionary in the tray menu",
+    "True",
+    {}
+   ],
+   [
     "EnableDictionary",
     "Boolean",
     "Custom Dictionary",

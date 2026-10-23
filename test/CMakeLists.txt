@@ -105,6 +105,7 @@ add_ngosen_headless_test(gnome_shared_ibus_context gnome-shared-ibus-context.cpp
 add_ngosen_headless_test(mode_name_migration mode-name-migration.cpp "integration;mode")
 add_ngosen_headless_test(messenger_defaults messenger-defaults.cpp "integration;mode")
 add_ngosen_headless_test(options_sync options-sync.cpp "integration;config")
+add_ngosen_headless_test(tray_menu_items tray-menu-items.cpp "integration;config")
 add_ngosen_headless_test(typing_log_file typing-log-file.cpp "integration;log")
 add_ngosen_headless_test(host_field_mapping host-field-mapping.cpp "unit;host")
 add_ngosen_headless_test(custom_keymap custom-keymap.cpp "integration;keymap")

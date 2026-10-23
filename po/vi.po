@@ -191,6 +191,38 @@ msgstr "Sửa lỗi chế độ Uinput với Ack"
 msgid "Use Ngó Sen Status Icons"
 msgstr "Sử dụng biểu tượng trạng thái Ngó Sen"
 
+#: src/ngosen-config.h
+msgid "Show Input Method in the tray menu"
+msgstr "Hiện Kiểu gõ trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Charset in the tray menu"
+msgstr "Hiện Bảng mã trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Spell Check in the tray menu"
+msgstr "Hiện Kiểm tra chính tả trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Macro in the tray menu"
+msgstr "Hiện Gõ tắt trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Capitalize Macro in the tray menu"
+msgstr "Hiện Gõ tắt chữ hoa trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Auto Capitalize in the tray menu"
+msgstr "Hiện Tự viết hoa trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Auto Restore Invalid Words in the tray menu"
+msgstr "Hiện Tự khôi phục từ gõ sai trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Custom Dictionary in the tray menu"
+msgstr "Hiện Từ điển tuỳ chỉnh trong menu khay"
+
 #: src/ngosen-config.h:246 src/ngosen-engine.cpp:248 src/ngosen-engine.cpp:386
 msgid "Custom Dictionary"
 msgstr "Từ điển tuỳ chỉnh"
@@ -1034,6 +1066,10 @@ msgstr "Phím tắt"
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tray icon"
 msgstr "Biểu tượng khay"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Show in the tray menu"
+msgstr "Hiện trong menu khay"
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Mode switching"
