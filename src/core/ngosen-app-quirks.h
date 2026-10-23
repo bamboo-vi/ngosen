@@ -27,8 +27,9 @@ namespace ngosen {
     // Backspace.
     bool erasesWithCommittedDel(const Field& field);
 
-    // True for Chromium-based browsers on the D-Bus and fcitx4 frontends: they take forwarded keys but
-    // report no surrounding text, and their address bar selects an inline autocompletion after the typed text.
+    // True for the address bar of Chromium-based browsers on the D-Bus and fcitx4 frontends: they take
+    // forwarded keys but report no surrounding text, and the address bar selects an inline autocompletion
+    // after the typed text. Fields inside a web page are told apart by their zero-width caret.
     bool selectsOverAutocompletion(const Field& field);
 
     // Under GNOME, apps reach fcitx5 through GNOME Shell's IBus bridge, which forwards the client's

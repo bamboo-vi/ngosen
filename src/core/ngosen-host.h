@@ -59,6 +59,7 @@ namespace ngosen {
         bool        url              = false; // the field is an address bar
         bool        keyEventOrderFix = false;
         bool        password         = false; // what is typed here must not be logged
+        int         caretWidth       = 0;     // width of the cursor rectangle the app last reported, in pixels
     };
 
     // Where the user is in the candidate list shown in the panel. Indexes count from the first
