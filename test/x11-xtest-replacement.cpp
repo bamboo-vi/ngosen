@@ -171,9 +171,9 @@ namespace {
     }
 
     // Clients whose forwarded keys already work keep forwarding.
-    bool keepsForwarding(Harness& h, const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps) {
+    bool keepsForwarding(Harness& h, const std::string& program, const std::string& frontend, fcitx::CapabilityFlags caps, int caretWidth = 0) {
         const std::string where   = frontend + " " + program + ": ";
-        auto              context = h.open(program, frontend, caps);
+        auto              context = h.open(program, frontend, caps, caretWidth);
         if (!h.typeTieE(*context))
             return false;
         pumpEventLoop(h.testInstance.instance, 5);
@@ -228,6 +228,9 @@ int main() {
         return 1;
     // Fields inside a web page have no autocompletion, and Google Sheets moves the text under a Shift+Left selection.
     if (!keepsForwarding(h, "microsoft-edge", "dbus", chromeCaps))
+        return 1;
+    // A selection in a page field, such as Google Sheets autocompletion, is reported instead of the caret.
+    if (!keepsForwarding(h, "microsoft-edge", "dbus", chromeCaps, 239))
         return 1;
     // VTE terminals report no surrounding text either, but print Shift+Left as an escape sequence.
     if (!keepsForwarding(h, "gnome-terminal-server", "dbus", chromeCaps))
