@@ -274,8 +274,10 @@ namespace ngosen {
             engine_->recorder().add("app", report);
         else
             engine_->recorder().addSurrounding(report);
-        if (host_->hasFocus())
+        if (host_->hasFocus()) {
             checkCursorJump();
+            checkRetoneReport();
+        }
         surr_silent_        = false;
         surr_silent_streak_ = 0;
         if (!(host_->surrounding() == reportAtKey_))

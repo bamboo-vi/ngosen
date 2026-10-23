@@ -12,6 +12,8 @@
 #include "ngosen-state.h"
 #include "ngosen-utf8.h"
 
+#include <algorithm>
+
 namespace ngosen::test {
 
     namespace {
@@ -121,7 +123,25 @@ namespace ngosen::test {
         previousText_   = text_;
         previousCursor_ = cursor_;
         cursor_         = to < text_.size() ? to : text_.size();
+        anchor_         = cursor_;
         changed();
+    }
+
+    void FakeApp::select(size_t anchor, size_t cursor) {
+        previousText_   = text_;
+        previousCursor_ = cursor_;
+        anchor_         = anchor;
+        cursor_         = cursor;
+        changed();
+    }
+
+    bool FakeApp::eraseSelection() {
+        if (anchor_ == cursor_)
+            return false;
+        const size_t from = std::min(anchor_, cursor_);
+        text_.erase(from, std::max(anchor_, cursor_) - from);
+        cursor_ = anchor_ = from;
+        return true;
     }
 
     std::string FakeApp::text() const {
@@ -187,6 +207,7 @@ namespace ngosen::test {
             return;
         previousText_   = text_;
         previousCursor_ = cursor_;
+        anchor_         = cursor_;
         text_.erase(static_cast<size_t>(from), size);
         if (cursor_ > static_cast<size_t>(from))
             cursor_ = cursor_ >= static_cast<size_t>(from) + size ? cursor_ - size : static_cast<size_t>(from);
@@ -198,7 +219,11 @@ namespace ngosen::test {
             return {};
         if (quirks_.staleReport)
             return Surrounding(encode(previousText_), static_cast<unsigned int>(previousCursor_), static_cast<unsigned int>(previousCursor_));
-        return Surrounding(encode(text_), static_cast<unsigned int>(cursor_), static_cast<unsigned int>(cursor_));
+        if (quirks_.hidesSelectionEnd) {
+            const auto start = static_cast<unsigned int>(std::min(anchor_, cursor_));
+            return Surrounding(encode(text_), start, start);
+        }
+        return Surrounding(encode(text_), static_cast<unsigned int>(cursor_), static_cast<unsigned int>(anchor_));
     }
 
     std::string FakeApp::keyText(uint32_t sym) const {
@@ -210,8 +235,10 @@ namespace ngosen::test {
     void FakeApp::insert(const std::u32string& text) {
         previousText_   = text_;
         previousCursor_ = cursor_;
+        eraseSelection();
         text_.insert(cursor_, text);
         cursor_ += text.size();
+        anchor_ = cursor_;
         changed();
         if (!quirks_.redrawsOnlyOnDeletion)
             redrawAfterEdit();
@@ -230,6 +257,14 @@ namespace ngosen::test {
     }
 
     void FakeApp::eraseBefore(size_t count) {
+        if (anchor_ != cursor_) {
+            previousText_   = text_;
+            previousCursor_ = cursor_;
+            eraseSelection();
+            changed();
+            if (--count == 0)
+                return;
+        }
         count = count < cursor_ ? count : cursor_;
         if (count == 0)
             return;
@@ -237,6 +272,7 @@ namespace ngosen::test {
         previousCursor_ = cursor_;
         text_.erase(cursor_ - count, count);
         cursor_ -= count;
+        anchor_ = cursor_;
         if (text_.empty() && quirks_.refocusWhenEmptiedMs > 0) {
             focused_ = false;
             state_->deactivate(true);

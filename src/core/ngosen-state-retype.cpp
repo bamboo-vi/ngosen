@@ -163,6 +163,13 @@ namespace ngosen {
         if (!retype_)
             return;
         hideOffer();
+        // The engine still holds the tone key; the word written over it is finished.
+        if (retype_->retone && !retype_->applied) {
+            hasHistory_ = false;
+            ResetEngine(bambooEngine_.handle());
+            oldPreBuffer_.clear();
+            lastWord_.clear();
+        }
         const bool         undo = retype_->applied;
         const std::string& from = undo ? retype_->marked : retype_->typed;
         const std::string& to   = undo ? retype_->typed : retype_->marked;

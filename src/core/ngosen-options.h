@@ -41,6 +41,7 @@ namespace ngosen {
         bool        doubleSpaceToPeriod            = false;
         bool        doubleHyphenToEmDash           = false;
         bool        retypeAfterSwitch              = true;
+        bool        retoneSelection                = true;
 
         // How old text is replaced in the app.
         bool messengerSelectOvertype          = false;

@@ -67,6 +67,9 @@ namespace ngosen {
          * @brief Applies current options to the engine.
          */
         void setOption();
+        void setOption(uintptr_t engine) const;
+        // A new engine for this field's input method, which the caller owns.
+        uintptr_t newBambooEngine() const;
 
         /**
          * @brief Main key event handler.
@@ -170,6 +173,7 @@ namespace ngosen {
             std::string marked;
             bool        applied = false; // Tab once more puts typed back
             bool        atOnce  = false; // retyped on switching on; only Esc undoes it
+            bool        retone  = false; // typed is a tone key over a selected word, still held by the engine
         };
         std::string                    typedWhileOff_;
         std::optional<Retype>          retype_;
@@ -183,6 +187,20 @@ namespace ngosen {
         bool        reportsTextInTime() const;
         bool        typedBeforeCursor(const std::string& typed) const;
         bool        handleRetypeKey(ngosen::KeyPress& keyEvent);
+
+        // A key that started a word, until a report shows whether it replaced a selected word.
+        struct RetoneKey {
+            Surrounding before;
+            std::string text;
+            uint32_t    sym    = 0;
+            uint32_t    states = 0;
+        };
+        std::optional<RetoneKey>       retoneKey_;
+        std::unique_ptr<ngosen::Timer> retone_timer_;
+        void                           noteRetoneKey(uint32_t sym, uint32_t states, const std::string& keyUtf8);
+        void                           dropRetoneKey();
+        void                           checkRetoneReport();
+        std::string                    retoned(const std::string& word, uint32_t sym, uint32_t states) const;
 
         // XIM, IBus and D-Bus clients queue forwarded keys, and XIM may hand one back; without a
         // surrounding text report the commit waits this long for them.

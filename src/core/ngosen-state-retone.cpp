@@ -1,0 +1,117 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Ngó Sen contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+// TypingState: offering a selected word with the tone key typed over it.
+#include "ngosen-clock.h"
+#include "ngosen-log.h"
+#include "ngosen-state.h"
+#include "ngosen-strings.h"
+#include "ngosen-utf8.h"
+
+#include <algorithm>
+#include <string>
+
+namespace ngosen {
+
+    namespace {
+        // Apps report a key they were handed within tens of milliseconds.
+        constexpr uint64_t RetoneReportUs = 300000;
+
+        std::string        charsOf(const std::string& text, size_t from, size_t count) {
+            auto start = text.begin();
+            for (size_t i = 0; i < from && start != text.end(); ++i)
+                start = utf8::nextChar(start, text.end());
+            auto end = start;
+            for (size_t i = 0; i < count && end != text.end(); ++i)
+                end = utf8::nextChar(end, text.end());
+            return {start, end};
+        }
+
+        // The word that after shows replaced by key, or nothing when after is anything else. Only the
+        // text counts: Firefox and others report a selection as a bare cursor, or not at all.
+        std::string replacedWord(const Surrounding& before, const Surrounding& after, const std::string& key) {
+            const std::u32string was    = utf8::decode(before.text());
+            const std::u32string now    = utf8::decode(after.text());
+            const std::u32string typed  = utf8::decode(key);
+            const size_t         cursor = after.cursor();
+            if (after.anchor() != cursor || cursor < typed.size() || cursor > now.size() || now.compare(cursor - typed.size(), typed.size(), typed) != 0)
+                return {};
+            const size_t start = cursor - typed.size();
+            const size_t tail  = now.size() - cursor;
+            if (was.size() <= start + tail)
+                return {};
+            const size_t end = was.size() - tail;
+            if (was.compare(0, start, now, 0, start) != 0 || was.compare(end, tail, now, cursor, tail) != 0)
+                return {};
+            const std::u32string word = was.substr(start, end - start);
+            if (!std::all_of(word.begin(), word.end(), isWordChar) || (start > 0 && isWordChar(was[start - 1])) || (end < was.size() && isWordChar(was[end])))
+                return {};
+            // A bare letter typed over is more often code or a form value than a word.
+            if (word.size() == 1 && word[0] < 0x80)
+                return {};
+            return charsOf(before.text(), start, word.size());
+        }
+    } // namespace
+
+    void TypingState::noteRetoneKey(uint32_t sym, uint32_t states, const std::string& keyUtf8) {
+        if (!engine_->options().retoneSelection || engine_->options().outputCharset != "Unicode" || host_->field().password || !reportsTextInTime())
+            return;
+        // Only a key the engine keeps as typed goes to the app, which then types it over the selection.
+        UniqueCPtr<char> preedit(EnginePullPreedit(bambooEngine_.handle()));
+        if (!preedit || keyUtf8 != preedit.get())
+            return;
+        const Surrounding before = host_->surrounding();
+        if (!before.isValid() || before.text().empty())
+            return;
+        retoneKey_    = RetoneKey{.before = before, .text = keyUtf8, .sym = sym, .states = states};
+        retone_timer_ = host_->startTimer(monotonicUs() + RetoneReportUs, 0, [this](Timer&) {
+            retoneKey_.reset();
+            return false;
+        });
+    }
+
+    void TypingState::dropRetoneKey() {
+        retoneKey_.reset();
+        retone_timer_.reset();
+    }
+
+    void TypingState::checkRetoneReport() {
+        if (!retoneKey_)
+            return;
+        const Surrounding after = host_->surrounding();
+        // Firefox repeats the old state before the new one.
+        if (after == retoneKey_->before)
+            return;
+        const RetoneKey key = std::move(*retoneKey_);
+        dropRetoneKey();
+        if (retype_)
+            return;
+        const std::string word = replacedWord(key.before, after, key.text);
+        if (word.empty())
+            return;
+        const std::string toned = retoned(word, key.sym, key.states);
+        if (toned.empty() || toned == word || withoutToneMark(toned) != withoutToneMark(word))
+            return;
+        NGOSEN_INFO("Offer retone: " + word + " -> " + toned);
+        retype_ = Retype{.typed = key.text, .marked = toned, .retone = true};
+        host_->showCandidates({word + " → " + toned}, 1, [this](size_t) { applyRetype(); });
+        host_->setStatus(host_->translate("Tab: change the tone, Esc: keep"));
+        host_->refreshPanel();
+    }
+
+    std::string TypingState::retoned(const std::string& word, uint32_t sym, uint32_t states) const {
+        // Its own engine, so the one typing in the field keeps the key whatever the user does next.
+        CGoObject engine(newBambooEngine());
+        setOption(engine.handle());
+        EngineRebuildFromText(engine.handle(), word.c_str());
+        EngineProcessKeyEvent(engine.handle(), sym, states);
+        UniqueCPtr<char> commit(EnginePullCommit(engine.handle()));
+        if (commit && *commit.get() != 0)
+            return {};
+        UniqueCPtr<char> preedit(EnginePullPreedit(engine.handle()));
+        return preedit ? preedit.get() : "";
+    }
+
+} // namespace ngosen

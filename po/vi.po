@@ -159,6 +159,10 @@ msgstr "Hai gạch nối thành gạch dài"
 msgid "Retype text typed before switching on"
 msgstr "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt"
 
+#: src/ngosen-config.h:240
+msgid "Change the tone of a selected word"
+msgstr "Cứu dấu: sửa dấu chữ đang bôi đen"
+
 #: src/ngosen-config.h:239 src/ngosen-engine.cpp:246
 msgid "Auto Restore Invalid Words"
 msgstr "Tự khôi phục từ gõ sai"
@@ -306,6 +310,10 @@ msgstr "Trang "
 #: src/core/ngosen-state-retype.cpp
 msgid "Tab: retype in Vietnamese, Esc: keep"
 msgstr "Cứu chữ: Tab để đổi, Esc để giữ nguyên"
+
+#: src/core/ngosen-state-retone.cpp
+msgid "Tab: change the tone, Esc: keep"
+msgstr "Cứu dấu: Tab để đổi, Esc để giữ nguyên"
 
 #: src/core/ngosen-state-retype.cpp
 msgid "Esc: put back what was typed"

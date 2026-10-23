@@ -34,7 +34,13 @@ namespace ngosen {
 
     void TypingState::setEngine() {
         bambooEngine_.reset();
+        bambooEngine_.reset(newBambooEngine());
+        setOption();
+        tracking_modifier_tap_ = false;
+        lock_word_pending_     = false;
+    }
 
+    uintptr_t TypingState::newBambooEngine() const {
         if (engine_->options().inputMethod == "Custom") {
             const auto         keymaps = engine_->customKeymap();
             std::vector<char*> charArray;
@@ -44,18 +50,17 @@ namespace ngosen {
                 charArray.push_back(const_cast<char*>(keymap.value.data())); //NOLINT
             }
             charArray.push_back(nullptr);
-            bambooEngine_.reset(NewCustomEngine(charArray.data(), engine_->dictionary(), engine_->macroTable()));
-        } else {
-            bambooEngine_.reset(NewEngine(engine_->options().inputMethod.data(), engine_->dictionary(), engine_->macroTable()));
+            return NewCustomEngine(charArray.data(), engine_->dictionary(), engine_->macroTable());
         }
-        setOption();
-        tracking_modifier_tap_ = false;
-        lock_word_pending_     = false;
+        return NewEngine(engine_->options().inputMethod.data(), engine_->dictionary(), engine_->macroTable());
     }
 
     void TypingState::setOption() {
-        if (!bambooEngine_)
-            return;
+        if (bambooEngine_)
+            setOption(bambooEngine_.handle());
+    }
+
+    void TypingState::setOption(uintptr_t engine) const {
         FcitxBambooEngineOption option = {
             .autoNonVnRestore    = engine_->options().autoNonVnRestore,
             .ddFreeStyle         = engine_->options().ddFreeStyle,
@@ -71,7 +76,7 @@ namespace ngosen {
             .dateFormat          = engine_->options().dateFormat.data(),
         };
 
-        EngineSetOption(bambooEngine_.handle(), &option);
+        EngineSetOption(engine, &option);
     }
 
     void TypingState::handlePreeditMode(ngosen::KeyPress& keyEvent, uint32_t currentSym) {
@@ -198,13 +203,16 @@ namespace ngosen {
             return;
         }
 
-        bool processed = EngineProcessKeyEvent(bambooEngine_.handle(), currentSym, keyEvent.states()) != 0U;
+        const bool startsWord = oldPreBuffer_.empty();
+        bool       processed  = EngineProcessKeyEvent(bambooEngine_.handle(), currentSym, keyEvent.states()) != 0U;
 
-        auto commitF = ngosen::UniqueCPtr<char>(EnginePullCommit(bambooEngine_.handle()));
+        auto       commitF = ngosen::UniqueCPtr<char>(EnginePullCommit(bambooEngine_.handle()));
         if (commitF && (*commitF.get() != 0)) {
             commitWord(keyEvent, currentSym, keyUtf8, commitF.get());
             return;
         }
+        if (startsWord && currentSym == keyEvent.sym())
+            noteRetoneKey(currentSym, keyEvent.states(), keyUtf8);
 
         if (!processed) {
             ngosen::UniqueCPtr<char> preeditC(EnginePullPreedit(bambooEngine_.handle()));
@@ -235,13 +243,6 @@ namespace ngosen {
         performReplacement(deletedPart, addedPart);
         oldPreBuffer_ = untoned;
         return true;
-    }
-
-    // Vietnamese letters lie in these Latin blocks; quotes, ellipses and other symbols end a word.
-    static bool isWordChar(char32_t c) {
-        if (c < 0x80)
-            return std::isalnum(static_cast<int>(c)) != 0;
-        return (c >= 0xC0 && c <= 0x24F && c != 0xD7 && c != 0xF7) || (c >= 0x1E00 && c <= 0x1EFF);
     }
 
     // Plain ASCII letters are written the same in every charset, so the engine can rebuild them.
@@ -383,6 +384,8 @@ namespace ngosen {
 
     void TypingState::handleKey(ngosen::KeyPress& keyEvent) {
         recordKey(keyEvent);
+        if (!keyEvent.isRelease() && !keyEvent.isModifier())
+            dropRetoneKey();
         if (!bambooEngine_ || (retype_ && handleRetypeKey(keyEvent)) || skipsKey(keyEvent))
             return;
         settleBeforeKey();
