@@ -224,6 +224,12 @@ namespace fcitx {
         std::filesystem::path writeTypingLog();
 
       private:
+        // A tray menu entry and the option that shows it; nullptr means always shown.
+        struct MenuEntry {
+            SimpleAction*       action;
+            const Option<bool>* shown;
+        };
+
         ngosen::TypingState*                        stateFor(InputContext* ic);
 
         Instance*                                   instance_;
@@ -258,7 +264,7 @@ namespace fcitx {
         std::unique_ptr<SimpleAction>               settingsAction_;
         std::unique_ptr<SimpleAction>               saveLogAction_;
         ngosen::Recorder                            recorder_;
-        std::vector<SimpleAction*>                  toggleActions_;
+        std::vector<MenuEntry>                      menuEntries_;
         std::vector<ScopedConnection>               connections_;
         ngosen::CGoObject                           dictionary_;
         std::unordered_map<std::string, NgoSenMode> appRules_;
@@ -354,6 +360,11 @@ namespace fcitx {
          * @param ic Current input context.
          */
         void updateInputMethodAction(InputContext* ic);
+
+        /**
+         * @brief Puts the menu entries the user chose into the tray menu of ic.
+         */
+        void fillStatusArea(InputContext* ic);
 
         /**
          * @brief Populates input method names from bamboo core.

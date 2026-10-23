@@ -389,8 +389,16 @@ namespace fcitx {
         instance_->inputContextManager().registerProperty("NgoSenState", &factory_);
         appRulesPath_ = configDir + "/ngosen-app-rules.conf";
         loadAppRules();
-        toggleActions_ = {inputMethodAction_.get(),    charsetAction_.get(),          spellCheckAction_.get(),       macroAction_.get(),   capitalizeMacroAction_.get(),
-                          autoCapitalizeAction_.get(), autoNonVnRestoreAction_.get(), enableDictionaryAction_.get(), saveLogAction_.get(), settingsAction_.get()};
+        menuEntries_ = {{inputMethodAction_.get(), &config_.showMenuInputMethod},
+                        {charsetAction_.get(), &config_.showMenuCharset},
+                        {spellCheckAction_.get(), &config_.showMenuSpellCheck},
+                        {macroAction_.get(), &config_.showMenuMacro},
+                        {capitalizeMacroAction_.get(), &config_.showMenuCapitalizeMacro},
+                        {autoCapitalizeAction_.get(), &config_.showMenuAutoCapitalize},
+                        {autoNonVnRestoreAction_.get(), &config_.showMenuAutoRestore},
+                        {enableDictionaryAction_.get(), &config_.showMenuDictionary},
+                        {saveLogAction_.get(), nullptr},
+                        {settingsAction_.get(), nullptr}};
     }
 
     void NgoSenEngine::initToggleAction(std::unique_ptr<SimpleAction>& action, Option<bool>& option, const std::string& actionId, const std::string& iconName,
@@ -556,6 +564,15 @@ namespace fcitx {
         updateAction(nullptr, capitalizeStartAction_, config_.capitalizeStartOfText, _("Start of text or line"));
         updateAction(nullptr, autoNonVnRestoreAction_, config_.autoNonVnRestore, _("Auto Non-VN Restore"));
         updateAction(nullptr, enableDictionaryAction_, config_.enableDictionary, _("Custom Dictionary"));
+        if (!factory_.registered())
+            return;
+        // The field that has focus keeps its menu until it is filled again.
+        instance_->inputContextManager().foreach ([this](InputContext* ic) {
+            const auto shown = ic->statusArea().actions(StatusGroup::InputMethod);
+            if (ic->hasFocus() && std::find(shown.begin(), shown.end(), settingsAction_.get()) != shown.end())
+                fillStatusArea(ic);
+            return true;
+        });
     }
 
     void NgoSenEngine::setSubConfig(const std::string& path, const RawConfig& config) {
@@ -604,7 +621,6 @@ namespace fcitx {
         if (!mouseThreadStarted.exchange(true))
             startMouseReset();
 
-        auto& statusArea = event.inputContext()->statusArea();
         if (ic->capabilityFlags().test(CapabilityFlag::Preedit))
             instance_->inputContextManager().setPreeditEnabledByDefault(true);
 
@@ -634,9 +650,7 @@ namespace fcitx {
             if (realMode == NgoSenMode::Preedit)
                 ic->updatePreedit();
         }
-        for (const auto& action : toggleActions_) {
-            statusArea.addAction(StatusGroup::InputMethod, action);
-        }
+        fillStatusArea(ic);
         state->offerRetype();
     }
 
@@ -922,6 +936,16 @@ namespace fcitx {
 
     void NgoSenEngine::updateInputMethodAction(InputContext* ic) {
         checkChoice(inputMethodSubAction_, InputMethodActionId, *config_.inputMethod, ic);
+    }
+
+    void NgoSenEngine::fillStatusArea(InputContext* ic) {
+        auto& statusArea = ic->statusArea();
+        statusArea.clearGroup(StatusGroup::InputMethod);
+        for (const auto& entry : menuEntries_) {
+            if (entry.shown == nullptr || entry.shown->value())
+                statusArea.addAction(StatusGroup::InputMethod, entry.action);
+        }
+        ic->updateUserInterface(UserInterfaceComponent::StatusArea);
     }
 
     void NgoSenEngine::loadAppRules() {

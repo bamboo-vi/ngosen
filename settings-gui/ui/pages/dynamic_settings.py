@@ -44,6 +44,18 @@ class SettingsCategory(Enum):
 
 MODE_SWITCHING = N_("Mode switching")
 
+# Under "Show in the tray menu" each checkbox names the menu entry itself.
+MENU_ENTRY_TEXT = {
+    "ShowMenuInputMethod": N_("Input Method"),
+    "ShowMenuCharset": N_("Charset"),
+    "ShowMenuSpellCheck": N_("Spell Check"),
+    "ShowMenuMacro": N_("Macro"),
+    "ShowMenuCapitalizeMacro": N_("Capitalize Macro"),
+    "ShowMenuAutoCapitalize": N_("Auto Capitalize"),
+    "ShowMenuAutoRestore": N_("Auto Restore Invalid Words"),
+    "ShowMenuDictionary": N_("Custom Dictionary"),
+}
+
 # Groups show in this order; the first checkbox of a group carries the group name.
 SETTINGS_MAP = {
     SettingsCategory.TYPING: {
@@ -80,6 +92,7 @@ SETTINGS_MAP = {
     },
     SettingsCategory.APPEARANCE: {
         N_("Tray icon"): ["UseLotusIcons", "IconTheme"],
+        N_("Show in the tray menu"): list(MENU_ENTRY_TEXT),
     },
 }
 
@@ -542,7 +555,7 @@ class DynamicSettingsPage(QWidget):
         key, type_str, label, default, annotations = item
         val = self.current_values.get(key, default)
 
-        cb = QCheckBox(_(label))
+        cb = QCheckBox(_(MENU_ENTRY_TEXT.get(key, label)))
         cb.setChecked(str(val).lower() == "true")
         cb.toggled.connect(
             lambda checked, k=key: self.update_config(k, "True" if checked else "False")

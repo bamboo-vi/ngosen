@@ -265,6 +265,16 @@ namespace fcitx {
         // The key keeps its old name so saved settings still load.
         Option<bool> useNgoSenIcons{this, "UseLotusIcons", _("Use Ngó Sen Status Icons"), true};
 
+        // Settings and Save typing log have no option: without them the menu could not lead back.
+        Option<bool> showMenuInputMethod{this, "ShowMenuInputMethod", _("Show Input Method in the tray menu"), true};
+        Option<bool> showMenuCharset{this, "ShowMenuCharset", _("Show Charset in the tray menu"), true};
+        Option<bool> showMenuSpellCheck{this, "ShowMenuSpellCheck", _("Show Spell Check in the tray menu"), true};
+        Option<bool> showMenuMacro{this, "ShowMenuMacro", _("Show Macro in the tray menu"), true};
+        Option<bool> showMenuCapitalizeMacro{this, "ShowMenuCapitalizeMacro", _("Show Capitalize Macro in the tray menu"), true};
+        Option<bool> showMenuAutoCapitalize{this, "ShowMenuAutoCapitalize", _("Show Auto Capitalize in the tray menu"), true};
+        Option<bool> showMenuAutoRestore{this, "ShowMenuAutoRestore", _("Show Auto Restore Invalid Words in the tray menu"), true};
+        Option<bool> showMenuDictionary{this, "ShowMenuDictionary", _("Show Custom Dictionary in the tray menu"), true};
+
         Option<bool> enableDictionary{this, "EnableDictionary", _("Custom Dictionary"), false};
         Option<bool> enableCustomKeymap{this, "EnableCustomKeymap", _("Custom Keymap"), false};
 
