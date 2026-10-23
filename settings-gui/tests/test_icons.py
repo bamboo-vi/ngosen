@@ -39,14 +39,18 @@ class FakeThemeTest(unittest.TestCase):
 
 
 class SidebarIconTest(FakeThemeTest):
-    # A theme like Yaru: it has preferences-system but not preferences-other.
-    icons = ("preferences-system",)
+    # Like Adwaita, which ships only symbolic icons, and Yaru, which has preferences-system.
+    icons = ("preferences-system", "help-about-symbolic")
 
-    def test_more_has_an_icon_without_preferences_other(self):
+    def test_appearance_and_about_have_icons(self):
         window = NgoSenSettingsWindow(dbus_handler=FakeDBusHandler())
         self.addCleanup(window.close)
-        more = window.sidebar.item(window.sidebar.count() - 1)
-        self.assertFalse(more.icon().isNull())
+        items = {
+            window.sidebar.item(r).text(): window.sidebar.item(r)
+            for r in range(window.sidebar.count())
+        }
+        self.assertFalse(items["Appearance"].icon().isNull())
+        self.assertFalse(items["About"].icon().isNull())
 
 
 class LogoTest(FakeThemeTest):
