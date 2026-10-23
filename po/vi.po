@@ -287,6 +287,10 @@ msgstr "Định dạng ngày ($DATE trong macro)"
 msgid "Icon Color"
 msgstr "Màu biểu tượng"
 
+#: src/ngosen-config.h
+msgid "Interface Language"
+msgstr "Ngôn ngữ giao diện"
+
 #: src/ngosen-engine.cpp:215
 msgid "Charset"
 msgstr "Bảng mã"
@@ -1114,6 +1118,14 @@ msgstr ""
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tone marks can also go at the end of the word."
 msgstr "Gõ dấu ở cuối từ cũng được."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Language"
+msgstr "Ngôn ngữ"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "The tray menu changes at once, this window the next time it opens."
+msgstr "Menu khay đổi ngay, cửa sổ này đổi ở lần mở sau."
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."

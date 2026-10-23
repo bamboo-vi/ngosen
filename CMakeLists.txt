@@ -33,6 +33,7 @@ set(ngosen_fcitx_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-icon-resolver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-plasma-theme.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-gnome-theme.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-ui-text.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/emoji.cpp
 )
 
@@ -57,6 +58,7 @@ find_package(Gettext REQUIRED)
 
 include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
 add_definitions(-DFCITX_GETTEXT_DOMAIN=\"fcitx5-ngosen\") 
+add_definitions(-DNGOSEN_LOCALEDIR=\"${FCITX_INSTALL_LOCALEDIR}\")
 
 if (Fcitx5Utils_VERSION VERSION_GREATER_EQUAL "5.1.13")
     add_definitions(-DNGOSEN_USE_MODERN_FCITX_API)

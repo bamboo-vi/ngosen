@@ -85,6 +85,13 @@ namespace fcitx {
 
     FCITX_CONFIG_ENUM_NAME_WITH_I18N(IconTheme, N_("Auto"), N_("Light"), N_("Dark"));
 
+    enum class UiLanguage : std::uint8_t {
+        Vietnamese,
+        English,
+    };
+
+    FCITX_CONFIG_ENUM_NAME(UiLanguage, "Vietnamese", "English");
+
     struct InputMethodConstrain;
     struct InputMethodAnnotation;
 
@@ -294,7 +301,8 @@ namespace fcitx {
 
         SubConfigOption                                          macroEditor{this, "MacroEditor", _("Macro"), "fcitx://config/addon/ngosen/ngosen-macro"};
         SubConfigOption                                          customKeymap{this, "CustomKeymap", _("Custom Keymap"), "fcitx://config/addon/ngosen/custom_keymap"};
-        OptionWithAnnotation<IconTheme, IconThemeI18NAnnotation> iconTheme{this, "IconTheme", _("Icon Color"), IconTheme::Auto};);
+        OptionWithAnnotation<IconTheme, IconThemeI18NAnnotation> iconTheme{this, "IconTheme", _("Icon Color"), IconTheme::Auto};
+        Option<UiLanguage>                                       uiLanguage{this, "UiLanguage", _("Interface Language"), UiLanguage::Vietnamese};);
 
 } // namespace fcitx
 

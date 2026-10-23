@@ -18,6 +18,7 @@
 #include "ngosen-plasma-theme.h"
 #include "ngosen-fcitx-host.h"
 #include "ngosen-migration.h"
+#include "ngosen-ui-text.h"
 #ifdef NGOSEN_HAS_DBUS
 #include "ngosen-dbus-object.h"
 #endif
@@ -52,6 +53,10 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
+
+// Ngó Sen's own strings follow its language setting, not the language fcitx5 runs in.
+#undef _
+#define _(x) ::ngosen::uiText(x)
 
 namespace fcitx {
     constexpr const char* CharsetActionId     = "ngosen-charset";
@@ -338,9 +343,9 @@ namespace fcitx {
             uiManager);
         config_.outputCharset.annotation().setList(charsets);
 
-        initToggleAction(spellCheckAction_, config_.spellCheck, "ngosen-spellcheck", "tools-check-spelling", _("Spell Check"), _("Spell Check"), uiManager);
-        initToggleAction(macroAction_, config_.enableMacro, "ngosen-macro", "document-edit", _("Macro"), _("Macro"), uiManager);
-        initToggleAction(capitalizeMacroAction_, config_.capitalizeMacro, "ngosen-capitalizemacro", "format-text-uppercase", _("Capitalize Macro"), _("Capitalize Macro"),
+        initToggleAction(spellCheckAction_, config_.spellCheck, "ngosen-spellcheck", "tools-check-spelling", _("Spell Check"), N_("Spell Check"), uiManager);
+        initToggleAction(macroAction_, config_.enableMacro, "ngosen-macro", "document-edit", _("Macro"), N_("Macro"), uiManager);
+        initToggleAction(capitalizeMacroAction_, config_.capitalizeMacro, "ngosen-capitalizemacro", "format-text-uppercase", _("Capitalize Macro"), N_("Capitalize Macro"),
                          uiManager);
         autoCapitalizeAction_ = std::make_unique<SimpleAction>();
         autoCapitalizeAction_->setShortText(_("Auto Capitalize"));
@@ -349,13 +354,13 @@ namespace fcitx {
         autoCapitalizeMenu_ = std::make_unique<Menu>();
         autoCapitalizeAction_->setMenu(autoCapitalizeMenu_.get());
         initToggleAction(capitalizeSentencesAction_, config_.autoCapitalizeAfterPunctuation, "ngosen-capitalize-sentences", "", _("After . ! ? and Enter"),
-                         _("After . ! ? and Enter"), uiManager);
-        initToggleAction(capitalizeStartAction_, config_.capitalizeStartOfText, "ngosen-capitalize-start", "", _("Start of text or line"), _("Start of text or line"), uiManager);
+                         N_("After . ! ? and Enter"), uiManager);
+        initToggleAction(capitalizeStartAction_, config_.capitalizeStartOfText, "ngosen-capitalize-start", "", _("Start of text or line"), N_("Start of text or line"), uiManager);
         autoCapitalizeMenu_->addAction(capitalizeSentencesAction_.get());
         autoCapitalizeMenu_->addAction(capitalizeStartAction_.get());
-        initToggleAction(autoNonVnRestoreAction_, config_.autoNonVnRestore, "ngosen-autonvnrestore", "edit-undo", _("Auto Restore Invalid Words"), _("Auto Non-VN Restore"),
+        initToggleAction(autoNonVnRestoreAction_, config_.autoNonVnRestore, "ngosen-autonvnrestore", "edit-undo", _("Auto Restore Invalid Words"), N_("Auto Non-VN Restore"),
                          uiManager);
-        initToggleAction(enableDictionaryAction_, config_.enableDictionary, "ngosen-dictionary", "accessories-dictionary", _("Custom Dictionary"), _("Custom Dictionary"),
+        initToggleAction(enableDictionaryAction_, config_.enableDictionary, "ngosen-dictionary", "accessories-dictionary", _("Custom Dictionary"), N_("Custom Dictionary"),
                          uiManager);
 
         settingsAction_ = std::make_unique<SimpleAction>();
@@ -402,7 +407,7 @@ namespace fcitx {
     }
 
     void NgoSenEngine::initToggleAction(std::unique_ptr<SimpleAction>& action, Option<bool>& option, const std::string& actionId, const std::string& iconName,
-                                        const std::string& textLong, const std::string& textOnOff, UserInterfaceManager& uiManager) {
+                                        const std::string& textLong, const char* textOnOff, UserInterfaceManager& uiManager) {
         action = std::make_unique<SimpleAction>();
         action->setShortText(textLong);
         action->setIcon(iconName);
@@ -412,7 +417,7 @@ namespace fcitx {
             syncOptions();
             saveConfig();
             refreshOption();
-            updateAction(ic, action, option, textOnOff);
+            updateAction(ic, action, option, _(textOnOff));
         }));
         uiManager.registerAction(actionId, action.get());
     }
@@ -552,6 +557,7 @@ namespace fcitx {
     }
 
     void NgoSenEngine::populateConfig() {
+        ngosen::setUiVietnamese(*config_.uiLanguage == UiLanguage::Vietnamese);
         syncOptions();
         refreshEngine();
         refreshOption();
@@ -564,6 +570,11 @@ namespace fcitx {
         updateAction(nullptr, capitalizeStartAction_, config_.capitalizeStartOfText, _("Start of text or line"));
         updateAction(nullptr, autoNonVnRestoreAction_, config_.autoNonVnRestore, _("Auto Non-VN Restore"));
         updateAction(nullptr, enableDictionaryAction_, config_.enableDictionary, _("Custom Dictionary"));
+        inputMethodAction_->setShortText(_("Input Method"));
+        charsetAction_->setShortText(_("Charset"));
+        autoCapitalizeAction_->setShortText(_("Auto Capitalize"));
+        settingsAction_->setShortText(_("Settings"));
+        saveLogAction_->setShortText(_("Save typing log"));
         if (!factory_.registered())
             return;
         // The tray keeps showing the last field's menu while the settings window has focus.

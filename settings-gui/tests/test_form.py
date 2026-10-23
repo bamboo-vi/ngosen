@@ -4,7 +4,7 @@
 import unittest
 
 from qtpy.QtCore import QEvent
-from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QLineEdit, QListWidget
+from qtpy.QtWidgets import QCheckBox, QComboBox, QFormLayout, QLabel, QLineEdit, QListWidget
 from support import FakeDBusHandler, app
 from ui.components import SingleKeyCaptureWidget
 from ui.main_window import NgoSenSettingsWindow
@@ -154,6 +154,17 @@ class AppearancePageTest(unittest.TestCase):
             self.page._tray_icon_names(),
             (("fcitx-ngosen-default", "fcitx-ngosen-off-default"), True),
         )
+
+    def test_language_comes_first_and_names_itself(self):
+        labels = row_labels(form_of(self.page))
+        self.assertEqual(labels[0], "Interface Language:")
+        combo = self.page.findChildren(QComboBox)[0]
+        self.assertEqual(
+            [combo.itemText(i) for i in range(combo.count())], ["Tiếng Việt", "English"]
+        )
+        self.assertEqual(combo.currentData(), "Vietnamese")
+        combo.setCurrentIndex(1)
+        self.assertEqual(self.page.modified_values["UiLanguage"], "English")
 
     def test_unticking_hides_the_entry(self):
         self.menu_checkbox("Charset").click()

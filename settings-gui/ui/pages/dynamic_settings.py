@@ -92,6 +92,7 @@ SETTINGS_MAP = {
         ],
     },
     SettingsCategory.APPEARANCE: {
+        N_("Language"): ["UiLanguage"],
         TRAY_ICON: ["UseLotusIcons", "IconTheme"],
         N_("Show in the tray menu"): list(MENU_ENTRIES),
     },
@@ -106,12 +107,16 @@ HINTS = {
         "Tap the key alone to keep the word as shown: tunx, Ctrl → tũn, with no restore or macro. Alt also shows the menu bar in some apps."
     ),
     "FreeMarking": N_("Tone marks can also go at the end of the word."),
+    "UiLanguage": N_("The tray menu changes at once, this window the next time it opens."),
     "BackspaceRemovesTone": N_(
         "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
     ),
 }
 
 MODE_BUTTON_ORDER = ["Sen", "Preedit", "Emoji Picker", "OFF"]
+
+# Each language is named in itself, so it can be found whichever one the window is in.
+LANGUAGE_NAMES = {"Vietnamese": "Tiếng Việt", "English": "English"}
 
 # What a word looks like while typing it, shown under the input method.
 TYPING_EXAMPLES = {
@@ -480,7 +485,8 @@ class DynamicSettingsPage(QWidget):
         sorted_keys = sorted(enum_dict.keys(), key=lambda x: int(x) if str(x).isdigit() else x)
         for k in sorted_keys:
             rb_text = str(enum_dict[k])
-            combo.addItem(_(rb_text), rb_text)
+            shown = LANGUAGE_NAMES.get(rb_text, rb_text) if key == "UiLanguage" else _(rb_text)
+            combo.addItem(shown, rb_text)
 
         idx = combo.findData(val)
         if idx >= 0:
