@@ -54,7 +54,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Tách Giao diện và Giới thiệu thành hai trang riêng ở thanh bên cửa sổ cài đặt, bỏ trang Khác.
   Trang Giao diện thêm dòng "Trên khay:" để xem trước biểu tượng tray cho tiếng Việt và tiếng Anh,
   cập nhật ngay khi bật/tắt "Sử dụng biểu tượng trạng thái Ngó Sen" hoặc đổi "Màu biểu tượng" (#276).
-- Menu tray, menu chế độ, thông báo của Ngó Sen và cửa sổ cài đặt mặc định dùng tiếng Việt, kể cả khi
+- Menu tray, menu chế độ và cửa sổ cài đặt của Ngó Sen mặc định dùng tiếng Việt, kể cả khi
   desktop dùng tiếng Anh. Đổi sang tiếng Anh bằng "Ngôn ngữ giao diện" ở đầu trang Giao diện: menu tray đổi
   ngay, cửa sổ cài đặt đổi khi mở lại. Các mục cuối menu tray (Restart, Input Method Settings, Exit) thuộc
   fcitx5 nên vẫn theo ngôn ngữ desktop (#277).
