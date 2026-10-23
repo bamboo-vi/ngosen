@@ -21,6 +21,7 @@
 #include "ngosen-options.h"
 #include "ngosen-go-object.h"
 #include <filesystem>
+#include <functional>
 #include <mutex>
 #include <memory>
 #include <optional>
@@ -237,6 +238,10 @@ namespace fcitx {
         FactoryFor<TypingStateProperty>             factory_;
         std::vector<std::string>                    imNames_;
 
+        std::unique_ptr<SimpleAction>               inputMethodAction_;
+        std::vector<std::unique_ptr<SimpleAction>>  inputMethodSubAction_;
+        std::unique_ptr<Menu>                       inputMethodMenu_;
+
         std::unique_ptr<SimpleAction>               charsetAction_;
         std::vector<std::unique_ptr<SimpleAction>>  charsetSubAction_;
         std::unique_ptr<Menu>                       charsetMenu_;
@@ -326,10 +331,29 @@ namespace fcitx {
         static void updateAction(InputContext* ic, std::unique_ptr<SimpleAction>& action, Option<bool>& option, const std::string& textOnOff);
 
         /**
+         * @brief Builds a submenu with one checkable action per choice.
+         * @param pick Called with the chosen name.
+         */
+        void initChoiceMenu(std::unique_ptr<SimpleAction>& action, std::vector<std::unique_ptr<SimpleAction>>& choices, std::unique_ptr<Menu>& menu, const std::string& actionId,
+                            const std::string& text, const std::string& iconName, const std::vector<std::string>& names,
+                            const std::function<void(InputContext*, const std::string&)>& pick, UserInterfaceManager& uiManager);
+
+        /**
+         * @brief Checks the choice named actionId-current and unchecks the others.
+         */
+        static void checkChoice(const std::vector<std::unique_ptr<SimpleAction>>& choices, const std::string& actionId, const std::string& current, InputContext* ic);
+
+        /**
          * @brief Updates the charset action UI.
          * @param ic Current input context.
          */
         void updateCharsetAction(InputContext* ic);
+
+        /**
+         * @brief Updates the input method action UI.
+         * @param ic Current input context.
+         */
+        void updateInputMethodAction(InputContext* ic);
 
         /**
          * @brief Populates input method names from bamboo core.

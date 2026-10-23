@@ -136,5 +136,18 @@ int main() {
         checkMatches("charset menu", engine);
     }
 
+    auto* methodMenu = ui.lookupAction("ngosen-input-method");
+    check("input method menu exists", methodMenu != nullptr && methodMenu->menu() != nullptr && methodMenu->menu()->actions().size() == 2);
+    auto* telex = dynamic_cast<fcitx::SimpleAction*>(ui.lookupAction("ngosen-input-method-Telex"));
+    auto* vni   = dynamic_cast<fcitx::SimpleAction*>(ui.lookupAction("ngosen-input-method-VNI"));
+    check("input method menu lists Telex and VNI", telex != nullptr && vni != nullptr);
+    if (telex != nullptr && vni != nullptr) {
+        check("the current method is checked", vni->isChecked(&context) && !telex->isChecked(&context));
+        telex->activate(&context);
+        check("input method menu changes the copy", engine.options().inputMethod == "Telex");
+        check("the picked method is checked", telex->isChecked(&context) && !vni->isChecked(&context));
+        checkMatches("input method menu", engine);
+    }
+
     return failures == 0 ? 0 : 1;
 }

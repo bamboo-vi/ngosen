@@ -54,7 +54,8 @@
 #include <unistd.h>
 
 namespace fcitx {
-    constexpr const char* CharsetActionPrefix = "ngosen-charset-";
+    constexpr const char* CharsetActionId     = "ngosen-charset";
+    constexpr const char* InputMethodActionId = "ngosen-input-method";
     const std::string     CustomKeymapFile    = "conf/ngosen-custom-keymap.conf";
     const std::string     MacroTableFile      = "conf/ngosen-macro-table.conf";
 
@@ -304,21 +305,26 @@ namespace fcitx {
 
         auto& uiManager = instance_->userInterfaceManager();
 
-        charsetAction_ = std::make_unique<SimpleAction>();
-        charsetAction_->setShortText(_("Charset"));
-        charsetAction_->setIcon("character-set");
-        uiManager.registerAction("ngosen-charset", charsetAction_.get());
-        charsetMenu_ = std::make_unique<Menu>();
-        charsetAction_->setMenu(charsetMenu_.get());
+        // The menu offers the two methods most people switch between; the rest stay in the settings window.
+        initChoiceMenu(
+            inputMethodAction_, inputMethodSubAction_, inputMethodMenu_, InputMethodActionId, _("Input Method"), "input-keyboard", {"Telex", "VNI"},
+            [this](InputContext* ic, const std::string& name) {
+                if (config_.inputMethod.value() == name)
+                    return;
+                config_.inputMethod.setValue(name);
+                syncOptions();
+                saveConfig();
+                refreshEngine();
+                updateInputMethodAction(ic);
+                if (ic)
+                    ic->updateUserInterface(UserInterfaceComponent::StatusArea);
+            },
+            uiManager);
 
         auto charsets = convertToStringList(GetCharsetNames());
-        for (const auto& charset : charsets) {
-            charsetSubAction_.emplace_back(std::make_unique<SimpleAction>());
-            auto* action = charsetSubAction_.back().get();
-            action->setShortText(charset);
-            action->setCheckable(true);
-            uiManager.registerAction(stringutils::concat(CharsetActionPrefix, charset), action);
-            connections_.emplace_back(action->connect<SimpleAction::Activated>([this, charset](InputContext* ic) {
+        initChoiceMenu(
+            charsetAction_, charsetSubAction_, charsetMenu_, CharsetActionId, _("Charset"), "character-set", charsets,
+            [this](InputContext* ic, const std::string& charset) {
                 if (config_.outputCharset.value() == charset)
                     return;
                 config_.outputCharset.setValue(charset);
@@ -328,9 +334,8 @@ namespace fcitx {
                 updateCharsetAction(ic);
                 if (ic)
                     ic->updateUserInterface(UserInterfaceComponent::StatusArea);
-            }));
-            charsetMenu_->addAction(action);
-        }
+            },
+            uiManager);
         config_.outputCharset.annotation().setList(charsets);
 
         initToggleAction(spellCheckAction_, config_.spellCheck, "ngosen-spellcheck", "tools-check-spelling", _("Spell Check"), _("Spell Check"), uiManager);
@@ -384,8 +389,8 @@ namespace fcitx {
         instance_->inputContextManager().registerProperty("NgoSenState", &factory_);
         appRulesPath_ = configDir + "/ngosen-app-rules.conf";
         loadAppRules();
-        toggleActions_ = {charsetAction_.get(),          spellCheckAction_.get(),       macroAction_.get(),   capitalizeMacroAction_.get(), autoCapitalizeAction_.get(),
-                          autoNonVnRestoreAction_.get(), enableDictionaryAction_.get(), saveLogAction_.get(), settingsAction_.get()};
+        toggleActions_ = {inputMethodAction_.get(),    charsetAction_.get(),          spellCheckAction_.get(),       macroAction_.get(),   capitalizeMacroAction_.get(),
+                          autoCapitalizeAction_.get(), autoNonVnRestoreAction_.get(), enableDictionaryAction_.get(), saveLogAction_.get(), settingsAction_.get()};
     }
 
     void NgoSenEngine::initToggleAction(std::unique_ptr<SimpleAction>& action, Option<bool>& option, const std::string& actionId, const std::string& iconName,
@@ -542,6 +547,7 @@ namespace fcitx {
         syncOptions();
         refreshEngine();
         refreshOption();
+        updateInputMethodAction(nullptr);
         updateCharsetAction(nullptr);
         updateAction(nullptr, spellCheckAction_, config_.spellCheck, _("Spell Check"));
         updateAction(nullptr, macroAction_, config_.enableMacro, _("Macro"));
@@ -614,6 +620,7 @@ namespace fcitx {
         const NgoSenMode targetMode = getAppRule(appName);
         NGOSEN_INFO("Target mode: " + ngosen::ModeI18NAnnotation::toString(targetMode));
 
+        updateInputMethodAction(event.inputContext());
         updateCharsetAction(event.inputContext());
 
         auto* state = stateFor(ic);
@@ -880,13 +887,41 @@ namespace fcitx {
         });
     }
 
-    void NgoSenEngine::updateCharsetAction(InputContext* ic) {
-        auto name = stringutils::concat(CharsetActionPrefix, *config_.outputCharset);
-        for (const auto& action : charsetSubAction_) {
+    void NgoSenEngine::initChoiceMenu(std::unique_ptr<SimpleAction>& action, std::vector<std::unique_ptr<SimpleAction>>& choices, std::unique_ptr<Menu>& menu,
+                                      const std::string& actionId, const std::string& text, const std::string& iconName, const std::vector<std::string>& names,
+                                      const std::function<void(InputContext*, const std::string&)>& pick, UserInterfaceManager& uiManager) {
+        action = std::make_unique<SimpleAction>();
+        action->setShortText(text);
+        action->setIcon(iconName);
+        uiManager.registerAction(actionId, action.get());
+        menu = std::make_unique<Menu>();
+        action->setMenu(menu.get());
+        for (const auto& name : names) {
+            choices.emplace_back(std::make_unique<SimpleAction>());
+            auto* choice = choices.back().get();
+            choice->setShortText(name);
+            choice->setCheckable(true);
+            uiManager.registerAction(stringutils::concat(actionId, "-", name), choice);
+            connections_.emplace_back(choice->connect<SimpleAction::Activated>([pick, name](InputContext* ic) { pick(ic, name); }));
+            menu->addAction(choice);
+        }
+    }
+
+    void NgoSenEngine::checkChoice(const std::vector<std::unique_ptr<SimpleAction>>& choices, const std::string& actionId, const std::string& current, InputContext* ic) {
+        const auto name = stringutils::concat(actionId, "-", current);
+        for (const auto& action : choices) {
             action->setChecked(action->name() == name);
             if (ic != nullptr)
                 action->update(ic);
         }
+    }
+
+    void NgoSenEngine::updateCharsetAction(InputContext* ic) {
+        checkChoice(charsetSubAction_, CharsetActionId, *config_.outputCharset, ic);
+    }
+
+    void NgoSenEngine::updateInputMethodAction(InputContext* ic) {
+        checkChoice(inputMethodSubAction_, InputMethodActionId, *config_.inputMethod, ic);
     }
 
     void NgoSenEngine::loadAppRules() {
