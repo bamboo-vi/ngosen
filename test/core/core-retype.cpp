@@ -270,6 +270,7 @@ namespace {
         field.program             = "google-chrome";
         field.keyEventOrderFix    = true;
         field.caretWidth          = 1;
+        field.caretHeight         = 17;
         auto                owned = std::make_unique<FakeHost>(loop, field);
         FakeHost*           host  = owned.get();
         ngosen::TypingState state(&resources, std::move(owned));

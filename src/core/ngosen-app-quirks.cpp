@@ -69,15 +69,19 @@ namespace ngosen {
     }
 
     bool selectsOverAutocompletion(const Field& field) {
-        if ((field.frontend != "dbus" && field.frontend != "fcitx4") || !forwardsBackspaces(field) || field.surroundingText)
+        if ((field.frontend != "dbus" && field.frontend != "fcitx4") || !forwardsBackspaces(field) || field.surroundingText || field.caretWidth <= 0)
             return false;
-        // Chromium reports a 1 px caret for its own text fields and a zero-width one for web page fields,
-        // where Shift+Left selection makes some editors (Google Sheets) move the text.
-        if (field.caretWidth <= 0)
+        const std::string program = stripDesktopSuffix(field.program);
+        // Vivaldi draws its address bar as a web page field, so only the selected autocompletion sets it
+        // apart from a zero-width page caret.
+        if (isStartsWith(program, "vivaldi"))
+            return true;
+        // Chromium reports a thin caret for its own text fields. A web page field with a selection reports
+        // the selection instead (Google Sheets autocompletion), and Shift+Left there loses text.
+        if (field.caretWidth * 8 > field.caretHeight)
             return false;
         // Terminals match the checks above too, and print Shift+Left instead of selecting.
-        const std::string program = stripDesktopSuffix(field.program);
-        for (const char* browser : {"chromium", "chrome", "google-chrome", "microsoft-edge", "msedge", "brave", "vivaldi", "opera"}) {
+        for (const char* browser : {"chromium", "chrome", "google-chrome", "microsoft-edge", "msedge", "brave", "opera"}) {
             if (isStartsWith(program, browser))
                 return true;
         }
