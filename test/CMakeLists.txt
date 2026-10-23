@@ -9,6 +9,8 @@ target_include_directories(ngosen_test_core PRIVATE
 target_compile_definitions(ngosen_test_core PRIVATE
     NGOSEN_SETTINGS_PATH="${CMAKE_INSTALL_FULL_BINDIR}/fcitx5-ngosen-settings"
     NGOSEN_ICON_DIR="${CMAKE_INSTALL_FULL_DATADIR}/icons/hicolor/scalable/apps"
+    # No catalog here, so tests see English whatever is installed on the machine.
+    NGOSEN_LOCALEDIR="${PROJECT_BINARY_DIR}/test/no-locale"
 )
 target_link_libraries(ngosen_test_core PRIVATE
     ngosen_core

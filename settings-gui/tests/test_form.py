@@ -156,9 +156,10 @@ class AppearancePageTest(unittest.TestCase):
         )
 
     def test_language_comes_first_and_names_itself(self):
-        labels = row_labels(form_of(self.page))
-        self.assertEqual(labels[0], "Interface Language:")
-        combo = self.page.findChildren(QComboBox)[0]
+        form = form_of(self.page)
+        self.assertEqual(row_labels(form)[0], "Interface Language:")
+        field = form.itemAt(0, QFormLayout.FieldRole).widget()
+        combo = field if isinstance(field, QComboBox) else field.findChild(QComboBox)
         self.assertEqual(
             [combo.itemText(i) for i in range(combo.count())], ["Tiếng Việt", "English"]
         )
