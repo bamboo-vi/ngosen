@@ -1286,3 +1286,71 @@ msgstr ""
 #: settings-gui/save_log.py
 msgid "No desktop session bus. Run this as your own user in a desktop terminal."
 msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Sen types straight into the app. Preedit underlines the word until it is done; use it when an app types wrong."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Keep Unicode unless an old document or app needs another one, such as TCVN3 (ABC). Cứu dấu works only with Unicode."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "dd and Space stays đ instead of going back to dd."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "hoà, khoẻ, thuý, tuỳ. Off: hòa, khỏe, thúy, tùy."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Non-Start: nhw → như, but w alone stays w. Everywhere: w alone gives ư too. uw always gives ư."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ch]a → chưa, m[f → mờ. Type a bracket twice to get it back: [[ → [."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ban and Space twice gives “ban. ”."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "a--b → a—b."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ban. tooi → ban. Tôi. The same after Enter."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "xin → Xin in an empty field or on a new line. Not in address bars, on GNOME or in some apps."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Typed tieengs vieetj before switching on? Switch on and it becomes tiếng việt. Esc gives back what you typed."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Select nhanh, type s, then press Tab: nhánh."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Opens a menu to pick a mode for the app in use. Only while typing Vietnamese; in English the key types as usual."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Moves the app in use to the next mode in the list below, and remembers it for that app."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "With the mode menu open, press a mode's key to pick it for the app in use. Default Typing makes the app follow the switch key again."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Off: plain one-colour icons, in the colour picked below."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the desktop."
+msgstr ""
