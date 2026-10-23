@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.5.5
+Version:        1.5.6
 Release:        1%{?dist}
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -96,6 +96,14 @@ else
 fi
 
 %changelog
+* Fri Oct 23 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.6-1
+- Sen mode on X11: Google Sheets in Chromium-based browsers no longer jumps or loses letters (#258, #261).
+- Sen mode in GLFW apps under XWayland, such as Minecraft Java: after one Backspace, adding a tone no longer deletes the earlier text (#247).
+- KDE Plasma Wayland: the installer now sets XMODIFIERS, so X11 apps under XWayland such as xterm type Vietnamese (#251).
+- The About page warns when fcitx5 still runs the Ngó Sen from before an update (#212).
+- The typing log saved from the tray keeps about three times as much typing by skipping repeated reports (#213).
+- Settings window: About text matches the README (#249), the Typing page fits large system fonts (#250), thin scrollbars on GNOME without a Qt theme (#252), and light/dark follows GNOME with Qt 6.8+ (#253).
+
 * Tue Oct 20 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.5-1
 - Recognise Flatpak apps by their usual program name, so Firefox from Flatpak no longer mixes up words while autofilling an address (#200, #204).
 - Macros with an uppercase abbreviation such as VN now expand (#194).

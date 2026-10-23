@@ -1,4 +1,4 @@
-Version 1.5.5 phát hành ngày 21/10/2026, sửa lỗi gõ trong thanh địa chỉ Firefox khi Firefox autofill địa chỉ. Firefox cài từ Flatpak báo app ID `org.mozilla.firefox` nên Ngó Sen không nhận ra: `ee` ra `eê`, `es` ra `eé`, `dduowcj` ra `dđược` (#200, #204); nay Ngó Sen nhận ra app Flatpak theo tên thường dùng. Khi gõ chữ trùng với chữ tiếp theo của địa chỉ autofill, Ngó Sen tưởng là bấm chuột và bỏ từ đang gõ: `gox` vẫn là `gox`, `daaus` ra `daáu` (#209); nay ra `gõ`, `dấu`. Macro có từ viết tắt lưu bằng chữ hoa như `VN` → `Việt Nam` nay bung được; trình sửa macro coi `VN` và `vn` là cùng một từ viết tắt (#194). Thêm kiểm tra bảo vệ khi backspace vào macro kết thúc bằng dấu ngoặc kép hoặc vào từ trong VNI Windows (#199); trường hợp này do test tự động tìm thấy, chưa gặp trong app. Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.5.6 phát hành ngày 23/10/2026, sửa lỗi nhảy, mất chữ trong Google Sheets trên X11 với Gõ Sen trong browser dựa trên Chromium (#258, #261), lỗi thêm dấu sau Backspace trong app GLFW qua XWayland như Minecraft Java (#247) và lỗi lệnh cài thiếu `XMODIFIERS` trên KDE Plasma Wayland (#251). Cửa sổ cài đặt sửa mô tả trang Giới thiệu (#249), lỗi cắt chữ khi font lớn (#250), thanh cuộn trên GNOME khi chưa cài Qt theme (#252) và đổi sáng/tối theo GNOME với Qt 6.8 trở lên (#253); thêm cảnh báo khi fcitx5 còn dùng version cũ sau update (#212). Log gõ bỏ nội dung ô bị báo lặp liên tiếp để giữ được đoạn gõ dài hơn (#213). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -29,6 +29,16 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 Đối chiếu file tải về với `SHA256SUMS`: `sha256sum -c SHA256SUMS --ignore-missing`.
 
 ## Đã test những gì
+
+Gói 1.5.6 từ PR phát hành #268 được gõ thử trên VM ngày 23/10/2026, dùng Gõ Sen, Telex.
+
+Linux Mint 22.1 (Cinnamon X11, gói `noble`), Chromium, Google Sheets: gõ thẳng vào ô rồi Enter, mỗi trường hợp đúng 3/3 lượt: `dduowcj` → `được`; câu `tieengs vieetj laf ngoon nguwx cuar nguwowif vieetj nam` gõ nhanh (30 ms giữa các phím) → `tiếng việt là ngôn ngữ của người việt nam`; `Haf Nooij ddeens 2026 thangs 10` → `Hà Nội đến 2026 tháng 10`; `toan`, Backspace, `s` → `toán`; `duyeet`, 5 Backspace, `yeejt` → `duyệt`. Câu dài trên cũng đúng 3/3 lượt khi gõ nhanh sau khi bấm F2 mở ô.
+
+Ubuntu 26.04 (GNOME Wayland, gói `resolute`), app GLFW chạy qua XWayland (hộp chữ dựng bằng LWJGL 3.4.1, GLFW 3.5.0, giống Minecraft Java): `tieengs`, Backspace, ` vieetj` → `tiến việt`; câu `tieengs vieetj laf ngoon nguwx cuar nguwowif vieetj nam` → `tiếng việt là ngôn ngữ của người việt nam`, đúng 3/3 lượt.
+
+Ubuntu 26.04, Chrome: gõ `tieen` rồi Enter trong ô chat đúng 3/3 lượt; gõ rồi Tab sang ô khác đúng 3/3 lượt. GNOME Text Editor: câu 13 từ `tieengs vieetj xin chaof cacs banj hoom nay trowif ddepj quas ddungs rooif` → `tiếng việt xin chào các bạn hôm nay trời đẹp quá đúng rồi`, đúng 3/3 lượt.
+
+Cửa sổ cài đặt (#212, #249, #250, #252, #253) và lệnh cài trên KDE (#251) không được test lại trên gói 1.5.6. CachyOS, Fedora, Debian, openSUSE và Kali chưa được gõ thử với 1.5.6.
 
 Gói 1.5.5 từ PR phát hành #208 được gõ thử trên VM ngày 20–21/10/2026, dùng Gõ Sen, Telex, trừ lượt VNI Windows ghi riêng bên dưới.
 

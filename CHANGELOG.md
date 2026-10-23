@@ -71,6 +71,27 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Sửa biểu tượng Ngó Sen trên thanh trên cùng GNOME nhỏ hơn biểu tượng mạng, loa. (#245, #246)
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
+- App GTK3 đi qua GNOME Shell không còn mất dấu khi gõ: `trơi`, `ban`, `viêt` thay vì `trời`, `bạn`, `việt`.
+  Ngó Sen chờ app báo đã xoá chữ rồi mới commit chữ có dấu; terminal không báo vẫn dùng thời gian chờ
+  cố định (#231).
+
+### Tài liệu
+
+- Lộ trình thêm thông báo "Có gì mới" cho 1.6.0 và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148).
+
+### Test
+
+- Test mới: bấm rồi thả Shift hay Ctrl giữa từ không chốt từ đang gõ (`vieet`, Shift, `j` vẫn ra `việt`); người
+  dùng không thấy khác gì (#155).
+
+## [1.5.6-1] — 23/10/2026
+
+Sửa lỗi Gõ Sen trong Google Sheets trên X11 với browser dựa trên Chromium (#258, #261), trong app GLFW
+qua XWayland như Minecraft Java (#247) và lỗi lệnh cài trên KDE Plasma Wayland (#251).
+Tải ở [ngosen-1.5.6-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.6-1).
+
+### Sửa
+
 - Sửa mô tả ở trang Giới thiệu trong cửa sổ cài đặt cho khớp với README (#249).
 - KDE Plasma Wayland: app X11 chạy qua XWayland, như Minecraft 26.2 trở về trước hay xterm, không gõ được tiếng
   Việt mà chỉ ra chữ Telex thô, vì lệnh cài chưa đặt biến `XMODIFIERS`. Giờ lệnh cài đặt biến này; đăng xuất rồi
@@ -91,14 +112,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   mỗi phím, khiến phần lớn 400 event cuối là các dòng lặp, chỉ còn khoảng 12 giây gõ; từ gõ sai trước đó
   một chút đã mất khỏi log. Giờ nội dung báo giống hệt lần ngay trước không được lưu lại. Với một log thực
   tế từ Edge, 401 dòng còn 118 dòng, nên log giữ được đoạn gõ dài gấp khoảng ba lần (#213).
-- App GTK3 đi qua GNOME Shell không còn mất dấu khi gõ: `trơi`, `ban`, `viêt` thay vì `trời`, `bạn`, `việt`.
-  Ngó Sen chờ app báo đã xoá chữ rồi mới commit chữ có dấu; terminal không báo vẫn dùng thời gian chờ
-  cố định (#231).
 - Sửa lỗi nhảy, mất chữ khi dùng Gõ Sen trên X11 trong Google Sheets ở trình duyệt dựa trên Chromium (#258, #261).
 
 ### Tài liệu
 
-- Lộ trình thêm thông báo "Có gì mới" cho 1.6.0 và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148).
 - Trang "How Vietnamese people type" chuyển Firefox Bugzilla 2080478 từ lỗi người khác báo sang lỗi Ngó Sen xác nhận:
   Firefox trên Wayland báo surrounding text trễ một edit, nên input method xoá theo surrounding text sẽ gõ sai chữ.
   Test KDE Plasma, Firefox 157 vẫn sai dù cách phím 1,5 s; protocol log đã đính kèm bug Firefox (#211)
@@ -119,11 +136,6 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - README thêm hướng dẫn tránh mất chữ đang gõ dở khi bấm chuột ở chế độ Preedit trên GNOME Wayland trong Chrome
   và app dựa trên Chromium chạy thẳng trên Wayland. Lỗi do fcitx5 5.1.19 trở về trước, version 5.1.20 đã sửa;
   dùng Gõ Sen hoặc gõ xong chữ bằng phím cách rồi mới bấm chuột (#266).
-
-### Test
-
-- Test mới: bấm rồi thả Shift hay Ctrl giữa từ không chốt từ đang gõ (`vieet`, Shift, `j` vẫn ra `việt`); người
-  dùng không thấy khác gì (#155).
 
 ## [1.5.5-1] — 21/10/2026
 
