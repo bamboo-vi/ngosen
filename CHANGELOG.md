@@ -60,7 +60,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   fcitx5 nên vẫn theo ngôn ngữ desktop (#277).
 - Thêm giải thích ngắn dưới mỗi tuỳ chọn trong cửa sổ cài đặt, ở trang Gõ chữ, Phím tắt và Giao diện,
   thường kèm ví dụ; ghi rõ các phím 1, q, w, e, r chỉ dùng khi menu chế độ đang mở. Cách gõ không thay
-  đổi. (#PR)
+  đổi (#281).
 - Tuỳ chọn "Tự viết hoa chữ đầu văn bản và đầu dòng" (thử nghiệm, mặc định tắt) ở trang Gõ chữ, nhóm Gõ nhanh:
   gõ `xin` vào ô trống hoặc đầu dòng mới ra `Xin`. Không áp dụng ở thanh địa chỉ, ô mật khẩu, app không cho
   bộ gõ đọc chữ trong ô, và GNOME. App GTK chạy qua Wayland (đã test trên Plasma) chưa viết hoa đầu dòng
