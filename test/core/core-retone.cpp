@@ -134,6 +134,9 @@ namespace {
         run.after = {ngosen::key::Escape, ngosen::key::Tab};
         r         = retone(run);
         check(r.offer != "(no offer)" && r.text == "abc s xyz", "after Esc, Tab changes nothing", r.offer + " / " + r.text);
+        run.after = {ngosen::key::Tab, 'a', 's'};
+        r         = retone(run);
+        check(r.text == "abc nhánhá xyz", "after Tab, typing starts a new word", r.text);
         run.after = {'a'};
         r         = retone(run);
         check(r.offer != "(no offer)" && r.text == "abc sa xyz", "typing on keeps the key as typed", r.offer + " / " + r.text);
@@ -161,11 +164,15 @@ namespace {
         check(offer == "à → á", "a single letter that has a mark", offer);
         offer = offerFor("abc nhanh xyz", 4, 9, '1', [](FakeResources& r) { r.mutableOptions().inputMethod = "VNI"; });
         check(offer == "nhanh → nhánh", "VNI tone key", offer);
+        offer = offerFor("abc nhanh xyz", 4, 9, '\'', [](FakeResources& r) { r.mutableOptions().inputMethod = "VIQR"; });
+        check(offer == "nhanh → nhánh", "VIQR tone key", offer);
 
         offer = offerFor("abc a xyz", 4, 5, 's');
         check(offer == "(no offer)", "a bare letter gets no offer", offer);
         offer = offerFor("abc tieengs xyz", 4, 9, 's');
         check(offer == "(no offer)", "the tone the word already has gets no offer", offer);
+        offer = offerFor("abc nhanh xyz", 4, 9, 'x');
+        check(offer == "(no offer)", "a word the engine restores as invalid gets no offer", offer);
         offer = offerFor("abc hello xyz", 4, 9, 's');
         check(offer == "(no offer)", "an English word gets no offer", offer);
         offer = offerFor("abc nhanh xyz", 0, 9, 's');

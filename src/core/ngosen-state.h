@@ -173,7 +173,6 @@ namespace ngosen {
             std::string marked;
             bool        applied = false; // Tab once more puts typed back
             bool        atOnce  = false; // retyped on switching on; only Esc undoes it
-            bool        retone  = false; // typed is a tone key over a selected word, still held by the engine
         };
         std::string                    typedWhileOff_;
         std::optional<Retype>          retype_;

@@ -5,6 +5,7 @@
  */
 // TypingState: offering a selected word with the tone key typed over it.
 #include "ngosen-clock.h"
+#include "ngosen-keysym.h"
 #include "ngosen-log.h"
 #include "ngosen-state.h"
 #include "ngosen-strings.h"
@@ -84,18 +85,20 @@ namespace ngosen {
         // Firefox repeats the old state before the new one.
         if (after == retoneKey_->before)
             return;
-        const RetoneKey key = std::move(*retoneKey_);
-        dropRetoneKey();
-        if (retype_)
+        // The replaced word is at least two bytes and the key one, so the text has to get shorter.
+        if (retype_ || after.text().size() >= retoneKey_->before.text().size())
             return;
-        const std::string word = replacedWord(key.before, after, key.text);
+        // An app may report the deletion and the key separately.
+        const std::string word = replacedWord(retoneKey_->before, after, retoneKey_->text);
         if (word.empty())
             return;
+        const RetoneKey key = std::move(*retoneKey_);
+        dropRetoneKey();
         const std::string toned = retoned(word, key.sym, key.states);
         if (toned.empty() || toned == word || withoutToneMark(toned) != withoutToneMark(word))
             return;
         NGOSEN_INFO("Offer retone: " + word + " -> " + toned);
-        retype_ = Retype{.typed = key.text, .marked = toned, .retone = true};
+        retype_ = Retype{.typed = key.text, .marked = toned};
         host_->showCandidates({word + " → " + toned}, 1, [this](size_t) { applyRetype(); });
         host_->setStatus(host_->translate("Tab: change the tone, Esc: keep"));
         host_->refreshPanel();
@@ -107,11 +110,17 @@ namespace ngosen {
         setOption(engine.handle());
         EngineRebuildFromText(engine.handle(), word.c_str());
         EngineProcessKeyEvent(engine.handle(), sym, states);
-        UniqueCPtr<char> commit(EnginePullCommit(engine.handle()));
-        if (commit && *commit.get() != 0)
+        UniqueCPtr<char> early(EnginePullCommit(engine.handle()));
+        if (early && *early.get() != 0)
             return {};
-        UniqueCPtr<char> preedit(EnginePullPreedit(engine.handle()));
-        return preedit ? preedit.get() : "";
+        // Ending the word applies the user's restore of invalid words, as typing it would.
+        EngineProcessKeyEvent(engine.handle(), key::space, 0);
+        UniqueCPtr<char> commit(EnginePullCommit(engine.handle()));
+        std::string      toned = commit ? commit.get() : "";
+        if (toned.empty() || toned.back() != ' ')
+            return {};
+        toned.pop_back();
+        return toned;
     }
 
 } // namespace ngosen
