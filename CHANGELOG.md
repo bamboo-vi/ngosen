@@ -116,6 +116,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   LibreOffice bug 139807: Backspace chạy như shortcut bất đồng bộ, commit ngay sau lại đến trước (Writer 26.8.1: 17/19 edit).
   LibreOffice bug 173064: Calc dùng giao diện Qt và KDE (mặc định trên KDE Plasma) không báo input method khi click
   cell khác; trang nói rõ lỗi ở giao diện Qt và KDE, không phải Wayland nói chung (#228)
+- README thêm hướng dẫn tránh mất chữ đang gõ dở khi bấm chuột ở chế độ Preedit trên GNOME Wayland trong Chrome
+  và app dựa trên Chromium chạy thẳng trên Wayland. Lỗi do fcitx5 5.1.19 trở về trước, version 5.1.20 đã sửa;
+  dùng Gõ Sen hoặc gõ xong chữ bằng phím cách rồi mới bấm chuột (#266).
 
 ### Test
 
