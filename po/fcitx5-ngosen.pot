@@ -1003,6 +1003,18 @@ msgid "Tray icon"
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
+msgid "In the tray:"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tray icons for Vietnamese and English"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Vietnamese, English"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
 msgid "Show in the tray menu"
 msgstr ""
 

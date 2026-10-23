@@ -136,6 +136,25 @@ class AppearancePageTest(unittest.TestCase):
             self.assertIn(name, texts)
         self.assertNotIn("Show Charset in the tray menu", texts)
 
+    def test_tray_preview_follows_the_icon_settings(self):
+        preview = self.page.findChild(QLabel, "TrayIconPreview")
+        self.assertIsNotNone(preview)
+        self.assertEqual(self.page._tray_icon_names()[0], ("fcitx-ngosen", "fcitx-ngosen-off"))
+        self.assertFalse(preview.pixmap().isNull())
+        drawn = preview.pixmap().cacheKey()
+        self.page.update_config("UseLotusIcons", "False")
+        self.assertNotEqual(preview.pixmap().cacheKey(), drawn)
+        self.page.update_config("IconTheme", "Light")
+        self.assertEqual(
+            self.page._tray_icon_names(),
+            (("fcitx-ngosen-default-black", "fcitx-ngosen-off-default-black"), False),
+        )
+        self.page.update_config("IconTheme", "Dark")
+        self.assertEqual(
+            self.page._tray_icon_names(),
+            (("fcitx-ngosen-default", "fcitx-ngosen-off-default"), True),
+        )
+
     def test_unticking_hides_the_entry(self):
         self.menu_checkbox("Charset").click()
         self.assertEqual(self.page.modified_values["ShowMenuCharset"], "False")

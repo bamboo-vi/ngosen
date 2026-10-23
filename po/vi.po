@@ -1068,6 +1068,18 @@ msgid "Tray icon"
 msgstr "Biểu tượng khay"
 
 #: settings-gui/ui/pages/dynamic_settings.py
+msgid "In the tray:"
+msgstr "Trên khay:"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tray icons for Vietnamese and English"
+msgstr "Biểu tượng khay khi gõ tiếng Việt và tiếng Anh"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Vietnamese, English"
+msgstr "Tiếng Việt, tiếng Anh"
+
+#: settings-gui/ui/pages/dynamic_settings.py
 msgid "Show in the tray menu"
 msgstr "Hiện trong menu khay"
 
