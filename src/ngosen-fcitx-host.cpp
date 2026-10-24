@@ -75,12 +75,15 @@ namespace ngosen {
         constexpr int BackSpaceKeycode = 22;
         // XKB keycode of left Shift: evdev KEY_LEFTSHIFT (42) + 8.
         constexpr int ShiftKeycode = 50;
+        // XKB keycode of Return: evdev KEY_ENTER (28) + 8.
+        constexpr int ReturnKeycode = 36;
 
         fcitx::Key    toFcitxKey(EditKey key) {
             switch (key) {
                 case EditKey::BackSpace: return fcitx::Key(FcitxKey_BackSpace, fcitx::KeyStates(), BackSpaceKeycode);
                 case EditKey::Right: return fcitx::Key(FcitxKey_Right);
                 case EditKey::Shift: return fcitx::Key(FcitxKey_Shift_L, fcitx::KeyStates(), ShiftKeycode);
+                case EditKey::Return: return fcitx::Key(FcitxKey_Return, fcitx::KeyStates(), ReturnKeycode);
             }
             return fcitx::Key();
         }
@@ -309,6 +312,10 @@ namespace ngosen {
 
     void FcitxKeyPress::accept() {
         event_.filterAndAccept();
+    }
+
+    bool FcitxKeyPress::accepted() const {
+        return event_.filtered();
     }
 
 } // namespace ngosen

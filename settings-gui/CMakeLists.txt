@@ -18,7 +18,7 @@ install(DIRECTORY core ui
 install(FILES fonts/XanhMono-Regular.ttf
         DESTINATION "${SETTINGS_GUI_INSTALL_DIR}/fonts")
 
-install(FILES i18n.py "${CMAKE_CURRENT_BINARY_DIR}/version.py"
+install(FILES i18n.py qt_api.py "${CMAKE_CURRENT_BINARY_DIR}/version.py"
         DESTINATION "${SETTINGS_GUI_INSTALL_DIR}")
 
 install(FILES main.py save_log.py

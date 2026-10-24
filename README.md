@@ -189,7 +189,8 @@ sed -i 's|^Exec=/snap/bin/code|Exec=env GTK_IM_MODULE=xim XMODIFIERS=@im=fcitx /
 Tắt hẳn VS Code rồi mở lại từ menu. Qua XIM, khoảng một câu trong mười có một chữ sai dấu.
 Muốn bỏ cách này thì xoá file `~/.local/share/applications/code_code.desktop`.
 
-Gặp lỗi khác thì báo ở [Issues](https://github.com/ngosen/ngosen/issues).
+Gặp lỗi khác thì báo ở [Issues](https://github.com/ngosen/ngosen/issues). Tin version mới và bài blog có trên
+[Facebook](https://www.facebook.com/profile.php?id=61595753582618); hỏi đáp và báo lỗi vẫn ở GitHub.
 
 ## Gỡ
 

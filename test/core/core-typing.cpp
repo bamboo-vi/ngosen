@@ -95,6 +95,68 @@ namespace {
         check(join(host->commits()) == "['việt ']", "preedit: space commits the word with the space", join(host->commits()));
     }
 
+    // Types `before` and Enter in Preedit, then nextKey if set, or loses focus; counts the keys forwarded
+    // right after Enter, right after nextKey and after the timers ran, and lists them as text.
+    struct EnterResult {
+        bool        enterAccepted = false, releaseAccepted = false;
+        size_t      atEnter = 0, atNextKey = 0, atEnd = 0;
+        std::string commits, forwarded;
+    };
+
+    EnterResult typeEnterInPreedit(const Field& field, const char* before, uint32_t nextKey = 0, uint32_t enterSym = ngosen::key::Return, bool focusOut = false) {
+        realMode = ngosen::Mode::Preedit;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, field);
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        for (const char* c = before; *c != 0; ++c)
+            press(state, static_cast<uint32_t>(*c));
+        EnterResult r;
+        FakeKey     down(enterSym);
+        state.keyEvent(down);
+        FakeKey up(enterSym, true);
+        state.keyEvent(up);
+        r.enterAccepted   = down.accepted();
+        r.releaseAccepted = up.accepted();
+        r.atEnter         = host->forwarded().size();
+        if (nextKey != 0)
+            press(state, nextKey);
+        if (focusOut)
+            state.reset(true);
+        r.atNextKey = host->forwarded().size();
+        loop.pump(100);
+        r.atEnd   = host->forwarded().size();
+        r.commits = join(host->commits());
+        for (const auto& key : host->forwarded())
+            r.forwarded += std::string(key.key == ngosen::EditKey::Return ? "Return" : "other") + (key.release ? " up;" : " down;");
+        return r;
+    }
+
+    void testPreeditEnterAfterCommit() {
+        const EnterResult held = typeEnterInPreedit(makeField("wayland", true), "tieen");
+        check(held.commits == "['tiên']", "preedit Enter: commits the word", held.commits);
+        check(held.enterAccepted && held.atEnter == 0, "preedit Enter: holds the Enter that commits the word", std::to_string(held.atEnter));
+        check(held.forwarded == "Return down;Return up;", "preedit Enter: sends the held Enter after a moment", held.forwarded);
+        check(held.releaseAccepted, "preedit Enter: keeps the release of the held Enter from the app", held.forwarded);
+
+        const EnterResult keypad = typeEnterInPreedit(makeField("wayland", true), "tieen", 0, ngosen::key::KP_Enter);
+        check(keypad.enterAccepted && keypad.forwarded == "Return down;Return up;", "preedit Enter: holds keypad Enter too", keypad.forwarded);
+
+        const EnterResult away = typeEnterInPreedit(makeField("wayland", true), "tieen", 0, ngosen::key::Return, true);
+        check(away.atEnd == 0, "preedit Enter: drops the held Enter on focus out", away.forwarded);
+
+        const EnterResult fast = typeEnterInPreedit(makeField("wayland", true), "tieen", 'a');
+        check(fast.atNextKey == 2 && fast.atEnd == 2, "preedit Enter: a key typed at once sends the held Enter first, once", fast.forwarded);
+
+        const EnterResult empty = typeEnterInPreedit(makeField("wayland", true), "");
+        check(!empty.enterAccepted && empty.atEnd == 0, "preedit Enter: with nothing to commit Enter goes on to the app", empty.forwarded);
+
+        Field             gtk4           = makeField("dbus", true);
+        const EnterResult dropsForwarded = typeEnterInPreedit(gtk4, "tieen");
+        check(!dropsForwarded.enterAccepted && dropsForwarded.atEnd == 0, "preedit Enter: goes on at once where forwarded keys are dropped", dropsForwarded.forwarded);
+    }
+
     // GTK apps reset the input context when Enter inserts a new line; resetAfter says after which key.
     std::string typeWithAutoCapitalize(const std::vector<uint32_t>& keys, size_t resetAfter = SIZE_MAX, bool focusOut = false) {
         realMode = ngosen::Mode::Preedit;
@@ -265,6 +327,22 @@ namespace {
         check(text == "đơn", "emptied field: commit after focus comes back", text);
     }
 
+    // Firefox over D-Bus applies a key it sent before our commit reached it ahead of that commit.
+    void testKeyTypedBeforeCommitArrived() {
+        ngosen::test::AppQuirks quirks;
+        quirks.commitLagMs               = 5;
+        const std::vector<uint32_t> keys = {'t', 'i', 'e', 'e', 'n', 'g', 's', ' ', 'v', 'i'};
+        std::vector<int>            gaps(keys.size(), 30);
+        gaps[6]                = 2;
+        Field gtk3             = makeField("dbus", true);
+        gtk3.keyEventOrderFix  = true;
+        const std::string text = ngosen::test::typeInApp(gtk3, quirks, keys, gaps);
+        check(text == "tiếng vi", "dbus: a key typed before the commit arrived lands after it", text);
+        const std::vector<uint32_t> back = {'t', 'i', 'e', 'e', 'n', 'g', 's', ngosen::key::BackSpace};
+        const std::string           cut  = ngosen::test::typeInApp(gtk3, quirks, back, std::vector<int>{30, 30, 30, 30, 30, 30, 2, 30});
+        check(cut.find('\b') == std::string::npos, "dbus: a backspace typed before the commit arrived is not committed", cut);
+    }
+
     void testMacroKeepsSpace() {
         FakeResources resources;
         resources.setMacros({{"e", "em"}, {"ko", "không"}});
@@ -422,6 +500,46 @@ namespace {
         viqr.mutableOptions().outputCharset = "VIQR";
         const std::string marked            = type(viqr, "banf <s ");
         check(marked == "ba`ns ", "backspace into a VIQR word", marked);
+    }
+
+    // Firefox contenteditable keeps a trailing space as U+00A0 in the text it reports.
+    void testBackspaceIntoWordBeforeNbsp() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("dbus", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        for (const char c : std::string("ban"))
+            press(state, static_cast<uint32_t>(c));
+        press(state, static_cast<uint32_t>(' '));
+        host->setSurrounding("ban\u00a0", 4);
+        state.surroundingUpdated();
+        press(state, ngosen::key::BackSpace);
+        host->setSurrounding("ban", 3);
+        state.surroundingUpdated();
+        check(press(state, static_cast<uint32_t>('f')), "backspace into word before nbsp: f marks the word", "f went to the app");
+    }
+
+    // xterm.js keeps only the last key typed in its hidden textarea, so the field never shows the word.
+    void testBackspaceIntoWordFieldDropped() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("dbus", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        for (const char c : std::string("ban ")) {
+            press(state, static_cast<uint32_t>(c));
+            host->setSurrounding(std::string(1, c), 1);
+            state.surroundingUpdated();
+        }
+        press(state, ngosen::key::BackSpace);
+        host->setSurrounding("", 0);
+        state.surroundingUpdated();
+        check(press(state, static_cast<uint32_t>('f')), "backspace into word the field dropped: f marks the word", "f went to the app");
     }
 
     // After a click elsewhere the text before the cursor is not our word, so it is not reopened.
@@ -1006,6 +1124,7 @@ namespace {
 int main() {
     testQuirks();
     testPreeditTelex();
+    testPreeditEnterAfterCommit();
     testAutoCapitalize();
     testCapitalizeStartOfText();
     testSenForwards("wayland", true);
@@ -1015,6 +1134,7 @@ int main() {
     testKeyDuringReplacement();
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
+    testKeyTypedBeforeCommitArrived();
     testCommitAfterEditorRedraw();
     testQuickSwitchesNoRedrawWait();
     testMacroKeepsSpace();
@@ -1034,6 +1154,8 @@ int main() {
         setXTestSenderForTest({});
     }
     testBackspaceIntoCommittedText();
+    testBackspaceIntoWordBeforeNbsp();
+    testBackspaceIntoWordFieldDropped();
     testBackspaceAfterMovingAway();
     testBackspaceAfterCtrlBackspace();
     testResentBackspace();

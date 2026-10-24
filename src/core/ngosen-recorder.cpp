@@ -24,6 +24,7 @@ namespace ngosen {
                 case EditKey::BackSpace: return "BackSpace";
                 case EditKey::Right: return "Right";
                 case EditKey::Shift: return "Shift";
+                case EditKey::Return: return "Return";
             }
             return "?";
         }

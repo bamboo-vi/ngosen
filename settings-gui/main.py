@@ -9,6 +9,7 @@ Application entry point.
 import signal
 import sys
 
+import qt_api  # noqa: F401
 from i18n import setup_i18n
 from qtpy.QtWidgets import QApplication
 from ui import brand, color_scheme, scroll_bars

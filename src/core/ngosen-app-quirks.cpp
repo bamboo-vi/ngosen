@@ -53,6 +53,11 @@ namespace ngosen {
         return field.frontend == "dbus" && !field.keyEventOrderFix && field.surroundingText;
     }
 
+    bool appliesEarlyKeysFirst(const Field& field) {
+        // Firefox over D-Bus does this; other D-Bus clients keep the order, so a commit costs them nothing.
+        return field.frontend == "dbus" && field.surroundingText;
+    }
+
     bool erasesWithCommittedDel(const Field& field) {
         if (field.surroundingText)
             return false;

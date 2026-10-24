@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.5.6
+Version:        1.5.7
 Release:        1
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -96,6 +96,15 @@ else
 fi
 
 %changelog
+* Sat Oct 24 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.7-1
+- Settings window on KDE Plasma Wayland: it opens again when PyQt5 is also installed, by preferring Qt 6 (#278).
+- Settings changed while the window was open across an fcitx5 restart are saved again (#279).
+- The .deb packages depend on PyQt6 itself instead of the whole PyQt6 set, about 22 MB instead of 456 MB on a clean Ubuntu 26.04 (#280).
+- Sen mode in Firefox rich text editors: after deleting a space, a tone key reopens the last word, so toan, space, Backspace, s gives toán (#285).
+- Preedit mode on gemini.google.com: one Enter sends the message (#286).
+- Sen mode on Firefox X11: keys typed quickly after a toned word stay in order (#289).
+- Sen mode in xterm.js terminals on Firefox X11: the last word is reopened after Backspace (#292).
+
 * Fri Oct 23 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.6-1
 - Sen mode on X11: Google Sheets in Chromium-based browsers no longer jumps or loses letters (#258, #261).
 - Sen mode in GLFW apps under XWayland, such as Minecraft Java: after one Backspace, adding a tone no longer deletes the earlier text (#247).

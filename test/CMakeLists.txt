@@ -253,6 +253,10 @@ set_tests_properties(addon_conf PROPERTIES LABELS "unit;config" TIMEOUT 20)
 add_test(NAME copr_makefile COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/copr-makefile.sh ${PROJECT_SOURCE_DIR})
 set_tests_properties(copr_makefile PROPERTIES LABELS "unit;packaging" TIMEOUT 20 SKIP_RETURN_CODE 77)
 
+add_test(NAME settings_gui_install
+         COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/settings-gui-install.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
+set_tests_properties(settings_gui_install PROPERTIES LABELS "unit;packaging" TIMEOUT 120)
+
 # The typing core's own tests.
 add_test(NAME bamboo_rs_cargo_test
     COMMAND ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${NGOSEN_CARGO_TARGET_DIR}

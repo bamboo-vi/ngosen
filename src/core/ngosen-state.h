@@ -189,7 +189,7 @@ namespace ngosen {
         void        dropRetype();
         void        hideOffer();
         bool        reportsTextInTime() const;
-        bool        typedBeforeCursor(const std::string& typed) const;
+        bool        typedBeforeCursor(const std::string& typed, bool mayDropStart = false) const;
         bool        handleRetypeKey(ngosen::KeyPress& keyEvent);
 
         // A key that started a word, until a report shows whether it replaced a selected word.
@@ -288,6 +288,8 @@ namespace ngosen {
         unsigned int unreportedCommitLength_ = 0;
         bool         committing_             = false;
         uint64_t     lastInputAtUs_          = 0; ///< last key or commit, CLOCK_MONOTONIC us
+        // Text we committed in Gõ Sen mode that the app has not shown before the cursor yet.
+        std::string commitNotSeen_;
 
         // Last key press seen, to spot one the app sends twice.
         uint32_t lastPressCode_      = 0;
@@ -341,6 +343,15 @@ namespace ngosen {
          * @param currentSym Current key symbol.
          */
         void handlePreeditMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
+
+        // Web chats (Gemini) take an Enter in the same frame as the end of a composition as part of it,
+        // so an Enter that commits the preedit reaches the app a moment later.
+        static constexpr uint64_t      EnterAfterCommitUs = 50000;
+        void                           holdEnterAfterCommit(ngosen::KeyPress& keyEvent);
+        void                           sendHeldEnter();
+        std::unique_ptr<ngosen::Timer> held_enter_timer_;
+        bool                           held_enter_pending_ = false;
+        bool                           held_enter_release_ = false;
 
         /**
          * @brief Updates emoji page status in candidate list.
@@ -431,6 +442,10 @@ namespace ngosen {
          * @param sleepTime Delay in microseconds.
          */
         void handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
+        // The app sent this key before our last commit reached it.
+        bool typedBeforeCommitArrived(const ngosen::KeyPress& keyEvent, uint32_t currentSym);
+        // The key types text and is not part of a shortcut.
+        bool typesText(const ngosen::KeyPress& keyEvent, uint32_t currentSym) const;
         // Backspace on a word with a tone mark: take off only the mark. False leaves the key as is.
         bool removeToneMark(ngosen::KeyPress& keyEvent);
         // Backspace from after lastWord_ into it: the engine takes up what is left of that word.
