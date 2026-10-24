@@ -1,3 +1,19 @@
+fcitx5-ngosen (1:1.5.7-1) unstable; urgency=medium
+
+  * Settings window on KDE Plasma Wayland: it opens again when PyQt5 is also installed, by
+    preferring Qt 6 (#278).
+  * Settings changed while the window was open across an fcitx5 restart are saved again (#279).
+  * The .deb packages depend on PyQt6 itself instead of the whole PyQt6 set, about 22 MB instead of
+    456 MB on a clean Ubuntu 26.04 (#280).
+  * Sen mode in Firefox rich text editors: after deleting a space, a tone key reopens the last
+    word, so toan, space, Backspace, s gives toán (#285).
+  * Preedit mode on gemini.google.com: one Enter sends the message (#286).
+  * Sen mode on Firefox X11: keys typed quickly after a toned word stay in order (#289).
+  * Sen mode in xterm.js terminals on Firefox X11: the last word is reopened after Backspace
+    (#292).
+
+ -- Nguyen Phi <nguyenphidt@gmail.com>  Sat, 24 Oct 2026 22:00:00 +0700
+
 fcitx5-ngosen (1:1.5.6-1) unstable; urgency=medium
 
   * Sen mode on X11: Google Sheets in Chromium-based browsers no longer jumps or loses letters
