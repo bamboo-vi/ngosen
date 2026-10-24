@@ -109,7 +109,8 @@ namespace ngosen {
         return host_->field().surroundingText && !ngosen::surroundingTextLags(host_->field());
     }
 
-    bool TypingState::typedBeforeCursor(const std::string& typed) const {
+    // mayDropStart also accepts a field that holds only the end of typed.
+    bool TypingState::typedBeforeCursor(const std::string& typed, bool mayDropStart) const {
         const Surrounding s = host_->surrounding();
         // Some apps (kitty, Konsole) declare surrounding text but always send it empty.
         if (!reportsTextInTime() || !s.isValid() || s.text().empty())
@@ -123,7 +124,7 @@ namespace ngosen {
         for (size_t pos = 0; (pos = before.find("\u00a0", pos)) != std::string::npos;)
             before.replace(pos, 2, " ");
         // xterm.js keeps only the last key in its hidden textarea: a field holding just the end of what we typed.
-        if (before.size() < typed.size() && it == t.end())
+        if (mayDropStart && before.size() < typed.size() && it == t.end())
             return typed.compare(typed.size() - before.size(), before.size(), before) == 0;
         return before.size() >= typed.size() && before.compare(before.size() - typed.size(), typed.size(), typed) == 0;
     }
@@ -137,7 +138,7 @@ namespace ngosen {
         // Without either, Tab could not remove what was typed.
         if (!canSendBackspaces() && !host_->field().surroundingText)
             return;
-        if (!typedBeforeCursor(typed))
+        if (!typedBeforeCursor(typed, true))
             return;
         std::string marked = addMarks(typed);
         if (marked == typed)

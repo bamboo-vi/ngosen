@@ -28,6 +28,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Gõ Sen trên Firefox X11: khi gõ nhanh, dấu cách hoặc chữ ngay sau từ vừa thêm dấu có thể chen vào giữa từ,
   như "tiếng việt" thành "ti ếngvi ệt", trong cả ô văn bản thường và TinyMCE, Lexical. Giờ các phím giữ đúng
   thứ tự đã gõ (#289).
+- Gõ Sen trong terminal trên web dùng xterm.js (VS Code for the web, Jupyter, web SSH): gõ "toan", dấu
+  cách, BackSpace xoá dấu cách rồi gõ "s" thì ra "toans" thay vì "toán" trên Firefox X11. Giờ gõ đúng thành
+  "toán". Đã test trên Firefox X11 (Linux Mint); Chromium X11 đã gõ đúng từ trước (#292).
 
 ### Tài liệu
 
