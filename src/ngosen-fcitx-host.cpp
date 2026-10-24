@@ -314,4 +314,8 @@ namespace ngosen {
         event_.filterAndAccept();
     }
 
+    bool FcitxKeyPress::accepted() const {
+        return event_.filtered();
+    }
+
 } // namespace ngosen

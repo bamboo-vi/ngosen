@@ -191,6 +191,12 @@ namespace ngosen {
         return false;
     }
 
+    bool TypingState::typedBeforeCommitArrived(const ngosen::KeyPress& keyEvent, uint32_t currentSym) const {
+        if (unreportedCommitLength_ == 0 || keyEvent.isRelease() || host_->field().frontend != "dbus" || !reportsTextInTime())
+            return false;
+        return !host_->keyText(currentSym).empty() && (keyEvent.states() & (ngosen::modifier::Ctrl | ngosen::modifier::Alt)) == 0U;
+    }
+
     void TypingState::handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym) {
         if (checkForwardSpecialKey(keyEvent, currentSym)) {
             keyEvent.passToApp();
@@ -430,10 +436,16 @@ namespace ngosen {
 
         switch (realMode) {
             case ngosen::Mode::Sen: {
-                live_key_ = KeyEntry{.sym = currentSym, .state = keyEvent.states()};
+                const bool beforeCommit = typedBeforeCommitArrived(keyEvent, currentSym);
+                live_key_               = KeyEntry{.sym = currentSym, .state = keyEvent.states()};
                 passed_key_.reset();
                 handleSenMode(keyEvent, currentSym);
                 live_key_.reset();
+                // Firefox applies a key it let through ahead of a commit it already has; a commit keeps the order.
+                if (beforeCommit && !keyEvent.accepted()) {
+                    keyEvent.accept();
+                    commit(host_->keyText(currentSym));
+                }
                 break;
             }
             case ngosen::Mode::Preedit: {

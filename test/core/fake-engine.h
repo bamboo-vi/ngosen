@@ -91,7 +91,7 @@ namespace ngosen::test {
             accepted_ = true;
         }
 
-        bool accepted() const {
+        bool accepted() const override {
             return accepted_;
         }
         // The key the app gets when the typing logic lets it through.

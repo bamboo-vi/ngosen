@@ -132,7 +132,7 @@ namespace ngosen::test {
         }
         if ((quirks_.dropsCommitsInReport && inReport_) || !focused_ || redraws_ > 0)
             return;
-        later(quirks_.lagMs, [this, text] { insert(utf8::decode(text)); });
+        later(quirks_.lagMs + quirks_.commitLagMs, [this, text] { insert(utf8::decode(text)); });
     }
 
     void FakeApp::forwardKey(EditKey key, bool release, uint32_t time) {
