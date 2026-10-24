@@ -31,8 +31,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   khác, nên Enter không xoá nhầm chữ ở chỗ mới (#269).
 - Cứu dấu: bôi đen chữ đã gõ xong rồi gõ phím dấu là chữ đổi dấu ngay (`nhanh` + `s` → `nhánh`).
   Gõ tiếp chữ cái thì Ngó Sen hiểu là đang gõ chữ mới đè lên, nên trả lại phím vừa gõ (`nhanh` + `sách`
-  vẫn ra `sách`), gõ phím dấu khác thì đổi dấu tiếp (`nhánh` + `f` → `nhành`); Esc trả lại phím đã gõ. Thêm, đổi, bỏ dấu thanh ở app hỗ trợ surrounding text;
-  bật sẵn trong Gõ chữ → Gõ nhanh (#272, #290).
+  vẫn ra `sách`), gõ phím dấu khác thì đổi dấu tiếp (`nhánh` + `f` → `nhành`); Esc trả lại phím đã gõ.
+  Thêm, đổi, bỏ dấu thanh ở app hỗ trợ surrounding text; bật sẵn trong Gõ chữ → Gõ nhanh (#272, #290).
 - Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
   không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
 - Khi icon hoặc menu tray bị mất hay treo, chạy `ngosen-save-log` trong terminal để lưu nhật ký gõ của Ngó Sen.
