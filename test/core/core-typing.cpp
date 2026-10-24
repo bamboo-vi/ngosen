@@ -95,6 +95,54 @@ namespace {
         check(join(host->commits()) == "['việt ']", "preedit: space commits the word with the space", join(host->commits()));
     }
 
+    // Types "tieen" and Enter in Preedit, then nextKey if set; returns how many keys were forwarded right
+    // after Enter, right after nextKey and after the timers ran, and the forwarded keys as text.
+    struct EnterResult {
+        bool        enterAccepted = false;
+        size_t      atEnter = 0, atNextKey = 0, atEnd = 0;
+        std::string commits, forwarded;
+    };
+
+    EnterResult typeEnterInPreedit(const Field& field, const char* before, uint32_t nextKey = 0) {
+        realMode = ngosen::Mode::Preedit;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, field);
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        for (const char* c = before; *c != 0; ++c)
+            press(state, static_cast<uint32_t>(*c));
+        EnterResult r;
+        r.enterAccepted = press(state, ngosen::key::Return);
+        r.atEnter       = host->forwarded().size();
+        if (nextKey != 0)
+            press(state, nextKey);
+        r.atNextKey = host->forwarded().size();
+        loop.pump(100);
+        r.atEnd   = host->forwarded().size();
+        r.commits = join(host->commits());
+        for (const auto& key : host->forwarded())
+            r.forwarded += std::string(key.key == ngosen::EditKey::Return ? "Return" : "other") + (key.release ? " up;" : " down;");
+        return r;
+    }
+
+    void testPreeditEnterAfterCommit() {
+        const EnterResult held = typeEnterInPreedit(makeField("wayland", true), "tieen");
+        check(held.commits == "['tiên']", "preedit Enter: commits the word", held.commits);
+        check(held.enterAccepted && held.atEnter == 0, "preedit Enter: holds the Enter that commits the word", std::to_string(held.atEnter));
+        check(held.forwarded == "Return down;Return up;", "preedit Enter: sends the held Enter after a moment", held.forwarded);
+
+        const EnterResult fast = typeEnterInPreedit(makeField("wayland", true), "tieen", 'a');
+        check(fast.atNextKey == 2 && fast.atEnd == 2, "preedit Enter: a key typed at once sends the held Enter first, once", fast.forwarded);
+
+        const EnterResult empty = typeEnterInPreedit(makeField("wayland", true), "");
+        check(!empty.enterAccepted && empty.atEnd == 0, "preedit Enter: with nothing to commit Enter goes on to the app", empty.forwarded);
+
+        Field             gtk4           = makeField("dbus", true);
+        const EnterResult dropsForwarded = typeEnterInPreedit(gtk4, "tieen");
+        check(!dropsForwarded.enterAccepted && dropsForwarded.atEnd == 0, "preedit Enter: goes on at once where forwarded keys are dropped", dropsForwarded.forwarded);
+    }
+
     // GTK apps reset the input context when Enter inserts a new line; resetAfter says after which key.
     std::string typeWithAutoCapitalize(const std::vector<uint32_t>& keys, size_t resetAfter = SIZE_MAX, bool focusOut = false) {
         realMode = ngosen::Mode::Preedit;
@@ -804,6 +852,7 @@ namespace {
 int main() {
     testQuirks();
     testPreeditTelex();
+    testPreeditEnterAfterCommit();
     testAutoCapitalize();
     testSenForwards("wayland", true);
     testSenForwards("wayland_v2", true);
