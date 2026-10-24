@@ -21,7 +21,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   Ngó Sen và cửa sổ cài đặt vẫn hoạt động như cũ. Các package đã cài vẫn giữ lại; dùng `sudo apt autoremove`
   để gỡ nếu không còn package nào khác cần chúng (#280).
 - Trong ô soạn thảo có định dạng của Firefox (ví dụ ô viết bài trên voz) ở chế độ Gõ Sen, gõ "toan", dấu
-  cách, xoá dấu cách rồi gõ "s" thì ra "toans" thay vì "toán". Giờ gõ đúng thành "toán" (#PR).
+  cách, xoá dấu cách rồi gõ "s" thì ra "toans" thay vì "toán". Giờ gõ đúng thành "toán" (#285).
 
 ### Tài liệu
 
