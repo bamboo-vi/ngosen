@@ -191,10 +191,16 @@ namespace ngosen {
         return false;
     }
 
-    bool TypingState::typedBeforeCommitArrived(const ngosen::KeyPress& keyEvent, uint32_t currentSym) const {
-        if (unreportedCommitLength_ == 0 || keyEvent.isRelease() || host_->field().frontend != "dbus" || !reportsTextInTime())
+    bool TypingState::typedBeforeCommitArrived(const ngosen::KeyPress& keyEvent, uint32_t currentSym) {
+        if (keyEvent.isRelease() || commitNotSeen_.empty())
             return false;
-        return !host_->keyText(currentSym).empty() && (keyEvent.states() & (ngosen::modifier::Ctrl | ngosen::modifier::Alt)) == 0U;
+        const bool typesText = !host_->keyText(currentSym).empty() && (keyEvent.states() & (ngosen::modifier::Ctrl | ngosen::modifier::Alt)) == 0U;
+        // A report of our deletion can come after the commit, so only the committed text itself shows it arrived.
+        if (host_->field().frontend != "dbus" || !typesText || typedBeforeCursor(commitNotSeen_)) {
+            commitNotSeen_.clear();
+            return false;
+        }
+        return true;
     }
 
     void TypingState::handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym) {

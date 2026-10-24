@@ -449,6 +449,9 @@ namespace ngosen {
 
     void TypingState::commit(const std::string& text) {
         noteCommit(text);
+        // A field that rewrites what we commit never shows it; stop looking after a few words.
+        if (realMode == ngosen::Mode::Sen)
+            commitNotSeen_ = commitNotSeen_.size() + text.size() > 64 ? std::string() : commitNotSeen_ + text;
         committing_ = true;
         host_->commitText(text);
         committing_ = false;

@@ -258,6 +258,8 @@ namespace ngosen {
         unsigned int unreportedCommitLength_ = 0;
         bool         committing_             = false;
         uint64_t     lastInputAtUs_          = 0; ///< last key or commit, CLOCK_MONOTONIC us
+        // Text we committed in Gõ Sen mode that the app has not shown before the cursor yet.
+        std::string commitNotSeen_;
 
         // Last key press seen, to spot one the app sends twice.
         uint32_t lastPressCode_      = 0;
@@ -407,7 +409,7 @@ namespace ngosen {
          */
         void handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         // The app sent this key before our last commit reached it.
-        bool typedBeforeCommitArrived(const ngosen::KeyPress& keyEvent, uint32_t currentSym) const;
+        bool typedBeforeCommitArrived(const ngosen::KeyPress& keyEvent, uint32_t currentSym);
         // Backspace on a word with a tone mark: take off only the mark. False leaves the key as is.
         bool removeToneMark(ngosen::KeyPress& keyEvent);
         // Backspace from after lastWord_ into it: the engine takes up what is left of that word.
