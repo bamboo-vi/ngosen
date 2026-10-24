@@ -179,7 +179,7 @@ namespace ngosen {
         void        dropRetype();
         void        hideOffer();
         bool        reportsTextInTime() const;
-        bool        typedBeforeCursor(const std::string& typed) const;
+        bool        typedBeforeCursor(const std::string& typed, bool mayDropStart = false) const;
         bool        handleRetypeKey(ngosen::KeyPress& keyEvent);
 
         // XIM, IBus and D-Bus clients queue forwarded keys, and XIM may hand one back; without a

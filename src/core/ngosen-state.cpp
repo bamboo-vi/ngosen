@@ -296,7 +296,7 @@ namespace ngosen {
 
     void TypingState::reopenLastWord() {
         // The user may have clicked elsewhere; only an app that reports its text can tell us.
-        if (!typedBeforeCursor(lastWord_) || !ngosen::utf8::validate(lastWord_)) {
+        if (!typedBeforeCursor(lastWord_, true) || !ngosen::utf8::validate(lastWord_)) {
             lastWord_.clear();
             return;
         }
