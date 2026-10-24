@@ -240,6 +240,22 @@ namespace {
         check(text == "đơn", "emptied field: commit after focus comes back", text);
     }
 
+    // Firefox over D-Bus applies a key it sent before our commit reached it ahead of that commit.
+    void testKeyTypedBeforeCommitArrived() {
+        ngosen::test::AppQuirks quirks;
+        quirks.commitLagMs               = 5;
+        const std::vector<uint32_t> keys = {'t', 'i', 'e', 'e', 'n', 'g', 's', ' ', 'v', 'i'};
+        std::vector<int>            gaps(keys.size(), 30);
+        gaps[6]                = 2;
+        Field gtk3             = makeField("dbus", true);
+        gtk3.keyEventOrderFix  = true;
+        const std::string text = ngosen::test::typeInApp(gtk3, quirks, keys, gaps);
+        check(text == "tiếng vi", "dbus: a key typed before the commit arrived lands after it", text);
+        const std::vector<uint32_t> back = {'t', 'i', 'e', 'e', 'n', 'g', 's', ngosen::key::BackSpace};
+        const std::string           cut  = ngosen::test::typeInApp(gtk3, quirks, back, std::vector<int>{30, 30, 30, 30, 30, 30, 2, 30});
+        check(cut.find('\b') == std::string::npos, "dbus: a backspace typed before the commit arrived is not committed", cut);
+    }
+
     void testMacroKeepsSpace() {
         FakeResources resources;
         resources.setMacros({{"e", "em"}, {"ko", "không"}});
@@ -895,6 +911,7 @@ int main() {
     testKeyDuringReplacement();
     testCommitAfterTheReport();
     testCommitAfterFieldRefocus();
+    testKeyTypedBeforeCommitArrived();
     testCommitAfterEditorRedraw();
     testQuickSwitchesNoRedrawWait();
     testMacroKeepsSpace();
