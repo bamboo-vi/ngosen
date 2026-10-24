@@ -4,6 +4,97 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-10-23
+
+### Build
+
+- Broadened the `phf` compatibility range to `>=0.11, <0.14`. bamboo-core uses APIs available
+  throughout that range, allowing Debian unstable's `phf 0.11.3` without downstream patches.
+
+### Documentation
+
+- Added a crate-level rustdoc migration guide for 0.4.x callers. It lists every deprecated API,
+  its 0.5 replacement, and the 1.0.0 removal horizon. The API selection guide now recommends the
+  typed `encode_charset` and `decode_charset` APIs over `advanced::encode` for new code.
+
+## [0.5.1] - 2026-10-23
+
+### Added
+
+- Added `decode_charset`, the typed inverse of `encode_charset`, and re-exported it from the
+  crate root and `advanced` module. It decodes all supported legacy charset tables using
+  longest-match parsing, preserves text with no encodings as borrowed `Cow`, and leaves
+  irreducibly ambiguous codes unchanged.
+- Added legacy-character-set coverage and Criterion workloads for VIQR and VNI decoding,
+  including known external VISCII control-code capitals and VIQR backslash escapes.
+
+### Fixed
+
+- Corrected Windows-1258 output for `Ứ` and `Đ`.
+- VIQR encoding now escapes a backslash and punctuation that would otherwise join the previous
+  encoded letter. `encode_charset(Charset::Viqr, "mưa.")` now produces `mu+a\\.` and decodes
+  back to the original text.
+
+### Performance
+
+- Lowercase DFA hits now copy their cached UTF-8 output directly instead of decoding it and
+  walking the transformation buffer to reproduce identical text.
+- ASCII DFA transition rank uses two native `u64` words instead of variable `u128` shifts.
+- The two-word transition rank selects its lower-word contribution with a 0/1 mask, removing
+  a data-dependent lane-selection branch. Against a same-session branchy build, five warmed
+  typing streams showed 1.8% and 3.2% improvements on two traces, no significant change on
+  two, and a 1.9% regression on one; the aggregate effect is small and mixed.
+- Engine-owned DFA output skips repeated UTF-8 validation; the public advanced DFA reader
+  remains checked because callers can mutate its public arenas.
+- Steady-state allocation tests now require exactly zero allocations for warmed DFA input,
+  English passthrough, edit deltas, output polling, and undo.
+- Criterion workloads now reset to an identical state per iteration and exclude engine
+  construction from the cold rule/JIT measurement. On the Ryzen 7 H 255 validation host,
+  corrected benchmarks measured 18–27% faster DFA streams, 12% faster edit deltas,
+  23–24% faster undo, and about 9% faster mixed sentences; cold JIT, English passthrough,
+  uppercase input, and output polling showed no statistically significant regression.
+- Decode checks whether the first character can begin an encoded sequence once per input
+  position instead of repeating the lookup for every candidate length. On the release
+  validation host, ASCII passthrough improved from 226 ns to 105 ns, VIQR decoding from
+  1.50 µs to 0.92 µs, and VNI decoding from 1.75 µs to 0.87 µs.
+- VIQR encoding skips charset-table lookups for ASCII input. The escaped-VIQR workload improved
+  from 1.58 µs to 0.80 µs while preserving the same output.
+
+## [0.5.0] - 2026-10-21
+
+### Migration
+
+- Replaced ambiguous behavioral booleans with named methods and enums. Existing callers
+  continue to compile, but should migrate before 1.0.0:
+  - `remove_last_char(true)` → `undo_last_key()` or
+    `undo_last_key_with(ToneRefresh::Recompute)`.
+  - `remove_last_char(false)` →
+    `undo_last_key_with(ToneRefresh::PreserveSnapshot)`.
+  - `restore_last_word(true/false)` →
+    `restore_last_word_as(LastWordForm::Vietnamese/RawKeystrokes)`.
+  - `is_valid(true/false)` → `is_valid_word()` / `is_valid_prefix()`.
+  - `std_tone_style(true/false)` →
+    `tone_style(ToneStyle::Modern/Traditional)`.
+  - `process_key_delta` / `process_key_delta_into` →
+    `process_key_edit` / `process_key_edit_into`.
+- `auto_correct(bool)` and `free_tone_marking(bool)` remain boolean switches because their
+  values have direct enabled/disabled meaning.
+
+### Added
+
+- Added named policy APIs that avoid ambiguous behavioral booleans: `undo_last_key`,
+  `undo_last_key_with(ToneRefresh)`, `restore_last_word_as(LastWordForm)`,
+  `is_valid_word`, `is_valid_prefix`, and `ConfigBuilder::tone_style(ToneStyle)`.
+- Added `process_key_edit`, returning an `EditDelta` with named deletion and insertion fields,
+  plus `process_key_edit_into` for caller-owned buffers.
+
+### Deprecated
+
+- Deprecated `remove_last_char`, `RestoreMark`, `restore_last_word(bool)`, `is_valid(bool)`,
+  `process_key_delta`, `process_key_delta_into`, and `ConfigBuilder::std_tone_style(bool)`.
+  Their `true` and `false` behavior is covered by compatibility tests; removal is planned
+  for 1.0.0.
+
 ## [0.4.1] - 2026-10-15
 
 ### Fixed

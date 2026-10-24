@@ -4,9 +4,9 @@ version = 4
 
 [[package]]
 name = "bamboo-core"
-version = "0.4.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b2ffbed185574ed02a9adc2c0a9f07eb792b27d40102af2b6866b6821625036"
+checksum = "b8ca75bee49832da951daa806bbb547c651eda5bfc7a9b30f8b64ad824f07e20"
 dependencies = [
  "bitflags",
  "phf",
