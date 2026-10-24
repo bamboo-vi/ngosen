@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>froala</title>
+<link href="https://cdn.jsdelivr.net/npm/froala-editor@4.3.0/css/froala_editor.pkgd.min.css" rel="stylesheet">
+</head>
+<body>
+<div id="ed"></div>
+<script src="https://cdn.jsdelivr.net/npm/froala-editor@4.3.0/js/froala_editor.pkgd.min.js"></script>
+<script src="report.js"></script>
+<script>
+  new FroalaEditor('#ed', { events: { initialized() { this.events.focus(); } } });
+  report('froala', () => {
+    const el = document.querySelector('.fr-element');
+    return el ? [...el.children].map(c => c.innerText.replace(/\n/g, '')).join('|') : null;
+  });
+</script>
+</body></html>

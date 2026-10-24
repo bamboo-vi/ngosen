@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>slate</title>
+<style>[data-slate-editor]{border:1px solid #888;min-height:6em;font-size:20px;padding:6px}</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="report.js"></script>
+<script type="module">
+  import React from 'https://cdn.jsdelivr.net/npm/react@19.3.1/+esm';
+  import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.3.1/client/+esm';
+  import { createEditor, Node } from 'https://cdn.jsdelivr.net/npm/slate@0.146.0/+esm';
+  import { Slate, Editable, withReact, ReactEditor } from 'https://cdn.jsdelivr.net/npm/slate-react@0.147.3/+esm';
+  const editor = withReact(createEditor());
+  const initial = [{ type: 'paragraph', children: [{ text: '' }] }];
+  const h = React.createElement;
+  createRoot(document.getElementById('root')).render(h(Slate, { editor, initialValue: initial }, h(Editable, { autoFocus: true })));
+  setTimeout(() => ReactEditor.focus(editor), 500);
+  report('slate', () => editor.children.map(n => Node.string(n)).join('|'));
+</script>
+</body></html>

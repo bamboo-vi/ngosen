@@ -1,0 +1,12 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>ace</title></head>
+<body>
+<div id="ed" style="width:900px;height:400px;font-size:20px"></div>
+<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.45.2/src-min-noconflict/ace.js"></script>
+<script src="report.js"></script>
+<script>
+  const editor = ace.edit('ed');
+  editor.focus();
+  report('ace', () => editor.getValue().split('\n').join('|'));
+</script>
+</body></html>
