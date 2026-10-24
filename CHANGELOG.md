@@ -10,6 +10,15 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.7-1] — 24/10/2026
+
+Sửa lỗi mở cài đặt trên KDE Plasma Wayland (#278), lưu cài đặt sau khi fcitx5 khởi động lại (#279),
+thêm dấu trong trình soạn thảo rich text trên Firefox (#285), thứ tự phím trên Firefox X11 (#289)
+và thêm dấu sau Backspace trong terminal dùng xterm.js trên Firefox X11 (#292) với Gõ Sen;
+sửa lỗi phải nhấn Enter hai lần để gửi trên gemini.google.com với Preedit (#286).
+Giảm phần phụ thuộc của package .deb (#280) và thêm liên kết Facebook Page của Ngó Sen vào README (#284).
+Tải ở [ngosen-1.5.7-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.7-1).
+
 ### Sửa
 
 - KDE Plasma Wayland: chọn "Cài đặt" trong menu tray thì cửa sổ cài đặt đóng ngay, không hiện ra, khi
