@@ -95,7 +95,7 @@ namespace ngosen {
         // A key this field got in English, from Ngó Sen or another input method of the group.
         void noteKeyWhileOff(const ngosen::KeyPress& key);
         // When Vietnamese comes on, by activate() or the toggle key: shows what the keys noted above
-        // read as in Vietnamese, for Tab to retype them.
+        // read as in Vietnamese, for Enter to retype them.
         void offerRetype();
         // The cursor left the text noted above: focus moved or the app reset the field.
         void forgetKeysWhileOff();
@@ -171,7 +171,7 @@ namespace ngosen {
         struct Retype {
             std::string typed;
             std::string marked;
-            bool        applied = false; // Tab once more puts typed back
+            bool        applied = false; // Esc then puts typed back
             bool        atOnce  = false; // retyped on switching on; only Esc undoes it
             bool        retone  = false; // a selected word retoned; a letter after it puts the key back
         };

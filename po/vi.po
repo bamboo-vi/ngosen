@@ -344,8 +344,8 @@ msgid "Page "
 msgstr "Trang "
 
 #: src/core/ngosen-state-retype.cpp
-msgid "Tab: retype in Vietnamese, Esc: keep"
-msgstr "Cứu chữ: Tab để đổi, Esc để giữ nguyên"
+msgid "Enter: retype in Vietnamese, Tab or Esc: keep"
+msgstr "Cứu chữ: Enter để đổi, Tab hoặc Esc để giữ nguyên"
 
 #: src/core/ngosen-state-retone.cpp
 msgid "Esc: put back the key"

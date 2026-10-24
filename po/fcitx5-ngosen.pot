@@ -343,7 +343,7 @@ msgid "Page "
 msgstr ""
 
 #: src/core/ngosen-state-retype.cpp
-msgid "Tab: retype in Vietnamese, Esc: keep"
+msgid "Enter: retype in Vietnamese, Tab or Esc: keep"
 msgstr ""
 
 #: src/core/ngosen-state-retone.cpp

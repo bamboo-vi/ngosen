@@ -153,7 +153,7 @@ namespace ngosen {
         NGOSEN_INFO("Offer retype: " + typed + " -> " + marked);
         retype_ = Retype{.typed = typed, .marked = marked};
         host_->showCandidates({typed + " → " + marked}, 1, [this](size_t) { applyRetype(); });
-        host_->setStatus(host_->translate("Tab: retype in Vietnamese, Esc: keep"));
+        host_->setStatus(host_->translate("Enter: retype in Vietnamese, Tab or Esc: keep"));
         host_->refreshPanel();
     }
 
@@ -239,18 +239,21 @@ namespace ngosen {
             dropRetype();
             return false;
         }
-        if (sym == ngosen::key::Tab && !keyEvent.hasModifier()) {
-            keyEvent.accept();
-            // Tab again before the first retype reaches the app would delete the wrong text.
-            if (!is_deleting_.load(std::memory_order_acquire))
-                applyRetype();
-            return true;
-        }
         // Keys arriving mid-replacement are our own: backspaces an XIM client hands back, or the
         // Shift+Left that selects text in Chromium. They are not the user moving on.
         if (is_deleting_.load(std::memory_order_acquire))
             return false;
-        if (sym == ngosen::key::Escape && !retype_->applied) {
+        const bool plain = !keyEvent.hasModifier();
+        if ((sym == ngosen::key::Return || sym == ngosen::key::KP_Enter) && plain) {
+            keyEvent.accept();
+            applyRetype();
+            // From here it is undone like a retype at once, so the next Enter reaches the app.
+            retype_->atOnce = true;
+            host_->setStatus(host_->translate("Esc: put back what was typed"));
+            host_->refreshPanel();
+            return true;
+        }
+        if ((sym == ngosen::key::Tab || sym == ngosen::key::Escape) && plain) {
             keyEvent.accept();
             dropRetype();
             return true;
