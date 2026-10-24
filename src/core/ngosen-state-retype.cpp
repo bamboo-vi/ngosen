@@ -152,7 +152,10 @@ namespace ngosen {
         }
         NGOSEN_INFO("Offer retype: " + typed + " -> " + marked);
         retype_ = Retype{.typed = typed, .marked = marked};
-        host_->showCandidates({typed + " → " + marked}, 1, [this](size_t) { applyRetype(); });
+        host_->showCandidates({typed + " → " + marked}, 1, [this](size_t) {
+            if (retype_ && !retype_->applied)
+                acceptRetype(host_->translate("Esc: put back what was typed"));
+        });
         host_->setStatus(host_->translate("Enter: retype in Vietnamese, Tab or Esc: keep"));
         host_->refreshPanel();
     }
@@ -161,9 +164,15 @@ namespace ngosen {
         if (!retype_)
             return;
         hideOffer();
-        const bool         undo = retype_->applied;
-        const std::string& from = undo ? retype_->marked : retype_->typed;
-        const std::string& to   = undo ? retype_->typed : retype_->marked;
+        const bool undo = retype_->applied;
+        replaceRetyped(undo ? retype_->marked : retype_->typed, undo ? retype_->typed : retype_->marked);
+        if (undo)
+            retype_.reset();
+        else
+            retype_->applied = true;
+    }
+
+    void TypingState::replaceRetyped(const std::string& from, const std::string& to) {
         if (canSendBackspaces()) {
             performReplacement(from, to);
         } else {
@@ -171,20 +180,21 @@ namespace ngosen {
             host_->deleteSurrounding(-length, static_cast<unsigned int>(length));
             commit(to);
         }
-        if (undo)
-            retype_.reset();
-        else
-            retype_->applied = true;
+    }
+
+    void TypingState::acceptRetype(const std::string& hint) {
+        applyRetype();
+        // Undone like a retype at once: only Esc takes it back, and the next Enter reaches the app.
+        retype_->atOnce = true;
+        host_->setStatus(hint);
+        host_->refreshPanel();
     }
 
     void TypingState::applyRetypeSoon(std::string hint) {
         // Not from inside the key or report being handled, which the app may still be waiting on.
         retype_timer_ = host_->startTimer(ngosen::monotonicUs(), 0, [this, hint = std::move(hint)](ngosen::Timer&) {
-            if (retype_ && retype_->atOnce && !retype_->applied) {
-                applyRetype();
-                host_->setStatus(hint);
-                host_->refreshPanel();
-            }
+            if (retype_ && retype_->atOnce && !retype_->applied)
+                acceptRetype(hint);
             return false;
         });
     }
@@ -221,6 +231,9 @@ namespace ngosen {
         }
         const uint32_t sym = keyEvent.sym();
         if (retype_->atOnce) {
+            // Before the deletion check: a letter is the user's even while the retone is on its way.
+            if (retype_->retone && retype_->applied && !isShortcut(keyEvent) && isWordKey(host_->keyText(sym)))
+                return handleKeyAfterRetone(keyEvent);
             if (is_deleting_.load(std::memory_order_acquire))
                 return false;
             if (sym == ngosen::key::Escape && !keyEvent.hasModifier()) {
@@ -230,11 +243,6 @@ namespace ngosen {
                 else
                     dropRetype();
                 return true;
-            }
-            // s, r and x also start words: a letter after one means the selection was typed over.
-            if (retype_->retone && retype_->applied && !isShortcut(keyEvent) && isWordKey(host_->keyText(sym))) {
-                reopenTypedKey();
-                return false;
             }
             dropRetype();
             return false;
@@ -246,11 +254,7 @@ namespace ngosen {
         const bool plain = !keyEvent.hasModifier();
         if ((sym == ngosen::key::Return || sym == ngosen::key::KP_Enter) && plain) {
             keyEvent.accept();
-            applyRetype();
-            // From here it is undone like a retype at once, so the next Enter reaches the app.
-            retype_->atOnce = true;
-            host_->setStatus(host_->translate("Esc: put back what was typed"));
-            host_->refreshPanel();
+            acceptRetype(host_->translate("Esc: put back what was typed"));
             return true;
         }
         if ((sym == ngosen::key::Tab || sym == ngosen::key::Escape) && plain) {

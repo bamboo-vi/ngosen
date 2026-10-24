@@ -53,7 +53,9 @@ namespace {
         size_t                                   cursor        = 0;
         bool                                     repeatsReport = false; // reports the old state once more, as Firefox does
         uint32_t                                 tone          = 's';
-        std::vector<uint32_t>                    after; // keys once the tone has changed
+        std::vector<uint32_t>                    after;          // keys once the tone has changed
+        int                                      settleMs = 150; // wait after the tone key
+        int                                      gapMs    = 150; // wait after each key in after
         std::function<void(FakeResources&)>      configure;
         std::function<void(FakeApp&, FakeLoop&)> beforeAfter;
     };
@@ -86,14 +88,14 @@ namespace {
         app->type(run.tone);
         if (run.repeatsReport)
             state.surroundingUpdated();
-        loop.pump(150);
+        loop.pump(run.settleMs);
         Result result;
         result.hint = app->status();
         if (run.beforeAfter)
             run.beforeAfter(*app, loop);
         for (const uint32_t sym : run.after) {
             app->type(sym);
-            loop.pump(150);
+            loop.pump(run.gapMs);
         }
         loop.pump(300);
         result.text = app->text();
@@ -142,9 +144,25 @@ namespace {
         run.after = {'a', 'c', 'h', 's'};
         r         = retone(run);
         check(r.text == "abc sách xyz", "a letter after the key puts it back and starts a word with it", r.text);
+        run.after = {'f'};
+        r         = retone(run);
+        check(r.text == "abc nhành xyz", "another tone key changes the tone again", r.text);
+        run.after = {'f', ngosen::key::Escape};
+        r         = retone(run);
+        check(r.text == "abc s xyz", "Esc after a second tone key puts back the first key", r.text);
         run.after = {ngosen::key::space};
         r         = retone(run);
         check(r.text == "abc nhánh  xyz", "a space keeps the new tone", r.text);
+
+        // The letters arrive while the forwarded backspace for the retone is still on its way.
+        Run fast              = nhanh();
+        fast.field            = makeField("xim");
+        fast.quirks.keyStepMs = 8;
+        fast.settleMs         = 1;
+        fast.gapMs            = 3;
+        fast.after            = {'a', 'c', 'h', 's'};
+        r                     = retone(fast);
+        check(r.text == "abc sách xyz", "letters typed during the retone still put the key back", r.text);
         run.after = {ngosen::key::Tab, ngosen::key::Escape};
         r         = retone(run);
         check(r.text == "abc nhánh xyz", "Tab keeps the new tone and goes to the app", r.text);

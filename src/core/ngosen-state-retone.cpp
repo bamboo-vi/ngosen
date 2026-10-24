@@ -104,6 +104,22 @@ namespace ngosen {
         applyRetypeSoon(host_->translate("Esc: put back the key"));
     }
 
+    bool TypingState::handleKeyAfterRetone(ngosen::KeyPress& keyEvent) {
+        // Another tone key fixes the tone again; s, r and x also start words, so any other letter
+        // means the selection was being typed over and the key goes back.
+        const std::string& shown = retype_->marked;
+        const std::string  toned = is_deleting_.load(std::memory_order_acquire) ? std::string() : retoned(shown, keyEvent.sym(), keyEvent.states());
+        if (!toned.empty() && toned != shown && withoutToneMark(toned) == withoutToneMark(shown)) {
+            keyEvent.accept();
+            NGOSEN_INFO("Retone: " + shown + " -> " + toned);
+            replaceRetyped(shown, toned);
+            retype_->marked = toned;
+            return true;
+        }
+        reopenTypedKey();
+        return false;
+    }
+
     std::string TypingState::retoned(const std::string& word, uint32_t sym, uint32_t states) const {
         // Its own engine, so the one typing in the field keeps the key whatever the user does next.
         CGoObject engine(newBambooEngine());

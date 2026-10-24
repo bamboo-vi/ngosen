@@ -382,6 +382,29 @@ namespace {
         check(!second, "Tab after keeping goes to the app", "taken");
     }
 
+    // Clicking the offer retypes like Enter, so Enter afterwards reaches the app and Esc undoes it.
+    void testPickedOffer() {
+        realMode = Mode::Off;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding("abc tieengs", 11);
+        noteWhileOff(state, "abc tieengs");
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        loop.pump(150);
+        host->pickCandidate(0);
+        loop.pump(150);
+        check(!host->status().empty(), "a picked offer says how to undo it", "(no hint)");
+        FakeKey down(ngosen::key::Return, false);
+        state.keyEvent(down);
+        FakeKey up(ngosen::key::Return, true);
+        state.keyEvent(up);
+        check(!down.accepted(), "Enter after a picked offer goes to the app", "taken");
+    }
+
     // Qt reports the text after each backspace, so the deletion is seen half done.
     void testRetypeInSteppingApp() {
         AppQuirks quirks;
@@ -497,6 +520,7 @@ int main() {
     testHintGoesAway(ngosen::key::Return, "Enter");
     testHintGoesAway(ngosen::key::Tab, "Tab");
     testEnterTakesOffer();
+    testPickedOffer();
     testHintGoesAway(ngosen::key::Escape, "Esc");
     if (failures == 0)
         std::cout << "all retype checks passed\n";

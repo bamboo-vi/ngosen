@@ -182,6 +182,8 @@ namespace ngosen {
         std::string addMarks(const std::string& typed);
         bool        everyWordTakesMarks(const std::string& typed);
         void        applyRetype();
+        void        replaceRetyped(const std::string& from, const std::string& to);
+        void        acceptRetype(const std::string& hint);
         void        applyRetypeSoon(std::string hint);
         void        reopenTypedKey();
         void        dropRetype();
@@ -202,6 +204,7 @@ namespace ngosen {
         void                           noteRetoneKey(uint32_t sym, uint32_t states, const std::string& keyUtf8);
         void                           dropRetoneKey();
         void                           checkRetoneReport();
+        bool                           handleKeyAfterRetone(ngosen::KeyPress& keyEvent);
         std::string                    retoned(const std::string& word, uint32_t sym, uint32_t states) const;
 
         // XIM, IBus and D-Bus clients queue forwarded keys, and XIM may hand one back; without a
