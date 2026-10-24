@@ -101,14 +101,21 @@ namespace ngosen {
             return;
         NGOSEN_INFO("Retone: " + word + " -> " + toned);
         retype_ = Retype{.typed = key.text, .marked = toned, .atOnce = true, .retone = true};
-        applyRetypeSoon(host_->translate("Esc: put back the key"));
+        applyRetypeSoon(host_->translate("Tab or Esc: put back the key"));
     }
 
     bool TypingState::handleKeyAfterRetone(ngosen::KeyPress& keyEvent) {
         // Another tone key fixes the tone again; s, r and x also start words, so any other letter
         // means the selection was being typed over and the key goes back.
+        const bool deleting = is_deleting_.load(std::memory_order_acquire);
+        // The tone key twice undoes it, as typing it twice does in a word.
+        if (!deleting && host_->keyText(keyEvent.sym()) == retype_->typed) {
+            keyEvent.accept();
+            applyRetype();
+            return true;
+        }
         const std::string& shown = retype_->marked;
-        const std::string  toned = is_deleting_.load(std::memory_order_acquire) ? std::string() : retoned(shown, keyEvent.sym(), keyEvent.states());
+        const std::string  toned = deleting ? std::string() : retoned(shown, keyEvent.sym(), keyEvent.states());
         if (!toned.empty() && toned != shown && withoutToneMark(toned) == withoutToneMark(shown)) {
             keyEvent.accept();
             NGOSEN_INFO("Retone: " + shown + " -> " + toned);

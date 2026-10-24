@@ -147,14 +147,14 @@ namespace ngosen {
         if (everyWordTakesMarks(typed)) {
             NGOSEN_INFO("Retype: " + typed + " -> " + marked);
             retype_ = Retype{.typed = typed, .marked = marked, .atOnce = true};
-            applyRetypeSoon(host_->translate("Esc: put back what was typed"));
+            applyRetypeSoon(host_->translate("Tab or Esc: put back what was typed"));
             return;
         }
         NGOSEN_INFO("Offer retype: " + typed + " -> " + marked);
         retype_ = Retype{.typed = typed, .marked = marked};
         host_->showCandidates({typed + " → " + marked}, 1, [this](size_t) {
             if (retype_ && !retype_->applied)
-                acceptRetype(host_->translate("Esc: put back what was typed"));
+                acceptRetype(host_->translate("Tab or Esc: put back what was typed"));
         });
         host_->setStatus(host_->translate("Enter: retype in Vietnamese, Tab or Esc: keep"));
         host_->refreshPanel();
@@ -184,7 +184,7 @@ namespace ngosen {
 
     void TypingState::acceptRetype(const std::string& hint) {
         applyRetype();
-        // Undone like a retype at once: only Esc takes it back, and the next Enter reaches the app.
+        // Undone like a retype at once: only Tab or Esc takes it back, and the next Enter reaches the app.
         retype_->atOnce = true;
         host_->setStatus(hint);
         host_->refreshPanel();
@@ -236,7 +236,7 @@ namespace ngosen {
                 return handleKeyAfterRetone(keyEvent);
             if (is_deleting_.load(std::memory_order_acquire))
                 return false;
-            if (sym == ngosen::key::Escape && !keyEvent.hasModifier()) {
+            if ((sym == ngosen::key::Escape || sym == ngosen::key::Tab) && !keyEvent.hasModifier()) {
                 keyEvent.accept();
                 if (retype_->applied)
                     applyRetype();
@@ -254,7 +254,7 @@ namespace ngosen {
         const bool plain = !keyEvent.hasModifier();
         if ((sym == ngosen::key::Return || sym == ngosen::key::KP_Enter) && plain) {
             keyEvent.accept();
-            acceptRetype(host_->translate("Esc: put back what was typed"));
+            acceptRetype(host_->translate("Tab or Esc: put back what was typed"));
             return true;
         }
         if ((sym == ngosen::key::Tab || sym == ngosen::key::Escape) && plain) {

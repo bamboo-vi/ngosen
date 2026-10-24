@@ -163,9 +163,26 @@ namespace {
         fast.after            = {'a', 'c', 'h', 's'};
         r                     = retone(fast);
         check(r.text == "abc sách xyz", "letters typed during the retone still put the key back", r.text);
-        run.after = {ngosen::key::Tab, ngosen::key::Escape};
+        run.after = {ngosen::key::Tab};
         r         = retone(run);
-        check(r.text == "abc nhánh xyz", "Tab keeps the new tone and goes to the app", r.text);
+        check(r.text == "abc s xyz", "Tab puts back the key", r.text);
+        run.after = {'s'};
+        r         = retone(run);
+        check(r.text == "abc s xyz", "the tone key again puts it back", r.text);
+        run.after = {'s', 'a'};
+        r         = retone(run);
+        check(r.text == "abc sa xyz", "after the tone key again, typing goes on", r.text);
+
+        Run vni       = nhanh();
+        vni.typed     = "abc hai xyz";
+        vni.cursor    = 7;
+        vni.tone      = '2';
+        vni.configure = [](FakeResources& res) { res.mutableOptions().inputMethod = "VNI"; };
+        r             = retone(vni);
+        check(r.text == "abc hài xyz", "VNI: a digit over a word changes its tone", r.text);
+        vni.after = {'2'};
+        r         = retone(vni);
+        check(r.text == "abc 2 xyz", "VNI: the digit again gives the digit", r.text);
     }
 
     void testWords() {

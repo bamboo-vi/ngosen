@@ -171,8 +171,8 @@ namespace ngosen {
         struct Retype {
             std::string typed;
             std::string marked;
-            bool        applied = false; // Esc then puts typed back
-            bool        atOnce  = false; // retyped on switching on; only Esc undoes it
+            bool        applied = false; // Tab or Esc then puts typed back
+            bool        atOnce  = false; // retyped on switching on; only Tab or Esc undoes it
             bool        retone  = false; // a selected word retoned; a letter after it puts the key back
         };
         std::string                    typedWhileOff_;

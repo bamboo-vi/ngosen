@@ -20,19 +20,20 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Ghi được phím tắt chỉ gồm Ctrl+Shift hoặc Shift phải khi thả phím trong cửa sổ cài đặt.
   Phím chuyển Anh/Việt nhận Ctrl+Shift như nhau dù dùng bên trái, bên phải hay bấm phím nào trước. (#244)
 - Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím Anh/Việt của Ngó Sen hay chuyển sang
-  Ngó Sen thì chữ đổi ngay thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Esc để trả lại chữ đã gõ"
-  (#82, #232, #239, #243).
+  Ngó Sen thì chữ đổi ngay thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Tab hoặc Esc để trả lại chữ
+  đã gõ" (#82, #232, #239, #243, #290).
 - Cứu chữ không tự đổi khi trong đoạn có chữ gõ lại vẫn y nguyên (như `abc` trong `abc tieengs`), vì
   thường đó là tiếng Anh gõ có chủ ý. Khi đó chỉ hiện gợi ý `abc tieengs → abc tiếng` kèm dòng
   "Cứu chữ: Enter để đổi, Tab hoặc Esc để giữ nguyên": Enter gõ lại có dấu (Enter lần nữa mới tới app,
-  Esc trả lại như cũ), Tab, Esc hoặc phím khác thì bỏ qua (#80, #290).
+  Tab hoặc Esc trả lại như cũ); khi chưa nhận, Tab, Esc hoặc phím khác thì bỏ qua (#80, #290).
 - Cứu chữ không ghi nhớ gì trong ô mật khẩu, quên đoạn đã gõ khi bấm chuột, Enter, phím mũi tên hay chuyển
   ô, và không hiện ở app không cho bộ gõ xoá chữ (#71). Gợi ý đang hiện cũng mất khi bấm chuột sang chỗ
   khác, nên Enter không xoá nhầm chữ ở chỗ mới (#269).
 - Cứu dấu: bôi đen chữ đã gõ xong rồi gõ phím dấu là chữ đổi dấu ngay (`nhanh` + `s` → `nhánh`).
   Gõ tiếp chữ cái thì Ngó Sen hiểu là đang gõ chữ mới đè lên, nên trả lại phím vừa gõ (`nhanh` + `sách`
-  vẫn ra `sách`), gõ phím dấu khác thì đổi dấu tiếp (`nhánh` + `f` → `nhành`); Esc trả lại phím đã gõ.
-  Thêm, đổi, bỏ dấu thanh ở app hỗ trợ surrounding text; bật sẵn trong Gõ chữ → Gõ nhanh (#272, #290).
+  vẫn ra `sách`); gõ phím dấu khác thì đổi dấu tiếp (`nhánh` + `f` → `nhành`). Tab, Esc hoặc gõ lại
+  đúng phím dấu đó thì trả lại phím đã gõ, như gõ `2` hai lần ở VNI để được số `2`. Thêm, đổi, bỏ dấu
+  thanh ở app hỗ trợ surrounding text; bật sẵn trong Gõ chữ → Gõ nhanh (#272, #290).
 - Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
   không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
 - Khi icon hoặc menu tray bị mất hay treo, chạy `ngosen-save-log` trong terminal để lưu nhật ký gõ của Ngó Sen.

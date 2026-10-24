@@ -259,6 +259,9 @@ namespace {
         text = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Escape});
         check(text == "tieengs vieetj", what + "Esc puts the typed text back", text);
 
+        text = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Tab});
+        check(text == "tieengs vieetj", what + "Tab puts the typed text back", text);
+
         text = retypeInApp(field, mode, "tieengs ", {'a', ngosen::key::space});
         check(text == "tiếng a ", what + "typing on keeps the retyped text", text);
 
@@ -267,6 +270,9 @@ namespace {
 
         text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Return, ngosen::key::Escape});
         check(text == "abc tieengs", what + "Esc after Enter puts the typed text back", text);
+
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Return, ngosen::key::Tab});
+        check(text == "abc tieengs", what + "Tab after Enter puts the typed text back", text);
 
         text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Tab, ngosen::key::Return});
         check(text == "abc tieengs", what + "Tab keeps the typed text", text);
