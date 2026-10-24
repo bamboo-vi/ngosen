@@ -105,6 +105,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 - Test mới: bấm rồi thả Shift hay Ctrl giữa từ không chốt từ đang gõ (`vieet`, Shift, `j` vẫn ra `việt`); người
   dùng không thấy khác gì (#155).
+- Thêm `misc/editor-test`: trang test cho 15 web editor (Lexical, TinyMCE, CKEditor, Monaco, xterm.js…)
+  và script gõ Telex rồi kiểm tra kết quả trong Firefox hoặc Chromium trên X11. Dùng để tìm lỗi gõ nhanh
+  đã sửa ở #289; người dùng không thấy khác gì (#291).
 
 ## [1.5.6-1] — 23/10/2026
 
