@@ -109,7 +109,7 @@ namespace ngosen::test {
             if (sym == key::BackSpace) {
                 lastBackSpaceAt_ = time;
                 later(quirks_.lagMs, [this] { eraseBefore(1); });
-            } else if (const auto text = keyText(down.appSym()); !text.empty())
+            } else if (const auto text = keyText(down.appSym()); !text.empty() && static_cast<unsigned char>(text[0]) >= 0x20 && text[0] != '\x7f')
                 later(quirks_.lagMs, [this, text] { insert(utf8::decode(text)); });
         }
 
@@ -199,6 +199,15 @@ namespace ngosen::test {
     }
 
     std::string FakeApp::keyText(uint32_t sym) const {
+        // fcitx gives these keys their control characters.
+        switch (sym) {
+            case key::BackSpace: return "\b";
+            case key::Tab: return "\t";
+            case key::Return: return "\r";
+            case key::Escape: return "\x1b";
+            case key::Delete: return "\x7f";
+            default: break;
+        }
         if (sym < 0x20 || sym > 0xff || (sym >= 0x7f && sym < 0xa0))
             return {};
         return encode(std::u32string(1, static_cast<char32_t>(sym)));

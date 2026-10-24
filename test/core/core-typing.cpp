@@ -251,6 +251,9 @@ namespace {
         gtk3.keyEventOrderFix  = true;
         const std::string text = ngosen::test::typeInApp(gtk3, quirks, keys, gaps);
         check(text == "tiếng vi", "dbus: a key typed before the commit arrived lands after it", text);
+        const std::vector<uint32_t> back = {'t', 'i', 'e', 'e', 'n', 'g', 's', ngosen::key::BackSpace};
+        const std::string           cut  = ngosen::test::typeInApp(gtk3, quirks, back, std::vector<int>{30, 30, 30, 30, 30, 30, 2, 30});
+        check(cut.find('\b') == std::string::npos, "dbus: a backspace typed before the commit arrived is not committed", cut);
     }
 
     void testMacroKeepsSpace() {

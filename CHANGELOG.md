@@ -25,6 +25,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Sửa lỗi trong chế độ Preedit (từ đang gõ có gạch chân) trên gemini.google.com: nhấn Enter một lần để gửi,
   không còn xuống dòng rồi phải nhấn lần hai. Ngó Sen hoàn tất từ trước, rồi gửi Enter sau một chút để Gemini
   nhận phím. Đã test trên Ubuntu 26.04 với Firefox (#286).
+- Gõ Sen trên Firefox X11: khi gõ nhanh, dấu cách hoặc chữ ngay sau từ vừa thêm dấu có thể chen vào giữa từ,
+  như "tiếng việt" thành "ti ếngvi ệt", trong cả ô văn bản thường và TinyMCE, Lexical. Giờ các phím giữ đúng
+  thứ tự đã gõ (#289).
 
 ### Tài liệu
 

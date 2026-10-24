@@ -410,6 +410,8 @@ namespace ngosen {
         void handleSenMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         // The app sent this key before our last commit reached it.
         bool typedBeforeCommitArrived(const ngosen::KeyPress& keyEvent, uint32_t currentSym);
+        // The key types text and is not part of a shortcut.
+        bool typesText(const ngosen::KeyPress& keyEvent, uint32_t currentSym) const;
         // Backspace on a word with a tone mark: take off only the mark. False leaves the key as is.
         bool removeToneMark(ngosen::KeyPress& keyEvent);
         // Backspace from after lastWord_ into it: the engine takes up what is left of that word.

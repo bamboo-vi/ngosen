@@ -22,6 +22,9 @@ namespace ngosen {
     // True for GTK4 clients, whose IM modules drop forwarded keys; delete through surrounding text there.
     bool ignoresForwardedKeys(const Field& field);
 
+    // True when a key the app sent before our commit reached it can land ahead of that commit.
+    bool appliesEarlyKeysFirst(const Field& field);
+
     // True for VTE terminals under GTK4 (Ptyxis, GNOME Console), through fcitx5-gtk4 or IBus: they take neither
     // forwarded keys nor surrounding text, but pass committed text to the shell as is, so a DEL in it erases like
     // Backspace.

@@ -191,12 +191,18 @@ namespace ngosen {
         return false;
     }
 
+    // fcitx gives BackSpace, Return and Tab their control characters, which are not text to commit.
+    bool TypingState::typesText(const ngosen::KeyPress& keyEvent, uint32_t currentSym) const {
+        const std::string text = host_->keyText(currentSym);
+        return !text.empty() && static_cast<unsigned char>(text[0]) >= 0x20 && text[0] != '\x7f' &&
+            (keyEvent.states() & (ngosen::modifier::Ctrl | ngosen::modifier::Alt | ngosen::modifier::Super)) == 0U;
+    }
+
     bool TypingState::typedBeforeCommitArrived(const ngosen::KeyPress& keyEvent, uint32_t currentSym) {
         if (keyEvent.isRelease() || commitNotSeen_.empty())
             return false;
-        const bool typesText = !host_->keyText(currentSym).empty() && (keyEvent.states() & (ngosen::modifier::Ctrl | ngosen::modifier::Alt)) == 0U;
         // A report of our deletion can come after the commit, so only the committed text itself shows it arrived.
-        if (host_->field().frontend != "dbus" || !typesText || typedBeforeCursor(commitNotSeen_)) {
+        if (!ngosen::appliesEarlyKeysFirst(host_->field()) || !typesText(keyEvent, currentSym) || typedBeforeCursor(commitNotSeen_)) {
             commitNotSeen_.clear();
             return false;
         }
@@ -450,6 +456,7 @@ namespace ngosen {
                 // Firefox applies a key it let through ahead of a commit it already has; a commit keeps the order.
                 if (beforeCommit && !keyEvent.accepted()) {
                     keyEvent.accept();
+                    passed_key_.reset();
                     commit(host_->keyText(currentSym));
                 }
                 break;
@@ -615,8 +622,7 @@ namespace ngosen {
             }
             // A dbus client gets the commit after this key's reply and may type a key let through
             // first, so a typing key goes out inside the commit.
-            const bool typesText = !host_->keyText(currentSym).empty() && (keyEvent.states() & (ngosen::modifier::Ctrl | ngosen::modifier::Alt)) == 0U;
-            if (host_->field().frontend == "dbus" && typesText && buffered_keys_.size() < MAX_BUFFERED_KEYS) {
+            if (host_->field().frontend == "dbus" && typesText(keyEvent, currentSym) && buffered_keys_.size() < MAX_BUFFERED_KEYS) {
                 buffered_keys_.push_back({.sym = currentSym, .state = keyEvent.states()});
                 keyEvent.accept();
                 finishReplacement("key arrived", false);

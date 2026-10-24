@@ -68,6 +68,8 @@ namespace ngosen {
 
     void TypingState::deactivate(bool isFocusOut) {
         flushPendingReplacement(); // commit pending text into the field we are leaving
+        if (isFocusOut)
+            commitNotSeen_.clear();
         lastDeactivateTime_ = nowMs();
         if (realMode == ngosen::Mode::Preedit && !isFocusOut) {
             commitBuffer();
