@@ -1,0 +1,12 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>textarea</title></head>
+<body>
+<textarea id="t" autocomplete="off" rows="8" cols="70" style="font-size:20px"></textarea>
+<script src="report.js"></script>
+<script>
+  const t = document.getElementById('t');
+  t.value = '';
+  t.focus();
+  report('textarea', () => t.value.split('\n').join('|'));
+</script>
+</body></html>

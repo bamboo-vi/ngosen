@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>trix</title>
+<link href="https://cdn.jsdelivr.net/npm/trix@2.1.19/dist/trix.css" rel="stylesheet">
+</head>
+<body>
+<trix-editor id="ed" autofocus style="min-height:6em;font-size:20px"></trix-editor>
+<script src="https://cdn.jsdelivr.net/npm/trix@2.1.19/dist/trix.umd.min.js"></script>
+<script src="report.js"></script>
+<script>
+  const el = document.getElementById('ed');
+  report('trix', () => (el.editor ? el.editor.getDocument().toString().replace(/\n+$/, '').split('\n').join('|') : null));
+</script>
+</body></html>
