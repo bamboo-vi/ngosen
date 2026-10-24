@@ -12,7 +12,10 @@ use std::collections::HashSet;
 use std::sync::Arc;
 
 use bamboo_core::advanced::encode;
-use bamboo_core::{Config, Engine, InputMethod, InputMethodPreset, Mode, OutputOptions, W2uMode};
+use bamboo_core::{
+    Config, Engine, InputMethod, InputMethodPreset, LastWordForm, Mode, OutputOptions, ToneStyle,
+    W2uMode,
+};
 
 use crate::macro_table::MacroTable;
 use crate::text::{
@@ -141,7 +144,7 @@ pub fn input_method_by_name(name: &str) -> InputMethod {
 pub fn default_config() -> Config {
     Config::builder()
         .free_tone_marking(true)
-        .std_tone_style(true)
+        .tone_style(ToneStyle::Modern)
         .auto_correct(false)
         .w2u_mode(W2uMode::Everywhere)
         .build()
@@ -235,7 +238,7 @@ impl BambooEngine {
         if check_vn_rune && !has_any_vietnamese_rune(&vn_seq) {
             return false;
         }
-        !self.preeditor.is_valid(false)
+        !self.preeditor.is_valid_prefix()
     }
 
     fn get_processed_string(&self, options: OutputOptions) -> String {
@@ -302,7 +305,7 @@ impl BambooEngine {
         if self.spell_check_with_dicts {
             return !self.dictionary.contains(&vn_seq);
         }
-        !self.preeditor.is_valid(true)
+        !self.preeditor.is_valid_word()
     }
 
     /// Commits a word break typed right after a key that appends it, such as `[[` -> `[`.
@@ -341,7 +344,8 @@ impl BambooEngine {
 
     fn composing_key_text(&mut self, mut key: char, state: u32, old_text: &str) -> (String, bool) {
         if !self.preeditor.can_process_key(key) && self.should_fallback_to_english(true) {
-            self.preeditor.restore_last_word(false);
+            self.preeditor
+                .restore_last_word_as(LastWordForm::RawKeystrokes);
         }
         if state & LOCK_MASK != 0 {
             key = self.to_upper(key);
@@ -363,7 +367,8 @@ impl BambooEngine {
             return (format!("{expanded}{key}"), true);
         }
         if has_any_vietnamese_rune(old_text) && self.must_fallback_to_english() {
-            self.preeditor.restore_last_word(false);
+            self.preeditor
+                .restore_last_word_as(LastWordForm::RawKeystrokes);
             let new_text = format!("{}{key}", self.raw_text());
             self.preeditor.process_key(key, Mode::English);
             return (new_text, true);

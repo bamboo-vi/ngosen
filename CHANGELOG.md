@@ -89,6 +89,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Gói .deb, .rpm và Arch không còn dọn uinput server của version trước 0.5.0 khi cài hoặc nâng cấp, vì
   fcitx5-lotus bản gốc vẫn dùng service và tài khoản `uinput_proxy` đó; gói .deb bỏ dependency `passwd`.
   Ai tự build version cũ vẫn có các bước dọn trong TU-DUNG.md (#257).
+- Nâng thư viện gõ Rust bamboo-core từ 0.4.1 lên 0.5.2 để dùng được version phf mà Debian cung cấp,
+  một bước để đóng gói Ngó Sen vào kho Debian chính thức. Cách gõ không đổi.
+  Build từ source vẫn cần Rust 1.88+ (#298).
 
 ### Sửa
 

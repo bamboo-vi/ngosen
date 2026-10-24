@@ -42,13 +42,50 @@
 //! | Use Case | Primary API | Description |
 //! |---|---|---|
 //! | **IME Frontend (Fcitx5 / `IBus` / Native)** | [`Engine::process_key`], [`Engine::output`] | Feeds keys one-by-one, updates internal buffer, queries current composition word |
-//! | **Text Editor / Terminal / IDE** | [`Engine::process_key_delta`] | Returns a 3-way diff `(backspaces, bytes, inserted)` to replace only changed suffixes |
-//! | **Keystroke-level Backspace** | [`Engine::remove_last_char`] | $O(1)$ undo of the last physical keypress using stack snapshots |
+//! | **Text Editor / Terminal / IDE** | [`Engine::process_key_edit`] | Returns a named suffix edit to apply to the previous output |
+//! | **Keystroke-level Backspace** | [`Engine::undo_last_key`] | $O(1)$ undo of the last physical keypress using stack snapshots |
 //! | **Grapheme-level Backspace** | [`Engine::remove_last_output_char`] | Deletes preceding character while retaining marks/tones on remaining vowels (e.g. `tiếng` $\rightarrow$ `tiến`) |
 //! | **Word Finalization** | [`Engine::commit`] | Clears composing state and appends text to committed stream |
 //! | **Batch / Convenience (Testing)** | [`Engine::process`] | Processes a full string and returns output (**convenience only, not for real-time IME**) |
 //! | **Inline Word Repair** | [`Engine::rebuild_from_text`] | Loads existing text (e.g. the word before the cursor) as if typed, so tone/mark/backspace edit it |
-//! | **Charset Conversion** | [`advanced::encode`] | Converts Unicode strings to legacy encodings (TCVN3, VNI, etc.) |
+//! | **Charset Conversion** | [`encode_charset`], [`decode_charset`] | Converts between Unicode and supported legacy encodings with the typed [`Charset`] enum |
+//!
+//! ## Migrating from 0.4.x to 0.5
+//!
+//! Version 0.5 replaces boolean arguments whose meaning depended on their position with named
+//! methods and enums. Every 0.4.x API listed below remains available and source-compatible in
+//! 0.5.x, but emits a deprecation warning. It is scheduled for removal in 1.0.0.
+//!
+//! | 0.4.x API | 0.5 replacement |
+//! |---|---|
+//! | [`Engine::remove_last_char`]`(true)` | [`Engine::undo_last_key`] or [`Engine::undo_last_key_with`]`(`[`ToneRefresh::Recompute`]`)` |
+//! | [`Engine::remove_last_char`]`(false)` | [`Engine::undo_last_key_with`]`(`[`ToneRefresh::PreserveSnapshot`]`)` |
+//! | [`Engine::restore_last_word`]`(true)` | [`Engine::restore_last_word_as`]`(`[`LastWordForm::Vietnamese`]`)` |
+//! | [`Engine::restore_last_word`]`(false)` | [`Engine::restore_last_word_as`]`(`[`LastWordForm::RawKeystrokes`]`)` |
+//! | [`Engine::is_valid`]`(true)` | [`Engine::is_valid_word`] |
+//! | [`Engine::is_valid`]`(false)` | [`Engine::is_valid_prefix`] |
+//! | [`ConfigBuilder::std_tone_style`]`(true)` | [`ConfigBuilder::tone_style`]`(`[`ToneStyle::Modern`]`)` |
+//! | [`ConfigBuilder::std_tone_style`]`(false)` | [`ConfigBuilder::tone_style`]`(`[`ToneStyle::Traditional`]`)` |
+//! | [`Engine::process_key_delta`] | [`Engine::process_key_edit`], which returns [`EditDelta`] with named fields |
+//! | [`Engine::process_key_delta_into`] | [`Engine::process_key_edit_into`] |
+//!
+//! Configuration switches with a direct enabled/disabled meaning, including
+//! [`ConfigBuilder::auto_correct`] and [`ConfigBuilder::free_tone_marking`], are unchanged.
+//!
+//! ## Legacy Charset Conversion
+//!
+//! Use [`encode_charset`] and [`decode_charset`] with [`Charset`] for new code. The older
+//! string-name API [`advanced::encode`] remains available for compatibility, but typed charsets
+//! avoid runtime name lookup. VIQR uses a backslash to escape punctuation that would otherwise
+//! extend the encoded letter, preserving ordinary prose through a round trip.
+//!
+//! ```rust
+//! use bamboo_core::{decode_charset, encode_charset, Charset};
+//!
+//! let encoded = encode_charset(Charset::Viqr, "mưa.");
+//! assert_eq!(encoded, "mu+a\\.");
+//! assert_eq!(decode_charset(Charset::Viqr, &encoded), "mưa.");
+//! ```
 //!
 //! ## Architecture Overview
 //!
@@ -72,7 +109,7 @@
 //!
 //! Bamboo Core distinguishes two types of backspace actions:
 //!
-//! 1. **Canvas Backspace ([`Engine::remove_last_char`])**:
+//! 1. **Keystroke Backspace ([`Engine::undo_last_key`])**:
 //!    Undoes the single most recent keystroke transformation, reverting diacritic additions in reverse order.
 //!
 //!    ```rust
@@ -83,7 +120,7 @@
 //!    assert_eq!(engine.output(), "tiếng");
 //!
 //!    // Drops the tone mark 's', leaving the circumflex on 'ê'
-//!    engine.remove_last_char(true);
+//!    engine.undo_last_key();
 //!    assert_eq!(engine.output(), "tiêng");
 //!    ```
 //!
@@ -182,10 +219,14 @@ pub mod parallel {
     }
 }
 
-pub use config::{BracketMode, Config, ConfigBuilder, W2uMode};
+pub use config::{BracketMode, Config, ConfigBuilder, ToneStyle, W2uMode};
 pub(crate) use encoder::tables as charset_def;
-pub use encoder::{Charset, encode_charset};
-pub use engine::{Engine, EngineRules, RestoreMark, Transformation, TransformationStack};
+pub use encoder::{Charset, decode_charset, encode_charset};
+#[allow(deprecated)]
+pub use engine::{
+    EditDelta, Engine, EngineRules, LastWordForm, RestoreMark, ToneRefresh, Transformation,
+    TransformationStack,
+};
 pub(crate) use input_method::definitions as input_method_def;
 pub use input_method::{InputMethod, InputMethodPreset};
 pub use mode::{Mode, OutputOptions};
@@ -204,7 +245,8 @@ pub mod advanced {
     };
     pub use crate::dfa::{DFA_MAX_STATES, Dfa, State};
     pub use crate::encoder::{
-        Charset, charset_names, encode, encode_charset, get_charset_name, get_charset_names,
+        Charset, charset_names, decode_charset, encode, encode_charset, get_charset_name,
+        get_charset_names,
     };
     pub use crate::input_method_def::{
         InputMethodDef, get_input_method, get_input_method_definitions,

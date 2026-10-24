@@ -181,7 +181,7 @@ fn test_dict_mode_accepts_either_tone_position() {
 
     let mut e = new_test_engine(&["thủy"], true);
     e.preeditor
-        .set_config(Config::builder().std_tone_style(false).build());
+        .set_config(Config::builder().tone_style(ToneStyle::Traditional).build());
     type_keys(&mut e, "thuyr");
     assert_eq!(e.preedit_text, "thuỷ");
     e.process_key_event(KEY_SPACE, 0);

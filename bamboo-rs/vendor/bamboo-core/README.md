@@ -16,13 +16,58 @@ A high-performance Vietnamese input method engine (IME) core written in Rust, po
 - **O(1) backspace** via compact 8-byte snapshot stack
 - **O(N) single-pass** spelling validation
 - **FFI** for C/C++ integration and **WASM** bindings
+- **Legacy charset conversion** to and from Unicode for 16 Vietnamese encodings
 
 ## Installation
 
 ```toml
 [dependencies]
-bamboo-core = "0.4.1"
+bamboo-core = "0.5.1"
 ```
+
+### Legacy Charset Conversion (0.5.1)
+
+`encode_charset` converts Unicode to a legacy Vietnamese encoding, while
+`decode_charset` converts supported legacy text back to Unicode. Decoding uses the longest
+matching sequence and leaves ambiguous codes unchanged rather than guessing.
+
+```rust
+use bamboo_core::{Charset, decode_charset, encode_charset};
+
+let viqr = encode_charset(Charset::Viqr, "mưa.");
+assert_eq!(viqr, "mu+a\\.");
+assert_eq!(decode_charset(Charset::Viqr, &viqr), "mưa.");
+
+assert_eq!(
+    decode_charset(Charset::VniWindows, "tieáng Vieät"),
+    "tiếng Việt"
+);
+```
+
+VIQR punctuation that would otherwise extend the preceding letter is escaped with `\\`, so
+encoding and decoding preserve ordinary prose such as sentence-ending full stops and questions.
+
+### Migration Notes from 0.5.0
+
+Version 0.5.0 introduces named APIs for operations whose boolean arguments were easy to
+misread. The old APIs remain source-compatible, emit deprecation warnings, and are planned
+for removal in 1.0.0.
+
+| Deprecated API | Replacement |
+|---|---|
+| `remove_last_char(true)` | `undo_last_key()` or `undo_last_key_with(ToneRefresh::Recompute)` |
+| `remove_last_char(false)` | `undo_last_key_with(ToneRefresh::PreserveSnapshot)` |
+| `restore_last_word(true)` | `restore_last_word_as(LastWordForm::Vietnamese)` |
+| `restore_last_word(false)` | `restore_last_word_as(LastWordForm::RawKeystrokes)` |
+| `is_valid(true)` | `is_valid_word()` |
+| `is_valid(false)` | `is_valid_prefix()` |
+| `std_tone_style(true)` | `tone_style(ToneStyle::Modern)` |
+| `std_tone_style(false)` | `tone_style(ToneStyle::Traditional)` |
+| `process_key_delta(...)` | `process_key_edit(...)`, returning named `EditDelta` fields |
+| `process_key_delta_into(...)` | `process_key_edit_into(...)` |
+
+Boolean configuration switches such as `auto_correct(bool)` and `free_tone_marking(bool)`
+remain unchanged because they express ordinary enabled/disabled state.
 
 ## Quick Start — IME Integration
 
@@ -45,7 +90,7 @@ assert_eq!(engine.output(), "tiếng");
 
 ### Batch & Testing Convenience
 
-> ⚠️ **Note:** `Engine::process` is a convenience wrapper intended for **testing and batch validation only** (not for real-time production IME integration). For production applications, use `process_key` or `process_key_delta`.
+> ⚠️ **Note:** `Engine::process` is a convenience wrapper intended for **testing and batch validation only** (not for real-time production IME integration). For production applications, use `process_key` or `process_key_edit`.
 
 ```rust
 use bamboo_core::{Engine, Mode, InputMethod};
@@ -84,46 +129,47 @@ assert_eq!(engine.process("ass", Mode::Vietnamese), "as");
 
 ## Delta Updates for Text Editors
 
-For efficient text editor integration, use `process_key_delta` to get a **3-way diff**:
+For efficient text editor integration, use `process_key_edit` to get a named suffix edit:
 
 ```rust
 use bamboo_core::{Engine, Mode, InputMethod};
 
 let mut engine = Engine::new(InputMethod::telex());
 
-let (bs, _, ins) = engine.process_key_delta('a', Mode::Vietnamese);
-assert_eq!(bs, 0);
-assert_eq!(ins, "a");
+let edit = engine.process_key_edit('a', Mode::Vietnamese);
+assert_eq!(edit.delete_chars, 0);
+assert_eq!(edit.insert, "a");
 
 // previous = "a", new = "á"
-let (bs, _, ins) = engine.process_key_delta('s', Mode::Vietnamese);
-assert_eq!(bs, 1);     // delete 1 char ("a")
-assert_eq!(ins, "á");  // insert "á"
+let edit = engine.process_key_edit('s', Mode::Vietnamese);
+assert_eq!(edit.delete_chars, 1); // delete 1 char ("a")
+assert_eq!(edit.insert, "á");    // insert "á"
 // result: "" + "á" = "á"
 ```
 
 Contract:
 ```text
-previous = [common_prefix] + [backspace_count chars to delete]\nnew      = [common_prefix] + [inserted_suffix]
+previous = [common_prefix] + [delete_chars chars to delete]
+new      = [common_prefix] + [insert]
 ```
 Frontend does not need to compute LCP — the engine does it.
 
 ## Backspace
 
 ```rust
-use bamboo_core::{Engine, Mode, InputMethod, RestoreMark};
+use bamboo_core::{Engine, Mode, InputMethod};
 
 let mut engine = Engine::new(InputMethod::telex());
 engine.process_str("chuyeenr", Mode::Vietnamese);
 assert_eq!(engine.output(), "chuyển");
 
-engine.remove_last_char(RestoreMark::Yes); // or pass true
+engine.undo_last_key();
 assert_eq!(engine.output(), "chuyên");
 ```
 
 Two backspace modes are available:
 
-- `remove_last_char(RestoreMark::Yes)` (or `true`) — undo the **last keystroke** (O(1) via snapshot stack).
+- `undo_last_key()` — undo the **last keystroke** (O(1) via snapshot stack).
   `tiếng` + DEL -> `tiêng`.
 - `remove_last_output_char()` — delete the **entire character before the caret**,
   keeping mark/tone transformations on earlier characters. `tiếng` + DEL -> `tiến`:
@@ -184,7 +230,7 @@ The codebase follows a modular domain-driven architecture designed for zero allo
 - **`input_method` (`src/input_method/`)**: Input method definitions (Telex, VNI, VIQR, Microsoft layout) with zero-copy rule sharing across instances via `Arc<EngineRules>` and `Arc<InputMethod>`.
 - **`orthography` (`src/orthography/`)**: Vietnamese orthography domain covering character phonetics, dense diacritic and tone tables, $O(1)$ bitmask syllable validation (`spelling`), and CVC syllable boundary extraction.
 - **`dfa` (`src/dfa/`)**: JIT cache with flat arena storage (lazy arenas, 8192-state freeze cap), 128-bit bitset fast rejection, branchless popcount-rank transition lookup, 64 B single-cache-line states, and canvas flattener.
-- **`encoder` (`src/encoder/`)**: Zero-allocation legacy encoding conversion supporting 16 Vietnamese character sets (TCVN3, VNI-Windows, VIQR, VISCII, VPS, etc.).
+- **`encoder` (`src/encoder/`)**: Legacy encoding and decoding for 16 Vietnamese character sets (TCVN3, VNI-Windows, VIQR, VISCII, VPS, etc.); the typed `Cow` APIs borrow unchanged text.
 - **`ffi` (`src/ffi.rs`) & `wasm` (`src/wasm.rs`)**: Safe C-ABI bindings with `#![deny(unsafe_op_in_unsafe_fn)]` and WebAssembly wrappers.
 
 ## License
