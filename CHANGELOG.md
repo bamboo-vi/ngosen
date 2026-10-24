@@ -21,6 +21,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   Ngó Sen và cửa sổ cài đặt vẫn hoạt động như cũ. Các package đã cài vẫn giữ lại; dùng `sudo apt autoremove`
   để gỡ nếu không còn package nào khác cần chúng (#280).
 
+### Tài liệu
+
+- README thêm link trang Facebook của Ngó Sen, nơi đăng tin version mới và bài blog; hỏi đáp và báo lỗi vẫn ở
+  GitHub (#284).
+
 ## [1.5.6-1] — 23/10/2026
 
 Sửa lỗi Gõ Sen trong Google Sheets trên X11 với browser dựa trên Chromium (#258, #261), trong app GLFW
