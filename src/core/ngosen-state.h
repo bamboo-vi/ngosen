@@ -312,6 +312,15 @@ namespace ngosen {
          */
         void handlePreeditMode(ngosen::KeyPress& keyEvent, uint32_t currentSym);
 
+        // Web chats (Gemini) take an Enter in the same frame as the end of a composition as part of it,
+        // so an Enter that commits the preedit reaches the app a moment later.
+        static constexpr uint64_t      EnterAfterCommitUs = 50000;
+        void                           holdEnterAfterCommit(ngosen::KeyPress& keyEvent);
+        void                           sendHeldEnter();
+        std::unique_ptr<ngosen::Timer> held_enter_timer_;
+        bool                           held_enter_pending_ = false;
+        bool                           held_enter_release_ = false;
+
         /**
          * @brief Updates emoji page status in candidate list.
          */

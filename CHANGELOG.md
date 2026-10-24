@@ -22,6 +22,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   để gỡ nếu không còn package nào khác cần chúng (#280).
 - Trong ô soạn thảo có định dạng của Firefox (ví dụ ô viết bài trên voz) ở chế độ Gõ Sen, gõ "toan", dấu
   cách, xoá dấu cách rồi gõ "s" thì ra "toans" thay vì "toán". Giờ gõ đúng thành "toán" (#285).
+- Sửa lỗi trong chế độ Preedit (từ đang gõ có gạch chân) trên gemini.google.com: nhấn Enter một lần để gửi,
+  không còn xuống dòng rồi phải nhấn lần hai. Ngó Sen hoàn tất từ trước, rồi gửi Enter sau một chút để Gemini
+  nhận phím. Đã test trên Ubuntu 26.04 với Firefox (#286).
 
 ### Tài liệu
 

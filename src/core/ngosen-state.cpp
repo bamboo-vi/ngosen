@@ -86,12 +86,15 @@ namespace ngosen {
                 return;
             }
         }
-        if (EngineProcessKeyEvent(bambooEngine_.handle(), currentSym, keyEvent.states()) != 0U)
+        const bool engineTook = EngineProcessKeyEvent(bambooEngine_.handle(), currentSym, keyEvent.states()) != 0U;
+        if (engineTook)
             keyEvent.accept();
         if (auto pulled = ngosen::UniqueCPtr<char>(EnginePullCommit(bambooEngine_.handle()))) {
             if (pulled && (*pulled.get() != 0)) {
                 NGOSEN_INFO("Commit: " + std::string(pulled.get()));
                 commit(pulled.get());
+                if ((currentSym == ngosen::key::Return || currentSym == ngosen::key::KP_Enter) && !engineTook && !keyEvent.hasModifier())
+                    holdEnterAfterCommit(keyEvent);
             }
         }
         host_->resetPanel();
@@ -102,6 +105,30 @@ namespace ngosen {
         }
         host_->refreshPreedit();
         host_->refreshPanel();
+    }
+
+    void TypingState::holdEnterAfterCommit(ngosen::KeyPress& keyEvent) {
+        const Field field = host_->field();
+        if (!ngosen::forwardsBackspaces(field) || ngosen::ignoresForwardedKeys(field))
+            return;
+        keyEvent.accept();
+        held_enter_pending_ = true;
+        held_enter_release_ = true;
+        held_enter_timer_   = host_->startTimer(ngosen::monotonicUs() + EnterAfterCommitUs, 1000, [this](ngosen::Timer&) {
+            if (held_enter_pending_) {
+                held_enter_pending_ = false;
+                forwardTap(ngosen::EditKey::Return);
+            }
+            return false;
+        });
+    }
+
+    void TypingState::sendHeldEnter() {
+        if (!held_enter_pending_)
+            return;
+        held_enter_pending_ = false;
+        held_enter_timer_.reset();
+        forwardTap(ngosen::EditKey::Return);
     }
 
     bool TypingState::checkForwardSpecialKey(ngosen::KeyPress& keyEvent, uint32_t& currentSym) {
@@ -378,6 +405,16 @@ namespace ngosen {
 
     void TypingState::handleKey(ngosen::KeyPress& keyEvent) {
         recordKey(keyEvent);
+        if (keyEvent.sym() == ngosen::key::Return || keyEvent.sym() == ngosen::key::KP_Enter) {
+            const bool heldRelease = keyEvent.isRelease() && held_enter_release_;
+            held_enter_release_    = false;
+            if (heldRelease) {
+                keyEvent.accept();
+                return;
+            }
+        }
+        if (!keyEvent.isRelease())
+            sendHeldEnter();
         if (!bambooEngine_ || (retype_ && handleRetypeKey(keyEvent)) || skipsKey(keyEvent))
             return;
         settleBeforeKey();
@@ -627,6 +664,12 @@ namespace ngosen {
     }
 
     void TypingState::reset(bool isFocusOut) {
+        // After focus out a forwarded key may reach the window that took focus.
+        if (isFocusOut) {
+            held_enter_pending_ = false;
+            held_enter_timer_.reset();
+        }
+        sendHeldEnter();
         const auto  surrounding = host_->surrounding();
         const auto& text        = surrounding.text();
         size_t      textLen     = ngosen::utf8::length(text);
