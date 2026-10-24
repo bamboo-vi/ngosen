@@ -75,6 +75,7 @@ namespace ngosen {
         std::string name() const override;
         void        replaceSym(uint32_t sym) override;
         void        accept() override;
+        bool        accepted() const override;
 
       private:
         fcitx::KeyEvent& event_;

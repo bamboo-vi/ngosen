@@ -36,7 +36,8 @@ namespace ngosen {
         // Hands the app this symbol, with the same modifiers, if the key goes on to it.
         virtual void replaceSym(uint32_t sym) = 0;
         // Keeps the key from the app.
-        virtual void accept() = 0;
+        virtual void accept()         = 0;
+        virtual bool accepted() const = 0;
         // Does nothing, since a key not accepted goes on to the app anyway; marks the branches that
         // mean to let it through.
         void passToApp() {}

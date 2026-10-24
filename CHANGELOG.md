@@ -10,6 +10,42 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.7-1] — 24/10/2026
+
+Sửa lỗi mở cài đặt trên KDE Plasma Wayland (#278), lưu cài đặt sau khi fcitx5 khởi động lại (#279),
+thêm dấu trong trình soạn thảo rich text trên Firefox (#285), thứ tự phím trên Firefox X11 (#289)
+và thêm dấu sau Backspace trong terminal dùng xterm.js trên Firefox X11 (#292) với Gõ Sen;
+sửa lỗi phải nhấn Enter hai lần để gửi trên gemini.google.com với Preedit (#286).
+Giảm phần phụ thuộc của package .deb (#280) và thêm liên kết Facebook Page của Ngó Sen vào README (#284).
+Tải ở [ngosen-1.5.7-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.7-1).
+
+### Sửa
+
+- KDE Plasma Wayland: chọn "Cài đặt" trong menu tray thì cửa sổ cài đặt đóng ngay, không hiện ra, khi
+  máy có PyQt5 do gói khác cài vào (gặp trên CachyOS). Giờ cửa sổ mở được (#278).
+- Nếu cửa sổ cài đặt đang mở lúc fcitx5 khởi động lại (ví dụ sau khi cài version mới), đổi cài đặt hiện
+  "Đã lưu" nhưng không lưu gì. Giờ thay đổi được lưu (#279).
+- Gói .deb (Debian, Ubuntu, Linux Mint…) không còn cài cả bộ PyQt6 kèm engine trình duyệt mà cửa sổ
+  cài đặt không dùng. Trên Ubuntu 26.04 sạch, dung lượng thêm ngoài fcitx5 giảm từ khoảng 456 MB xuống 22 MB.
+  Ngó Sen và cửa sổ cài đặt vẫn hoạt động như cũ. Các package đã cài vẫn giữ lại; dùng `sudo apt autoremove`
+  để gỡ nếu không còn package nào khác cần chúng (#280).
+- Trong ô soạn thảo có định dạng của Firefox (ví dụ ô viết bài trên voz) ở chế độ Gõ Sen, gõ "toan", dấu
+  cách, xoá dấu cách rồi gõ "s" thì ra "toans" thay vì "toán". Giờ gõ đúng thành "toán" (#285).
+- Sửa lỗi trong chế độ Preedit (từ đang gõ có gạch chân) trên gemini.google.com: nhấn Enter một lần để gửi,
+  không còn xuống dòng rồi phải nhấn lần hai. Ngó Sen hoàn tất từ trước, rồi gửi Enter sau một chút để Gemini
+  nhận phím. Đã test trên Ubuntu 26.04 với Firefox (#286).
+- Gõ Sen trên Firefox X11: khi gõ nhanh, dấu cách hoặc chữ ngay sau từ vừa thêm dấu có thể chen vào giữa từ,
+  như "tiếng việt" thành "ti ếngvi ệt", trong cả ô văn bản thường và TinyMCE, Lexical. Giờ các phím giữ đúng
+  thứ tự đã gõ (#289).
+- Gõ Sen trong terminal trên web dùng xterm.js (VS Code for the web, Jupyter, web SSH): gõ "toan", dấu
+  cách, BackSpace xoá dấu cách rồi gõ "s" thì ra "toans" thay vì "toán" trên Firefox X11. Giờ gõ đúng thành
+  "toán". Đã test trên Firefox X11 (Linux Mint); Chromium X11 đã gõ đúng từ trước (#292).
+
+### Tài liệu
+
+- README thêm link trang Facebook của Ngó Sen, nơi đăng tin version mới và bài blog; hỏi đáp và báo lỗi vẫn ở
+  GitHub (#284).
+
 ## [1.5.6-1] — 23/10/2026
 
 Sửa lỗi Gõ Sen trong Google Sheets trên X11 với browser dựa trên Chromium (#258, #261), trong app GLFW

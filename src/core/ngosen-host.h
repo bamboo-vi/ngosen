@@ -20,6 +20,7 @@ namespace ngosen {
         BackSpace,
         Right,
         Shift,
+        Return,
     };
 
     // The text around the cursor as the app last reported it. Positions count characters.

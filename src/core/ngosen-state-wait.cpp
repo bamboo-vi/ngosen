@@ -449,6 +449,9 @@ namespace ngosen {
 
     void TypingState::commit(const std::string& text) {
         noteCommit(text);
+        // A field that rewrites what we commit never shows it; keep only the latest commits.
+        if (realMode == ngosen::Mode::Sen && ngosen::appliesEarlyKeysFirst(host_->field()))
+            commitNotSeen_ = commitNotSeen_.size() + text.size() > 64 ? text : commitNotSeen_ + text;
         committing_ = true;
         host_->commitText(text);
         committing_ = false;
