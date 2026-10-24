@@ -383,6 +383,26 @@ namespace {
         check(marked == "ba`ns ", "backspace into a VIQR word", marked);
     }
 
+    // Firefox contenteditable keeps a trailing space as U+00A0 in the text it reports.
+    void testBackspaceIntoWordBeforeNbsp() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("dbus", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+
+        for (const char c : std::string("ban"))
+            press(state, static_cast<uint32_t>(c));
+        press(state, static_cast<uint32_t>(' '));
+        host->setSurrounding("ban\u00a0", 4);
+        state.surroundingUpdated();
+        press(state, ngosen::key::BackSpace);
+        host->setSurrounding("ban", 3);
+        state.surroundingUpdated();
+        check(press(state, static_cast<uint32_t>('f')), "backspace into word before nbsp: f marks the word", "f went to the app");
+    }
+
     // After a click elsewhere the text before the cursor is not our word, so it is not reopened.
     void testBackspaceAfterMovingAway() {
         realMode = ngosen::Mode::Sen;
@@ -890,6 +910,7 @@ int main() {
         setXTestSenderForTest({});
     }
     testBackspaceIntoCommittedText();
+    testBackspaceIntoWordBeforeNbsp();
     testBackspaceAfterMovingAway();
     testBackspaceAfterCtrlBackspace();
     testResentBackspace();

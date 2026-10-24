@@ -118,7 +118,10 @@ namespace ngosen {
         auto               it = t.begin();
         for (unsigned int i = 0; i < s.cursor() && it != t.end(); ++i)
             it = ngosen::utf8::nextChar(it, t.end());
-        const std::string before(t.begin(), it);
+        std::string before(t.begin(), it);
+        // Firefox contenteditable reports a trailing space as U+00A0.
+        for (size_t pos = 0; (pos = before.find("\u00a0", pos)) != std::string::npos;)
+            before.replace(pos, 2, " ");
         return before.size() >= typed.size() && before.compare(before.size() - typed.size(), typed.size(), typed) == 0;
     }
 
