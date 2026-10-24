@@ -1,4 +1,4 @@
-Version 1.5.6 phát hành ngày 23/10/2026, sửa lỗi nhảy, mất chữ trong Google Sheets trên X11 với Gõ Sen trong browser dựa trên Chromium (#258, #261), lỗi thêm dấu sau Backspace trong app GLFW qua XWayland như Minecraft Java (#247) và lỗi lệnh cài thiếu `XMODIFIERS` trên KDE Plasma Wayland (#251). Cửa sổ cài đặt sửa mô tả trang Giới thiệu (#249), lỗi cắt chữ khi font lớn (#250), thanh cuộn trên GNOME khi chưa cài Qt theme (#252) và đổi sáng/tối theo GNOME với Qt 6.8 trở lên (#253); thêm cảnh báo khi fcitx5 còn dùng version cũ sau update (#212). Log gõ bỏ nội dung ô bị báo lặp liên tiếp để giữ được đoạn gõ dài hơn (#213). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.5.7 phát hành ngày 24/10/2026, sửa lỗi cửa sổ cài đặt đóng ngay khi mở từ menu khay trên KDE Plasma Wayland nếu package khác đã cài PyQt5 (#278), lỗi báo “Đã lưu” nhưng không lưu sau khi fcitx5 khởi động lại (#279), lỗi thêm dấu sau khi xóa khoảng trắng trong trình soạn thảo rich text trên Firefox với Gõ Sen (#285), lỗi phải nhấn Enter hai lần để gửi trên gemini.google.com với Preedit (#286), lỗi phím bị chèn sai thứ tự khi gõ nhanh trên Firefox X11 với Gõ Sen (#289) và lỗi thêm dấu sau Backspace trong terminal dùng xterm.js trên Firefox X11 với Gõ Sen (#292). Package .deb bỏ các phụ thuộc PyQt6 không dùng, giảm dung lượng cài thêm ngoài fcitx5 từ khoảng 456 MB xuống 22 MB trên Ubuntu 26.04 sạch (#280). README thêm liên kết Facebook Page của Ngó Sen (#284). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -29,6 +29,16 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 Đối chiếu file tải về với `SHA256SUMS`: `sha256sum -c SHA256SUMS --ignore-missing`.
 
 ## Đã test những gì
+
+Gói 1.5.7 từ PR phát hành #293 được gõ thử trên VM ngày 24/10/2026, dùng Gõ Sen, Telex, trừ lượt Preedit ghi riêng bên dưới.
+
+Linux Mint 22.1 (Cinnamon X11, gói `noble`), Firefox, ô chữ thường, ô contenteditable, TinyMCE và Lexical: câu `tieengs vieetj laf ngoon nguwx cuar nguwowif vieetj nam` gõ 120 ms và 30 ms giữa các phím → `tiếng việt là ngôn ngữ của người việt nam`; `toan`, dấu cách, Backspace, `s` → `toán`. Đúng 11/12 lượt; lượt còn lại trang Lexical báo ô trống chứ không ra chữ sai, gõ lại 3/3 lượt đúng. Terminal xterm.js: `toan`, dấu cách, Backspace, `s` → `toán`, đúng 4/4 lượt. gemini.google.com không đăng nhập, chế độ Preedit: gõ `xin chaof` rồi Enter một lần là gửi, đúng 3/3 lượt.
+
+CachyOS (KDE Plasma Wayland, gói Arch): ô chữ thường trong Firefox và Chromium, câu trên gõ 120 ms và 30 ms, `toan`, dấu cách, Backspace, `s` → `toán`, đúng 12/12 lượt; trước đó lượt đầu ngay sau khi Firefox mới mở sai 2 ca do máy ảo khựng. Máy có cả PyQt5 và PyQt6; cửa sổ cài đặt mở được và vẫn chạy sau 10 giây.
+
+Ubuntu 26.04 (GNOME Wayland, gói `resolute`): cửa sổ cài đặt mở được; Firefox snap, ô chữ thường: câu trên đúng ở cả hai tốc độ. `toan`, dấu cách, Backspace, `s` ra `toans` (3/3 lượt, 1.5.6 trên cùng máy cũng vậy): Firefox bản snap vẫn chưa được sửa lỗi xoá qua dấu cách.
+
+Lưu cài đặt khi fcitx5 khởi động lại lúc cửa sổ đang mở (#279) và dung lượng cài trên Ubuntu sạch (#280) không được test lại trên gói 1.5.7; phụ thuộc của gói .deb đã được đọc lại, chỉ còn `python3-pyqt6`. Fedora, Debian, openSUSE và Kali chưa được gõ thử với 1.5.7.
 
 Gói 1.5.6 từ PR phát hành #268 được gõ thử trên VM ngày 23/10/2026, dùng Gõ Sen, Telex.
 

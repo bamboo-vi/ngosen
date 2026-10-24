@@ -36,6 +36,7 @@ namespace ngosen::test {
         bool redrawsOnlyOnDeletion  = false; // redraws after deletions but not insertions, as a plain Draft.js box in Chrome on GNOME does
         bool dropsOldKeyPresses     = false; // drops a Backspace press not newer than the last one, as GLFW does under XIM
         bool hidesSelectionEnd      = false; // reports a selection as the cursor at its start, as Firefox does
+        int  commitLagMs            = 0;     // applies commits this late but typed keys at once, as Firefox does over D-Bus
     };
 
     // An app field that keeps its own text, so a test can compare what the user would see with what
