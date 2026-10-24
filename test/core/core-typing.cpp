@@ -95,15 +95,15 @@ namespace {
         check(join(host->commits()) == "['việt ']", "preedit: space commits the word with the space", join(host->commits()));
     }
 
-    // Types "tieen" and Enter in Preedit, then nextKey if set; returns how many keys were forwarded right
-    // after Enter, right after nextKey and after the timers ran, and the forwarded keys as text.
+    // Types `before` and Enter in Preedit, then nextKey if set, or loses focus; counts the keys forwarded
+    // right after Enter, right after nextKey and after the timers ran, and lists them as text.
     struct EnterResult {
-        bool        enterAccepted = false;
+        bool        enterAccepted = false, releaseAccepted = false;
         size_t      atEnter = 0, atNextKey = 0, atEnd = 0;
         std::string commits, forwarded;
     };
 
-    EnterResult typeEnterInPreedit(const Field& field, const char* before, uint32_t nextKey = 0) {
+    EnterResult typeEnterInPreedit(const Field& field, const char* before, uint32_t nextKey = 0, uint32_t enterSym = ngosen::key::Return, bool focusOut = false) {
         realMode = ngosen::Mode::Preedit;
         FakeLoop            loop;
         FakeResources       resources;
@@ -113,10 +113,17 @@ namespace {
         for (const char* c = before; *c != 0; ++c)
             press(state, static_cast<uint32_t>(*c));
         EnterResult r;
-        r.enterAccepted = press(state, ngosen::key::Return);
-        r.atEnter       = host->forwarded().size();
+        FakeKey     down(enterSym);
+        state.keyEvent(down);
+        FakeKey up(enterSym, true);
+        state.keyEvent(up);
+        r.enterAccepted   = down.accepted();
+        r.releaseAccepted = up.accepted();
+        r.atEnter         = host->forwarded().size();
         if (nextKey != 0)
             press(state, nextKey);
+        if (focusOut)
+            state.reset(true);
         r.atNextKey = host->forwarded().size();
         loop.pump(100);
         r.atEnd   = host->forwarded().size();
@@ -131,6 +138,13 @@ namespace {
         check(held.commits == "['tiên']", "preedit Enter: commits the word", held.commits);
         check(held.enterAccepted && held.atEnter == 0, "preedit Enter: holds the Enter that commits the word", std::to_string(held.atEnter));
         check(held.forwarded == "Return down;Return up;", "preedit Enter: sends the held Enter after a moment", held.forwarded);
+        check(held.releaseAccepted, "preedit Enter: keeps the release of the held Enter from the app", held.forwarded);
+
+        const EnterResult keypad = typeEnterInPreedit(makeField("wayland", true), "tieen", 0, ngosen::key::KP_Enter);
+        check(keypad.enterAccepted && keypad.forwarded == "Return down;Return up;", "preedit Enter: holds keypad Enter too", keypad.forwarded);
+
+        const EnterResult away = typeEnterInPreedit(makeField("wayland", true), "tieen", 0, ngosen::key::Return, true);
+        check(away.atEnd == 0, "preedit Enter: drops the held Enter on focus out", away.forwarded);
 
         const EnterResult fast = typeEnterInPreedit(makeField("wayland", true), "tieen", 'a');
         check(fast.atNextKey == 2 && fast.atEnd == 2, "preedit Enter: a key typed at once sends the held Enter first, once", fast.forwarded);

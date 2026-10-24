@@ -93,7 +93,7 @@ namespace ngosen {
             if (pulled && (*pulled.get() != 0)) {
                 NGOSEN_INFO("Commit: " + std::string(pulled.get()));
                 commit(pulled.get());
-                if (currentSym == ngosen::key::Return && !engineTook && !keyEvent.hasModifier())
+                if ((currentSym == ngosen::key::Return || currentSym == ngosen::key::KP_Enter) && !engineTook && !keyEvent.hasModifier())
                     holdEnterAfterCommit(keyEvent);
             }
         }
@@ -664,6 +664,11 @@ namespace ngosen {
     }
 
     void TypingState::reset(bool isFocusOut) {
+        // After focus out a forwarded key may reach the window that took focus.
+        if (isFocusOut) {
+            held_enter_pending_ = false;
+            held_enter_timer_.reset();
+        }
         sendHeldEnter();
         const auto  surrounding = host_->surrounding();
         const auto& text        = surrounding.text();
