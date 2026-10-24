@@ -517,8 +517,9 @@ namespace ngosen {
 
     bool TypingState::atStartOfLine() const {
         const Field field = host_->field();
-        // Only a field that reports its text can tell; where the report lags it may still show the old text.
-        if (!field.surroundingText || field.url || field.password || ngosen::surroundingTextLags(field))
+        // Only a field that reports its text can tell. A typed key arrives after the report of the key
+        // before it, even over IBus; a key since the last report is caught below.
+        if (!field.surroundingText || field.url || field.password)
             return false;
         // GTK over Wayland reports the text from before a paste or a new line it inserts itself.
         if (keySinceReport_)
