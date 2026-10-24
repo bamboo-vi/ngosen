@@ -347,7 +347,7 @@ msgid "Tab: retype in Vietnamese, Esc: keep"
 msgstr ""
 
 #: src/core/ngosen-state-retone.cpp
-msgid "Tab: change the tone, Esc: keep"
+msgid "Esc: put back the key"
 msgstr ""
 
 #: src/core/ngosen-state-retype.cpp
@@ -1332,7 +1332,7 @@ msgid "Typed tieengs vieetj before switching on? Switch on and it becomes tiến
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
-msgid "Select nhanh, type s, then press Tab: nhánh."
+msgid "Select nhanh and type s: nhánh. Esc gives back s."
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py

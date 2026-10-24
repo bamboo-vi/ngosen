@@ -348,8 +348,8 @@ msgid "Tab: retype in Vietnamese, Esc: keep"
 msgstr "Cứu chữ: Tab để đổi, Esc để giữ nguyên"
 
 #: src/core/ngosen-state-retone.cpp
-msgid "Tab: change the tone, Esc: keep"
-msgstr "Cứu dấu: Tab để đổi, Esc để giữ nguyên"
+msgid "Esc: put back the key"
+msgstr "Cứu dấu: Esc để trả lại phím vừa gõ"
 
 #: src/core/ngosen-state-retype.cpp
 msgid "Esc: put back what was typed"
@@ -1419,8 +1419,8 @@ msgid "Typed tieengs vieetj before switching on? Switch on and it becomes tiến
 msgstr "Lỡ gõ tieengs vieetj khi chưa bật? Bật tiếng Việt là thành tiếng việt. Esc để trả lại chữ đã gõ."
 
 #: settings-gui/ui/pages/dynamic_settings.py
-msgid "Select nhanh, type s, then press Tab: nhánh."
-msgstr "Bôi đen nhanh, gõ s rồi bấm Tab: nhánh."
+msgid "Select nhanh and type s: nhánh. Esc gives back s."
+msgstr "Bôi đen nhanh rồi gõ s: nhánh. Esc để trả lại s."
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "Opens a menu to pick a mode for the app in use. Only while typing Vietnamese; in English the key types as usual."

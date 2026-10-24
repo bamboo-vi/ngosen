@@ -173,6 +173,7 @@ namespace ngosen {
             std::string marked;
             bool        applied = false; // Tab once more puts typed back
             bool        atOnce  = false; // retyped on switching on; only Esc undoes it
+            bool        retone  = false; // a selected word retoned; a letter after it puts the key back
         };
         std::string                    typedWhileOff_;
         std::optional<Retype>          retype_;
@@ -181,6 +182,8 @@ namespace ngosen {
         std::string addMarks(const std::string& typed);
         bool        everyWordTakesMarks(const std::string& typed);
         void        applyRetype();
+        void        applyRetypeSoon(std::string hint);
+        void        reopenTypedKey();
         void        dropRetype();
         void        hideOffer();
         bool        reportsTextInTime() const;

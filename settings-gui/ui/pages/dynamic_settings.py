@@ -132,7 +132,7 @@ HINTS = {
     "RetypeAfterSwitch": N_(
         "Typed tieengs vieetj before switching on? Switch on and it becomes tiếng việt. Esc gives back what you typed."
     ),
-    "RetoneSelection": N_("Select nhanh, type s, then press Tab: nhánh."),
+    "RetoneSelection": N_("Select nhanh and type s: nhánh. Esc gives back s."),
     "ModeMenuKey": N_(
         "Opens a menu to pick a mode for the app in use. Only while typing Vietnamese; in English the key types as usual."
     ),

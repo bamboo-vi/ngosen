@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-// TypingState: offering a selected word with the tone key typed over it.
+// TypingState: retoning a selected word with the tone key typed over it.
 #include "ngosen-clock.h"
 #include "ngosen-keysym.h"
 #include "ngosen-log.h"
@@ -99,11 +99,9 @@ namespace ngosen {
         const std::string toned = retoned(word, key.sym, key.states);
         if (toned.empty() || toned == word || withoutToneMark(toned) != withoutToneMark(word))
             return;
-        NGOSEN_INFO("Offer retone: " + word + " -> " + toned);
-        retype_ = Retype{.typed = key.text, .marked = toned};
-        host_->showCandidates({word + " → " + toned}, 1, [this](size_t) { applyRetype(); });
-        host_->setStatus(host_->translate("Tab: change the tone, Esc: keep"));
-        host_->refreshPanel();
+        NGOSEN_INFO("Retone: " + word + " -> " + toned);
+        retype_ = Retype{.typed = key.text, .marked = toned, .atOnce = true, .retone = true};
+        applyRetypeSoon(host_->translate("Esc: put back the key"));
     }
 
     std::string TypingState::retoned(const std::string& word, uint32_t sym, uint32_t states) const {

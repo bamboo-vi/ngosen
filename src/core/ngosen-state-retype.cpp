@@ -10,6 +10,7 @@
 #include "ngosen-keysym.h"
 #include "ngosen-log.h"
 #include "ngosen-state.h"
+#include "ngosen-strings.h"
 #include "ngosen-utf8.h"
 
 #include <string>
@@ -27,6 +28,11 @@ namespace ngosen {
         // Shift only picks the character, so it does not count.
         bool isShortcut(const ngosen::KeyPress& key) {
             return (key.states() & (ngosen::modifier::Ctrl | ngosen::modifier::Alt | ngosen::modifier::Super)) != 0U;
+        }
+
+        bool isWordKey(const std::string& text) {
+            const std::u32string chars = ngosen::utf8::decode(text);
+            return chars.size() == 1 && isWordChar(chars[0]);
         }
     } // namespace
 
@@ -141,15 +147,7 @@ namespace ngosen {
         if (everyWordTakesMarks(typed)) {
             NGOSEN_INFO("Retype: " + typed + " -> " + marked);
             retype_ = Retype{.typed = typed, .marked = marked, .atOnce = true};
-            // Not from inside the switch key's handling, which the app may still be waiting on.
-            retype_timer_ = host_->startTimer(ngosen::monotonicUs(), 0, [this](ngosen::Timer&) {
-                if (retype_ && retype_->atOnce && !retype_->applied) {
-                    applyRetype();
-                    host_->setStatus(host_->translate("Esc: put back what was typed"));
-                    host_->refreshPanel();
-                }
-                return false;
-            });
+            applyRetypeSoon(host_->translate("Esc: put back what was typed"));
             return;
         }
         NGOSEN_INFO("Offer retype: " + typed + " -> " + marked);
@@ -177,6 +175,25 @@ namespace ngosen {
             retype_.reset();
         else
             retype_->applied = true;
+    }
+
+    void TypingState::applyRetypeSoon(std::string hint) {
+        // Not from inside the key or report being handled, which the app may still be waiting on.
+        retype_timer_ = host_->startTimer(ngosen::monotonicUs(), 0, [this, hint = std::move(hint)](ngosen::Timer&) {
+            if (retype_ && retype_->atOnce && !retype_->applied) {
+                applyRetype();
+                host_->setStatus(hint);
+                host_->refreshPanel();
+            }
+            return false;
+        });
+    }
+
+    void TypingState::reopenTypedKey() {
+        // The field still shows the retoned word, so the next key replaces it with the key and itself.
+        EngineRebuildFromText(bambooEngine_.handle(), retype_->typed.c_str());
+        oldPreBuffer_ = retype_->marked;
+        dropRetype();
     }
 
     void TypingState::hideOffer() {
@@ -213,6 +230,11 @@ namespace ngosen {
                 else
                     dropRetype();
                 return true;
+            }
+            // s, r and x also start words: a letter after one means the selection was typed over.
+            if (retype_->retone && retype_->applied && !isShortcut(keyEvent) && isWordKey(host_->keyText(sym))) {
+                reopenTypedKey();
+                return false;
             }
             dropRetype();
             return false;
