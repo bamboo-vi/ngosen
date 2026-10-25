@@ -10,6 +10,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa lỗi
+
+- Cửa sổ cài đặt của 1.5.7 không lưu được gì và báo “Không lưu được”, dù fcitx5 vẫn chạy (#303, #305).
+
 ### Tài liệu
 
 - README: thêm mục “Thiết lập sau khi cài package” cho máy cài Ngó Sen từ repo hoặc package tải về, vì
