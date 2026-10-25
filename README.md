@@ -54,7 +54,7 @@ Từ version 1.5.3, mỗi release đều có trên repo có chữ ký để nh�
 `dnf upgrade`, `apt upgrade`, `pacman -Syu` hoặc `zypper up`.
 
 Chỉ cần thêm repo một lần. Nếu đã cài Ngó Sen bằng lệnh một dòng, chỉ cần thêm repo; lệnh cài gói trong
-mỗi khối dưới đây dành cho máy chưa có Ngó Sen.
+mỗi khối dưới đây dành cho máy chưa có Ngó Sen, cài xong làm theo mục “Thiết lập sau khi cài package”.
 
 Các repo dùng chung một key có fingerprint `6D4A 2075 F985 3BE8 F6B6 FE7E 7550 1858 158B 36CD`.
 Đối chiếu fingerprint này với thông tin trình quản lý gói hiển thị.
@@ -97,6 +97,18 @@ sudo zypper install fcitx5-ngosen
 zypper hỏi một lần có tin cậy key không; đối chiếu fingerprint rồi chọn tin cậy.
 
 Sau khi update, khởi động lại fcitx5 theo mục “Khởi động lại sau khi cài hoặc cập nhật”.
+
+### Thiết lập sau khi cài package
+
+Nếu máy chưa từng thiết lập Ngó Sen, cài từ repo, package tải về hoặc dùng `--no-setup` chưa thêm Ngó Sen
+vào danh sách bộ gõ. Ctrl+Space sẽ chưa gõ được tiếng Việt.
+
+- Mở “Cấu hình Fcitx 5” bằng `fcitx5-configtool`, vào tab bộ gõ và thêm “Ngó Sen” vào danh sách.
+- Với Xfce, Cinnamon, MATE trên Debian/Ubuntu/Mint, chạy `im-config -n fcitx5`, rồi đăng xuất và đăng nhập
+  lại. Nếu có IBus, bước này giúp fcitx5 khởi động khi đăng nhập và gõ được trong app dùng XIM như PlanMaker.
+
+Có thể chạy lệnh cài một dòng ở trên để làm cả hai bước.
+Nếu đã dùng lệnh cài một dòng và chỉ thêm repo để update, không cần làm thêm.
 
 ### Cài bằng tay hoặc tự build
 
