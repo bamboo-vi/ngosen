@@ -182,10 +182,6 @@ msgstr ""
 msgid "Allow dd To Produce đ When Auto Restore Invalid Words Is On"
 msgstr ""
 
-#: src/ngosen-config.h:243
-msgid "Fix Uinput Mode With Ack"
-msgstr ""
-
 #: src/ngosen-config.h:244
 msgid "Use Ngó Sen Status Icons"
 msgstr ""
@@ -848,12 +844,6 @@ msgstr ""
 
 #: settings-gui/ui/helpers.py:14
 msgid "You can type tone marks at the end of the word or anywhere inside."
-msgstr ""
-
-#: settings-gui/ui/helpers.py:16
-msgid ""
-"Fix typing issues in Uinput mode for Chromium-based browsers like Chrome or "
-"Edge."
 msgstr ""
 
 #: settings-gui/ui/helpers.py:19

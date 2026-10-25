@@ -56,7 +56,7 @@ int main() {
     config.setValueByPath("WaitSurroundingSettleMs", "40");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Sen || !engine.config().waitSurroundingEvent.value()) {
-        reportFailure("configure Uinput", "mode=Uinput, WaitSurroundingEvent=True", "config differs");
+        reportFailure("configure Sen", "mode=Sen, WaitSurroundingEvent=True", "config differs");
         return 1;
     }
 

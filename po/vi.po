@@ -183,10 +183,6 @@ msgstr "Backspace xóa dấu thanh"
 msgid "Allow dd To Produce đ When Auto Restore Invalid Words Is On"
 msgstr "Vẫn gõ dd ra đ khi tự khôi phục"
 
-#: src/ngosen-config.h:243
-msgid "Fix Uinput Mode With Ack"
-msgstr "Sửa lỗi chế độ Uinput với Ack"
-
 #: src/ngosen-config.h:244
 msgid "Use Ngó Sen Status Icons"
 msgstr "Sử dụng biểu tượng trạng thái Ngó Sen"
@@ -868,14 +864,6 @@ msgstr "Chữ hiện thẳng vào ô, không gạch chân."
 #: settings-gui/ui/helpers.py:14
 msgid "You can type tone marks at the end of the word or anywhere inside."
 msgstr "Bạn có thể gõ dấu câu ở cuối từ hoặc bất cứ đâu."
-
-#: settings-gui/ui/helpers.py:16
-msgid ""
-"Fix typing issues in Uinput mode for Chromium-based browsers like Chrome or "
-"Edge."
-msgstr ""
-"Sửa lỗi gõ trong chế độ Uinput cho trình duyệt Chromium-based như Chrome "
-"hoặc Edge."
 
 #: settings-gui/ui/helpers.py:19
 msgid ""

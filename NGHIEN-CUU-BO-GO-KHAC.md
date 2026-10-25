@@ -14,6 +14,9 @@ Chế độ Super Smooth của Ngó Sen (uinput) đi **hai đường**: bàn ph�
 hai đường này lệch nhịp. Bộ gõ nào
 làm được mà **chỉ một đường** là thứ đáng học.
 
+Cập nhật: từ 07/10/2026 (#43), Ngó Sen bỏ uinput. Chế độ Sen xoá chữ bằng phím xoá fcitx5 chuyển cho app,
+nhờ app xoá qua surrounding text, hoặc bấm phím qua XTEST trên X11. Phần dưới giữ nguyên như lúc khảo sát.
+
 ## Tóm tắt: 18 bộ gõ chia làm 5 cách
 
 | Cách đưa chữ vào                                                                     | Bộ gõ                                                                                 |

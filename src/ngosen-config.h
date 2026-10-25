@@ -255,7 +255,7 @@ namespace fcitx {
         Option<bool> backspaceRemovesTone{this, "BackspaceRemovesTone", _("Backspace Removes the Tone Mark"), false};
         // Timing for deleting through the app. Hidden from the config window; tests and bug reports
         // still set them in ngosen.conf.
-        HiddenOption<bool> waitSurroundingEvent{this, "WaitSurroundingEvent", _("Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping"),
+        HiddenOption<bool> waitSurroundingEvent{this, "WaitSurroundingEvent", _("Experiment: after forwarded backspaces, wait for the surrounding-text event instead of sleeping"),
                                                 true};
         HiddenOption<int> waitSurroundingTimeoutMs{this, "WaitSurroundingTimeoutMs", _("Experiment: timeout (ms) for that wait"), 50}; HiddenOption<int> waitSurroundingShortMs{
             this, "WaitSurroundingShortMs", _("Experiment: shorter timeout (ms) used after two consecutive timeouts without a matching event"), 40};

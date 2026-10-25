@@ -280,7 +280,7 @@
    [
     "WaitSurroundingEvent",
     "Boolean",
-    "Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping",
+    "Experiment: after forwarded backspaces, wait for the surrounding-text event instead of sleeping",
     "True",
     {}
    ],
