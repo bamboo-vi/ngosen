@@ -13,7 +13,7 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 ### Tài liệu
 
 - README: thêm mục “Thiết lập sau khi cài package” cho máy cài Ngó Sen từ repo hoặc package tải về, vì
-  cách cài này chưa thêm Ngó Sen vào danh sách bộ gõ và không đổi IBus sang fcitx5 (#PR).
+  cách cài này chưa thêm Ngó Sen vào danh sách bộ gõ và không đổi IBus sang fcitx5 (#301).
 
 ## [1.5.7-1] — 24/10/2026
 
