@@ -30,6 +30,8 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 
 ## Đã test những gì
 
+Gói 1.5.8 từ PR phát hành #306 được test trên VM ngày 26/10/2026 trên Ubuntu 26.04 (GNOME Wayland, gói `resolute`) và CachyOS (KDE Plasma Wayland, gói Arch). Trên mỗi máy, cửa sổ cài đặt mở được và vẫn chạy sau 10 giây. Phần lưu của cửa sổ cài đặt được gọi thẳng với fcitx5 đang chạy, mỗi máy một lượt: đổi một ô cài đặt chính và lưu một gõ tắt, rồi đọc lại; cả hai đều lưu được. Với gói 1.5.7-1 đã phát hành trên cùng hai máy, cả hai lần lưu đều bị fcitx5 từ chối và cài đặt không đổi. Chưa bấm lưu bằng chuột trong cửa sổ; Fedora, Debian, Mint, openSUSE và Kali chưa được test với 1.5.8.
+
 Gói 1.5.7 từ PR phát hành #293 được gõ thử trên VM ngày 24/10/2026, dùng Gõ Sen, Telex, trừ lượt Preedit ghi riêng bên dưới.
 
 Linux Mint 22.1 (Cinnamon X11, gói `noble`), Firefox, ô chữ thường, ô contenteditable, TinyMCE và Lexical: câu `tieengs vieetj laf ngoon nguwx cuar nguwowif vieetj nam` gõ 120 ms và 30 ms giữa các phím → `tiếng việt là ngôn ngữ của người việt nam`; `toan`, dấu cách, Backspace, `s` → `toán`. Đúng 11/12 lượt; lượt còn lại trang Lexical báo ô trống chứ không ra chữ sai, gõ lại 3/3 lượt đúng. Terminal xterm.js: `toan`, dấu cách, Backspace, `s` → `toán`, đúng 4/4 lượt. gemini.google.com không đăng nhập, chế độ Preedit: gõ `xin chaof` rồi Enter một lần là gửi, đúng 3/3 lượt.
