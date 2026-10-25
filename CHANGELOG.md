@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Tài liệu
+
+- README: thêm mục “Thiết lập sau khi cài package” cho máy cài Ngó Sen từ repo hoặc package tải về, vì
+  cách cài này chưa thêm Ngó Sen vào danh sách bộ gõ và không đổi IBus sang fcitx5 (#PR).
+
 ## [1.5.7-1] — 24/10/2026
 
 Sửa lỗi mở cài đặt trên KDE Plasma Wayland (#278), lưu cài đặt sau khi fcitx5 khởi động lại (#279),
