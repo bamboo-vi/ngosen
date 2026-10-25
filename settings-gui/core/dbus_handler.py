@@ -38,7 +38,7 @@ class NgoSenDBusHandler:
         if not self.iface:
             return False
         try:
-            dbus_dict = self._prepare_dbus_data(values_dict)
+            dbus_dict = self._prepare_dbus_data(values_dict, variant_level=1)
             self.iface.SetConfig(self.addon_name, dbus_dict)
             return True
         except Exception as e:
@@ -109,19 +109,19 @@ class NgoSenDBusHandler:
             full_path = f"{self.addon_name}/{path}"
             fcitx_array = {str(i): item for i, item in enumerate(data_list)}
             dbus_payload = {root_key: fcitx_array}
-            dbus_dict = self._prepare_dbus_data(dbus_payload)
+            dbus_dict = self._prepare_dbus_data(dbus_payload, variant_level=1)
             self.iface.SetConfig(full_path, dbus_dict)
             return True
         except Exception as e:
             print(f"Failed to set sub config ({path}): {e}")
             return False
 
-    def _prepare_dbus_data(self, data):
+    def _prepare_dbus_data(self, data, variant_level=0):
         """Prepare data to be sent to Fcitx5 in dbus types with signatures."""
         if isinstance(data, dict):
             # Fcitx5 expects dicts to be a{sv} (String to Variant)
             formatted = {str(k): self._prepare_dbus_data(v) for k, v in data.items()}
-            return dbus.Dictionary(formatted, signature="sv")
+            return dbus.Dictionary(formatted, signature="sv", variant_level=variant_level)
         elif isinstance(data, list):
             # Arrays must be Array of Variants (av)
             formatted = [self._prepare_dbus_data(v) for v in data]
