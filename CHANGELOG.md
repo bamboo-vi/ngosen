@@ -10,6 +10,23 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.5.8-1] — 26/10/2026
+
+Sửa lỗi cửa sổ cài đặt không lưu được thay đổi trên version 1.5.7 dù fcitx5 đang chạy (#303, #305);
+người dùng version 1.5.7 nên cập nhật. README bổ sung mục “Thiết lập sau khi cài package” cho máy cài
+từ repo hoặc package tải về, vì cách cài này không thêm Ngó Sen vào danh sách bộ gõ và không chuyển
+IBus sang fcitx5 (#301).
+Tải ở [ngosen-1.5.8-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.5.8-1).
+
+### Sửa
+
+- Cửa sổ cài đặt của 1.5.7 không lưu được gì và báo “Không lưu được”, dù fcitx5 vẫn chạy (#303, #305).
+
+### Tài liệu
+
+- README: thêm mục “Thiết lập sau khi cài package” cho máy cài Ngó Sen từ repo hoặc package tải về, vì
+  cách cài này chưa thêm Ngó Sen vào danh sách bộ gõ và không đổi IBus sang fcitx5 (#301).
+
 ## [1.5.7-1] — 24/10/2026
 
 Sửa lỗi mở cài đặt trên KDE Plasma Wayland (#278), lưu cài đặt sau khi fcitx5 khởi động lại (#279),
