@@ -69,9 +69,8 @@ int main(int argc, char** argv) {
 
     // Reproduces #472: a held 'd' under Telex.
     //
-    // The window model matters. In Uinput mode the uinput server passes the
-    // physical keystroke straight to the application, so every press shows up
-    // there on its own; the engine only corrects afterwards with backspaces and a
+    // The window model matters. In Sen mode the physical keystroke reaches the
+    // application, so every press shows up there on its own; the engine only corrects afterwards with backspaces and a
     // commit. Counting commits alone would understate what the user sees.
     const int                kHeldPresses = 12;
     int                      sent         = 0;
@@ -131,7 +130,7 @@ int main(int argc, char** argv) {
         std::cerr << "['" << commit << "']";
     std::cerr << "\nforwarded: " << context->forwarded().size() << "\nwindow shows: '" << text << "' (" << screen.size() << " characters)\n";
 
-    // Outside Uinput mode a held key keeps appending, so the window grows with
+    // As without an input method, a held key keeps appending, so the window grows with
     // the number of presses. #472 reports that it stops instead.
     if (screen.size() < 3) {
         reportFailure("held key accumulates", "at least 3 characters after " + std::to_string(sent) + " presses", "window shows '" + text + "'",

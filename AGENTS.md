@@ -77,7 +77,7 @@ a careful human wrote it, and the person sending it must be able to explain ever
 
 ## Commits
 
-- Conventional Commits, imperative subject of at most 72 characters: `fix(uinput): select with
+- Conventional Commits, imperative subject of at most 72 characters: `fix(sen): select with
 right Shift`.
 - The body says what was wrong for the user and why this fixes it. Numbers go here, one line each,
   with how they were measured: `Tested: Writer, 60 words, 0 wrong (was 30).`
