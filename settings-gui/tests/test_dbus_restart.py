@@ -26,8 +26,15 @@ class Controller(dbus.service.Object):
     def GetConfig(self, uri):
         return dbus.Dictionary({"SpellCheck": "True"}, signature="sv", variant_level=1), []
 
-    @dbus.service.method("org.fcitx.Fcitx.Controller1", in_signature="sv")
-    def SetConfig(self, uri, values):
+    @dbus.service.method(
+        "org.fcitx.Fcitx.Controller1", in_signature="sv", message_keyword="message"
+    )
+    def SetConfig(self, uri, values, message):
+        # fcitx5 rejects a call whose wire signature differs from "sv"; dbus-python accepts it.
+        if message.get_signature() != "sv":
+            raise dbus.exceptions.DBusException(
+                "got " + message.get_signature(), name="org.freedesktop.DBus.Error.InvalidArgs"
+            )
         with open(sys.argv[1], "a") as f:
             f.write(" ".join(sorted(values)) + "\\n")
 
@@ -83,7 +90,8 @@ class Fcitx5RestartTest(unittest.TestCase):
             "from core.dbus_handler import NgoSenDBusHandler;"
             "h = NgoSenDBusHandler(); print(bool(h.get_config()), flush=True);"
             "sys.stdin.readline();"
-            "print(h.set_config({'SpellCheck': 'False'}), flush=True)"
+            "print(h.set_config({'SpellCheck': 'False'}), flush=True);"
+            "print(h.set_sub_config_list('ngosen-macro', 'Macro', [{'Key': 'vn'}]), flush=True)"
         )
         gui = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         window = subprocess.Popen(
@@ -96,9 +104,9 @@ class Fcitx5RestartTest(unittest.TestCase):
         self.assertEqual(window.stdout.readline().strip(), "True")
         self.start_fcitx5(second)
         out, _ = window.communicate("go\n", timeout=10)
-        self.assertEqual(out.strip(), "True")
+        self.assertEqual(out.split(), ["True", "True"])
         with open(second) as f:
-            self.assertEqual(f.read(), "SpellCheck\n")
+            self.assertEqual(f.read(), "SpellCheck\nMacro\n")
 
 
 if __name__ == "__main__":
