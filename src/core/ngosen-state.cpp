@@ -731,6 +731,14 @@ namespace ngosen {
     }
 
     void TypingState::reset(bool isFocusOut) {
+        resetField(isFocusOut, true);
+    }
+
+    void TypingState::resetAfterAppCommit(bool isFocusOut) {
+        resetField(isFocusOut, false);
+    }
+
+    void TypingState::resetField(bool isFocusOut, bool commitPreedit) {
         // After focus out a forwarded key may reach the window that took focus.
         if (isFocusOut) {
             held_enter_pending_ = false;
@@ -756,7 +764,7 @@ namespace ngosen {
             isPrevHyphen_      = false;
             shouldCapitalize_  = false;
             isPrevPunctuation_ = false;
-            if (realMode == ngosen::Mode::Preedit && isFocusOut) {
+            if (realMode == ngosen::Mode::Preedit && isFocusOut && commitPreedit) {
                 EngineCommitPreedit(bambooEngine_.handle());
                 ngosen::UniqueCPtr<char> pulled(EnginePullCommit(bambooEngine_.handle()));
                 if (pulled && (*pulled.get() != 0)) {

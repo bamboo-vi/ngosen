@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 using ngosen::Field;
@@ -158,7 +159,7 @@ namespace {
     }
 
     // GTK apps reset the input context when Enter inserts a new line; resetAfter says after which key.
-    std::string typeWithAutoCapitalize(const std::vector<uint32_t>& keys, size_t resetAfter = SIZE_MAX, bool focusOut = false) {
+    std::string typeWithAutoCapitalize(const std::vector<uint32_t>& keys, size_t resetAfter = SIZE_MAX, bool focusOut = false, bool appCommits = false) {
         realMode = ngosen::Mode::Preedit;
         FakeLoop      loop;
         FakeResources resources;
@@ -168,7 +169,9 @@ namespace {
         ngosen::TypingState state(&resources, std::move(owned));
         for (size_t i = 0; i < keys.size(); ++i) {
             press(state, keys[i]);
-            if (i == resetAfter)
+            if (i == resetAfter && appCommits)
+                state.resetAfterAppCommit(focusOut);
+            else if (i == resetAfter)
                 state.reset(focusOut);
         }
         std::string text;
@@ -186,6 +189,39 @@ namespace {
         check(afterEnter == "banTôi", "auto-capitalize: a letter after Enter is upper case though the app resets", afterEnter);
         const std::string afterFocusOut = typeWithAutoCapitalize(enterKeys, 3, true);
         check(afterFocusOut == "bantôi", "auto-capitalize: leaving the field forgets the sentence start", afterFocusOut);
+        const std::string appResets = typeWithAutoCapitalize(enterKeys, 3, false, true);
+        check(appResets == "banTôi", "auto-capitalize: an app that commits by itself keeps the sentence start on reset", appResets);
+        const std::string appLeaves = typeWithAutoCapitalize(enterKeys, 3, true, true);
+        check(appLeaves == "bantôi", "auto-capitalize: an app that commits by itself forgets it on focus out", appLeaves);
+    }
+
+    // Types "viee" in Preedit, ends it the way named, then types "a"; returns what was committed and the preedit left.
+    std::pair<std::string, std::string> endPreeditWord(bool appCommits, bool focusOut) {
+        realMode = ngosen::Mode::Preedit;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("ibus", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        for (char c : std::string("viee"))
+            press(state, static_cast<uint32_t>(c));
+        if (appCommits)
+            state.resetAfterAppCommit(focusOut);
+        else
+            state.reset(focusOut);
+        const std::string commits = join(host->commits());
+        press(state, 'a');
+        return {commits, host->preedit()};
+    }
+
+    void testResetAfterAppCommit() {
+        const auto ours = endPreeditWord(false, true);
+        check(ours.first == "['viê']", "preedit focus out: commits the word", ours.first);
+        const auto left = endPreeditWord(true, true);
+        check(left.first == "(none)", "preedit focus out, app commits: nothing committed a second time", left.first);
+        check(left.second == "a", "preedit focus out, app commits: the dropped word does not come back", left.second);
+        const auto reset = endPreeditWord(true, false);
+        check(reset.first == "(none)" && reset.second == "a", "preedit reset, app commits: the word is dropped", reset.first + " " + reset.second);
     }
 
     // Types in a field that already holds text before the cursor; capitalizeStartOfText is on unless off is set.
@@ -1126,6 +1162,7 @@ int main() {
     testPreeditTelex();
     testPreeditEnterAfterCommit();
     testAutoCapitalize();
+    testResetAfterAppCommit();
     testCapitalizeStartOfText();
     testSenForwards("wayland", true);
     testSenForwards("wayland_v2", true);
