@@ -33,31 +33,6 @@ namespace ngosen::test {
         static const bool initialized = (Init(), true);
         (void)initialized;
 
-        // Defaults of ngosen-config.h.
-        options_.inputMethod                      = "Telex";
-        options_.outputCharset                    = "Unicode";
-        options_.spellCheck                       = true;
-        options_.modernStyle                      = true;
-        options_.freeMarking                      = true;
-        options_.w2u                              = 1;
-        options_.timeFormat                       = "%H:%M";
-        options_.dateFormat                       = "%d/%m/%Y";
-        options_.autoNonVnRestore                 = true;
-        options_.ddFreeStyle                      = true;
-        options_.enableMacro                      = true;
-        options_.capitalizeMacro                  = true;
-        options_.lockWordKey                      = LockWordKey::Ctrl;
-        options_.messengerSelectOvertype          = true;
-        options_.waitSurroundingEvent             = true;
-        options_.waitSurroundingMinPerKeyMs       = 8;
-        options_.waitSurroundingTimeoutMs         = 50;
-        options_.waitSurroundingShortMs           = 40;
-        options_.waitSurroundingSettleMs          = 40;
-        options_.waitSurroundingSettleFirstWordMs = 60;
-        options_.waitSurroundingProbeEvery        = 4;
-        options_.surrDeleteSleepMs                = 4;
-        options_.surrCommitSleepMs                = 3;
-
         char* empty[] = {nullptr};
         macroTable_   = NewMacroTable(empty);
         // The engine loads the system dictionary even with the custom dictionary off.
