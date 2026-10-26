@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- Cài Ngó Sen bằng package (apt, package tải về) trên máy để ngôn ngữ tiếng Việt: lần đầu fcitx5 chạy, Ngó Sen
+  tự có trong danh sách bộ gõ, không phải thêm tay. Máy để tiếng Anh vẫn cần thêm tay hoặc dùng lệnh cài một dòng (#300, #316).
+
 ### Tài liệu
 
 - README thêm mục "Tính năng chính": Cứu chữ, Cứu dấu, phím chuyển Anh/Việt, phím chốt chữ, gõ tắt,
