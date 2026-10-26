@@ -268,6 +268,10 @@ im_config_auto() {
         im-config -r 2>/dev/null | sed -n 's/^IM framework (auto): //p'
 }
 
+im_environment_entry() {
+    printf 'GTK_IM_MODULE=fcitx\nQT_IM_MODULE=fcitx\nXMODIFIERS=@im=fcitx\nSDL_IM_MODULE=fcitx\n'
+}
+
 # GNOME offers fcitx5 no Wayland input-method protocol, so apps have to load fcitx5's own modules.
 set_im_environment() {
     local dir file
@@ -279,12 +283,7 @@ set_im_environment() {
         return 0
     fi
     mkdir -p "$dir"
-    cat >"$file" <<'EOF'
-GTK_IM_MODULE=fcitx
-QT_IM_MODULE=fcitx
-XMODIFIERS=@im=fcitx
-SDL_IM_MODULE=fcitx
-EOF
+    im_environment_entry >"$file"
     # Debian's im-config otherwise picks IBus for X11 sessions and overrides the variables above.
     if command -v im-config >/dev/null 2>&1; then
         im_config_set fcitx5 || :
@@ -627,13 +626,16 @@ disable_shell_extension() {
 # so anything the user changed stays. fcitx5's own profile and keys stay too: without autostart
 # fcitx5 no longer runs, and GNOME starts IBus again at the next login.
 undo_gnome_session() {
-    local config data id autostart
+    local config data id autostart im_env
     local -a undone=()
     config=$(config_home)
     data=$(applications_dir)
-    if [ -e "$config/environment.d/90-ngosen.conf" ]; then
-        rm -f "$config/environment.d/90-ngosen.conf"
+    im_env="$config/environment.d/90-ngosen.conf"
+    if [ -e "$im_env" ] && [ "$(cat "$im_env")" = "$(im_environment_entry)" ]; then
+        rm -f "$im_env"
         undone+=("app dùng lại IBus")
+    elif [ -e "$im_env" ]; then
+        say "  - giữ nguyên $im_env vì đã được sửa sau khi cài"
     fi
     if grep -qs '^run_im fcitx5$' "$HOME/.xinputrc" && command -v im-config >/dev/null 2>&1; then
         im_config_set REMOVE || :

@@ -105,6 +105,8 @@ Tải ở [ngosen-1.6.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 
 ### Sửa
 
+- Gỡ bằng `install.sh --uninstall` trên GNOME không còn xoá file `~/.config/environment.d/90-ngosen.conf`
+  khi người dùng đã sửa nó sau khi cài; chỉ xoá khi file còn đúng như lúc cài (#317).
 - Sửa biểu tượng Ngó Sen trên thanh trên cùng GNOME nhỏ hơn biểu tượng mạng, loa. (#245, #246)
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
