@@ -114,7 +114,7 @@ Tải ở [ngosen-1.6.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-
 ### Tài liệu
 
 - Lộ trình thêm thông báo "Có gì mới" và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148). "Có gì mới" chưa
-  có trong 1.6.0, đã dời xuống phần "Sau đó" của lộ trình.
+  có trong 1.6.0, đã dời sang 1.7.0.
 
 ### Test
 
