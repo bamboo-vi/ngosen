@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Tài liệu
+
+- README thêm mục "Tính năng chính": Cứu chữ, Cứu dấu, phím chuyển Anh/Việt, phím chốt chữ, gõ tắt,
+  menu tray và cửa sổ cài đặt, mỗi tính năng kèm ví dụ (#319).
+
 ## [1.6.0-1] — 26/10/2026
 
 Cứu chữ đổi chữ gõ khi quên bật tiếng Việt thành chữ có dấu khi bật lại (#82, #232, #239, #243, #290);
