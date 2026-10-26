@@ -210,6 +210,12 @@ check_reinstall_over_running_fcitx5() {
     bus=
 }
 
+check_edited_environment_kept() {
+    echo 'MOZ_ENABLE_WAYLAND=1' | as_user tee -a "$im_env" >/dev/null
+    check "uninstall after the edit succeeds" installer --yes --uninstall
+    check "the edited environment.d file stays" has_line "$im_env" 'MOZ_ENABLE_WAYLAND=1'
+}
+
 main() {
     prepare_system
 
@@ -226,6 +232,11 @@ main() {
 
     echo "== reinstall over a running fcitx5"
     check_reinstall_over_running_fcitx5
+
+    if [ "$session" = gnome ]; then
+        echo "== uninstall after the user edited environment.d"
+        check_edited_environment_kept
+    fi
 
     finish
 }
