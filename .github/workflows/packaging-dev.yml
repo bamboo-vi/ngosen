@@ -262,7 +262,11 @@ jobs:
             args: kde
 
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
-    container: ${{ matrix.image }}
+    # Without an init, fcitx5 daemons that exit stay as zombies, and the installer takes them for a
+    # running fcitx5 and starts a new one.
+    container:
+      image: ${{ matrix.image }}
+      options: --init
 
     steps:
       - uses: actions/checkout@v7
