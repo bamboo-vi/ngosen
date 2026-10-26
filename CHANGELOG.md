@@ -10,6 +10,10 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- Khi bật log để gỡ lỗi, chữ gõ trong ô mật khẩu không còn bị ghi vào log; log chỉ ghi "(hidden)" (#321).
+
 ### Tài liệu
 
 - README thêm mục "Tính năng chính": Cứu chữ, Cứu dấu, phím chuyển Anh/Việt, phím chốt chữ, gõ tắt,
