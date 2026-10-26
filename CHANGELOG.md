@@ -10,6 +10,15 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.6.0-1] — 26/10/2026
+
+Cứu chữ đổi chữ gõ khi quên bật tiếng Việt thành chữ có dấu khi bật lại (#82, #232, #239, #243, #290);
+Cứu dấu cho bôi đen chữ rồi gõ phím dấu để đổi dấu (#272, #290).
+Có phím riêng chuyển Anh/Việt: cài mới dùng Ctrl+Shift như UniKey, đã cài giữ phím cũ (#234).
+Cửa sổ cài đặt thêm giải thích (#281), menu tray thêm mục chuyển Telex/VNI (#274); cập nhật bằng
+install.sh tự nạp lại fcitx5, không cần đăng xuất, trừ KDE Wayland (#230).
+Tải ở [ngosen-1.6.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.6.0-1).
+
 ### Thêm
 
 - Phím riêng chuyển tiếng Anh/Việt; ở tiếng Anh, gõ như không có bộ gõ. Nhớ chế độ qua lần đăng xuất.
@@ -104,7 +113,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Tài liệu
 
-- Lộ trình thêm thông báo "Có gì mới" cho 1.6.0 và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148).
+- Lộ trình thêm thông báo "Có gì mới" và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148). "Có gì mới" chưa
+  có trong 1.6.0, đã dời xuống phần "Sau đó" của lộ trình.
 
 ### Test
 

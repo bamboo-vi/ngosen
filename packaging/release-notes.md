@@ -1,4 +1,4 @@
-Version 1.5.8 phát hành ngày 26/10/2026, sửa lỗi cửa sổ cài đặt không lưu được thay đổi trên version 1.5.7 dù fcitx5 đang chạy (#303, #305). Người dùng version 1.5.7 nên cập nhật. README bổ sung mục “Thiết lập sau khi cài package” cho máy cài từ repo hoặc package tải về, vì cách cài này không thêm Ngó Sen vào danh sách bộ gõ và không chuyển IBus sang fcitx5 (#301). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.6.0 phát hành ngày 26/10/2026, thêm Cứu chữ: bật lại tiếng Việt để đổi chữ đã gõ thành chữ có dấu (#82, #232, #239, #243, #290); Cứu dấu: bôi đen chữ rồi gõ phím dấu để đổi dấu (#272, #290). Phím riêng chuyển Anh/Việt dùng Ctrl+Shift như UniKey khi cài mới, giữ phím cũ khi cập nhật (#234). Cửa sổ cài đặt thêm giải thích (#281), menu tray thêm mục chuyển Telex/VNI (#274). Cập nhật bằng install.sh tự nạp lại fcitx5, không cần đăng xuất, trừ KDE Wayland (#230). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -8,9 +8,9 @@ Một lệnh cho mọi distro. Lệnh tự chọn đúng gói và hỏi lại tr
 curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash
 ```
 
-Cài lần đầu thì đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Space để bật tiếng Việt.
+Cài lần đầu thì đăng xuất rồi đăng nhập lại, sau đó nhấn rồi thả Ctrl+Shift để chuyển giữa tiếng Anh và tiếng Việt. Đã cài từ trước thì vẫn dùng phím chuyển cũ, thường là Ctrl+Space.
 
-Cập nhật thì chạy lại đúng lệnh đó, rồi khởi động lại fcitx5 bằng `fcitx5 -rd`. Trên KDE Wayland thì đăng xuất rồi đăng nhập lại thay cho lệnh này, vì fcitx5 bật bằng `fcitx5 -rd` không gõ được trong app Qt như Kate, Dolphin.
+Cập nhật thì chạy lại đúng lệnh đó: fcitx5 tự nạp version mới, gõ được ngay. Trên KDE Wayland thì đăng xuất rồi đăng nhập lại.
 
 ## Tải gói bằng tay
 
@@ -78,4 +78,4 @@ Gói 1.5.0 (PR #125) được gõ thử trên ba máy ảo: Linux Mint 22.1 (Cin
 
 Người giữ dự án dùng Ngó Sen hằng ngày trên Fedora 44 (KDE Plasma Wayland). Kali đã được gõ thử ở các version trước. Fedora 43, Ubuntu 22.04, Debian 12 và openSUSE chỉ được build và qua test lúc build, chưa ai gõ thử trên máy thật.
 
-Lõi gõ Rust nay có trong mọi gói trừ Debian 12, vẫn dùng lõi Go vì Rust có sẵn ở đó quá cũ.
+Mọi gói, kể cả Debian 12, nay dùng lõi gõ Rust; lõi Go đã bỏ.
