@@ -10,6 +10,26 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.6.1-1] — 26/10/2026
+
+Sửa gợi ý Cứu chữ / Cứu dấu để theo ngôn ngữ giao diện của Ngó Sen, mặc định tiếng Việt (#322);
+Ngó Sen tự có trong danh sách bộ gõ khi fcitx5 chạy lần đầu sau khi cài bằng package trên desktop
+tiếng Việt (#300, #316); chữ trong ô mật khẩu không còn bị ghi vào log gỡ lỗi (#321).
+Tải ở [ngosen-1.6.1-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.6.1-1).
+
+### Sửa
+
+- Khi bật log để gỡ lỗi, chữ gõ trong ô mật khẩu không còn bị ghi vào log; log chỉ ghi "(hidden)" (#321).
+- Cài Ngó Sen bằng package (apt, package tải về) trên máy để ngôn ngữ tiếng Việt: lần đầu fcitx5 chạy, Ngó Sen
+  tự có trong danh sách bộ gõ, không phải thêm tay. Máy để tiếng Anh vẫn cần thêm tay hoặc dùng lệnh cài một dòng (#300, #316).
+- Dòng gợi ý cạnh con trỏ của Cứu chữ và Cứu dấu theo "Ngôn ngữ giao diện" của Ngó Sen như menu tray: mặc định
+  tiếng Việt, kể cả khi desktop dùng tiếng Anh (#322).
+
+### Tài liệu
+
+- README thêm mục "Tính năng chính": Cứu chữ, Cứu dấu, phím chuyển Anh/Việt, phím chốt chữ, gõ tắt,
+  menu tray và cửa sổ cài đặt, mỗi tính năng kèm ví dụ (#319).
+
 ## [1.6.0-1] — 26/10/2026
 
 Cứu chữ đổi chữ gõ khi quên bật tiếng Việt thành chữ có dấu khi bật lại (#82, #232, #239, #243, #290);

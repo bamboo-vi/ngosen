@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.6.0
+Version:        1.6.1
 Release:        1%{?dist}
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -59,6 +59,7 @@ Ngó Sen is a Vietnamese input method for fcitx5.
 
 %{_datadir}/fcitx5/addon/ngosen.conf
 %{_datadir}/fcitx5/addon/ngosenmigrate.conf
+%{_datadir}/fcitx5/default/vi_VN
 %{_datadir}/fcitx5/inputmethod/ngosen.conf
 
 %{_datadir}/fcitx5/ngosen/
@@ -96,6 +97,11 @@ else
 fi
 
 %changelog
+* Mon Oct 26 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.6.1-1
+- Cứu chữ and Cứu dấu hints follow the interface language, Vietnamese by default (#322).
+- On a Vietnamese desktop, fcitx5's first profile lists Ngó Sen (#300, #316).
+- Debug logging no longer records text typed in password fields (#321).
+
 * Mon Oct 26 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.6.0-1
 - Cứu chữ: words typed before switching to Vietnamese are retyped with tones (#71, #80, #82, #83).
 - Cứu dấu: select a word and type a tone key to change its tone (#272, #290).
