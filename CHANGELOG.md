@@ -10,6 +10,11 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Sửa
+
+- Gỡ bằng `install.sh --uninstall` trên GNOME không còn xoá file `~/.config/environment.d/90-ngosen.conf`
+  khi người dùng đã sửa nó sau khi cài; chỉ xoá khi file còn đúng như lúc cài (#317).
+
 ## [1.5.8-1] — 26/10/2026
 
 Sửa lỗi cửa sổ cài đặt không lưu được thay đổi trên version 1.5.7 dù fcitx5 đang chạy (#303, #305);
