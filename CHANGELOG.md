@@ -34,8 +34,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   vẫn ra `sách`); gõ phím dấu khác thì đổi dấu tiếp (`nhánh` + `f` → `nhành`). Tab, Esc hoặc gõ lại
   đúng phím dấu đó thì trả lại phím đã gõ, như gõ `2` hai lần ở VNI để được số `2`. Thêm, đổi, bỏ dấu
   thanh ở app hỗ trợ surrounding text; bật sẵn trong Gõ chữ → Gõ nhanh (#272, #290).
-- Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
-  không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
+- Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn, kể cả khi
+  nâng cấp từ version cũ đã lưu cài đặt. Tắt ô thì Ngó Sen không ghi nhớ phím gõ lúc chưa bật tiếng Việt
+  (#122, #315).
 - Khi icon hoặc menu tray bị mất hay treo, chạy `ngosen-save-log` trong terminal để lưu nhật ký gõ của Ngó Sen.
   Lệnh in đường dẫn file đã lưu, ví dụ `~/.local/state/ngosen/typing-<ngày giờ>.log`; chỉ tài khoản của bạn
   đọc được file này (#197).
