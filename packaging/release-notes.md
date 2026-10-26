@@ -1,4 +1,4 @@
-Version 1.5.7 phát hành ngày 24/10/2026, sửa lỗi cửa sổ cài đặt đóng ngay khi mở từ menu khay trên KDE Plasma Wayland nếu package khác đã cài PyQt5 (#278), lỗi báo “Đã lưu” nhưng không lưu sau khi fcitx5 khởi động lại (#279), lỗi thêm dấu sau khi xóa khoảng trắng trong trình soạn thảo rich text trên Firefox với Gõ Sen (#285), lỗi phải nhấn Enter hai lần để gửi trên gemini.google.com với Preedit (#286), lỗi phím bị chèn sai thứ tự khi gõ nhanh trên Firefox X11 với Gõ Sen (#289) và lỗi thêm dấu sau Backspace trong terminal dùng xterm.js trên Firefox X11 với Gõ Sen (#292). Package .deb bỏ các phụ thuộc PyQt6 không dùng, giảm dung lượng cài thêm ngoài fcitx5 từ khoảng 456 MB xuống 22 MB trên Ubuntu 26.04 sạch (#280). README thêm liên kết Facebook Page của Ngó Sen (#284). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.5.8 phát hành ngày 26/10/2026, sửa lỗi cửa sổ cài đặt không lưu được thay đổi trên version 1.5.7 dù fcitx5 đang chạy (#303, #305). Người dùng version 1.5.7 nên cập nhật. README bổ sung mục “Thiết lập sau khi cài package” cho máy cài từ repo hoặc package tải về, vì cách cài này không thêm Ngó Sen vào danh sách bộ gõ và không chuyển IBus sang fcitx5 (#301). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -29,6 +29,8 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 Đối chiếu file tải về với `SHA256SUMS`: `sha256sum -c SHA256SUMS --ignore-missing`.
 
 ## Đã test những gì
+
+Gói 1.5.8 từ PR phát hành #306 được test trên VM ngày 26/10/2026 trên Ubuntu 26.04 (GNOME Wayland, gói `resolute`) và CachyOS (KDE Plasma Wayland, gói Arch). Trên mỗi máy, cửa sổ cài đặt mở được và vẫn chạy sau 10 giây. Phần lưu của cửa sổ cài đặt được gọi thẳng với fcitx5 đang chạy, mỗi máy một lượt: đổi một ô cài đặt chính và lưu một gõ tắt, rồi đọc lại; cả hai đều lưu được. Với gói 1.5.7-1 đã phát hành trên cùng hai máy, cả hai lần lưu đều bị fcitx5 từ chối và cài đặt không đổi. Chưa bấm lưu bằng chuột trong cửa sổ; Fedora, Debian, Mint, openSUSE và Kali chưa được test với 1.5.8.
 
 Gói 1.5.7 từ PR phát hành #293 được gõ thử trên VM ngày 24/10/2026, dùng Gõ Sen, Telex, trừ lượt Preedit ghi riêng bên dưới.
 

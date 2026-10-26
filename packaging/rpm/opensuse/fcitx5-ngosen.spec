@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.5.7
+Version:        1.5.8
 Release:        1
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -96,6 +96,10 @@ else
 fi
 
 %changelog
+* Mon Oct 26 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.8-1
+- Settings window: changes are saved again; 1.5.7 could not save any setting (#303, #305).
+- README states how to finish setup after installing the package from a repository (#301).
+
 * Sat Oct 24 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.7-1
 - Settings window on KDE Plasma Wayland: it opens again when PyQt5 is also installed, by preferring Qt 6 (#278).
 - Settings changed while the window was open across an fcitx5 restart are saved again (#279).
