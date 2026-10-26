@@ -202,7 +202,7 @@ struct TestInstance {
  * @brief Runs the instance's event loop for `ms` milliseconds, then anything already due.
  *
  * Tests call `keyEvent()` directly, so timers the engine schedules with
- * `addTimeEvent()` (Uinput mode waits for the app between the last backspace
+ * `addTimeEvent()` (Sen mode waits for the app between the last backspace
  * and the commit) never fire unless the loop runs, as it does in real fcitx5.
  *
  * `EventLoop::exec()` cannot be used for this: after `exit()` an sd-event loop

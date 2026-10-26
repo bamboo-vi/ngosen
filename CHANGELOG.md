@@ -10,6 +10,130 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+## [1.6.0-1] — 26/10/2026
+
+Cứu chữ đổi chữ gõ khi quên bật tiếng Việt thành chữ có dấu khi bật lại (#82, #232, #239, #243, #290);
+Cứu dấu cho bôi đen chữ rồi gõ phím dấu để đổi dấu (#272, #290).
+Có phím riêng chuyển Anh/Việt: cài mới dùng Ctrl+Shift như UniKey, đã cài giữ phím cũ (#234).
+Cửa sổ cài đặt thêm giải thích (#281), menu tray thêm mục chuyển Telex/VNI (#274); cập nhật bằng
+install.sh tự nạp lại fcitx5, không cần đăng xuất, trừ KDE Wayland (#230).
+Tải ở [ngosen-1.6.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.6.0-1).
+
+### Thêm
+
+- Phím riêng chuyển tiếng Anh/Việt; ở tiếng Anh, gõ như không có bộ gõ. Nhớ chế độ qua lần đăng xuất.
+  Cài mới bắt đầu ở tiếng Anh, dùng Ctrl+Shift như UniKey; đã cài từ trước giữ Ctrl+Space.
+  App có chế độ riêng thì phím chuyển đổi riêng app đó. Menu ` chỉ mở ở tiếng Việt; tiếng Anh gõ dấu ` (#234)
+- Thêm ô "Phím chuyển Anh/Việt" ở đầu trang Phím tắt trong cửa sổ cài đặt, gợi ý dùng Ctrl+Shift
+  như UniKey nếu đang dùng phím khác; nhắc phím chuyển của fcitx5 vẫn đưa sang bộ gõ khác còn trong nhóm. (#242)
+- Ghi được phím tắt chỉ gồm Ctrl+Shift hoặc Shift phải khi thả phím trong cửa sổ cài đặt.
+  Phím chuyển Anh/Việt nhận Ctrl+Shift như nhau dù dùng bên trái, bên phải hay bấm phím nào trước. (#244)
+- Cứu chữ: quên bật tiếng Việt mà đã gõ `tieengs vieetj`, bấm phím Anh/Việt của Ngó Sen hay chuyển sang
+  Ngó Sen thì chữ đổi ngay thành `tiếng việt`, cạnh con trỏ hiện "Cứu chữ: Tab hoặc Esc để trả lại chữ
+  đã gõ" (#82, #232, #239, #243, #290).
+- Cứu chữ không tự đổi khi trong đoạn có chữ gõ lại vẫn y nguyên (như `abc` trong `abc tieengs`), vì
+  thường đó là tiếng Anh gõ có chủ ý. Khi đó chỉ hiện gợi ý `abc tieengs → abc tiếng` kèm dòng
+  "Cứu chữ: Enter để đổi, Tab hoặc Esc để giữ nguyên": Enter gõ lại có dấu (Enter lần nữa mới tới app,
+  Tab hoặc Esc trả lại như cũ); khi chưa nhận, Tab, Esc hoặc phím khác thì bỏ qua (#80, #290).
+- Cứu chữ không ghi nhớ gì trong ô mật khẩu, quên đoạn đã gõ khi bấm chuột, Enter, phím mũi tên hay chuyển
+  ô, và không hiện ở app không cho bộ gõ xoá chữ (#71). Gợi ý đang hiện cũng mất khi bấm chuột sang chỗ
+  khác, nên Enter không xoá nhầm chữ ở chỗ mới (#269).
+- Cứu dấu: bôi đen chữ đã gõ xong rồi gõ phím dấu là chữ đổi dấu ngay (`nhanh` + `s` → `nhánh`).
+  Gõ tiếp chữ cái thì Ngó Sen hiểu là đang gõ chữ mới đè lên, nên trả lại phím vừa gõ (`nhanh` + `sách`
+  vẫn ra `sách`); gõ phím dấu khác thì đổi dấu tiếp (`nhánh` + `f` → `nhành`). Tab, Esc hoặc gõ lại
+  đúng phím dấu đó thì trả lại phím đã gõ, như gõ `2` hai lần ở VNI để được số `2`. Thêm, đổi, bỏ dấu
+  thanh ở app hỗ trợ surrounding text; bật sẵn trong Gõ chữ → Gõ nhanh (#272, #290).
+- Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn, kể cả khi
+  nâng cấp từ version cũ đã lưu cài đặt. Tắt ô thì Ngó Sen không ghi nhớ phím gõ lúc chưa bật tiếng Việt
+  (#122, #315).
+- Khi icon hoặc menu tray bị mất hay treo, chạy `ngosen-save-log` trong terminal để lưu nhật ký gõ của Ngó Sen.
+  Lệnh in đường dẫn file đã lưu, ví dụ `~/.local/state/ngosen/typing-<ngày giờ>.log`; chỉ tài khoản của bạn
+  đọc được file này (#197).
+- Khi bật "Gõ tắt chữ hoa", gõ macro chỉ viết hoa chữ đầu sẽ viết hoa chữ đầu nội dung, tiện dùng ở đầu câu:
+  với `ko` → `không`, gõ `Ko` ra `Không` thay vì `không`. Nội dung đã có chữ hoa vẫn giữ nguyên: với
+  `ip` → `iPhone`, gõ `Ip` vẫn ra `iPhone` (#203).
+- "Phím chốt chữ" ở trang Gõ chữ, nhóm Cách bỏ dấu (mặc định Ctrl): bấm rồi thả riêng phím để giữ nguyên từ,
+  không thêm dấu, tự khôi phục hay bung macro; phím tiếp theo bắt đầu từ mới. Gõ `tunx`, Ctrl rồi Space
+  giữ `tũn`. Thay tuỳ chọn bỏ qua gõ tắt; ai đã chọn Shift, Ctrl hoặc Alt vẫn giữ phím đó (#219).
+- Menu tray có thêm mục "Tự viết hoa" để bật, tắt nhanh từng kiểu viết hoa, ví dụ tắt khi gõ lệnh trong
+  terminal (#240, #241).
+- Menu tray có thêm mục "Kiểu gõ" để chuyển nhanh giữa Telex và VNI, có dấu chọn ở kiểu đang dùng và lưu
+  ngay như khi chọn trong cửa sổ cài đặt. Các kiểu khác vẫn chọn ở trang Gõ chữ; khi dùng các kiểu đó,
+  cả Telex và VNI đều không có dấu chọn (#274).
+- Thêm nhóm "Hiện trong menu khay" ở trang Giao diện để bỏ chọn các mục muốn ẩn khỏi menu tray.
+  Mỗi ô chọn có cùng biểu tượng với mục trong menu. Mặc định hiện tất cả như trước; "Cài đặt" và
+  "Lưu nhật ký gõ" luôn có trong menu (#275).
+- Tách Giao diện và Giới thiệu thành hai trang riêng ở thanh bên cửa sổ cài đặt, bỏ trang Khác.
+  Trang Giao diện thêm dòng "Trên khay:" để xem trước biểu tượng tray cho tiếng Việt và tiếng Anh,
+  cập nhật ngay khi bật/tắt "Sử dụng biểu tượng trạng thái Ngó Sen" hoặc đổi "Màu biểu tượng" (#276).
+- Menu tray, menu chế độ và cửa sổ cài đặt của Ngó Sen mặc định dùng tiếng Việt, kể cả khi
+  desktop dùng tiếng Anh. Đổi sang tiếng Anh bằng "Ngôn ngữ giao diện" ở đầu trang Giao diện: menu tray đổi
+  ngay, cửa sổ cài đặt đổi khi mở lại. Các mục cuối menu tray (Restart, Input Method Settings, Exit) thuộc
+  fcitx5 nên vẫn theo ngôn ngữ desktop (#277).
+- Thêm giải thích ngắn dưới mỗi tuỳ chọn trong cửa sổ cài đặt, ở trang Gõ chữ, Phím tắt và Giao diện,
+  thường kèm ví dụ; ghi rõ các phím 1, q, w, e, r chỉ dùng khi menu chế độ đang mở. Cách gõ không thay
+  đổi (#281).
+- Tuỳ chọn "Tự viết hoa chữ đầu văn bản và đầu dòng" (thử nghiệm, mặc định tắt) ở trang Gõ chữ, nhóm Gõ nhanh:
+  gõ `xin` vào ô trống hoặc đầu dòng mới ra `Xin`. Không áp dụng ở thanh địa chỉ, ô mật khẩu và app không cho
+  bộ gõ đọc chữ trong ô. Dùng được cả trên GNOME, kể cả Chrome (đã test trên GNOME 46 và GNOME 50).
+  Trên GNOME 50, Chrome và các app tương tự chưa viết hoa chữ đầu ô trống, nhưng đã viết hoa đầu dòng mới
+  sau Enter. App GTK chạy qua Wayland (đã test trên Plasma) vẫn chưa viết hoa đầu dòng mới sau Enter
+  (#238, #241, #283).
+
+### Thay đổi
+
+- Ngó Sen tự chuyển Anh/Việt; cập nhật bỏ bàn phím (như keyboard-us) khỏi fcitx5 một lần, giữ phím chuyển cũ.
+  Không bỏ nếu có từ hai bàn phím hoặc bộ gõ khác; bàn phím thêm lại vẫn được giữ.
+  Cài mới bằng install.sh: danh sách chỉ có Ngó Sen (#237, #248)
+- Gói Debian 12 dùng lõi gõ Rust như các gói khác; cách gõ không đổi. Ngó Sen bỏ lõi Go.
+  Debian 12 đã có Rust 1.96 trong security updates (`rustc-web`, `cargo-web`).
+  Build từ source cần Rust 1.88+ và cargo, không cần Go (#223).
+- Plugin Ngó Sen nhỏ đi khoảng một phần ba (2,1 MB còn 1,4 MB trên Fedora 44) nhờ bỏ phần code không dùng
+  khi build; cách gõ không đổi (#224).
+- Cập nhật Ngó Sen bằng `install.sh` thì fcitx5 tự nạp bản mới, gõ được ngay mà không cần đăng xuất; các app đang
+  mở vẫn gõ tiếp được. Riêng KDE Wayland vẫn cần đăng xuất rồi đăng nhập lại (#230).
+- Khi tắt tiếng Việt, icon tray đổi từ V xám sang lát củ sen tròn bảy lỗ trên ô xám, cùng cỡ icon V.
+  Trên GNOME dùng extension "Input Method Panel" (kimpanel), thanh trên hiện icon Ngó Sen thay chữ "vi"
+  như KDE, Xfce, Cinnamon. Popup cạnh con trỏ khi chuyển bộ gõ trong fcitx5 hiện "Ngó Sen (Telex)" hoặc
+  "Ngó Sen (Tắt)" thay "vi" (#233).
+- Gói .deb, .rpm và Arch không còn dọn uinput server của version trước 0.5.0 khi cài hoặc nâng cấp, vì
+  fcitx5-lotus bản gốc vẫn dùng service và tài khoản `uinput_proxy` đó; gói .deb bỏ dependency `passwd`.
+  Ai tự build version cũ vẫn có các bước dọn trong TU-DUNG.md (#257).
+- Nâng thư viện gõ Rust bamboo-core từ 0.4.1 lên 0.5.2 để dùng được version phf mà Debian cung cấp,
+  một bước để đóng gói Ngó Sen vào kho Debian chính thức. Cách gõ không đổi.
+  Build từ source vẫn cần Rust 1.88+ (#298).
+
+### Sửa
+
+- Gỡ bằng `install.sh --uninstall` trên GNOME không còn xoá file `~/.config/environment.d/90-ngosen.conf`
+  khi người dùng đã sửa nó sau khi cài; chỉ xoá khi file còn đúng như lúc cài (#317).
+- Sửa biểu tượng Ngó Sen trên thanh trên cùng GNOME nhỏ hơn biểu tượng mạng, loa. (#245, #246)
+- Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
+  fcitx5, và không chạy trong kitty (#83).
+- App GTK3 đi qua GNOME Shell không còn mất dấu khi gõ: `trơi`, `ban`, `viêt` thay vì `trời`, `bạn`, `việt`.
+  Ngó Sen chờ app báo đã xoá chữ rồi mới commit chữ có dấu; terminal không báo vẫn dùng thời gian chờ
+  cố định (#231).
+
+### Tài liệu
+
+- Lộ trình thêm thông báo "Có gì mới" và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148). "Có gì mới" chưa
+  có trong 1.6.0, đã dời sang 1.7.0.
+
+### Test
+
+- Test mới: bấm rồi thả Shift hay Ctrl giữa từ không chốt từ đang gõ (`vieet`, Shift, `j` vẫn ra `việt`); người
+  dùng không thấy khác gì (#155).
+- Thêm `misc/editor-test`: trang test cho 15 web editor (Lexical, TinyMCE, CKEditor, Monaco, xterm.js…)
+  và script gõ Telex rồi kiểm tra kết quả trong Firefox hoặc Chromium trên X11. Dùng để tìm lỗi gõ nhanh
+  đã sửa ở #289; người dùng không thấy khác gì (#291).
+- Test cài đặt trên CI không còn đỏ ngẫu nhiên ở Kali: container dọn tiến trình fcitx5 đã thoát như máy
+  thật; người dùng không thấy khác gì (#313).
+- Thêm nhãn `test-build` để tự động build version thử riêng cho pull request, có gói cho mọi bản phân phối
+  (.deb, .rpm, Arch), phát hành dưới dạng pre-release `pr-<số PR>-build` và đặt link trong pull request.
+  Cài bằng cùng lệnh cài một dòng như version thử `next-build`, chỉ khác link. Mỗi push mới vào pull request
+  thay thế các gói; đóng pull request hoặc gỡ nhãn sẽ xóa version thử. Người báo lỗi có thể test phần sửa lỗi
+  trước khi merge (#311).
+
 ## [1.5.8-1] — 26/10/2026
 
 Sửa lỗi cửa sổ cài đặt không lưu được thay đổi trên version 1.5.7 dù fcitx5 đang chạy (#303, #305);

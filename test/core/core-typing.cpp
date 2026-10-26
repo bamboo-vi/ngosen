@@ -188,6 +188,93 @@ namespace {
         check(afterFocusOut == "bantôi", "auto-capitalize: leaving the field forgets the sentence start", afterFocusOut);
     }
 
+    // Types in a field that already holds text before the cursor; capitalizeStartOfText is on unless off is set.
+    std::string typeAtStart(Field field, const std::string& before, const std::string& keys, bool off = false, ngosen::Mode mode = ngosen::Mode::Preedit) {
+        realMode = mode;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.mutableOptions().capitalizeStartOfText = !off;
+        auto                owned                        = std::make_unique<FakeHost>(loop, field);
+        FakeHost*           host                         = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding(before, static_cast<unsigned int>(ngosen::utf8::length(before)));
+        for (const char c : keys)
+            press(state, static_cast<uint32_t>(c));
+        std::string text;
+        for (const auto& commit : host->commits())
+            text += commit;
+        return text + host->preedit();
+    }
+
+    // Presses sym in a field holding before, after which the app reports report, or nothing when it is null.
+    std::string typeAfterKey(const Field& field, const std::string& before, uint32_t sym, uint32_t states, const char* report) {
+        realMode = ngosen::Mode::Preedit;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.mutableOptions().capitalizeStartOfText = true;
+        auto                owned                        = std::make_unique<FakeHost>(loop, field);
+        FakeHost*           host                         = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding(before, static_cast<unsigned int>(ngosen::utf8::length(before)));
+        FakeKey down(sym, false, states);
+        state.keyEvent(down);
+        FakeKey up(sym, true, states);
+        state.keyEvent(up);
+        if (report != nullptr) {
+            host->setSurrounding(report, static_cast<unsigned int>(ngosen::utf8::length(report)));
+            state.surroundingUpdated();
+        }
+        for (const char c : std::string("xin"))
+            press(state, static_cast<uint32_t>(c));
+        std::string text;
+        for (const auto& commit : host->commits())
+            text += commit;
+        return text + host->preedit();
+    }
+
+    void testCapitalizeStartOfText() {
+        const Field field = makeField("wayland", true);
+        std::string text  = typeAtStart(field, "", "xin");
+        check(text == "Xin", "start of text: the first letter in an empty field is upper case", text);
+        text = typeAtStart(field, "abc\n", "xin");
+        check(text == "Xin", "start of text: the first letter of a line is upper case", text);
+        text = typeAtStart(field, "abc ", "xin");
+        check(text == "xin", "start of text: a word after other text stays lower case", text);
+        text = typeAtStart(field, "", "ddi");
+        check(text == "Đi", "start of text: dd at the start gives Đ", text);
+        text = typeAtStart(field, "", "awn");
+        check(text == "Ăn", "start of text: aw at the start gives Ă", text);
+        text = typeAtStart(field, "", "xin", true);
+        check(text == "xin", "start of text: nothing changes with the option off", text);
+        FakeResources resources;
+        resources.mutableOptions().capitalizeStartOfText = true;
+        const std::vector<uint32_t> keys{'x', 'i', 'n', ' ', 'c', 'h', 'a', 'o', 'f'};
+        text = ngosen::test::typeInApp(resources, field, {}, keys, std::vector<int>(keys.size(), 20));
+        check(text == "Xin chào", "start of text: only the first word is upper case in Sen mode", text);
+
+        Field url = field;
+        url.url   = true;
+        text      = typeAtStart(url, "", "xin");
+        check(text == "xin", "start of text: an address bar stays lower case", text);
+        text = typeAtStart(makeField("wayland", false), "", "xin");
+        check(text == "xin", "start of text: a field that does not report its text stays lower case", text);
+        const Field ibus = makeField("ibus", true);
+        text             = typeAtStart(ibus, "", "xin");
+        check(text == "Xin", "start of text: an empty field over IBus (GNOME) is upper case", text);
+        text = typeAfterKey(ibus, "abc", ngosen::key::Return, 0, "abc\n");
+        check(text == "Xin", "start of text: a new line over IBus is upper case once GNOME reports it", text);
+        text = typeAfterKey(ibus, "", 'v', ngosen::modifier::Ctrl, nullptr);
+        check(text == "xin", "start of text: a paste GNOME has not reported yet stays lower case", text);
+
+        const Field wayland = makeField("wayland", true);
+        text                = typeAfterKey(wayland, "", 'v', ngosen::modifier::Ctrl, nullptr);
+        check(text == "xin", "start of text: a paste the app has not reported yet stays lower case", text);
+        text = typeAfterKey(wayland, "", 'v', ngosen::modifier::Ctrl, "");
+        check(text == "xin", "start of text: a report still showing the field before the paste is not trusted", text);
+        text = typeAfterKey(wayland, "", 'v', ngosen::modifier::Ctrl, "abc\n");
+        check(text == "Xin", "start of text: once the app reports the paste, a new line is upper case", text);
+    }
+
     void testSenForwards(const std::string& frontend, bool surroundingText) {
         realMode = ngosen::Mode::Sen;
         FakeLoop            loop;
@@ -262,6 +349,22 @@ namespace {
         const std::vector<uint32_t> keys{'e', ' ', 'k', 'o', ' ', 'a'};
         const std::string           text = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));
         check(text == "em không a", "macro keeps its space", text);
+    }
+
+    // With Capitalize Macro on, an abbreviation typed with a capital first letter capitalizes the
+    // text, unless the text has capitals of its own.
+    void testMacroCapitalized() {
+        const std::vector<std::pair<std::string, std::string>> cases{
+            {"Ko", "Không "}, {"kO", "không "}, {"Ip", "iPhone "}, {"Io", "iOS "}, {"Bt", "ßa "},
+        };
+        for (const auto& [typed, want] : cases) {
+            FakeResources resources;
+            resources.setMacros({{"ko", "không"}, {"ip", "iPhone"}, {"io", "iOS"}, {"bt", "ßa"}});
+            std::vector<uint32_t> keys(typed.begin(), typed.end());
+            keys.push_back(' ');
+            const std::string text = ngosen::test::typeInApp(resources, makeField("wayland", true), {}, keys, std::vector<int>(keys.size(), 100));
+            check(text == want, "capitalized macro: " + typed, text);
+        }
     }
 
     // An abbreviation matches in any case it was written or typed in.
@@ -908,6 +1011,105 @@ namespace {
         check(!ngosen::ignoresForwardedKeys(gtk3), "quirks: key order fix means GTK3", "true");
     }
 
+    // Tapping a modifier other than the lock key mid-word, as when reaching for a shortcut and letting
+    // go, keeps the word open so a later tone key still applies to it.
+    void testModifierTapKeepsWord() {
+        for (const auto& [frontend, surroundingText] : {std::pair<const char*, bool>{"wayland", true}, {"ibus", false}}) {
+            for (const uint32_t modifier : {ngosen::key::Shift_L, ngosen::key::Control_L}) {
+                FakeResources resources;
+                if (modifier == ngosen::key::Control_L)
+                    resources.mutableOptions().lockWordKey = ngosen::LockWordKey::None;
+                const std::vector<uint32_t> keys{'v', 'i', 'e', 'e', 't', modifier, 'j'};
+                const std::string           text = ngosen::test::typeInApp(resources, makeField(frontend, surroundingText), {}, keys, std::vector<int>(keys.size(), 100));
+                check(text == "việt", std::string("modifier tap: ") + frontend + (modifier == ngosen::key::Shift_L ? " Shift" : " Ctrl") + " keeps vieet open", text);
+            }
+        }
+    }
+
+    // ^ is a Ctrl tap, + a Shift tap and < a backspace.
+    void expectTyped(FakeResources& resources, const Field& field, const std::string& typed, const std::string& want, const std::string& what, ngosen::test::AppQuirks quirks = {},
+                     int gapMs = 30) {
+        std::vector<uint32_t> keys;
+        for (char c : typed)
+            keys.push_back(c == '^' ? ngosen::key::Control_L : c == '+' ? ngosen::key::Shift_L : c == '<' ? ngosen::key::BackSpace : static_cast<uint32_t>(c));
+        const std::string text = ngosen::test::typeInApp(resources, field, quirks, keys, std::vector<int>(keys.size(), gapMs));
+        check(text == want, what, text);
+    }
+
+    // Tapping the lock key keeps the word as shown, like Ctrl in UniKey: no more tone marks, no
+    // restore of an invalid word, no macro (#218).
+    void testLockWord() {
+        for (const auto& [frontend, surroundingText] : {std::pair<const char*, bool>{"wayland", true}, {"ibus", false}}) {
+            const Field   field = makeField(frontend, surroundingText);
+            const auto    where = std::string(" (") + frontend + ")";
+            FakeResources resources;
+            resources.setMacros({{"ko", "không"}});
+            expectTyped(resources, field, "tunx ko ", "tunx không ", "lock: tunx is restored and ko expands without the key" + where);
+            // tũn is kept, s after the tap is a letter, ko stays, and the word after a locked one is restored again.
+            expectTyped(resources, field, "tunx^ a^sk ko^ tunx ", "tũn ask ko tunx ", "lock: Ctrl keeps the word as shown" + where);
+        }
+        FakeResources shift;
+        shift.mutableOptions().lockWordKey = ngosen::LockWordKey::Shift;
+        expectTyped(shift, makeField("wayland", true), "tunx+ ", "tũn ", "lock: Shift when chosen");
+        FakeResources off;
+        off.mutableOptions().lockWordKey = ngosen::LockWordKey::None;
+        expectTyped(off, makeField("wayland", true), "tunx^ ", "tunx ", "lock: Ctrl does nothing when disabled");
+        // A tap right after a tone key lands while that replacement is still in flight.
+        ngosen::test::AppQuirks slow;
+        slow.lagMs = 40;
+        FakeResources lagging;
+        // s finishes the replacement on arrival and must not join the word locked before it.
+        expectTyped(lagging, makeField("wayland", true), "tunx^s ", "tũns ", "lock: Ctrl during a replacement", slow, 10);
+        // A tap between words does not close the last one to Backspace.
+        FakeResources plain;
+        expectTyped(plain, makeField("wayland", true), "ban ^<f ", "bàn ", "lock: Ctrl after a word");
+    }
+
+    // Letting go of Ctrl before Shift in a Shift+Ctrl chord is not a tap.
+    void testLockWordNotOnChord() {
+        realMode = ngosen::Mode::Sen;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<ngosen::test::FakeApp>(loop, makeField("wayland", true), ngosen::test::AppQuirks{});
+        auto*               app   = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        app->attach(&state);
+        for (char c : std::string("vieet"))
+            app->type(static_cast<uint32_t>(c));
+        loop.pump(30);
+        const auto modifierKey = [&](uint32_t sym, bool release, uint32_t states) {
+            FakeKey key(sym, release, states);
+            state.keyEvent(key);
+        };
+        modifierKey(ngosen::key::Shift_L, false, 0);
+        modifierKey(ngosen::key::Control_L, false, ngosen::modifier::Shift);
+        modifierKey(ngosen::key::Control_L, true, ngosen::modifier::Shift | ngosen::modifier::Ctrl);
+        modifierKey(ngosen::key::Shift_L, true, ngosen::modifier::Shift);
+        app->type('j');
+        loop.pump(300);
+        check(app->text() == "việt", "lock: Shift+Ctrl chord keeps the word open", app->text());
+    }
+
+    // The engine already commits the preedit on Ctrl or Alt; a bare Shift never reaches it.
+    void testLockWordPreedit() {
+        for (const auto [lockKey, modifier] : {std::pair{ngosen::LockWordKey::Ctrl, ngosen::key::Control_L}, {ngosen::LockWordKey::Shift, ngosen::key::Shift_L}}) {
+            realMode = ngosen::Mode::Preedit;
+            FakeLoop      loop;
+            FakeResources resources;
+            resources.mutableOptions().lockWordKey = lockKey;
+            auto                owned              = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+            FakeHost*           host               = owned.get();
+            ngosen::TypingState state(&resources, std::move(owned));
+
+            for (char c : std::string("tunx"))
+                press(state, static_cast<uint32_t>(c));
+            press(state, modifier);
+            press(state, ngosen::key::space);
+            const std::string name = modifier == ngosen::key::Shift_L ? "Shift" : "Ctrl";
+            check(join(host->commits()) == "['tũn'][' ']", "lock preedit: " + name + " commits tũn as shown", join(host->commits()));
+        }
+    }
+
     // GLFW (Minecraft) under XIM keeps the time of the last Backspace press and drops older ones.
     void testForwardedKeysNewerThanTyped() {
         ngosen::test::AppQuirks glfw;
@@ -924,6 +1126,7 @@ int main() {
     testPreeditTelex();
     testPreeditEnterAfterCommit();
     testAutoCapitalize();
+    testCapitalizeStartOfText();
     testSenForwards("wayland", true);
     testSenForwards("wayland_v2", true);
     testSenForwards("xim", false);
@@ -935,6 +1138,10 @@ int main() {
     testCommitAfterEditorRedraw();
     testQuickSwitchesNoRedrawWait();
     testMacroKeepsSpace();
+    testLockWord();
+    testLockWordPreedit();
+    testLockWordNotOnChord();
+    testMacroCapitalized();
     testMacroKeyCase();
     testBackspaceIntoLastWord("wayland", true);
     testBackspaceIntoLastWord("wayland", false);
@@ -968,6 +1175,7 @@ int main() {
     testBackspaceRemovesTone(true);
     testBackspaceRemovesTone(false);
     testPreeditBackspaceRemovesTone();
+    testModifierTapKeepsWord();
     if (failures == 0)
         std::cout << "all core typing checks passed\n";
     return failures == 0 ? 0 : 1;

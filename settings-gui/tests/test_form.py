@@ -1,14 +1,21 @@
 # SPDX-FileCopyrightText: 2026 Ngó Sen contributors
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
+import os
 import unittest
 
 from qtpy.QtCore import QEvent
-from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QLineEdit, QListWidget
+from qtpy.QtWidgets import QCheckBox, QComboBox, QFormLayout, QLabel, QLineEdit, QListWidget
 from support import FakeDBusHandler, app
 from ui.components import SingleKeyCaptureWidget
 from ui.main_window import NgoSenSettingsWindow
-from ui.pages.dynamic_settings import DynamicSettingsPage, SettingsCategory
+from ui.pages.dynamic_settings import (
+    HINTS,
+    MENU_ENTRIES,
+    SETTINGS_MAP,
+    DynamicSettingsPage,
+    SettingsCategory,
+)
 
 
 def form_of(page):
@@ -45,6 +52,10 @@ class TypingPageTest(unittest.TestCase):
         )
         hints = [w.text() for w in cb.parentWidget().findChildren(QLabel)]
         self.assertIn("Typing windows still gives windows.", hints)
+
+    def test_lock_key_sits_under_tone_marks(self):
+        labels = row_labels(form_of(self.page))
+        self.assertLess(labels.index("Tone marks:"), labels.index("Key to Keep the Word as Typed:"))
 
     def test_hints_take_one_line(self):
         self.page.resize(760, 900)
@@ -114,12 +125,122 @@ class ShortcutsPageTest(unittest.TestCase):
             self.assertLessEqual(button.mapTo(view, button.rect().bottomRight()).x(), view.width())
 
 
+class AppearancePageTest(unittest.TestCase):
+    def setUp(self):
+        self.fake = FakeDBusHandler({"ShowMenuCharset": "True"})
+        self.page = DynamicSettingsPage(self.fake, category=SettingsCategory.APPEARANCE)
+
+    def menu_checkbox(self, text):
+        return next(c for c in self.page.findChildren(QCheckBox) if c.text() == text)
+
+    def test_menu_entries_follow_the_tray_icon(self):
+        labels = row_labels(form_of(self.page))
+        self.assertLess(labels.index("Tray icon:"), labels.index("Show in the tray menu:"))
+
+    def test_checkboxes_name_the_menu_entries(self):
+        texts = [c.text() for c in self.page.findChildren(QCheckBox)]
+        for name in ("Input Method", "Charset", "Custom Dictionary"):
+            self.assertIn(name, texts)
+        self.assertNotIn("Show Charset in the tray menu", texts)
+
+    def test_tray_preview_follows_the_icon_settings(self):
+        preview = self.page.findChild(QLabel, "TrayIconPreview")
+        self.assertIsNotNone(preview)
+        self.assertEqual(self.page._tray_icon_names()[0], ("fcitx-ngosen", "fcitx-ngosen-off"))
+        self.assertFalse(preview.pixmap().isNull())
+        drawn = preview.pixmap().cacheKey()
+        self.page.update_config("UseLotusIcons", "False")
+        self.assertNotEqual(preview.pixmap().cacheKey(), drawn)
+        self.page.update_config("IconTheme", "Light")
+        self.assertEqual(
+            self.page._tray_icon_names(),
+            (("fcitx-ngosen-default-black", "fcitx-ngosen-off-default-black"), False),
+        )
+        self.page.update_config("IconTheme", "Dark")
+        self.assertEqual(
+            self.page._tray_icon_names(),
+            (("fcitx-ngosen-default", "fcitx-ngosen-off-default"), True),
+        )
+
+    def test_language_comes_first_and_names_itself(self):
+        form = form_of(self.page)
+        self.assertEqual(row_labels(form)[0], "Interface Language:")
+        field = form.itemAt(0, QFormLayout.FieldRole).widget()
+        combo = field if isinstance(field, QComboBox) else field.findChild(QComboBox)
+        self.assertEqual(
+            [combo.itemText(i) for i in range(combo.count())], ["Tiếng Việt", "English"]
+        )
+        self.assertEqual(combo.currentData(), "Vietnamese")
+        combo.setCurrentIndex(1)
+        self.assertEqual(self.page.modified_values["UiLanguage"], "English")
+
+    def test_unticking_hides_the_entry(self):
+        self.menu_checkbox("Charset").click()
+        self.assertEqual(self.page.modified_values["ShowMenuCharset"], "False")
+        self.assertEqual(self.page.change_label(), "Show Charset in the tray menu")
+
+
 class SidebarTest(unittest.TestCase):
     def test_general_is_merged_into_typing(self):
         window = NgoSenSettingsWindow(dbus_handler=FakeDBusHandler())
         titles = [window.sidebar.item(r).text() for r in range(window.sidebar.count())]
         self.assertNotIn("General", titles)
         self.assertEqual(titles[0], "Typing")
+
+
+def vietnamese_catalog():
+    """msgid → msgstr from po/vi.po, joining continued lines."""
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "po", "vi.po")
+    entries, field = {}, None
+    msgid = msgstr = ""
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith("msgid "):
+                if msgid:
+                    entries[msgid] = msgstr
+                field, msgid, msgstr = "id", line[7:-1], ""
+            elif line.startswith("msgstr "):
+                field, msgstr = "str", line[8:-1]
+            elif line.startswith('"') and field == "id":
+                msgid += line[1:-1]
+            elif line.startswith('"') and field == "str":
+                msgstr += line[1:-1]
+    if msgid:
+        entries[msgid] = msgstr
+    return {k.replace('\\"', '"'): v for k, v in entries.items()}
+
+
+class HintTest(unittest.TestCase):
+    # The input method shows a typing example, the mode keys share one line under their list, and
+    # the menu entries are named by their checkboxes.
+    NO_HINT = {"InputMethod", *MENU_ENTRIES}
+
+    def test_every_option_explains_itself(self):
+        for category in (
+            SettingsCategory.TYPING,
+            SettingsCategory.SHORTCUTS,
+            SettingsCategory.APPEARANCE,
+        ):
+            page = DynamicSettingsPage(FakeDBusHandler(), category=category)
+            shown = {label.text() for label in page.findChildren(QLabel)}
+            for keys in SETTINGS_MAP[category].values():
+                for key in keys:
+                    if key in self.NO_HINT or key.startswith("Shortcut"):
+                        continue
+                    with self.subTest(key=key):
+                        self.assertIn(HINTS.get(key), shown)
+
+    def test_mode_keys_say_when_they_work(self):
+        page = DynamicSettingsPage(FakeDBusHandler(), category=SettingsCategory.SHORTCUTS)
+        shown = {label.text() for label in page.findChildren(QLabel)}
+        self.assertIn(HINTS["ModeOrder"], shown)
+
+    def test_every_hint_has_a_vietnamese_line(self):
+        catalog = vietnamese_catalog()
+        for key, text in HINTS.items():
+            with self.subTest(key=key):
+                self.assertTrue(catalog.get(text), text)
 
 
 if __name__ == "__main__":

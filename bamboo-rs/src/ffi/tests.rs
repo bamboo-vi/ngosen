@@ -161,7 +161,22 @@ fn typing_through_the_c_interface() {
         "commit is taken once"
     );
 
-    EngineSetMacroEnabled(engine, 1);
+    let option = EngineOption {
+        auto_non_vn_restore: true,
+        dd_free_style: true,
+        macro_enabled: true,
+        auto_capitalize_macro: false,
+        spell_check_with_dicts: true,
+        output_charset: c"Unicode".as_ptr(),
+        modern_style: false,
+        free_marking: true,
+        w2u: 2,
+        bracket_transform: 0,
+        time_format: c"%H:%M".as_ptr(),
+        date_format: c"%d/%m/%Y".as_ptr(),
+    };
+    // SAFETY: a valid option struct.
+    unsafe { EngineSetOption(engine, &option) };
     type_keys(engine, "vn ");
     assert_eq!(
         take_string(EnginePullCommit(engine)).as_deref(),

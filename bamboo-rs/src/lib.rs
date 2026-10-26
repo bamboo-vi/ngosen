@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 //! Per-key typing logic of Ngó Sen on top of the `bamboo-core` crate, exported with the C
-//! interface the addon used to get from the Go core (`include/bamboo-core.h`).
+//! interface in `include/bamboo-core.h`.
 
 mod engine;
 mod ffi;

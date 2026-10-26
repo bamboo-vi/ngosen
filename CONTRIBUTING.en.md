@@ -21,7 +21,7 @@ Thank you for your interest in contributing to Ngó Sen! This document guides yo
 
 - GCC or Clang with C++17 support
 - CMake >= 3.16
-- Go 1.20+ (for bamboo engine); Rust 1.88+ with cargo only to try the Rust core with `-DNGOSEN_RUST_CORE=ON`
+- Rust 1.88+ with cargo (for the typing core)
 - Fcitx5 development headers
 - Git
 
@@ -31,9 +31,6 @@ Thank you for your interest in contributing to Ngó Sen! This document guides yo
 # Clone repository
 git clone https://github.com/ngosen/ngosen.git
 cd ngosen
-
-# Initialize submodules
-git submodule update --init --recursive
 
 # Build
 mkdir build && cd build
@@ -184,7 +181,9 @@ feature/*, fix/*  ← Personal branch for each PR
 ### Merge Process
 
 1. Developer creates a PR to `next` (feature) or `patch` (fix)
-2. Code review by maintainer
+2. Code review by maintainer. To have the people who reported a problem test the fix first, a maintainer
+   adds the `test-build` label: CI publishes the packages as the `pr-<number>-build` pre-release and
+   links it from the PR. It is deleted when the PR closes
 3. Merge, then test with the `next-build` pre-release
 4. Bug-fix release: `patch` → `main`, then `patch` → `next`. Feature release: `next` → `main`, then reset
    `patch` to `main`

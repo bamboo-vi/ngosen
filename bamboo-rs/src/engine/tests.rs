@@ -44,6 +44,9 @@ fn test_determine_macro_case() {
         ("abc", MacroCase::AllSmall),
         ("ABC", MacroCase::AllCapital),
         ("aBc", MacroCase::NoChange),
+        ("Abc", MacroCase::Capitalized),
+        ("ABc", MacroCase::NoChange),
+        ("Đô", MacroCase::Capitalized),
         ("123", MacroCase::NoChange),
         ("", MacroCase::NoChange),
         ("áộ", MacroCase::AllSmall),
@@ -93,6 +96,16 @@ fn test_expand_macro() {
     assert_eq!(e.expand_macro("vn", "Việt Nam"), "việt nam");
     assert_eq!(e.expand_macro("VN", "việt nam"), "VIỆT NAM");
     assert_eq!(e.expand_macro("Vn", "Việt Nam"), "Việt Nam");
+    assert_eq!(e.expand_macro("Ko", "không"), "Không");
+    assert_eq!(e.expand_macro("kO", "không"), "không");
+    for (text, want) in [
+        ("iPhone", "iPhone"),
+        ("iOS", "iOS"),
+        ("ßa", "ßa"),
+        ("đi", "Đi"),
+    ] {
+        assert_eq!(e.expand_macro("Ab", text), want, "{text}");
+    }
     e.auto_capitalize_macro = false;
     e.time_format = "%H:%M".to_string();
     let now = e.expand_macro("now", "giờ $TIME");
@@ -168,7 +181,7 @@ fn test_dict_mode_accepts_either_tone_position() {
 
     let mut e = new_test_engine(&["thủy"], true);
     e.preeditor
-        .set_config(Config::builder().std_tone_style(false).build());
+        .set_config(Config::builder().tone_style(ToneStyle::Traditional).build());
     type_keys(&mut e, "thuyr");
     assert_eq!(e.preedit_text, "thuỷ");
     e.process_key_event(KEY_SPACE, 0);

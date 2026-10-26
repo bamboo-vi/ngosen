@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-// Text typed while another input method was on, offered for retyping when Ngó Sen comes back.
+// Text typed in English, offered for retyping when Vietnamese comes on.
 #include "fake-app.h"
 #include "fake-engine.h"
 #include "fake-host.h"
@@ -153,6 +153,63 @@ namespace {
         check(offer == "(no offer)", "nothing is noted in a password field", offer);
     }
 
+    void typeInEnglish(ngosen::TypingState& state, const std::string& text) {
+        for (const char c : text) {
+            FakeKey down(static_cast<uint32_t>(c));
+            state.keyEvent(down);
+            FakeKey up(static_cast<uint32_t>(c), true);
+            state.keyEvent(up);
+        }
+    }
+
+    // Ngó Sen types the English itself, then its toggle key turns Vietnamese on.
+    std::string offerAfterOwn(const std::function<void(ngosen::TypingState&)>& type, FakeResources& resources) {
+        realMode = Mode::Off;
+        FakeLoop            loop;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        state.activate(Mode::Off, true);
+        type(state);
+        realMode = Mode::Sen;
+        state.offerRetype();
+        loop.pump(150);
+        if (!host->candidates())
+            return host->status().empty() ? "(no offer)" : "(retyped)";
+        return host->labels().empty() ? "(empty)" : host->labels()[0];
+    }
+
+    void testOwnEnglish() {
+        FakeResources resources;
+        auto          offer = offerAfterOwn([](auto& s) { typeInEnglish(s, "abc tieengs vieetj"); }, resources);
+        check(offer == "abc tieengs vieetj → abc tiếng việt", "keys Ngó Sen lets through in English are offered", offer);
+
+        offer = offerAfterOwn(
+            [](auto& s) {
+                typeInEnglish(s, "abc tieengs vieetj");
+                s.offerRetype();
+            },
+            resources);
+        check(offer == "abc tieengs vieetj → abc tiếng việt", "an offer while still in English keeps the text", offer);
+
+        offer = offerAfterOwn(
+            [](auto& s) {
+                typeInEnglish(s, "vieetj");
+                realMode = Mode::Sen;
+                typeInEnglish(s, "xin ");
+                realMode = Mode::Off;
+                typeInEnglish(s, "abc dduwowcj");
+            },
+            resources);
+        check(offer == "abc dduwowcj → abc được", "Vietnamese typed in between drops the English before it", offer);
+
+        FakeResources macros;
+        macros.mutableOptions().enableMacroInOffMode = true;
+        macros.setMacros({{"vn", "Việt Nam"}});
+        offer = offerAfterOwn([](auto& s) { typeInEnglish(s, "vn abc dduwowcj"); }, macros);
+        check(offer == "abc dduwowcj → abc được", "a macro in English drops the keys before it", offer);
+    }
+
     void testFocusInDoesNotOffer() {
         realMode = Mode::Off;
         FakeLoop            loop;
@@ -166,7 +223,7 @@ namespace {
         check(!host->candidates(), "focus coming in does not offer old text", "offered");
     }
 
-    // Types text in the app as if another input method were on, switches Ngó Sen on, then presses keys.
+    // Types text in the app while Ngó Sen types English, switches Vietnamese on, then presses keys.
     std::string retypeInApp(const Field& field, Mode mode, const std::string& typed, const std::vector<uint32_t>& after, AppQuirks quirks = {}) {
         realMode = Mode::Off;
         realtextLen.store(0);
@@ -178,11 +235,9 @@ namespace {
         ngosen::TypingState state(&resources, std::move(owned));
         app->attach(&state);
         for (const char c : typed) {
-            noteWhileOff(state, static_cast<uint32_t>(c));
             app->type(static_cast<uint32_t>(c));
             loop.pump(5);
         }
-        app->pressSwitchKey();
         state.activate(mode, false);
         state.offerRetype();
         // The next key comes well after the switch key, once a retype at once has gone through.
@@ -204,20 +259,74 @@ namespace {
         text = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Escape});
         check(text == "tieengs vieetj", what + "Esc puts the typed text back", text);
 
+        text = retypeInApp(field, mode, "tieengs vieetj", {ngosen::key::Tab});
+        check(text == "tieengs vieetj", what + "Tab puts the typed text back", text);
+
         text = retypeInApp(field, mode, "tieengs ", {'a', ngosen::key::space});
         check(text == "tiếng a ", what + "typing on keeps the retyped text", text);
 
-        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Tab});
-        check(text == "abc tiếng", what + "Tab retypes the offered text", text);
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Return});
+        check(text == "abc tiếng", what + "Enter retypes the offered text", text);
 
-        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Tab, ngosen::key::Tab});
-        check(text == "abc tieengs", what + "Tab again puts the typed text back", text);
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Return, ngosen::key::Escape});
+        check(text == "abc tieengs", what + "Esc after Enter puts the typed text back", text);
 
-        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Escape, ngosen::key::Tab});
-        check(text.rfind("abc tieengs", 0) == 0, what + "after Esc, Tab does not retype", text);
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Return, ngosen::key::Tab});
+        check(text == "abc tieengs", what + "Tab after Enter puts the typed text back", text);
+
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Tab, ngosen::key::Return});
+        check(text == "abc tieengs", what + "Tab keeps the typed text", text);
+
+        text = retypeInApp(field, mode, "abc tieengs", {ngosen::key::Escape, ngosen::key::Return});
+        check(text.rfind("abc tieengs", 0) == 0, what + "after Esc, Enter does not retype", text);
 
         text = retypeInApp(field, mode, "abc tieengs ", {'a', ngosen::key::space});
         check(text == "abc tieengs a ", what + "another key leaves the offered text as typed", text);
+    }
+
+    // Types prefix and then typed in English, switches on, clicks after the prefix, then presses keys.
+    std::string retypeAfterClick(const Field& field, const std::string& prefix, const std::string& typed, const std::vector<uint32_t>& after) {
+        realMode = Mode::Off;
+        realtextLen.store(0);
+        FakeLoop      loop;
+        FakeResources resources;
+        AppQuirks     quirks;
+        quirks.handsBackKeys      = field.frontend == "xim";
+        auto                owned = std::make_unique<FakeApp>(loop, field, quirks);
+        FakeApp*            app   = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        app->attach(&state);
+        for (const char c : prefix + typed) {
+            app->type(static_cast<uint32_t>(c));
+            loop.pump(5);
+            if (prefix.size() == app->text().size())
+                state.forgetKeysWhileOff();
+        }
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        loop.pump(150);
+        app->moveCursor(prefix.size());
+        // Fields that report no text learn of a click only from the X11 monitor.
+        if (!field.surroundingText)
+            g_mouse_clicked.store(true);
+        loop.pump(150);
+        for (const uint32_t sym : after) {
+            app->type(sym);
+            loop.pump(150);
+        }
+        loop.pump(300);
+        g_mouse_clicked.store(false);
+        return app->text();
+    }
+
+    void testClickDropsRetype(const std::string& frontend, bool surroundingText) {
+        const Field       field = makeField(frontend, surroundingText);
+        const std::string what  = frontend + ": ";
+        std::string       text  = retypeAfterClick(field, "0123456789 ", "abc tieengs", {ngosen::key::Return});
+        check(text == "0123456789 abc tieengs", what + "Enter after a click elsewhere leaves the text alone", text);
+
+        text = retypeAfterClick(field, "0123456789 ", "tieengs vieetj", {ngosen::key::Escape});
+        check(text == "0123456789 tiếng việt", what + "Esc after a click elsewhere leaves the retyped text", text);
     }
 
     void pressInState(ngosen::TypingState& state, uint32_t sym, uint32_t states = 0) {
@@ -245,6 +354,63 @@ namespace {
         check(host->status().empty(), "the hint goes away after " + what, host->status());
     }
 
+    // Enter is taken once, for the offer; the next one goes to the app, as does Tab after keeping.
+    void testEnterTakesOffer() {
+        const auto keyTaken = [](uint32_t first, uint32_t second, bool& firstTaken, bool& secondTaken) {
+            realMode = Mode::Off;
+            FakeLoop            loop;
+            FakeResources       resources;
+            auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+            FakeHost*           host  = owned.get();
+            ngosen::TypingState state(&resources, std::move(owned));
+            host->setSurrounding("abc tieengs", 11);
+            noteWhileOff(state, "abc tieengs");
+            state.activate(Mode::Sen, false);
+            state.offerRetype();
+            loop.pump(150);
+            FakeKey down(first, false);
+            state.keyEvent(down);
+            FakeKey up(first, true);
+            state.keyEvent(up);
+            loop.pump(150);
+            firstTaken = down.accepted();
+            FakeKey again(second, false);
+            state.keyEvent(again);
+            secondTaken = again.accepted();
+        };
+        bool first  = false;
+        bool second = false;
+        keyTaken(ngosen::key::Return, ngosen::key::Return, first, second);
+        check(first, "the offer takes Enter", "Enter went to the app");
+        check(!second, "Enter after the retype goes to the app", "taken");
+        keyTaken(ngosen::key::Tab, ngosen::key::Tab, first, second);
+        check(first, "the offer takes Tab to keep the text", "Tab went to the app");
+        check(!second, "Tab after keeping goes to the app", "taken");
+    }
+
+    // Clicking the offer retypes like Enter, so Enter afterwards reaches the app and Esc undoes it.
+    void testPickedOffer() {
+        realMode = Mode::Off;
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeHost>(loop, makeField("wayland", true));
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding("abc tieengs", 11);
+        noteWhileOff(state, "abc tieengs");
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        loop.pump(150);
+        host->pickCandidate(0);
+        loop.pump(150);
+        check(!host->status().empty(), "a picked offer says how to undo it", "(no hint)");
+        FakeKey down(ngosen::key::Return, false);
+        state.keyEvent(down);
+        FakeKey up(ngosen::key::Return, true);
+        state.keyEvent(up);
+        check(!down.accepted(), "Enter after a picked offer goes to the app", "taken");
+    }
+
     // Qt reports the text after each backspace, so the deletion is seen half done.
     void testRetypeInSteppingApp() {
         AppQuirks quirks;
@@ -253,11 +419,24 @@ namespace {
         check(text == "tiếng việt", "stepping app: the retype waits for every backspace", text);
     }
 
-    void testRetypeAfterSwitchKey() {
-        AppQuirks quirks;
-        quirks.switchBusyMs    = 50;
-        const std::string text = retypeInApp(makeField("wayland", true), Mode::Sen, "tieengs vieetj", {}, quirks);
-        check(text == "tiếng việt", "busy app: the retype waits until the switch key is handled", text);
+    void testRetypeRightAfterSwitchKey() {
+        realMode = Mode::Off;
+        realtextLen.store(0);
+        FakeLoop            loop;
+        FakeResources       resources;
+        auto                owned = std::make_unique<FakeApp>(loop, makeField("wayland", true), AppQuirks{});
+        FakeApp*            app   = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        app->attach(&state);
+        for (const char c : std::string("tieengs vieetj")) {
+            app->type(static_cast<uint32_t>(c));
+            loop.pump(5);
+        }
+        state.activate(Mode::Sen, false);
+        state.offerRetype();
+        check(app->text() == "tieengs vieetj", "nothing is retyped while the switch key is handled", app->text());
+        loop.pump(20);
+        check(app->text() == "tiếng việt", "the retype goes out right after the switch key", app->text());
     }
 
     // The Chromium address bar replaces by selecting with Shift+Left through XTEST, and those keys come back to us.
@@ -333,15 +512,21 @@ int main() {
     testOffer();
     testOptionOff();
     testFocusInDoesNotOffer();
+    testOwnEnglish();
     testRetypeInApp("wayland", true, Mode::Sen);
     testRetypeInApp("xim", false, Mode::Sen);
     testRetypeInApp("wayland", true, Mode::Preedit);
     // Deletes through the surrounding text where forwarded keys do not work.
     testRetypeInApp("other", true, Mode::Sen);
     testRetypeOverSelection();
+    testClickDropsRetype("wayland", true);
+    testClickDropsRetype("xim", false);
     testRetypeInSteppingApp();
-    testRetypeAfterSwitchKey();
+    testRetypeRightAfterSwitchKey();
+    testHintGoesAway(ngosen::key::Return, "Enter");
     testHintGoesAway(ngosen::key::Tab, "Tab");
+    testEnterTakesOffer();
+    testPickedOffer();
     testHintGoesAway(ngosen::key::Escape, "Esc");
     if (failures == 0)
         std::cout << "all retype checks passed\n";

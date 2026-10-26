@@ -12,7 +12,7 @@ pub struct MacroTable {
 
 impl MacroTable {
     /// Keys are stored lowercased, as `get` looks them up. A key written in lower case wins over
-    /// the same key written with capitals; among those, the first in `entries` wins, as in Go.
+    /// the same key written with capitals; among those, the first in `entries` wins.
     pub fn new(entries: impl IntoIterator<Item = (String, String)>) -> Self {
         let entries = entries.into_iter();
         let mut table = HashMap::with_capacity(entries.size_hint().0);

@@ -49,6 +49,7 @@ int main() {
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Sen");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Telex");
     config.setValueByPath("WaitSurroundingEvent", "True");
     // Covers the delete-then-commit fallback, not the default select-and-overtype path.
@@ -57,7 +58,7 @@ int main() {
     config.setValueByPath("WaitSurroundingSettleMs", "500");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Sen || !engine.config().waitSurroundingEvent.value()) {
-        reportFailure("configure Uinput", "mode=Uinput, WaitSurroundingEvent=True", "config differs");
+        reportFailure("configure Sen", "mode=Sen, WaitSurroundingEvent=True", "config differs");
         return 1;
     }
 

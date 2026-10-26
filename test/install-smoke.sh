@@ -110,6 +110,7 @@ is_removed() { ! is_installed "$1"; }
 
 has_line() { grep -qFx -- "$2" "$1" 2>/dev/null; }
 lacks_line() { ! has_line "$@"; }
+lacks_keyboard() { ! grep -qs '^Name=keyboard-' "$1"; }
 
 profile=$home/.config/fcitx5/profile
 config=$home/.config/fcitx5/config
@@ -140,6 +141,7 @@ check_session_files() {
         check "the Fcitx 5 launcher is hidden" has_line "$hidden_launcher" 'NoDisplay=true'
     fi
     check "profile lists ngosen" has_line "$profile" 'Name=ngosen'
+    check "profile has no keyboard next to ngosen" lacks_keyboard "$profile"
     check "trigger keys are left to fcitx5" lacks_line "$config" '0=Control+Shift_L'
 }
 
@@ -210,6 +212,80 @@ check_reinstall_over_running_fcitx5() {
     bus=
 }
 
+# A profile from before Ngó Sen had its own toggle key lists a keyboard next to it, and fcitx5's
+# Ctrl+Space switched between them; the first start of this version drops the keyboard.
+check_old_profile_cleanup() {
+    local settings=$home/.config/fcitx5/conf/ngosen.conf
+    bus=$(sudo -u "$user" dbus-daemon --session --fork --print-address=1 | head -n 1)
+    as_user mkdir -p "$(dirname "$settings")"
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    printf 'InputMethod=Telex\n' | as_user tee "$settings" >/dev/null
+
+    check "fcitx5 starts with the old profile" start_fcitx5
+    check "fcitx5 stops" stop_fcitx5
+    check "the keyboard next to ngosen is dropped" lacks_keyboard "$profile"
+    check "ngosen stays in the profile" has_line "$profile" 'Name=ngosen'
+    check "older settings keep Ctrl+Space" has_line "$settings" '0=Control+space'
+
+    printf '\n[Groups/0/Items/1]\nName=keyboard-us\nLayout=\n' | as_user tee -a "$profile" >/dev/null
+    check "fcitx5 starts with the keyboard added back" start_fcitx5
+    check "fcitx5 stops again" stop_fcitx5
+    check "a keyboard added back stays" has_line "$profile" 'Name=keyboard-us'
+
+    # fcitx5 switches only between two input methods, so its own switch key moves to Ngó Sen.
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    printf 'InputMethod=Telex\n' | as_user tee "$settings" >/dev/null
+    printf '[Hotkey/TriggerKeys]\n0=Super+space\n' | as_user tee "$config" >/dev/null
+    check "fcitx5 starts with its own switch key" start_fcitx5
+    check "fcitx5 stops once more" stop_fcitx5
+    check "fcitx5's switch key becomes the toggle key" has_line "$settings" '0=Super+space'
+    as_user rm -f "$config"
+
+    # Users who never changed a setting have no ngosen.conf at all.
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    as_user rm -f "$settings"
+    check "fcitx5 starts with an old profile and no settings" start_fcitx5
+    check "fcitx5 stops after that" stop_fcitx5
+    check "the keyboard is dropped without settings" lacks_keyboard "$profile"
+    check "no settings keep Ctrl+Space" has_line "$settings" '0=Control+space'
+
+    pkill -u "$user" dbus-daemon || :
+    bus=
+}
+
+install_log=$work/install.log
+install_logged() { installer --yes >"$install_log" 2>&1; }
+install_names() { grep -q "Bấm $1 " "$install_log"; }
+fcitx5_stopped() { ! fcitx5_running; }
+
+# Without a running fcitx5 the installer names the key before the addon has run, so it must
+# predict whether the keyboard goes.
+check_toggle_key_message() {
+    local settings=$home/.config/fcitx5/conf/ngosen.conf
+    as_user rm -f "$settings" "$home/.xinputrc"
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    check "install with an old profile succeeds" install_logged
+    check "it names Ctrl+Space, kept for the lone keyboard" install_names Ctrl+Space
+    check "no fcitx5 is started for the lone keyboard" fcitx5_stopped
+
+    as_user rm -f "$settings" "$home/.xinputrc"
+    printf '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n[Groups/0/Items/1]\nName=mozc\nLayout=\n\n[Groups/0/Items/2]\nName=ngosen\nLayout=\n\n[GroupOrder]\n0=Default\n' |
+        as_user tee "$profile" >/dev/null
+    check "install next to another input method succeeds" install_logged
+    check "it names Ctrl+Shift, as the keyboard stays" install_names Ctrl+Shift
+    check "no fcitx5 is started next to another input method" fcitx5_stopped
+}
+
+check_edited_environment_kept() {
+    echo 'MOZ_ENABLE_WAYLAND=1' | as_user tee -a "$im_env" >/dev/null
+    check "uninstall after the edit succeeds" installer --yes --uninstall
+    check "the edited environment.d file stays" has_line "$im_env" 'MOZ_ENABLE_WAYLAND=1'
+}
+
 main() {
     prepare_system
 
@@ -226,6 +302,19 @@ main() {
 
     echo "== reinstall over a running fcitx5"
     check_reinstall_over_running_fcitx5
+
+    echo "== profile from before the toggle key"
+    check_old_profile_cleanup
+
+    if [ "$session" = x11 ]; then
+        echo "== toggle key named before the addon runs"
+        check_toggle_key_message
+    fi
+
+    if [ "$session" = gnome ]; then
+        echo "== uninstall after the user edited environment.d"
+        check_edited_environment_kept
+    fi
 
     finish
 }

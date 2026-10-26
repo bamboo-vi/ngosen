@@ -9,8 +9,8 @@
 
 namespace ngosen {
 
-    // The modifier whose tap types the next word without macros.
-    enum class MacroSkipKey {
+    // The modifier whose tap keeps the word being typed as it is.
+    enum class LockWordKey {
         None,
         Shift,
         Ctrl,
@@ -20,26 +20,28 @@ namespace ngosen {
     // The settings the typing logic reads, as plain values. The framework copies them from its own
     // configuration each time that changes.
     struct Options {
-        std::string  inputMethod;
-        std::string  outputCharset;
-        bool         spellCheck       = false;
-        bool         modernStyle      = false;
-        bool         freeMarking      = false;
-        int          w2u              = 0;
-        int          bracketTransform = 0;
-        std::string  timeFormat;
-        std::string  dateFormat;
-        bool         autoNonVnRestore               = false;
-        bool         ddFreeStyle                    = false;
-        bool         backspaceRemovesTone           = false;
-        bool         enableMacro                    = false;
-        bool         enableMacroInOffMode           = false;
-        bool         capitalizeMacro                = false;
-        MacroSkipKey macroSkipKey                   = MacroSkipKey::None;
-        bool         autoCapitalizeAfterPunctuation = false;
-        bool         doubleSpaceToPeriod            = false;
-        bool         doubleHyphenToEmDash           = false;
-        bool         retypeAfterSwitch              = true;
+        std::string inputMethod;
+        std::string outputCharset;
+        bool        spellCheck       = false;
+        bool        modernStyle      = false;
+        bool        freeMarking      = false;
+        int         w2u              = 0;
+        int         bracketTransform = 0;
+        std::string timeFormat;
+        std::string dateFormat;
+        bool        autoNonVnRestore               = false;
+        bool        ddFreeStyle                    = false;
+        bool        backspaceRemovesTone           = false;
+        bool        enableMacro                    = false;
+        bool        enableMacroInOffMode           = false;
+        bool        capitalizeMacro                = false;
+        LockWordKey lockWordKey                    = LockWordKey::None;
+        bool        autoCapitalizeAfterPunctuation = false;
+        bool        capitalizeStartOfText          = false;
+        bool        doubleSpaceToPeriod            = false;
+        bool        doubleHyphenToEmDash           = false;
+        bool        retypeAfterSwitch              = true;
+        bool        retoneSelection                = true;
 
         // How old text is replaced in the app.
         bool messengerSelectOvertype          = false;

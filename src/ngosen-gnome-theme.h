@@ -102,6 +102,13 @@ namespace fcitx {
     bool trayWantsIconName(const std::string& xdgCurrentDesktop, const std::string& desktopSession);
 
     /**
+     * @brief Icon names to try for the tray, best first.
+     *
+     * GNOME Shell gets the copies drawn with less margin, so the tile matches its own icons.
+     */
+    std::vector<std::string> trayIconNames(const std::string& iconName, const std::string& baseIconName, const std::string& xdgCurrentDesktop);
+
+    /**
      * @brief Path of the stylesheet Cinnamon paints its panels with.
      */
     std::optional<std::string> cinnamonStylesheet(const CinnamonThemeInfo& info);

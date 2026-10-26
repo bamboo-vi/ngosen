@@ -10,7 +10,7 @@ from enum import Enum
 from core.dbus_handler import NgoSenDBusHandler
 from i18n import N_, _
 from qtpy.QtCore import QEvent, QSize, Qt, QTimer
-from qtpy.QtGui import QColor, QIcon, QPalette
+from qtpy.QtGui import QColor, QIcon, QPalette, QPixmap
 from qtpy.QtWidgets import (
     QButtonGroup,
     QCheckBox,
@@ -43,6 +43,19 @@ class SettingsCategory(Enum):
 
 
 MODE_SWITCHING = N_("Mode switching")
+TRAY_ICON = N_("Tray icon")
+
+# Under "Show in the tray menu" each checkbox names the menu entry and shows its icon.
+MENU_ENTRIES = {
+    "ShowMenuInputMethod": (N_("Input Method"), "input-keyboard"),
+    "ShowMenuCharset": (N_("Charset"), "character-set"),
+    "ShowMenuSpellCheck": (N_("Spell Check"), "tools-check-spelling"),
+    "ShowMenuMacro": (N_("Macro"), "document-edit"),
+    "ShowMenuCapitalizeMacro": (N_("Capitalize Macro"), "format-text-uppercase"),
+    "ShowMenuAutoCapitalize": (N_("Auto Capitalize"), "format-text-capitalize"),
+    "ShowMenuAutoRestore": (N_("Auto Restore Invalid Words"), "edit-undo"),
+    "ShowMenuDictionary": (N_("Custom Dictionary"), "accessories-dictionary"),
+}
 
 # Groups show in this order; the first checkbox of a group carries the group name.
 SETTINGS_MAP = {
@@ -51,6 +64,7 @@ SETTINGS_MAP = {
         N_("Tone marks"): [
             "SpellCheck",
             "AutoNonVnRestore",
+            "LockWordModifier",
             "DdFreeStyle",
             "ModernStyle",
             "FreeMarking",
@@ -62,10 +76,13 @@ SETTINGS_MAP = {
             "DoubleSpaceToPeriod",
             "DoubleHyphenToEmDash",
             "AutoCapitalizeAfterPunctuation",
+            "CapitalizeStartOfText",
+            "RetypeAfterSwitch",
+            "RetoneSelection",
         ],
     },
     SettingsCategory.SHORTCUTS: {
-        N_("Hotkeys"): ["ModeMenuKey", "CycleModeKey"],
+        N_("Hotkeys"): ["ToggleKey", "ModeMenuKey", "CycleModeKey"],
         MODE_SWITCHING: [
             "ShortcutSen",
             "ShortcutPreedit",
@@ -75,21 +92,66 @@ SETTINGS_MAP = {
         ],
     },
     SettingsCategory.APPEARANCE: {
-        N_("Tray icon"): ["UseLotusIcons", "IconTheme"],
+        N_("Language"): ["UiLanguage"],
+        TRAY_ICON: ["UseLotusIcons", "IconTheme"],
+        N_("Show in the tray menu"): list(MENU_ENTRIES),
     },
 }
 
 # One line under a setting, saying what the user sees.
 HINTS = {
+    "ToggleKey": N_("Tap it alone to switch. The tray icon shows V while typing Vietnamese."),
     "SpellCheck": N_("Words that are not Vietnamese get no tone marks."),
     "AutoNonVnRestore": N_("Typing windows still gives windows."),
+    "LockWordModifier": N_(
+        "Tap the key alone to keep the word as shown: tunx, Ctrl → tũn, with no restore or macro. Alt also shows the menu bar in some apps."
+    ),
     "FreeMarking": N_("Tone marks can also go at the end of the word."),
+    "UiLanguage": N_("The tray menu changes at once, this window the next time it opens."),
     "BackspaceRemovesTone": N_(
         "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
+    ),
+    "Mode": N_(
+        "Sen types straight into the app. Preedit underlines the word until it is done; use it in an app that Sen does not work with."
+    ),
+    "OutputCharset": N_(
+        "Keep Unicode unless an old document or app needs another one, such as TCVN3 (ABC). Cứu dấu works only with Unicode."
+    ),
+    "DdFreeStyle": N_("dd and Space stays đ instead of going back to dd."),
+    "ModernStyle": N_("hoà, khoẻ, thuý, tuỳ. Off: hòa, khỏe, thúy, tùy."),
+    "W2U": N_(
+        "Non-Start: nhw → như, but w alone stays w. Everywhere: w alone gives ư too. uw always gives ư."
+    ),
+    "BracketTransform": N_("ch]a → chưa, m[f → mờ. Type a bracket twice to get it back: [[ → [."),
+    "DoubleSpaceToPeriod": N_("ban and Space twice gives “ban. ”."),
+    "DoubleHyphenToEmDash": N_("a--b → a—b."),
+    "AutoCapitalizeAfterPunctuation": N_("ban. tooi → ban. Tôi. The same after Enter."),
+    "CapitalizeStartOfText": N_(
+        "xin → Xin in an empty field or on a new line. Not in address bars or some apps; on GNOME 47 and later, Chrome and similar apps skip an empty field."
+    ),
+    "RetypeAfterSwitch": N_(
+        "Typed tieengs vieetj before switching on? Switch on and it becomes tiếng việt. Tab or Esc gives back what you typed."
+    ),
+    "RetoneSelection": N_("Select nhanh and type s: nhánh. Tab, Esc or s again gives back s."),
+    "ModeMenuKey": N_(
+        "Opens a menu to pick a mode for the app in use. Only while typing Vietnamese; in English the key types as usual."
+    ),
+    "CycleModeKey": N_(
+        "Moves the app in use to the next mode in the list below, and remembers it for that app."
+    ),
+    "ModeOrder": N_(
+        "With the mode menu open, press a mode's key to pick it for the app in use. Pick Default Typing to make the app follow the switch key again."
+    ),
+    "UseLotusIcons": N_("Off: plain one-colour icons, in the colour picked below."),
+    "IconTheme": N_(
+        "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the light or dark setting of the desktop."
     ),
 }
 
 MODE_BUTTON_ORDER = ["Sen", "Preedit", "Emoji Picker", "OFF"]
+
+# Each language is named in itself, so it can be found whichever one the window is in.
+LANGUAGE_NAMES = {"Vietnamese": "Tiếng Việt", "English": "English"}
 
 # What a word looks like while typing it, shown under the input method.
 TYPING_EXAMPLES = {
@@ -225,6 +287,7 @@ class DynamicSettingsPage(QWidget):
             self.shortcut_labels.clear()
             self.shortcut_warning_labels.clear()
             self.list_widgets.clear()
+            self._tray_preview = None
 
             config_data = self.dbus.get_config()
             if not config_data:
@@ -267,7 +330,9 @@ class DynamicSettingsPage(QWidget):
                     item = self.all_metadata.get(k)
                     if not item:
                         continue
-                    if k in ["ModeMenuKey", "CycleModeKey"] or item[1] == "Hotkey":
+                    if k == "ToggleKey":
+                        self._render_toggle_key(item)
+                    elif k in ["ModeMenuKey", "CycleModeKey"] or item[1] == "Hotkey":
                         self._render_hotkey(item)
                     elif k == "Mode":
                         self._render_mode_buttons(item)
@@ -276,6 +341,8 @@ class DynamicSettingsPage(QWidget):
                     elif item[1] == "Boolean":
                         self._render_checkbox(item, group_label)
                         group_label = ""
+                if group == TRAY_ICON:
+                    self._render_tray_preview()
 
             if self.category == SettingsCategory.TYPING:
                 self.form.addRow(self._separator())
@@ -370,6 +437,72 @@ class DynamicSettingsPage(QWidget):
         )
         self.form.addRow(_(label) + ":", self._with_hint(hk_btn, key))
 
+    def _render_toggle_key(self, item):
+        key, type_str, label, default, annotations = item
+        # The default is Ctrl+Shift: either Ctrl with either Shift, in either order, as in UniKey.
+        ctrl_shift = default if isinstance(default, dict) else {}
+
+        def is_ctrl_shift():
+            val = self.current_values.get(key, default)
+            return isinstance(val, dict) and sorted(val.values()) == sorted(ctrl_shift.values())
+
+        def shown_key():
+            val = self.current_values.get(key, default)
+            first = val.get("0", "") if isinstance(val, dict) else ""
+            # Without a side, since either Ctrl and either Shift work.
+            return "Control+Shift" if is_ctrl_shift() else first
+
+        editor = HotkeyEditorWidget(shown_key())
+        editor.setFixedWidth(235)
+        field = QWidget()
+        layout = QVBoxLayout(field)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(editor)
+        hint = HintLabel(_(HINTS[key]))
+        mute(hint)
+        layout.addWidget(hint)
+
+        # Upgrades kept Ctrl+Space; UniKey's key is one click away.
+        offer = QWidget()
+        offer_layout = QHBoxLayout(offer)
+        offer_layout.setContentsMargins(0, 4, 0, 0)
+        offer_text = QLabel(_("Switch with Ctrl+Shift, as in UniKey?"))
+        use_ctrl_shift = QPushButton(_("Use Ctrl+Shift"))
+        offer_layout.addWidget(offer_text)
+        offer_layout.addWidget(use_ctrl_shift)
+        offer_layout.addStretch(1)
+        offer.setVisible(not is_ctrl_shift())
+        layout.addWidget(offer)
+
+        def choose_ctrl_shift():
+            self.update_config(key, dict(ctrl_shift))
+            editor.set_key(shown_key())
+            offer.setVisible(False)
+
+        def changed(text):
+            # No key would leave no way back to Vietnamese; Ctrl+Shift recorded with either side or
+            # in either order is still all of UniKey's key.
+            if not text or text in ctrl_shift.values():
+                choose_ctrl_shift()
+                return
+            # The Ctrl+Shift entries are one key to the user; other extra keys still work.
+            new = {"0": text} if is_ctrl_shift() else self._with_first_key(key, text)
+            self.update_config(key, new)
+            offer.setVisible(not is_ctrl_shift())
+
+        editor.textChanged.connect(changed)
+        use_ctrl_shift.clicked.connect(choose_ctrl_shift)
+
+        others = [n for n in (self.dbus.input_method_names() or []) if n != "ngosen"]
+        if others:
+            hint = HintLabel(
+                _("fcitx5 has other input methods too; its own key still switches to them.")
+            )
+            mute(hint)
+            layout.addWidget(hint)
+        self.form.addRow(_(label) + ":", field)
+
     def _with_first_key(self, key, text):
         # Only the first key of a list is shown; the others still work and must survive an edit.
         val = self.current_values.get(key)
@@ -387,7 +520,8 @@ class DynamicSettingsPage(QWidget):
         sorted_keys = sorted(enum_dict.keys(), key=lambda x: int(x) if str(x).isdigit() else x)
         for k in sorted_keys:
             rb_text = str(enum_dict[k])
-            combo.addItem(_(rb_text), rb_text)
+            shown = LANGUAGE_NAMES.get(rb_text, rb_text) if key == "UiLanguage" else _(rb_text)
+            combo.addItem(shown, rb_text)
 
         idx = combo.findData(val)
         if idx >= 0:
@@ -452,7 +586,7 @@ class DynamicSettingsPage(QWidget):
             layout.addWidget(button)
         brand.follow_theme(row, self._style_mode_buttons, source=self)
         self.button_groups.append(group)
-        self.form.addRow(_(label) + ":", row)
+        self.form.addRow(_(label) + ":", self._with_hint(row, key))
 
     def _style_mode_buttons(self, row):
         enamel = brand.pick(self, brand.ENAMEL)
@@ -467,11 +601,54 @@ class DynamicSettingsPage(QWidget):
         val = self.current_values.get(key, default)
 
         cb = QCheckBox(_(label))
+        if key in MENU_ENTRIES:
+            text, icon_name = MENU_ENTRIES[key]
+            cb.setText(_(text))
+            icon = brand.theme_icon(icon_name)
+            if icon.isNull():
+                # Keep the text in line with the entries that have an icon.
+                blank = QPixmap(cb.iconSize())
+                blank.fill(Qt.transparent)
+                icon = QIcon(blank)
+            cb.setIcon(icon)
         cb.setChecked(str(val).lower() == "true")
         cb.toggled.connect(
             lambda checked, k=key: self.update_config(k, "True" if checked else "False")
         )
         self.form.addRow(group_label, self._with_hint(cb, key))
+
+    def _tray_icon_names(self):
+        """The icons the tray shows for Vietnamese and English, and whether they suit a dark panel."""
+        if str(self.current_values.get("UseLotusIcons", "True")).lower() == "true":
+            return ("fcitx-ngosen", "fcitx-ngosen-off"), brand.is_dark(self)
+        color = str(self.current_values.get("IconTheme", "Auto"))
+        dark = {"Light": False, "Dark": True}.get(color, brand.is_dark(self))
+        suffix = "-default" if dark else "-default-black"
+        return (f"fcitx-ngosen{suffix}", f"fcitx-ngosen-off{suffix}"), dark
+
+    def _render_tray_preview(self):
+        preview = QLabel()
+        preview.setObjectName("TrayIconPreview")
+        preview.setAccessibleName(_("Tray icons for Vietnamese and English"))
+        caption = HintLabel(_("Vietnamese, English"))
+        mute(caption)
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+        layout.addWidget(preview)
+        layout.addWidget(caption)
+        layout.addStretch()
+        self._tray_preview = preview
+        brand.follow_theme(preview, lambda _w: self._update_tray_preview())
+        self.form.addRow(_("In the tray:"), row)
+
+    def _update_tray_preview(self):
+        preview = getattr(self, "_tray_preview", None)
+        if preview is None:
+            return
+        names, dark = self._tray_icon_names()
+        preview.setPixmap(brand.tray_preview(names, dark))
 
     def _render_string(self, item, layout):
         key, type_str, label, default, annotations = item
@@ -611,6 +788,9 @@ class DynamicSettingsPage(QWidget):
         instructions.setWordWrap(True)
         mute(instructions)
         card.content_layout.addWidget(instructions)
+        keys_hint = HintLabel(_(HINTS["ModeOrder"]))
+        mute(keys_hint)
+        card.content_layout.addWidget(keys_hint)
         self.form.addRow(label, card)
 
     @staticmethod
@@ -745,6 +925,8 @@ class DynamicSettingsPage(QWidget):
         self.modified_values[key] = new_value
         self.current_values[key] = new_value
         self._last_changed_key = key
+        if key in ("UseLotusIcons", "IconTheme"):
+            self._update_tray_preview()
 
         # Real-time validation if it's a shortcut
         if key in MODE_SHORTCUT_KEYS or key in MODE_SHORTCUT_TO_VISIBILITY.values():

@@ -28,7 +28,7 @@ namespace {
         if (event.accepted() != requireAccepted) {
             reportFailure("process key " + std::to_string(symbol), "accepted=" + std::to_string(requireAccepted),
                           "accepted=" + std::to_string(event.accepted()) + ", commits=" + std::to_string(context.commits().size()),
-                          "Uinput buffered-key handling accepted or rejected the key unexpectedly");
+                          "Sen buffered-key handling accepted or rejected the key unexpectedly");
             return false;
         }
         return true;
@@ -46,11 +46,11 @@ int main() {
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Sen");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Telex");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Sen || engine.config().inputMethod.value() != "Telex") {
-        reportFailure("configure Uinput/Telex", "mode=Uinput, input method=Telex", "configured mode or input method differs",
-                      "the replay test cannot exercise Uinput Telex behavior");
+        reportFailure("configure Sen/Telex", "mode=Sen, input method=Telex", "configured mode or input method differs", "the replay test cannot exercise Sen Telex behavior");
         return 1;
     }
 

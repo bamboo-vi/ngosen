@@ -43,4 +43,22 @@ endforeach()
 
 add_custom_target(ngosen_icons ALL DEPENDS ${NGOSEN_PNG_OUTPUTS})
 
+# GNOME's top bar fits icons to a 16 px box that its own icons nearly fill, so the margin that
+# matches other trays leaves Ngó Sen's tile smaller there.
+foreach(ICON ${NGOSEN_STATUS_ICONS})
+    set(ICON_SVG "${CMAKE_CURRENT_SOURCE_DIR}/icons/hicolor/scalable/apps/${ICON}.svg")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${ICON_SVG})
+    file(READ ${ICON_SVG} SVG)
+    if(NOT SVG MATCHES "viewBox=\"(-?[0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+)\"")
+        message(FATAL_ERROR "${ICON}.svg: expected a whole-number viewBox")
+    endif()
+    math(EXPR CX "(2 * ${CMAKE_MATCH_1} + ${CMAKE_MATCH_3}) / 2")
+    math(EXPR CY "(2 * ${CMAKE_MATCH_2} + ${CMAKE_MATCH_4}) / 2")
+    string(REGEX REPLACE "(<svg[^>]*>)" "\\1<g transform=\"translate(${CX} ${CY}) scale(1.3) translate(-${CX} -${CY})\">" SVG "${SVG}")
+    string(REPLACE "</svg>" "</g></svg>" SVG "${SVG}")
+    set(OUT "${CMAKE_CURRENT_BINARY_DIR}/icons/gnome/${ICON}-gnome.svg")
+    file(WRITE ${OUT} "${SVG}")
+    install(FILES ${OUT} DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/status")
+endforeach()
+
 install(FILES dictionaries/vietnamese.cm.dict DESTINATION "${FCITX_INSTALL_PKGDATADIR}/ngosen")

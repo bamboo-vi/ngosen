@@ -5,9 +5,8 @@
  */
 
 /*
- * The typing core's C interface, matching the header cgo generated for the Go core. Handles are
- * opaque numbers, 0 meaning none; DeleteObject frees any of them. Returned strings and arrays
- * are allocated with malloc and freed by the caller.
+ * The typing core's C interface. Handles are opaque numbers, 0 meaning none; DeleteObject frees
+ * any of them. Returned strings and arrays are allocated with malloc and freed by the caller.
  */
 
 #ifndef BAMBOO_CORE_H
@@ -42,7 +41,6 @@ extern uint8_t   EngineProcessKeyEvent(uintptr_t engine, uint32_t keyVal, uint32
 extern char*     EnginePullPreedit(uintptr_t engine);
 extern void      EngineCommitPreedit(uintptr_t engine);
 extern char*     EnginePullCommit(uintptr_t engine);
-extern void      EngineSetMacroEnabled(uintptr_t engine, uint8_t enabled);
 extern void      EngineSetOption(uintptr_t engine, FcitxBambooEngineOption* option);
 extern uintptr_t NewEngine(cchar* name, uintptr_t dictHandle, uintptr_t tableHandle);
 extern uintptr_t NewCustomEngine(char** definition, uintptr_t dictHandle, uintptr_t tableHandle);

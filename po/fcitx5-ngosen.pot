@@ -139,7 +139,7 @@ msgid "Capitalize Macro"
 msgstr ""
 
 #: src/ngosen-config.h:235
-msgid "Modifier to Skip Macro for Next Word"
+msgid "Key to Keep the Word as Typed"
 msgstr ""
 
 #: src/ngosen-config.h:236
@@ -156,6 +156,10 @@ msgstr ""
 
 #: src/ngosen-config.h:239
 msgid "Retype text typed before switching on"
+msgstr ""
+
+#: src/ngosen-config.h:240
+msgid "Change the tone of a selected word"
 msgstr ""
 
 #: src/ngosen-config.h:239 src/ngosen-engine.cpp:246
@@ -178,12 +182,40 @@ msgstr ""
 msgid "Allow dd To Produce đ When Auto Restore Invalid Words Is On"
 msgstr ""
 
-#: src/ngosen-config.h:243
-msgid "Fix Uinput Mode With Ack"
-msgstr ""
-
 #: src/ngosen-config.h:244
 msgid "Use Ngó Sen Status Icons"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Input Method in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Charset in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Spell Check in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Macro in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Capitalize Macro in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Auto Capitalize in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Auto Restore Invalid Words in the tray menu"
+msgstr ""
+
+#: src/ngosen-config.h
+msgid "Show Custom Dictionary in the tray menu"
 msgstr ""
 
 #: src/ngosen-config.h:246 src/ngosen-engine.cpp:248 src/ngosen-engine.cpp:386
@@ -250,6 +282,10 @@ msgstr ""
 msgid "Icon Color"
 msgstr ""
 
+#: src/ngosen-config.h
+msgid "Interface Language"
+msgstr ""
+
 #: src/ngosen-engine.cpp:215
 msgid "Charset"
 msgstr ""
@@ -260,6 +296,18 @@ msgstr ""
 
 #: src/ngosen-engine.cpp:246 src/ngosen-engine.cpp:385
 msgid "Auto Non-VN Restore"
+msgstr ""
+
+msgid "Auto Capitalize"
+msgstr ""
+
+msgid "After . ! ? and Enter"
+msgstr ""
+
+msgid "Start of text or line"
+msgstr ""
+
+msgid "Capitalize the first letter of the text or of a line"
 msgstr ""
 
 #: src/ngosen-engine.cpp:252
@@ -291,11 +339,15 @@ msgid "Page "
 msgstr ""
 
 #: src/core/ngosen-state-retype.cpp
-msgid "Tab: retype in Vietnamese, Esc: keep"
+msgid "Enter: retype in Vietnamese, Tab or Esc: keep"
+msgstr ""
+
+#: src/core/ngosen-state-retone.cpp
+msgid "Tab or Esc: put back the key"
 msgstr ""
 
 #: src/core/ngosen-state-retype.cpp
-msgid "Esc: put back what was typed"
+msgid "Tab or Esc: put back what was typed"
 msgstr ""
 
 #: io.github.ngosen.NgoSen.metainfo.xml.in.in:7
@@ -645,10 +697,6 @@ msgstr ""
 msgid "Macro in Off Mode"
 msgstr ""
 
-#: settings-gui/ui/pages/macro_editor.py:84
-msgid "Modifier to Skip Macro for Next Word:"
-msgstr ""
-
 #: settings-gui/ui/pages/macro_editor.py:93
 msgid "Search macros..."
 msgstr ""
@@ -798,12 +846,6 @@ msgstr ""
 msgid "You can type tone marks at the end of the word or anywhere inside."
 msgstr ""
 
-#: settings-gui/ui/helpers.py:16
-msgid ""
-"Fix typing issues in Uinput mode for Chromium-based browsers like Chrome or "
-"Edge."
-msgstr ""
-
 #: settings-gui/ui/helpers.py:19
 msgid ""
 "Automatically match expansion case to trigger key case.\n"
@@ -826,14 +868,6 @@ msgstr ""
 msgid ""
 "Allow macros to work when the input mode is OFF.\n"
 "When disabled, macros are only available in active typing modes."
-msgstr ""
-
-#: settings-gui/ui/helpers.py:34
-msgid ""
-"Press and release the selected modifier key before typing to skip macro "
-"expansion for the next word.\n"
-"If another key is pressed between the modifier's press and release, the skip "
-"is cancelled."
 msgstr ""
 
 #: settings-gui/ui/main_window.py:33
@@ -963,6 +997,22 @@ msgid "Tray icon"
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
+msgid "In the tray:"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tray icons for Vietnamese and English"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Vietnamese, English"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Show in the tray menu"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
 msgid "Mode switching"
 msgstr ""
 
@@ -983,7 +1033,21 @@ msgid "Typing windows still gives windows."
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
+msgid ""
+"Tap the key alone to keep the word as shown: tunx, Ctrl → tũn, with no restore "
+"or macro. Alt also shows the menu bar in some apps."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tone marks can also go at the end of the word."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Language"
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "The tray menu changes at once, this window the next time it opens."
 msgstr ""
 
 #: settings-gui/ui/pages/dynamic_settings.py
@@ -1195,4 +1259,88 @@ msgstr ""
 
 #: settings-gui/ui/system_check_dialog.py
 msgid "The log has no typing in it. Type the sample, then save the log again."
+msgstr ""
+
+#: settings-gui/save_log.py
+msgid "fcitx5 is not running."
+msgstr ""
+
+#: settings-gui/save_log.py
+msgid "Ngó Sen is not loaded. Switch to Ngó Sen once, then run this again."
+msgstr ""
+
+#: settings-gui/save_log.py
+msgid "fcitx5 did not answer."
+msgstr ""
+
+#: settings-gui/save_log.py
+msgid "No desktop session bus. Run this as your own user in a desktop terminal."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Sen types straight into the app. Preedit underlines the word until it is done; use it in an app that Sen does not work with."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Keep Unicode unless an old document or app needs another one, such as TCVN3 (ABC). Cứu dấu works only with Unicode."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "dd and Space stays đ instead of going back to dd."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "hoà, khoẻ, thuý, tuỳ. Off: hòa, khỏe, thúy, tùy."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Non-Start: nhw → như, but w alone stays w. Everywhere: w alone gives ư too. uw always gives ư."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ch]a → chưa, m[f → mờ. Type a bracket twice to get it back: [[ → [."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ban and Space twice gives “ban. ”."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "a--b → a—b."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ban. tooi → ban. Tôi. The same after Enter."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "xin → Xin in an empty field or on a new line. Not in address bars or some apps; on GNOME 47 and later, Chrome and similar apps skip an empty field."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Typed tieengs vieetj before switching on? Switch on and it becomes tiếng việt. Tab or Esc gives back what you typed."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Select nhanh and type s: nhánh. Tab, Esc or s again gives back s."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Opens a menu to pick a mode for the app in use. Only while typing Vietnamese; in English the key types as usual."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Moves the app in use to the next mode in the list below, and remembers it for that app."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "With the mode menu open, press a mode's key to pick it for the app in use. Pick Default Typing to make the app follow the switch key again."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Off: plain one-colour icons, in the colour picked below."
+msgstr ""
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the light or dark setting of the desktop."
 msgstr ""

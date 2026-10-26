@@ -313,11 +313,19 @@ class NgoSenSettingsWindow(QMainWindow):
             (_("Keymap"), create_keymap),
         )
         self._add_page(
-            _("More"),
-            # Adwaita and Yaru have no preferences-other.
-            ("preferences-other", "preferences-system"),
-            (_("Appearance"), create_appearance),
-            (_("About"), create_about),
+            _("Appearance"),
+            # Adwaita ships only the symbolic one; Yaru may have neither.
+            (
+                "preferences-desktop-theme",
+                "preferences-desktop-appearance-symbolic",
+                "preferences-system",
+            ),
+            (None, create_appearance),
+        )
+        self._add_page(
+            _("About"),
+            ("help-about", "help-about-symbolic", "dialog-information"),
+            (None, create_about),
         )
 
     def on_restore_defaults(self):

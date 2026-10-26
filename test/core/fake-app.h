@@ -28,7 +28,6 @@ namespace ngosen::test {
         int  lagMs                  = 0;     // applies commits, deletions and keys this late, in order
         bool handsBackKeys          = false; // sends forwarded keys back to the input method first, as XIM clients do
         int  keyStepMs              = 0;     // applies forwarded backspaces one per step, reporting after each
-        int  switchBusyMs           = 0;     // drops forwarded keys this long after a switch key, as Qt does
         bool dropsCommitsInReport   = false; // drops commits sent while its report is handled, as wlroots does
         int  refocusWhenEmptiedMs   = 0;     // leaves focus this long when its text becomes empty, as Zed does
         bool resendsKeysWithoutText = false; // sends a key that types no text back once more, marked as repeated, as gnome-text-editor does
@@ -36,6 +35,7 @@ namespace ngosen::test {
         int  redrawAfterEditMs      = 0;     // bounces focus this long after each edit and drops commits until then, as TikTok in Chrome does
         bool redrawsOnlyOnDeletion  = false; // redraws after deletions but not insertions, as a plain Draft.js box in Chrome on GNOME does
         bool dropsOldKeyPresses     = false; // drops a Backspace press not newer than the last one, as GLFW does under XIM
+        bool hidesSelectionEnd      = false; // reports a selection as the cursor at its start, as Firefox does
         int  commitLagMs            = 0;     // applies commits this late but typed keys at once, as Firefox does over D-Bus
     };
 
@@ -49,10 +49,18 @@ namespace ngosen::test {
             state_ = state;
         }
         // Presses and releases a key; the app inserts it when the input method lets it through.
-        void type(uint32_t sym);
-        // The user pressed the key that switches input methods.
-        void        pressSwitchKey();
+        void        type(uint32_t sym);
         std::string text() const;
+        // Moves the cursor without an edit, as a click does.
+        void moveCursor(size_t to);
+        // Selects from anchor to cursor, as Shift+arrows or a double click do; typing replaces it.
+        void                            select(size_t anchor, size_t cursor);
+        const std::vector<std::string>& labels() const {
+            return labels_;
+        }
+        const std::string& status() const {
+            return status_;
+        }
         // The longest time from forwarding a replacement's first backspace to its commit.
         int slowestCommitMs() const {
             return slowestCommitMs_;
@@ -71,22 +79,30 @@ namespace ngosen::test {
             return focused_;
         }
 
-        void                         showPreedit(const std::string& /*text*/, bool /*underline*/) override {}
-        void                         clearPreedit() override {}
-        void                         resetPanel() override {}
-        void                         refreshPreedit() override {}
-        void                         refreshPanel() override {}
+        void showPreedit(const std::string& /*text*/, bool /*underline*/) override {}
+        void clearPreedit() override {}
+        void resetPanel() override {}
+        void refreshPreedit() override {}
+        void refreshPanel() override {}
 
-        void                         showCandidates(const std::vector<std::string>& /*labels*/, int /*pageSize*/, std::function<void(size_t)> /*onPick*/) override {}
-        void                         hideCandidates() override {}
-        std::optional<CandidatePage> candidates() const override {
-            return std::nullopt;
+        void showCandidates(const std::vector<std::string>& labels, int /*pageSize*/, std::function<void(size_t)> /*onPick*/) override {
+            labels_ = labels;
         }
-        void        highlightCandidate(int /*index*/) override {}
-        void        nextCandidatePage() override {}
-        void        prevCandidatePage() override {}
-        void        pickCandidate(int /*index*/) override {}
-        void        setStatus(const std::string& /*text*/) override {}
+        void hideCandidates() override {
+            labels_.clear();
+        }
+        std::optional<CandidatePage> candidates() const override {
+            if (labels_.empty())
+                return std::nullopt;
+            return CandidatePage{.total = static_cast<int>(labels_.size())};
+        }
+        void highlightCandidate(int /*index*/) override {}
+        void nextCandidatePage() override {}
+        void prevCandidatePage() override {}
+        void pickCandidate(int /*index*/) override {}
+        void setStatus(const std::string& text) override {
+            status_ = text;
+        }
         std::string translate(const char* text) const override {
             return text;
         }
@@ -99,6 +115,7 @@ namespace ngosen::test {
 
       private:
         void                                insert(const std::u32string& text);
+        bool                                eraseSelection();
         void                                eraseBefore(size_t count);
         void                                eraseAround(int offset, unsigned int size);
         void                                changed();
@@ -113,12 +130,14 @@ namespace ngosen::test {
         int                                 redraws_         = 0;
         bool                                inReport_        = false;
         bool                                focused_         = true;
-        uint64_t                            busyUntilUs_     = 0;
         uint64_t                            forwardedAt_     = 0;
         uint32_t                            lastBackSpaceAt_ = 0;
         int                                 slowestCommitMs_ = 0;
         std::u32string                      text_;
         size_t                              cursor_ = 0;
+        size_t                              anchor_ = 0;
+        std::vector<std::string>            labels_;
+        std::string                         status_;
         std::u32string                      previousText_;
         size_t                              previousCursor_ = 0;
         std::vector<std::unique_ptr<Timer>> timers_;

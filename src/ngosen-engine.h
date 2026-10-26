@@ -20,8 +20,11 @@
 #include "emoji.h"
 #include "ngosen-options.h"
 #include "ngosen-go-object.h"
+#include <filesystem>
+#include <functional>
 #include <mutex>
 #include <memory>
+#include <optional>
 #include <fcitx-config/iniparser.h>
 #include <fcitx/action.h>
 #include <fcitx/addonfactory.h>
@@ -36,6 +39,8 @@ namespace ngosen {
 }
 
 namespace fcitx {
+
+    class NgoSenDBusObject;
 
     // Hangs one typing state on each fcitx5 input context; the state itself does not depend on fcitx5.
     class TypingStateProperty final : public InputContextProperty {
@@ -214,7 +219,17 @@ namespace fcitx {
             return recorder_;
         }
 
+        static std::filesystem::path typingLogDir();
+        // Writes the recorder to a new file in typingLogDir(); an empty path if that failed.
+        std::filesystem::path writeTypingLog();
+
       private:
+        // A tray menu entry and the option that shows it; nullptr means always shown.
+        struct MenuEntry {
+            SimpleAction*       action;
+            const Option<bool>* shown;
+        };
+
         ngosen::TypingState*                        stateFor(InputContext* ic);
 
         Instance*                                   instance_;
@@ -229,6 +244,10 @@ namespace fcitx {
         FactoryFor<TypingStateProperty>             factory_;
         std::vector<std::string>                    imNames_;
 
+        std::unique_ptr<SimpleAction>               inputMethodAction_;
+        std::vector<std::unique_ptr<SimpleAction>>  inputMethodSubAction_;
+        std::unique_ptr<Menu>                       inputMethodMenu_;
+
         std::unique_ptr<SimpleAction>               charsetAction_;
         std::vector<std::unique_ptr<SimpleAction>>  charsetSubAction_;
         std::unique_ptr<Menu>                       charsetMenu_;
@@ -236,23 +255,35 @@ namespace fcitx {
         std::unique_ptr<SimpleAction>               spellCheckAction_;
         std::unique_ptr<SimpleAction>               macroAction_;
         std::unique_ptr<SimpleAction>               capitalizeMacroAction_;
+        std::unique_ptr<SimpleAction>               autoCapitalizeAction_;
+        std::unique_ptr<Menu>                       autoCapitalizeMenu_;
+        std::unique_ptr<SimpleAction>               capitalizeSentencesAction_;
+        std::unique_ptr<SimpleAction>               capitalizeStartAction_;
         std::unique_ptr<SimpleAction>               autoNonVnRestoreAction_;
         std::unique_ptr<SimpleAction>               enableDictionaryAction_;
         std::unique_ptr<SimpleAction>               settingsAction_;
         std::unique_ptr<SimpleAction>               saveLogAction_;
         ngosen::Recorder                            recorder_;
-        std::vector<SimpleAction*>                  toggleActions_;
+        std::vector<MenuEntry>                      menuEntries_;
         std::vector<ScopedConnection>               connections_;
         ngosen::CGoObject                           dictionary_;
         std::unordered_map<std::string, NgoSenMode> appRules_;
         std::string                                 appRulesPath_;
         bool                                        isSelectingAppMode_ = false;
-        std::string                                 currentConfigureApp_;
-        std::unique_ptr<EventSourceTime>            cycleModeNotificationTimer_;
-        std::string                                 iconCacheName_;
-        std::string                                 iconCachePath_;
-        static constexpr uint64_t                   CYCLE_MODE_NOTIFICATION_TIMEOUT_USEC = 800000; // 800ms in microseconds
+        // A modifier-only toggle key fires on release, unless another key came in between.
+        bool                             toggleTapArmed_  = false;
+        uint64_t                         toggleTapTime_   = 0;
+        bool                             retypeOnRelease_ = false;
+        std::string                      currentConfigureApp_;
+        std::unique_ptr<EventSourceTime> cycleModeNotificationTimer_;
+        std::string                      iconCacheName_;
+        std::string                      iconCachePath_;
+        static constexpr uint64_t        CYCLE_MODE_NOTIFICATION_TIMEOUT_USEC = 800000; // 800ms in microseconds
         FCITX_ADDON_DEPENDENCY_LOADER(emoji, instance_->addonManager());
+#ifdef NGOSEN_HAS_DBUS
+        FCITX_ADDON_DEPENDENCY_LOADER(dbus, instance_->addonManager());
+        std::unique_ptr<NgoSenDBusObject> dbusObject_;
+#endif
         std::unique_ptr<EmojiLoader>           emojiLoader_;
         mutable std::mutex                     appRulesMutex_;
         std::unordered_map<KeySym, NgoSenMode> modeMenuMapping_;
@@ -294,7 +325,7 @@ namespace fcitx {
          * 
         */
         void initToggleAction(std::unique_ptr<SimpleAction>& action, Option<bool>& option, const std::string& actionId, const std::string& iconName, const std::string& textLong,
-                              const std::string& textOnOff, UserInterfaceManager& uiManager);
+                              const char* textOnOff, UserInterfaceManager& uiManager);
 
         /**
          * @brief Update toggle action
@@ -306,10 +337,34 @@ namespace fcitx {
         static void updateAction(InputContext* ic, std::unique_ptr<SimpleAction>& action, Option<bool>& option, const std::string& textOnOff);
 
         /**
+         * @brief Builds a submenu with one checkable action per choice.
+         * @param pick Called with the chosen name.
+         */
+        void initChoiceMenu(std::unique_ptr<SimpleAction>& action, std::vector<std::unique_ptr<SimpleAction>>& choices, std::unique_ptr<Menu>& menu, const std::string& actionId,
+                            const std::string& text, const std::string& iconName, const std::vector<std::string>& names,
+                            const std::function<void(InputContext*, const std::string&)>& pick, UserInterfaceManager& uiManager);
+
+        /**
+         * @brief Checks the choice named actionId-current and unchecks the others.
+         */
+        static void checkChoice(const std::vector<std::unique_ptr<SimpleAction>>& choices, const std::string& actionId, const std::string& current, InputContext* ic);
+
+        /**
          * @brief Updates the charset action UI.
          * @param ic Current input context.
          */
         void updateCharsetAction(InputContext* ic);
+
+        /**
+         * @brief Updates the input method action UI.
+         * @param ic Current input context.
+         */
+        void updateInputMethodAction(InputContext* ic);
+
+        /**
+         * @brief Puts the menu entries the user chose into the tray menu of ic.
+         */
+        void fillStatusArea(InputContext* ic);
 
         /**
          * @brief Populates input method names from bamboo core.
@@ -335,6 +390,17 @@ namespace fcitx {
         */
 
         NgoSenMode getAppRule(const std::string& appName) const;
+        // The rule's own name: appName itself, or appName without ".desktop".
+        std::optional<std::string> appRuleName(const std::string& appName) const;
+        std::optional<NgoSenMode>  findAppRule(const std::string& appName) const;
+        // The mode Vietnamese typing uses: the configured one, unless that is Off.
+        NgoSenMode vietnameseMode() const;
+        // The mode of an app without a rule: Off until the toggle key turns Vietnamese on.
+        NgoSenMode globalMode() const;
+        bool       isToggleKey(const Key& key) const;
+        // Handles the toggle key; returns whether the key was it.
+        bool handleToggleKey(KeyEvent& keyEvent);
+        void toggleVietnamese(InputContext* ic, bool offerRetype = true);
 
         /**
          * @brief Set application-specific mode rules
@@ -361,7 +427,7 @@ namespace fcitx {
         // Adds the item that types the menu hotkey's own character, when it is a plain key.
         void appendTypeHotkeyItem(CommonCandidateList& candidateList);
 
-        // Writes the recorder to a new file under the user's state directory and shows its path.
+        // Writes the typing log and shows its path.
         void saveTypingLog(InputContext* ic);
         void clearPanelLater(InputContext* ic, uint64_t delayUs);
 

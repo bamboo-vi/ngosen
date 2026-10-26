@@ -1,7 +1,7 @@
 Name:           fcitx5-ngosen
 # Ngó Sen numbers its own releases from 0.5.0; the epoch keeps them above the 3.5.10 builds.
 Epoch:          1
-Version:        1.5.8
+Version:        1.6.0
 Release:        1
 Summary:        Ngó Sen, a Vietnamese input method for fcitx5
 License:        GPL-3.0-or-later AND OFL-1.1
@@ -36,7 +36,7 @@ Ngó Sen is a Vietnamese input method for fcitx5.
 find . -type f -name '*.py' -exec sed -i '1s|^#!.*env python3|#!/usr/bin/python3|' {} +
 
 %build
-%cmake -DNGOSEN_BYTECOMPILE_PYTHON:BOOL=OFF -DBUILD_TESTING:BOOL=ON -DNGOSEN_RUST_CORE:BOOL=ON
+%cmake -DNGOSEN_BYTECOMPILE_PYTHON:BOOL=OFF -DBUILD_TESTING:BOOL=ON
 %cmake_build
 
 %install
@@ -51,6 +51,7 @@ find . -type f -name '*.py' -exec sed -i '1s|^#!.*env python3|#!/usr/bin/python3
 
 %dir %{_datadir}/licenses/%{name}
 %{_bindir}/fcitx5-ngosen-settings
+%{_bindir}/ngosen-save-log
 
 %{_libdir}/fcitx5/libngosen.so
 %{_libdir}/fcitx5/libngosenmigrate.so
@@ -83,32 +84,7 @@ find . -type f -name '*.py' -exec sed -i '1s|^#!.*env python3|#!/usr/bin/python3
 %dir %{_datadir}/icons/breeze-dark/status/24
 %{_datadir}/icons/breeze-dark/status/*/fcitx-ngosen*.svg
 
-# Earlier versions ran fcitx5-lotus-server@<user>.service as the uinput_proxy user, with udev rules
-# granting it /dev/uinput and the pointer devices. This version needs none of it. posttrans runs after
-# the old package is gone, so no old scriptlet can restart the server.
 %posttrans
-if [ -d /run/systemd/system ]; then
-    for unit in $(systemctl list-units --all --plain --no-legend 'fcitx5-lotus-server@*' 2>/dev/null | awk '{print $1}'); do
-        systemctl stop "$unit" >/dev/null 2>&1 || :
-    done
-fi
-# The unit file is gone, so systemctl disable no longer finds the instances.
-find /etc/systemd/system -name 'fcitx5-lotus-server@*.service' -type l -delete 2>/dev/null || :
-if [ -d /run/systemd/system ]; then
-    systemctl daemon-reload >/dev/null 2>&1 || :
-    systemctl reset-failed 'fcitx5-lotus-server@*' >/dev/null 2>&1 || :
-fi
-if getent passwd uinput_proxy >/dev/null; then
-    for dev in /dev/uinput /dev/input/event*; do
-        [ -e "$dev" ] && setfacl -x u:uinput_proxy "$dev" >/dev/null 2>&1 || :
-    done
-    userdel uinput_proxy >/dev/null 2>&1 || :
-fi
-if getent group uinput_proxy >/dev/null; then
-    groupdel uinput_proxy >/dev/null 2>&1 || :
-fi
-udevadm control --reload-rules >/dev/null 2>&1 || :
-
 echo "--- Cấu hình Ngó Sen ---"
 # posttrans cannot tell an install from an upgrade. KWin starts fcitx5 itself on KDE Wayland, and
 # one started with fcitx5 -rd cannot serve Qt apps.
@@ -120,6 +96,14 @@ else
 fi
 
 %changelog
+* Mon Oct 26 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.6.0-1
+- Cứu chữ: words typed before switching to Vietnamese are retyped with tones (#71, #80, #82, #83).
+- Cứu dấu: select a word and type a tone key to change its tone (#272, #290).
+- A toggle key of its own for English and Vietnamese; new installs use Ctrl+Shift (#234, #242, #244).
+- Lock-word key, tray menu items for input method and capitalization, menu item settings (#219, #240, #274, #275).
+- Settings window: Vietnamese by default, separate Appearance and About pages, hints under options (#276, #277, #281).
+- install.sh reloads fcitx5 after an update; the Go core is gone and bamboo-core is 0.5.2 (#223, #230, #298).
+
 * Mon Oct 26 2026 Nguyen Phi <nguyenphidt@gmail.com> - 1:1.5.8-1
 - Settings window: changes are saved again; 1.5.7 could not save any setting (#303, #305).
 - README states how to finish setup after installing the package from a repository (#301).

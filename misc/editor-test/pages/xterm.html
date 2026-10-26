@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>xterm</title>
+<link href="https://cdn.jsdelivr.net/npm/@xterm/xterm@6.0.0/css/xterm.css" rel="stylesheet">
+</head>
+<body>
+<div id="term" style="width:900px;height:400px"></div>
+<script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@6.0.0/lib/xterm.js"></script>
+<script src="report.js"></script>
+<script>
+  // A local echo shell line editor, enough to see what the terminal receives.
+  const term = new Terminal({ fontSize: 20 });
+  term.open(document.getElementById('term'));
+  term.focus();
+  const lines = [''];
+  term.onData(data => {
+    for (const ch of data) {
+      if (ch === '\r') {
+        lines.push('');
+        term.write('\r\n');
+      } else if (ch === '\x7f' || ch === '\b') {
+        const cur = [...lines[lines.length - 1]];
+        if (cur.length) {
+          cur.pop();
+          lines[lines.length - 1] = cur.join('');
+          term.write('\b \b');
+        }
+      } else if (ch >= ' ') {
+        lines[lines.length - 1] += ch;
+        term.write(ch);
+      }
+    }
+  });
+  report('xterm', () => lines.join('|'));
+</script>
+</body></html>

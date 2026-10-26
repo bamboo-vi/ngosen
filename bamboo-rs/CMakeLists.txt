@@ -1,6 +1,6 @@
 find_program(CARGO_EXECUTABLE cargo)
 if (NOT CARGO_EXECUTABLE)
-    message(FATAL_ERROR "cargo not found; install Rust or configure without -DNGOSEN_RUST_CORE=ON")
+    message(FATAL_ERROR "cargo not found; the typing core needs Rust 1.88 or newer")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

@@ -1,0 +1,29 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>draft</title>
+<link href="https://cdn.jsdelivr.net/npm/draft-js@0.11.7/dist/Draft.css" rel="stylesheet">
+<style>.DraftEditor-root{border:1px solid #888;min-height:6em;font-size:20px;padding:6px}</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/immutable@3.7.6/dist/immutable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/draft-js@0.11.7/dist/Draft.min.js"></script>
+<script src="report.js"></script>
+<script>
+  const { Editor, EditorState } = Draft;
+  let current = EditorState.createEmpty();
+  let ref = null;
+  function App() {
+    const [state, setState] = React.useState(current);
+    return React.createElement(Editor, {
+      editorState: state,
+      ref: r => (ref = r),
+      onChange: s => { current = s; setState(s); },
+    });
+  }
+  ReactDOM.render(React.createElement(App), document.getElementById('root'));
+  setTimeout(() => ref && ref.focus(), 500);
+  report('draft', () => current.getCurrentContent().getBlocksAsArray().map(b => b.getText()).join('|'));
+</script>
+</body></html>

@@ -12,7 +12,10 @@ use std::collections::HashSet;
 use std::sync::Arc;
 
 use bamboo_core::advanced::encode;
-use bamboo_core::{Config, Engine, InputMethod, InputMethodPreset, Mode, OutputOptions, W2uMode};
+use bamboo_core::{
+    Config, Engine, InputMethod, InputMethodPreset, LastWordForm, Mode, OutputOptions, ToneStyle,
+    W2uMode,
+};
 
 use crate::macro_table::MacroTable;
 use crate::text::{
@@ -74,6 +77,7 @@ pub enum MacroCase {
     AllSmall,
     AllCapital,
     NoChange,
+    Capitalized,
 }
 
 pub fn determine_macro_case(s: &str) -> MacroCase {
@@ -82,7 +86,32 @@ pub fn determine_macro_case(s: &str) -> MacroCase {
     match (has_lower, has_upper) {
         (true, false) => MacroCase::AllSmall,
         (false, true) => MacroCase::AllCapital,
+        (true, true) => {
+            let mut chars = s.chars();
+            let first_upper = chars.next().is_some_and(char::is_uppercase);
+            if first_upper && !chars.any(char::is_uppercase) {
+                MacroCase::Capitalized
+            } else {
+                MacroCase::NoChange
+            }
+        }
         _ => MacroCase::NoChange,
+    }
+}
+
+/// Upper-cases the first letter of text written in lower case; text with capitals, such as iPhone,
+/// stays as written. A letter whose upper case is several letters (ß) stays too.
+fn capitalize_first(s: &str) -> String {
+    let mut chars = s.chars();
+    let Some(first) = chars.next() else {
+        return String::new();
+    };
+    let mut upper = first.to_uppercase();
+    match (upper.next(), upper.next()) {
+        (Some(u), None) if !s.chars().any(char::is_uppercase) => {
+            std::iter::once(u).chain(chars).collect()
+        }
+        _ => s.to_string(),
     }
 }
 
@@ -110,12 +139,12 @@ pub fn input_method_by_name(name: &str) -> InputMethod {
         .unwrap_or_default()
 }
 
-/// The Go core's default flags: free tone marking, standard tone style and w → ư everywhere.
-/// Its auto-correct flag had no effect, so the crate's auto-correct stays off.
+/// Free tone marking, standard tone style and w → ư everywhere. Auto restore does the job of
+/// the crate's auto-correct, so that stays off.
 pub fn default_config() -> Config {
     Config::builder()
         .free_tone_marking(true)
-        .std_tone_style(true)
+        .tone_style(ToneStyle::Modern)
         .auto_correct(false)
         .w2u_mode(W2uMode::Everywhere)
         .build()
@@ -172,6 +201,7 @@ impl BambooEngine {
             match determine_macro_case(s) {
                 MacroCase::AllSmall => return text.to_lowercase(),
                 MacroCase::AllCapital => return text.to_uppercase(),
+                MacroCase::Capitalized => return capitalize_first(&text),
                 MacroCase::NoChange => {}
             }
         }
@@ -208,7 +238,7 @@ impl BambooEngine {
         if check_vn_rune && !has_any_vietnamese_rune(&vn_seq) {
             return false;
         }
-        !self.preeditor.is_valid(false)
+        !self.preeditor.is_valid_prefix()
     }
 
     fn get_processed_string(&self, options: OutputOptions) -> String {
@@ -275,7 +305,7 @@ impl BambooEngine {
         if self.spell_check_with_dicts {
             return !self.dictionary.contains(&vn_seq);
         }
-        !self.preeditor.is_valid(true)
+        !self.preeditor.is_valid_word()
     }
 
     /// Commits a word break typed right after a key that appends it, such as `[[` -> `[`.
@@ -314,7 +344,8 @@ impl BambooEngine {
 
     fn composing_key_text(&mut self, mut key: char, state: u32, old_text: &str) -> (String, bool) {
         if !self.preeditor.can_process_key(key) && self.should_fallback_to_english(true) {
-            self.preeditor.restore_last_word(false);
+            self.preeditor
+                .restore_last_word_as(LastWordForm::RawKeystrokes);
         }
         if state & LOCK_MASK != 0 {
             key = self.to_upper(key);
@@ -336,7 +367,8 @@ impl BambooEngine {
             return (format!("{expanded}{key}"), true);
         }
         if has_any_vietnamese_rune(old_text) && self.must_fallback_to_english() {
-            self.preeditor.restore_last_word(false);
+            self.preeditor
+                .restore_last_word_as(LastWordForm::RawKeystrokes);
             let new_text = format!("{}{key}", self.raw_text());
             self.preeditor.process_key(key, Mode::English);
             return (new_text, true);

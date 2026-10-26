@@ -15,7 +15,7 @@ use std::os::fd::FromRawFd;
 use std::sync::Arc;
 
 use bamboo_core::advanced::get_charset_names;
-use bamboo_core::{BracketMode, Config, InputMethod, W2uMode};
+use bamboo_core::{BracketMode, Config, InputMethod, ToneStyle, W2uMode};
 
 use crate::engine::{BambooEngine, Dictionary, INPUT_METHOD_NAMES, input_method_by_name};
 use crate::handles::{self, Object};
@@ -117,7 +117,7 @@ fn bracket_mode(value: c_int) -> BracketMode {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn Init() {
-    // The Go core ignored SIGPIPE for the whole fcitx5 process; keep that.
+    // A write to a closed pipe must not end the whole fcitx5 process.
     // SAFETY: setting a signal to SIG_IGN has no other effect.
     unsafe {
         libc::signal(libc::SIGPIPE, libc::SIG_IGN);
@@ -144,11 +144,6 @@ pub extern "C" fn EnginePullCommit(engine: usize) -> *mut c_char {
     handles::with_engine(engine, |e| c_string(&e.pull_commit())).unwrap_or(std::ptr::null_mut())
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn EngineSetMacroEnabled(engine: usize, enabled: u8) {
-    handles::with_engine(engine, |e| e.macro_enabled = enabled != 0);
-}
-
 /// # Safety
 /// `option` is null or points to a valid option struct.
 #[unsafe(no_mangle)]
@@ -159,7 +154,12 @@ pub unsafe extern "C" fn EngineSetOption(engine: usize, option: *const EngineOpt
     };
     let config = Config::builder()
         .free_tone_marking(o.free_marking)
-        .std_tone_style(!o.modern_style)
+        // The settings' "modern" style (hoà) is what bamboo-core calls Traditional.
+        .tone_style(if o.modern_style {
+            ToneStyle::Traditional
+        } else {
+            ToneStyle::Modern
+        })
         .auto_correct(false)
         .w2u_mode(w2u_mode(o.w2u))
         .bracket_mode(bracket_mode(o.bracket_transform))

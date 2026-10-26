@@ -85,6 +85,7 @@ namespace ngosen {
         }
         needEngineReset.store(false);
         retype_.reset();
+        dropRetoneKey();
         host_->resetPanel();
         host_->refreshPanel();
         if (realMode == ngosen::Mode::Preedit || realMode == ngosen::Mode::Emoji)

@@ -140,8 +140,8 @@ msgid "Capitalize Macro"
 msgstr "Gõ tắt chữ hoa"
 
 #: src/ngosen-config.h:235
-msgid "Modifier to Skip Macro for Next Word"
-msgstr "Phím để bỏ qua gõ tắt cho từ hiện tại"
+msgid "Key to Keep the Word as Typed"
+msgstr "Phím chốt chữ"
 
 #: src/ngosen-config.h:236
 msgid "Auto capitalize after sentence-ending punctuation (. ! ? Enter)"
@@ -158,6 +158,10 @@ msgstr "Hai gạch nối thành gạch dài"
 #: src/ngosen-config.h:239
 msgid "Retype text typed before switching on"
 msgstr "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt"
+
+#: src/ngosen-config.h:240
+msgid "Change the tone of a selected word"
+msgstr "Cứu dấu: sửa dấu chữ đang bôi đen"
 
 #: src/ngosen-config.h:239 src/ngosen-engine.cpp:246
 msgid "Auto Restore Invalid Words"
@@ -179,13 +183,41 @@ msgstr "Backspace xóa dấu thanh"
 msgid "Allow dd To Produce đ When Auto Restore Invalid Words Is On"
 msgstr "Vẫn gõ dd ra đ khi tự khôi phục"
 
-#: src/ngosen-config.h:243
-msgid "Fix Uinput Mode With Ack"
-msgstr "Sửa lỗi chế độ Uinput với Ack"
-
 #: src/ngosen-config.h:244
 msgid "Use Ngó Sen Status Icons"
 msgstr "Sử dụng biểu tượng trạng thái Ngó Sen"
+
+#: src/ngosen-config.h
+msgid "Show Input Method in the tray menu"
+msgstr "Hiện Kiểu gõ trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Charset in the tray menu"
+msgstr "Hiện Bảng mã trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Spell Check in the tray menu"
+msgstr "Hiện Kiểm tra chính tả trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Macro in the tray menu"
+msgstr "Hiện Gõ tắt trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Capitalize Macro in the tray menu"
+msgstr "Hiện Gõ tắt chữ hoa trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Auto Capitalize in the tray menu"
+msgstr "Hiện Tự viết hoa trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Auto Restore Invalid Words in the tray menu"
+msgstr "Hiện Tự khôi phục từ gõ sai trong menu khay"
+
+#: src/ngosen-config.h
+msgid "Show Custom Dictionary in the tray menu"
+msgstr "Hiện Từ điển tuỳ chỉnh trong menu khay"
 
 #: src/ngosen-config.h:246 src/ngosen-engine.cpp:248 src/ngosen-engine.cpp:386
 msgid "Custom Dictionary"
@@ -251,6 +283,10 @@ msgstr "Định dạng ngày ($DATE trong macro)"
 msgid "Icon Color"
 msgstr "Màu biểu tượng"
 
+#: src/ngosen-config.h
+msgid "Interface Language"
+msgstr "Ngôn ngữ giao diện"
+
 #: src/ngosen-engine.cpp:215
 msgid "Charset"
 msgstr "Bảng mã"
@@ -262,6 +298,18 @@ msgstr "Kiểm tra chính tả"
 #: src/ngosen-engine.cpp:246 src/ngosen-engine.cpp:385
 msgid "Auto Non-VN Restore"
 msgstr "Tự động khôi phục với từ không phải tiếng Việt"
+
+msgid "Auto Capitalize"
+msgstr "Tự viết hoa"
+
+msgid "After . ! ? and Enter"
+msgstr "Sau dấu . ! ? và Enter"
+
+msgid "Start of text or line"
+msgstr "Đầu văn bản, đầu dòng"
+
+msgid "Capitalize the first letter of the text or of a line"
+msgstr "Tự viết hoa chữ đầu văn bản và đầu dòng (thử nghiệm)"
 
 #: src/ngosen-engine.cpp:252
 msgid "Settings"
@@ -292,12 +340,16 @@ msgid "Page "
 msgstr "Trang "
 
 #: src/core/ngosen-state-retype.cpp
-msgid "Tab: retype in Vietnamese, Esc: keep"
-msgstr "Cứu chữ: Tab để đổi, Esc để giữ nguyên"
+msgid "Enter: retype in Vietnamese, Tab or Esc: keep"
+msgstr "Cứu chữ: Enter để đổi, Tab hoặc Esc để giữ nguyên"
+
+#: src/core/ngosen-state-retone.cpp
+msgid "Tab or Esc: put back the key"
+msgstr "Cứu dấu: Tab hoặc Esc để trả lại phím vừa gõ"
 
 #: src/core/ngosen-state-retype.cpp
-msgid "Esc: put back what was typed"
-msgstr "Cứu chữ: Esc để trả lại chữ đã gõ"
+msgid "Tab or Esc: put back what was typed"
+msgstr "Cứu chữ: Tab hoặc Esc để trả lại chữ đã gõ"
 
 #: io.github.ngosen.NgoSen.metainfo.xml.in.in:7
 msgid "Ngó Sen"
@@ -662,10 +714,6 @@ msgstr ". Bạn có chắc chắn?"
 msgid "Macro in Off Mode"
 msgstr "Gõ tắt trong chế độ \"Tắt\""
 
-#: settings-gui/ui/pages/macro_editor.py:84
-msgid "Modifier to Skip Macro for Next Word:"
-msgstr "Phím để bỏ qua gõ tắt cho từ tới:"
-
 #: settings-gui/ui/pages/macro_editor.py:93
 msgid "Search macros..."
 msgstr "Tìm từ gõ tắt..."
@@ -817,14 +865,6 @@ msgstr "Chữ hiện thẳng vào ô, không gạch chân."
 msgid "You can type tone marks at the end of the word or anywhere inside."
 msgstr "Bạn có thể gõ dấu câu ở cuối từ hoặc bất cứ đâu."
 
-#: settings-gui/ui/helpers.py:16
-msgid ""
-"Fix typing issues in Uinput mode for Chromium-based browsers like Chrome or "
-"Edge."
-msgstr ""
-"Sửa lỗi gõ trong chế độ Uinput cho trình duyệt Chromium-based như Chrome "
-"hoặc Edge."
-
 #: settings-gui/ui/helpers.py:19
 msgid ""
 "Automatically match expansion case to trigger key case.\n"
@@ -859,17 +899,6 @@ msgid ""
 msgstr ""
 "Cho phép gõ tắt hoạt động khi chế độ gõ đang là \"Tắt\"\n"
 "Khi vô hiệu hoá, gõ tắt chỉ khả dụng trong các chế độ gõ được kích hoạt."
-
-#: settings-gui/ui/helpers.py:34
-msgid ""
-"Press and release the selected modifier key before typing to skip macro "
-"expansion for the next word.\n"
-"If another key is pressed between the modifier's press and release, the skip "
-"is cancelled."
-msgstr ""
-"Ấn phím được chọn trước khi gõ để bỏ qua phím tắt cho từ tiếp theo.\n"
-"Nếu có phím được nhấn cùng phím này trước khi nhả phím, việc bỏ qua sẽ bị "
-"huỷ."
 
 #: settings-gui/ui/main_window.py:33
 #: settings-gui/io.github.ngosen.NgoSen.Settings.desktop.in:2
@@ -1031,6 +1060,22 @@ msgid "Tray icon"
 msgstr "Biểu tượng khay"
 
 #: settings-gui/ui/pages/dynamic_settings.py
+msgid "In the tray:"
+msgstr "Trên khay:"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tray icons for Vietnamese and English"
+msgstr "Biểu tượng khay khi gõ tiếng Việt và tiếng Anh"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Vietnamese, English"
+msgstr "Tiếng Việt, tiếng Anh"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Show in the tray menu"
+msgstr "Hiện trong menu khay"
+
+#: settings-gui/ui/pages/dynamic_settings.py
 msgid "Mode switching"
 msgstr "Đổi chế độ"
 
@@ -1051,8 +1096,24 @@ msgid "Typing windows still gives windows."
 msgstr "Gõ windows vẫn ra windows."
 
 #: settings-gui/ui/pages/dynamic_settings.py
+msgid ""
+"Tap the key alone to keep the word as shown: tunx, Ctrl → tũn, with no restore "
+"or macro. Alt also shows the menu bar in some apps."
+msgstr ""
+"Bấm rồi thả riêng phím để giữ nguyên từ: tunx, Ctrl → tũn, không khôi phục hay "
+"bung macro. Alt còn hiện thanh menu ở một số app."
+
+#: settings-gui/ui/pages/dynamic_settings.py
 msgid "Tone marks can also go at the end of the word."
 msgstr "Gõ dấu ở cuối từ cũng được."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Language"
+msgstr "Ngôn ngữ"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "The tray menu changes at once, this window the next time it opens."
+msgstr "Menu khay đổi ngay, cửa sổ này đổi ở lần mở sau."
 
 #: settings-gui/ui/pages/dynamic_settings.py
 msgid "z in Telex (0 in VNI) removes the tone mark even with this off. On a word without one, Backspace deletes as usual."
@@ -1264,3 +1325,107 @@ msgstr "Chưa có nhật ký gõ. Hãy lưu nhật ký từ menu Ngó Sen trư�
 #: settings-gui/ui/system_check_dialog.py
 msgid "The log has no typing in it. Type the sample, then save the log again."
 msgstr "Nhật ký chưa ghi lần gõ nào. Gõ câu mẫu rồi lưu lại nhật ký."
+
+#: settings-gui/save_log.py
+msgid "fcitx5 is not running."
+msgstr "fcitx5 không chạy."
+
+#: settings-gui/save_log.py
+msgid "Ngó Sen is not loaded. Switch to Ngó Sen once, then run this again."
+msgstr "Ngó Sen chưa chạy. Hãy chuyển sang Ngó Sen một lần rồi chạy lại lệnh này."
+
+#: settings-gui/save_log.py
+msgid "fcitx5 did not answer."
+msgstr "fcitx5 không trả lời."
+
+#: settings-gui/save_log.py
+msgid "No desktop session bus. Run this as your own user in a desktop terminal."
+msgstr "Không thấy session bus của desktop. Hãy chạy lệnh này bằng user của bạn, trong terminal của desktop."
+
+#: src/ngosen-config.h
+msgid "Switch Between English and Vietnamese"
+msgstr "Phím chuyển Anh/Việt"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Tap it alone to switch. The tray icon shows V while typing Vietnamese."
+msgstr "Nhấp riêng phím này để chuyển. Biểu tượng khay hiện chữ V khi đang gõ tiếng Việt."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Switch with Ctrl+Shift, as in UniKey?"
+msgstr "Chuyển bằng Ctrl+Shift như UniKey?"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Use Ctrl+Shift"
+msgstr "Dùng Ctrl+Shift"
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "fcitx5 has other input methods too; its own key still switches to them."
+msgstr "fcitx5 còn bộ gõ khác; phím chuyển của fcitx5 vẫn đưa sang các bộ gõ đó."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Sen types straight into the app. Preedit underlines the word until it is done; use it in an app that Sen does not work with."
+msgstr "Gõ Sen đưa chữ thẳng vào app. Gạch chân giữ chữ đang gõ có gạch dưới cho tới khi gõ xong; dùng khi app không tương thích với Gõ Sen."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Keep Unicode unless an old document or app needs another one, such as TCVN3 (ABC). Cứu dấu works only with Unicode."
+msgstr "Cứ để Unicode, trừ khi văn bản hay app cũ cần bảng mã khác như TCVN3 (ABC). Cứu dấu chỉ chạy với Unicode."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "dd and Space stays đ instead of going back to dd."
+msgstr "Gõ dd rồi dấu cách vẫn ra đ, không bị trả về dd."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "hoà, khoẻ, thuý, tuỳ. Off: hòa, khỏe, thúy, tùy."
+msgstr "hoà, khoẻ, thuý, tuỳ. Tắt: hòa, khỏe, thúy, tùy."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Non-Start: nhw → như, but w alone stays w. Everywhere: w alone gives ư too. uw always gives ư."
+msgstr "Không phải đầu từ: nhw → như, còn w đứng riêng vẫn là w. Mọi nơi: w đứng riêng cũng ra ư. uw thì luôn ra ư."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ch]a → chưa, m[f → mờ. Type a bracket twice to get it back: [[ → [."
+msgstr "ch]a → chưa, m[f → mờ. Gõ ngoặc hai lần để lấy lại dấu ngoặc: [[ → [."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ban and Space twice gives “ban. ”."
+msgstr "Gõ ban rồi hai dấu cách ra “ban. ”."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "a--b → a—b."
+msgstr "a--b → a—b."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "ban. tooi → ban. Tôi. The same after Enter."
+msgstr "ban. tooi → ban. Tôi. Sau Enter cũng vậy."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "xin → Xin in an empty field or on a new line. Not in address bars or some apps; on GNOME 47 and later, Chrome and similar apps skip an empty field."
+msgstr "xin → Xin ở ô trống hoặc đầu dòng mới. Không áp dụng ở thanh địa chỉ và vài app; trên GNOME 47 trở lên, Chrome và app tương tự chưa viết hoa ở ô trống."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Typed tieengs vieetj before switching on? Switch on and it becomes tiếng việt. Tab or Esc gives back what you typed."
+msgstr "Lỡ gõ tieengs vieetj khi chưa bật? Bật tiếng Việt là thành tiếng việt. Tab hoặc Esc để trả lại chữ đã gõ."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Select nhanh and type s: nhánh. Tab, Esc or s again gives back s."
+msgstr "Bôi đen nhanh rồi gõ s: nhánh. Tab, Esc hoặc gõ s lần nữa để trả lại s."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Opens a menu to pick a mode for the app in use. Only while typing Vietnamese; in English the key types as usual."
+msgstr "Mở menu chọn chế độ gõ cho app đang dùng. Chỉ khi đang gõ tiếng Việt; lúc gõ tiếng Anh phím gõ ra như thường."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Moves the app in use to the next mode in the list below, and remembers it for that app."
+msgstr "Chuyển app đang dùng sang chế độ kế tiếp trong danh sách bên dưới và nhớ cho app đó."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "With the mode menu open, press a mode's key to pick it for the app in use. Pick Default Typing to make the app follow the switch key again."
+msgstr "Khi menu chế độ đang mở, bấm phím của một chế độ để chọn cho app đang dùng. Chọn Chế độ gõ mặc định để app đó lại theo phím chuyển như thường."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Off: plain one-colour icons, in the colour picked below."
+msgstr "Tắt: dùng biểu tượng một màu, theo màu chọn bên dưới."
+
+#: settings-gui/ui/pages/dynamic_settings.py
+msgid "Only for one-colour icons. Light suits a light panel, Dark a dark one, and Auto follows the light or dark setting of the desktop."
+msgstr "Chỉ dùng cho biểu tượng một màu. Sáng hợp panel sáng, Tối hợp panel tối, Tự động theo chế độ sáng/tối của máy."

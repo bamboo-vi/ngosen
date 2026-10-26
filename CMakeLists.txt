@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(fcitx5-ngosen VERSION 1.5.8)
+project(fcitx5-ngosen VERSION 1.6.0)
 # The typing log names the version it came from.
 add_definitions(-DNGOSEN_VERSION=\"${PROJECT_VERSION}\")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(BUILD_TESTING "Build the tests" OFF)
-option(NGOSEN_RUST_CORE "Build the typing core from bamboo-rs/ (Rust) instead of the Go sources in bamboo/" OFF)
 option(NGOSEN_CORE_ONLY "Build only the typing logic and its tests, without fcitx5" OFF)
 
 if (NGOSEN_CORE_ONLY)
@@ -13,11 +12,7 @@ if (NGOSEN_CORE_ONLY)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
     set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
     find_package(Pthread REQUIRED)
-    if (NGOSEN_RUST_CORE)
-        add_subdirectory(bamboo-rs)
-    else()
-        add_subdirectory(bamboo)
-    endif()
+    add_subdirectory(bamboo-rs)
     add_subdirectory(src/core)
     enable_testing()
     add_subdirectory(test/core)
@@ -38,6 +33,7 @@ set(ngosen_fcitx_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-icon-resolver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-plasma-theme.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-gnome-theme.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-ui-text.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/emoji.cpp
 )
 
@@ -50,6 +46,13 @@ include(ECMUninstallTarget)
 
 find_package(Fcitx5Core ${REQUIRED_FCITX_VERSION} REQUIRED)
 find_package(Fcitx5ModuleEmoji REQUIRED)
+# Missing when fcitx5 is built without D-Bus; ngosen-save-log then has nothing to call.
+find_package(Fcitx5ModuleDBus)
+if (Fcitx5ModuleDBus_FOUND)
+    add_definitions(-DNGOSEN_HAS_DBUS)
+    list(APPEND ngosen_fcitx_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/ngosen-dbus-object.cpp)
+    set(NGOSEN_DBUS_MODULE Fcitx5::Module::DBus)
+endif()
 find_package(Pthread REQUIRED)
 find_package(Gettext REQUIRED)
 
@@ -65,11 +68,7 @@ endif()
 fcitx5_add_i18n_definition()
 
 add_subdirectory(po)
-if (NGOSEN_RUST_CORE)
-    add_subdirectory(bamboo-rs)
-else()
-    add_subdirectory(bamboo)
-endif()
+add_subdirectory(bamboo-rs)
 add_subdirectory(src)
 add_subdirectory(data)
 add_subdirectory(settings-gui)

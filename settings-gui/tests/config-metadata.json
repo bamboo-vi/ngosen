@@ -71,6 +71,23 @@
     }
    ],
    [
+    "ToggleKey",
+    "List|Key",
+    "Switch Between English and Vietnamese",
+    {
+     "0": "Control+Shift_L",
+     "1": "Control+Shift_R",
+     "2": "Shift+Control_L",
+     "3": "Shift+Control_R"
+    },
+    {
+     "ListConstrain": {
+      "AllowModifierLess": "True",
+      "AllowModifierOnly": "True"
+     }
+    }
+   ],
+   [
     "ModeMenuKey",
     "List|Key",
     "Mode Menu Hotkey",
@@ -164,10 +181,10 @@
     {}
    ],
    [
-    "MacroSkipTriggerModifier",
+    "LockWordModifier",
     "Enum",
-    "Modifier to Skip Macro for Next Word",
-    "Disabled",
+    "Key to Keep the Word as Typed",
+    "Ctrl",
     {
      "EnumI18n": {
       "0": "Disabled",
@@ -191,6 +208,13 @@
     {}
    ],
    [
+    "CapitalizeStartOfText",
+    "Boolean",
+    "Capitalize the first letter of the text or of a line",
+    "False",
+    {}
+   ],
+   [
     "DoubleSpaceToPeriod",
     "Boolean",
     "Double Space to Period",
@@ -202,6 +226,20 @@
     "Boolean",
     "Double Hyphen to Em-Dash (--)",
     "False",
+    {}
+   ],
+   [
+    "RetypeAfterSwitch",
+    "Boolean",
+    "Retype text typed before switching on",
+    "True",
+    {}
+   ],
+   [
+    "RetoneSelection",
+    "Boolean",
+    "Change the tone of a selected word",
+    "True",
     {}
    ],
    [
@@ -242,7 +280,7 @@
    [
     "WaitSurroundingEvent",
     "Boolean",
-    "Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping",
+    "Experiment: after forwarded backspaces, wait for the surrounding-text event instead of sleeping",
     "True",
     {}
    ],
@@ -313,6 +351,62 @@
     "UseLotusIcons",
     "Boolean",
     "Use Ngó Sen Status Icons",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuInputMethod",
+    "Boolean",
+    "Show Input Method in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuCharset",
+    "Boolean",
+    "Show Charset in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuSpellCheck",
+    "Boolean",
+    "Show Spell Check in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuMacro",
+    "Boolean",
+    "Show Macro in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuCapitalizeMacro",
+    "Boolean",
+    "Show Capitalize Macro in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuAutoCapitalize",
+    "Boolean",
+    "Show Auto Capitalize in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuAutoRestore",
+    "Boolean",
+    "Show Auto Restore Invalid Words in the tray menu",
+    "True",
+    {}
+   ],
+   [
+    "ShowMenuDictionary",
+    "Boolean",
+    "Show Custom Dictionary in the tray menu",
     "True",
     {}
    ],
@@ -489,6 +583,18 @@
       "0": "Auto",
       "1": "Light",
       "2": "Dark"
+     }
+    }
+   ],
+   [
+    "UiLanguage",
+    "Enum",
+    "Interface Language",
+    "Vietnamese",
+    {
+     "Enum": {
+      "0": "Vietnamese",
+      "1": "English"
      }
     }
    ]

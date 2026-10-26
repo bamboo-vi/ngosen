@@ -13,6 +13,8 @@ SOURCE_GUIDE="https://github.com/ngosen/ngosen/blob/main/TU-DUNG.md"
 assume_yes=0
 setup_session=1
 session_changes=()
+keyboard_dropped=0
+fcitx5_reloaded=0
 manager=
 pattern=
 workdir=
@@ -266,6 +268,10 @@ im_config_auto() {
         im-config -r 2>/dev/null | sed -n 's/^IM framework (auto): //p'
 }
 
+im_environment_entry() {
+    printf 'GTK_IM_MODULE=fcitx\nQT_IM_MODULE=fcitx\nXMODIFIERS=@im=fcitx\nSDL_IM_MODULE=fcitx\n'
+}
+
 # GNOME offers fcitx5 no Wayland input-method protocol, so apps have to load fcitx5's own modules.
 set_im_environment() {
     local dir file
@@ -277,12 +283,7 @@ set_im_environment() {
         return 0
     fi
     mkdir -p "$dir"
-    cat >"$file" <<'EOF'
-GTK_IM_MODULE=fcitx
-QT_IM_MODULE=fcitx
-XMODIFIERS=@im=fcitx
-SDL_IM_MODULE=fcitx
-EOF
+    im_environment_entry >"$file"
     # Debian's im-config otherwise picks IBus for X11 sessions and overrides the variables above.
     if command -v im-config >/dev/null 2>&1; then
         im_config_set fcitx5 || :
@@ -327,38 +328,116 @@ has_ngosen_in_profile() {
     grep -qs '^Name=ngosen$' "$(config_home)/fcitx5/profile"
 }
 
-has_trigger_keys() {
-    grep -qs '^\[Hotkey/TriggerKeys\]' "$(config_home)/fcitx5/config"
+# The running fcitx5 starts a new copy of itself, which keeps the session's environment and stays
+# in the session; started from here it would get the terminal's. Fails when none runs or when
+# fcitx5 declines, as it does when KWin started it.
+restart_fcitx5() {
+    local old new tries=10
+    old=$(pgrep -u "$(id -u)" -x fcitx5 | head -n 1) || return 1
+    dbus-send --session --print-reply --dest=org.fcitx.Fcitx5 /controller \
+        org.fcitx.Fcitx.Controller1.Restart >/dev/null 2>&1 || return 1
+    while [ "$tries" -gt 0 ]; do
+        sleep 0.5
+        new=$(pgrep -u "$(id -u)" -x fcitx5 | head -n 1 || true)
+        [ -n "$new" ] && [ "$new" != "$old" ] && return 0
+        tries=$((tries - 1))
+    done
+    return 1
 }
 
-add_ngosen_to_profile() {
-    local profile layout items
-    profile="$(config_home)/fcitx5/profile"
-    has_ngosen_in_profile && return 0
-    if [ -f "$profile" ]; then
-        items=$(grep -c '^\[Groups/0/Items/' "$profile" || true)
-        printf '\n[Groups/0/Items/%s]\nName=ngosen\nLayout=\n' "$items" >>"$profile"
-        sed -i 's/^DefaultIM=keyboard-.*/DefaultIM=ngosen/' "$profile"
-    else
-        layout=$(gnome_layout)
-        mkdir -p "$(dirname "$profile")"
-        cat >"$profile" <<EOF
+# An fcitx5 that ran without the addon drops ngosen from the profile as it exits, hence the second
+# check.
+reload_fcitx5() {
+    local had_keyboard=0 tries=20
+    has_keyboard_in_profile && had_keyboard=1
+    has_ngosen_in_profile && restart_fcitx5 && has_ngosen_in_profile || return 1
+    fcitx5_reloaded=1
+    [ "$had_keyboard" -eq 1 ] || return 0
+    # The migration addon stamps the settings after saving the profile when it drops the keyboard,
+    # and the new fcitx5 may first wait for the old one to exit.
+    while [ "$tries" -gt 0 ] && ! grep -qs '^SettingsVersion=' "$(config_home)/fcitx5/conf/ngosen.conf"; do
+        sleep 0.25
+        tries=$((tries - 1))
+    done
+    has_keyboard_in_profile || keyboard_dropped=1
+}
+
+has_keyboard_in_profile() {
+    grep -qs '^Name=keyboard-' "$(config_home)/fcitx5/profile"
+}
+
+# One group of a keyboard and ngosen on the same layout, the case the migration addon drops.
+has_lone_keyboard_in_profile() {
+    awk '/^\[/ { item = /\/Items\// }
+        !item && /^Default Layout=/ { layout = substr($0, 16) }
+        item && /^Name=/ { items++ }
+        item && /^Name=keyboard-/ { keyboards++; keyboard = substr($0, 15) }
+        item && $0 == "Name=ngosen" { own++ }
+        END { exit !(items == 2 && keyboards == 1 && own == 1 && (layout == "" || layout == keyboard)) }' \
+        "$(config_home)/fcitx5/profile" 2>/dev/null
+}
+
+# The key the engine picks: settings from before its toggle key, including lotus.conf that is
+# copied over on the next start, keep Ctrl+Space; defaults are left out of the file.
+toggle_key_name() {
+    local dir key
+    dir="$(config_home)/fcitx5/conf"
+    key=$(awk '/^\[/ { section = $0 } section == "[ToggleKey]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$dir/ngosen.conf" 2>/dev/null)
+    if [ -z "$key" ] && { [ -f "$dir/lotus.conf" ] || [ -f "$dir/ngosen.conf" ] || has_lone_keyboard_in_profile; } &&
+        ! grep -qs '^SettingsVersion=' "$dir/ngosen.conf"; then
+        # Not upgraded yet: Ngó Sen takes over fcitx5's switch key, Ctrl+Space by default.
+        key=$(awk '/^\[/ { section = $0 } section == "[Hotkey/TriggerKeys]" && /^0=/ { sub(/^0=/, ""); print; exit }' "$(config_home)/fcitx5/config" 2>/dev/null)
+        key=${key:-Control+space}
+    fi
+    case "${key:-}" in
+        "" | Control+Shift_L | Control+Shift_R | Shift+Control_L | Shift+Control_R) printf 'Ctrl+Shift' ;;
+        Control+space) printf 'Ctrl+Space' ;;
+        *) printf '%s' "$key" ;;
+    esac
+}
+
+report_dropped_keyboard() {
+    if [ "$keyboard_dropped" -eq 1 ]; then
+        say "Ngó Sen giờ là bộ gõ duy nhất trong fcitx5. Bấm $(toggle_key_name) để chuyển tiếng Anh/Việt."
+    fi
+}
+
+write_ngosen_profile() {
+    local profile=$1 layout=$2
+    mkdir -p "$(dirname "$profile")"
+    cat >"$profile" <<EOF
 [Groups/0]
 Name=Default
 Default Layout=$layout
 DefaultIM=ngosen
 
 [Groups/0/Items/0]
-Name=keyboard-$layout
-Layout=
-
-[Groups/0/Items/1]
 Name=ngosen
 Layout=
 
 [GroupOrder]
 0=Default
 EOF
+}
+
+add_ngosen_to_profile() {
+    local profile layout items
+    profile="$(config_home)/fcitx5/profile"
+    has_ngosen_in_profile && return 0
+    if [ ! -f "$profile" ]; then
+        write_ngosen_profile "$profile" "$(gnome_layout)"
+    else
+        items=$(grep -c '^\[Groups/0/Items/' "$profile" || true)
+        # fcitx5's first profile holds one keyboard; Ngó Sen switches English itself, so it takes
+        # the keyboard's place and keeps its layout.
+        if [ "$items" -eq 1 ] && has_keyboard_in_profile && ! grep -qs '^\[Groups/[1-9]' "$profile"; then
+            # English was typed on the keyboard's own layout, whatever the group default says.
+            layout=$(sed -n 's/^Name=keyboard-//p' "$profile" | head -n 1)
+            write_ngosen_profile "$profile" "$layout"
+        else
+            printf '\n[Groups/0/Items/%s]\nName=ngosen\nLayout=\n' "$items" >>"$profile"
+            sed -i 's/^DefaultIM=keyboard-.*/DefaultIM=ngosen/' "$profile"
+        fi
     fi
     session_changes+=("thêm Ngó Sen vào danh sách bộ gõ")
 }
@@ -366,6 +445,7 @@ EOF
 # fcitx5 writes its profile back when it exits, so it is stopped before the profile is edited.
 configure_fcitx5() {
     local was_running=0
+    reload_fcitx5 && return 0
     # Stopped before the check too: one running without the addon has already dropped ngosen.
     stop_fcitx5 && was_running=1
     add_ngosen_to_profile
@@ -500,7 +580,7 @@ setup_kde_session() {
     fi
     set_xim_environment
     configure_fcitx5
-    if [ "${#session_changes[@]}" -eq 0 ]; then
+    if [ "${#session_changes[@]}" -eq 0 ] && [ "$fcitx5_reloaded" -eq 0 ]; then
         say "Xong. Đăng xuất rồi đăng nhập lại để dùng bản mới."
         return
     fi
@@ -510,18 +590,24 @@ setup_kde_session() {
 report_session_changes() {
     local change
     if [ "${#session_changes[@]}" -eq 0 ]; then
-        say "Xong. Khởi động lại fcitx5 để dùng bản mới:  fcitx5 -rd"
+        report_dropped_keyboard
+        if [ "$fcitx5_reloaded" -eq 1 ]; then
+            say "Xong. fcitx5 đã nạp bản mới, gõ được ngay."
+        else
+            say "Xong. Khởi động lại fcitx5 để dùng bản mới:  fcitx5 -rd"
+        fi
         return
     fi
     say "Đã đặt fcitx5 và Ngó Sen làm bộ gõ:"
     for change in "${session_changes[@]}"; do
         say "  - $change"
     done
+    if [ "$keyboard_dropped" -eq 1 ]; then
+        say "  - Ngó Sen là bộ gõ duy nhất trong fcitx5"
+    fi
     say ""
     say "Xong. Đăng xuất rồi đăng nhập lại là gõ được tiếng Việt."
-    if ! has_trigger_keys; then
-        say "Bấm Ctrl+Space để chuyển qua lại tiếng Việt và tiếng Anh."
-    fi
+    say "Bấm $(toggle_key_name) để chuyển qua lại tiếng Việt và tiếng Anh."
     say "Tài khoản khác trên máy này: đăng nhập vào tài khoản đó rồi chạy lại lệnh cài."
 }
 
@@ -540,13 +626,16 @@ disable_shell_extension() {
 # so anything the user changed stays. fcitx5's own profile and keys stay too: without autostart
 # fcitx5 no longer runs, and GNOME starts IBus again at the next login.
 undo_gnome_session() {
-    local config data id autostart
+    local config data id autostart im_env
     local -a undone=()
     config=$(config_home)
     data=$(applications_dir)
-    if [ -e "$config/environment.d/90-ngosen.conf" ]; then
-        rm -f "$config/environment.d/90-ngosen.conf"
+    im_env="$config/environment.d/90-ngosen.conf"
+    if [ -e "$im_env" ] && [ "$(cat "$im_env")" = "$(im_environment_entry)" ]; then
+        rm -f "$im_env"
         undone+=("app dùng lại IBus")
+    elif [ -e "$im_env" ]; then
+        say "  - giữ nguyên $im_env vì đã được sửa sau khi cài"
     fi
     if grep -qs '^run_im fcitx5$' "$HOME/.xinputrc" && command -v im-config >/dev/null 2>&1; then
         im_config_set REMOVE || :
@@ -694,6 +783,11 @@ main() {
     fi
 
     say ""
+    if [ "$(id -u)" -ne 0 ] && reload_fcitx5; then
+        report_dropped_keyboard
+        say "Xong. fcitx5 đã nạp bản mới, gõ được ngay."
+        return
+    fi
     say "Xong. Việc còn lại:"
     say "  1. Khởi động lại fcitx5:  fcitx5 -rd"
     say "     KDE Wayland: đăng xuất rồi đăng nhập lại."

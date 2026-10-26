@@ -1,0 +1,90 @@
+[package]
+name = "bamboo-core"
+version = "0.5.2"
+edition = "2024"
+rust-version = "1.88"
+
+description = "Vietnamese input method engine written in Rust"
+license = "MIT"
+repository = "https://github.com/bamboo-vi/bamboo-core"
+documentation = "https://docs.rs/bamboo-core"
+readme = "README.md"
+
+keywords = ["vietnamese", "ime", "input-method", "telex", "unicode"]
+categories = ["text-processing"]
+
+include = [
+    "src/**",
+    "tests/**",
+    "benches/**",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+bitflags = "2.11.1"
+phf = { version = ">=0.11, <0.14", features = ["macros"] }
+rayon = { version = "1.10", optional = true }
+rustc-hash = "2"
+wasm-bindgen = { version = "0.2", optional = true }
+
+[features]
+default = []
+parallel = ["rayon"]
+wasm = ["wasm-bindgen"]
+
+[[bench]]
+name = "engine_bench"
+harness = false
+test = false
+
+[[bench]]
+name = "telex_benchmark"
+harness = false
+test = false
+
+[[bench]]
+name = "memory_profile"
+harness = false
+test = false
+
+[[bench]]
+name = "dfa_misspell_test"
+harness = false
+test = false
+
+[[bench]]
+name = "vi_bench"
+harness = false
+test = false
+
+[[bench]]
+name = "criterion_bench"
+harness = false
+test = false
+
+[dev-dependencies]
+criterion = { version = "0.8.2", features = ["html_reports"] }
+proptest = "1.11.0"
+serial_test = "4.0.1"
+skey-engine = "0.1.23"
+uvie = "2.7.0"
+vi = "0.8.0"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.bench]
+opt-level = 3
+lto = "fat"
+codegen-units = 1

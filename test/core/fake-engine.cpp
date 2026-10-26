@@ -46,6 +46,7 @@ namespace ngosen::test {
         options_.ddFreeStyle                      = true;
         options_.enableMacro                      = true;
         options_.capitalizeMacro                  = true;
+        options_.lockWordKey                      = LockWordKey::Ctrl;
         options_.messengerSelectOvertype          = true;
         options_.waitSurroundingEvent             = true;
         options_.waitSurroundingMinPerKeyMs       = 8;

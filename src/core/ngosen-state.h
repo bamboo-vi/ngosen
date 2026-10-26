@@ -67,6 +67,9 @@ namespace ngosen {
          * @brief Applies current options to the engine.
          */
         void setOption();
+        void setOption(uintptr_t engine) const;
+        // A new engine for this field's input method, which the caller owns.
+        uintptr_t newBambooEngine() const;
 
         /**
          * @brief Main key event handler.
@@ -89,14 +92,14 @@ namespace ngosen {
         // Called for every surrounding text report of this input context.
         void surroundingUpdated();
 
-        // A key this field got while another input method was on.
+        // A key this field got in English, from Ngó Sen or another input method of the group.
         void noteKeyWhileOff(const ngosen::KeyPress& key);
-        // After activate(), when the panel is ready: shows what the keys noted above read as in
-        // Vietnamese, for Tab to retype them.
+        // When Vietnamese comes on, by activate() or the toggle key: shows what the keys noted above
+        // read as in Vietnamese, for Enter to retype them.
         void offerRetype();
         // The cursor left the text noted above: focus moved or the app reset the field.
         void forgetKeysWhileOff();
-        // The app reset the field while another input method was on.
+        // The app reset the field while typing English.
         void fieldResetWhileOff();
 
         /**
@@ -161,13 +164,16 @@ namespace ngosen {
         int                      deletedChars_          = 0;     ///< characters the current replacement deletes
         bool                     checkWordAfterBounce_  = false; ///< focus came back too fast to tell whether it is the same field
         bool                     tracking_modifier_tap_ = false; ///< Selected modifier held, waiting for consecutive keyup
-        bool                     macro_skip_            = false; ///< Macro disabled for the current word
+        bool                     lock_word_pending_     = false; ///< The lock key was tapped during a replacement
+        bool                     keySinceReport_        = false; ///< no changed report since the last key; reportAtKey_ is the text then
+        Surrounding              reportAtKey_;
 
         struct Retype {
             std::string typed;
             std::string marked;
-            bool        applied = false; // Tab once more puts typed back
-            bool        atOnce  = false; // retyped on switching on; only Esc undoes it
+            bool        applied = false; // Tab or Esc then puts typed back
+            bool        atOnce  = false; // retyped on switching on; only Tab or Esc undoes it
+            bool        retone  = false; // a selected word retoned; a letter after it puts the key back
         };
         std::string                    typedWhileOff_;
         std::optional<Retype>          retype_;
@@ -176,11 +182,30 @@ namespace ngosen {
         std::string addMarks(const std::string& typed);
         bool        everyWordTakesMarks(const std::string& typed);
         void        applyRetype();
+        void        replaceRetyped(const std::string& from, const std::string& to);
+        void        acceptRetype(const std::string& hint);
+        void        applyRetypeSoon(std::string hint);
+        void        reopenTypedKey();
         void        dropRetype();
         void        hideOffer();
         bool        reportsTextInTime() const;
         bool        typedBeforeCursor(const std::string& typed, bool mayDropStart = false) const;
         bool        handleRetypeKey(ngosen::KeyPress& keyEvent);
+
+        // A key that started a word, until a report shows whether it replaced a selected word.
+        struct RetoneKey {
+            Surrounding before;
+            std::string text;
+            uint32_t    sym    = 0;
+            uint32_t    states = 0;
+        };
+        std::optional<RetoneKey>       retoneKey_;
+        std::unique_ptr<ngosen::Timer> retone_timer_;
+        void                           noteRetoneKey(uint32_t sym, uint32_t states, const std::string& keyUtf8);
+        void                           dropRetoneKey();
+        void                           checkRetoneReport();
+        bool                           handleKeyAfterRetone(ngosen::KeyPress& keyEvent);
+        std::string                    retoned(const std::string& word, uint32_t sym, uint32_t states) const;
 
         // XIM, IBus and D-Bus clients queue forwarded keys, and XIM may hand one back; without a
         // surrounding text report the commit waits this long for them.
@@ -196,6 +221,7 @@ namespace ngosen {
         bool     skipsKey(ngosen::KeyPress& keyEvent);
         void     settleBeforeKey();
         uint32_t trackCapitalization(ngosen::KeyPress& keyEvent);
+        bool     atStartOfLine() const;
         void     forwardTap(ngosen::EditKey key);
         bool     handleKeyDuringReplacement(ngosen::KeyPress& keyEvent, uint32_t currentSym);
         bool     handleDoubledKey(ngosen::KeyPress& keyEvent, uint32_t currentSym);
@@ -230,8 +256,12 @@ namespace ngosen {
         int  surr_frozen_streak_      = 0;
         bool surr_frozen_             = false;
         int  surr_frozen_probe_count_ = 0;
-        int  surr_timeout_streak_     = 0;    ///< two or more switches to the short timeout
-        bool surr_snapshot_trusted_   = true; ///< false after a timeout, true again on a matching event
+        // GNOME Shell 46 declares surrounding text for apps that never send any. After two silent
+        // waits, use the timed wait until a report arrives.
+        int  surr_silent_streak_    = 0;
+        bool surr_silent_           = false;
+        int  surr_timeout_streak_   = 0;    ///< two or more switches to the short timeout
+        bool surr_snapshot_trusted_ = true; ///< false after a timeout, true again on a matching event
         bool deletionLooksDone() const;
 
         // Messenger repaints its composer a few ms after the snapshot shows the deletion done, and
@@ -362,6 +392,10 @@ namespace ngosen {
         bool startTimedWait(ngosen::KeyPress* event, int sleepTime, bool skipFrozenWait);
         bool onTimedWaitTimer(ngosen::Timer& t);
         bool waitsForRedraw() const;
+        // Under GNOME, leaves a finished deletion's commit to the timed wait until the fixed wait has
+        // passed and the field is back from a redraw (#175).
+        bool deferLaggingCommit(const char* reason);
+        void noteWaitOutcome(const char* reason);
         bool lostWordAfterBounce(const Surrounding& s, bool settling);
         void forwardBackspaces(int count);
         // True when a replacement can delete text: forwarded by the frontend or pressed through XTEST.
@@ -445,14 +479,14 @@ namespace ngosen {
         void replaceDuringReplay(const std::vector<KeyEntry>& keys, size_t i, std::string& out, const std::string& deletedPart, const std::string& addedPart);
 
         /**
-         * @brief Checks if the key symbol matches the configured macro-skip modifier.
+         * @brief Checks if the key symbol matches the configured lock-word modifier.
          * @param sym Key symbol to check.
-         * @return True if the key is the configured trigger modifier (left/right same).
+         * @return True if the key is the configured modifier (left/right same).
          */
-        bool isMacroSkipModifier(uint32_t sym) const;
+        bool isLockWordModifier(uint32_t sym) const;
 
         /**
-         * @brief Tracks a modifier tap (keydown then consecutive keyup) to skip macro.
+         * @brief Tracks a modifier tap (keydown then consecutive keyup) to lock the word.
          * @param keyEvent The modifier key event.
          */
         void handleModifierTap(const ngosen::KeyPress& keyEvent);
@@ -463,14 +497,9 @@ namespace ngosen {
         void cancelModifierTap();
 
         /**
-         * @brief Re-enables macro when the current word ends (engine preedit empty).
+         * @brief Keeps the word being typed as it is shown: no more tone marks, restore or macro.
          */
-        void reEnableMacroAfterWordEnd();
-
-        /**
-         * @brief Clears the macro-skip state and re-syncs the engine.
-         */
-        void resetMacroSkip();
+        void lockWord();
 
         // Everything sent to the app goes through here, so the typing logic does not call fcitx5 directly.
         std::unique_ptr<ngosen::Host> host_;

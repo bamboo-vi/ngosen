@@ -213,6 +213,7 @@ int main() {
 
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Preedit");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Telex");
     // See the file header: each of these may rewrite or lengthen a composition
     // for legitimate reasons, which is not what these properties are about.

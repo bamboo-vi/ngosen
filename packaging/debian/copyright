@@ -16,15 +16,16 @@ Copyright: 2026 Nguyen Hoang Ky <nhktmdzhg@gmail.com>
            2026 Nguyen Phi <nguyenphidt@gmail.com>
 License: GPL-3.0-or-later
 
-Files: bamboo/*
-Copyright: 2022 CSSlayer <wengxt@gmail.com>
-           2018 Luong Thanh Lam <ltlam93@gmail.com>
+Files: bamboo-rs/*
+Copyright: 2018 Luong Thanh Lam <ltlam93@gmail.com>
+           2022 CSSlayer <wengxt@gmail.com>
            2026 Nguyen Hoang Ky <nhktmdzhg@gmail.com>
+           2026 Ngó Sen contributors
 License: LGPL-2.1-or-later
 
-Files: bamboo/bamboo-core/*
+Files: bamboo-rs/vendor/bamboo-core/*
 Copyright: 2018 Luong Thanh Lam <ltlam93@gmail.com>
-           2026 Nguyen Hoang Ky <nhktmdzhg@gmail.com>
+           2024 nguien <nguyen10t2lhp@gmail.com>
 License: Expat
 
 Files: cmake/*

@@ -6,9 +6,11 @@ import tempfile
 import unittest
 
 from qtpy.QtGui import QColor, QIcon, QImage, QImageReader
+from qtpy.QtWidgets import QCheckBox
 from support import FakeDBusHandler, app  # noqa: F401
 from ui import brand
 from ui.main_window import NgoSenSettingsWindow
+from ui.pages.dynamic_settings import DynamicSettingsPage, SettingsCategory
 
 
 class FakeThemeTest(unittest.TestCase):
@@ -39,14 +41,29 @@ class FakeThemeTest(unittest.TestCase):
 
 
 class SidebarIconTest(FakeThemeTest):
-    # A theme like Yaru: it has preferences-system but not preferences-other.
-    icons = ("preferences-system",)
+    # Like Adwaita, which ships only symbolic icons, and Yaru, which has preferences-system.
+    icons = ("preferences-system", "help-about-symbolic")
 
-    def test_more_has_an_icon_without_preferences_other(self):
+    def test_appearance_and_about_have_icons(self):
         window = NgoSenSettingsWindow(dbus_handler=FakeDBusHandler())
         self.addCleanup(window.close)
-        more = window.sidebar.item(window.sidebar.count() - 1)
-        self.assertFalse(more.icon().isNull())
+        items = {
+            window.sidebar.item(r).text(): window.sidebar.item(r)
+            for r in range(window.sidebar.count())
+        }
+        self.assertFalse(items["Appearance"].icon().isNull())
+        self.assertFalse(items["About"].icon().isNull())
+
+
+class MenuEntryIconTest(FakeThemeTest):
+    # Adwaita has only the symbolic variant of most menu icons.
+    icons = ("character-set-symbolic",)
+
+    def test_menu_entry_shows_its_icon(self):
+        page = DynamicSettingsPage(FakeDBusHandler(), category=SettingsCategory.APPEARANCE)
+        self.addCleanup(page.close)
+        charset = next(c for c in page.findChildren(QCheckBox) if c.text() == "Charset")
+        self.assertFalse(charset.icon().isNull())
 
 
 class LogoTest(FakeThemeTest):

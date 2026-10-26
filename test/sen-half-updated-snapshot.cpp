@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Messenger in Edge (Wayland) answers a uinput backspace with two surrounding-text updates: first the
+// Messenger in Edge (Wayland) answers a forwarded backspace with two surrounding-text updates: first the
 // cursor moves back ("tie\n\n", cursor 2), then the text catches up ("ti\n\n", cursor 2). A commit
 // sent between the two is dropped by the page, so the first one must not count as done (#267).
 #include "ngosen-engine.h"
@@ -50,6 +50,7 @@ int main() {
     fcitx::NgoSenEngine engine(&testInstance.instance);
     fcitx::RawConfig    config;
     config.setValueByPath("Mode", "Sen");
+    config.setValueByPath("VietnameseOn", "True");
     config.setValueByPath("InputMethod", "Telex");
     config.setValueByPath("WaitSurroundingEvent", "True");
     // Covers the delete-then-commit fallback, not the default select-and-overtype path.
@@ -59,7 +60,7 @@ int main() {
     config.setValueByPath("WaitSurroundingSettleFirstWordMs", "0");
     engine.setConfig(config);
     if (engine.config().mode.value() != fcitx::NgoSenMode::Sen || !engine.config().waitSurroundingEvent.value()) {
-        reportFailure("configure Uinput", "mode=Uinput, WaitSurroundingEvent=True", "config differs");
+        reportFailure("configure Sen", "mode=Sen, WaitSurroundingEvent=True", "config differs");
         return 1;
     }
 

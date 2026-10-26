@@ -9,12 +9,15 @@ target_include_directories(ngosen_test_core PRIVATE
 target_compile_definitions(ngosen_test_core PRIVATE
     NGOSEN_SETTINGS_PATH="${CMAKE_INSTALL_FULL_BINDIR}/fcitx5-ngosen-settings"
     NGOSEN_ICON_DIR="${CMAKE_INSTALL_FULL_DATADIR}/icons/hicolor/scalable/apps"
+    # No catalog here, so tests see English whatever is installed on the machine.
+    NGOSEN_LOCALEDIR="${PROJECT_BINARY_DIR}/test/no-locale"
 )
 target_link_libraries(ngosen_test_core PRIVATE
     ngosen_core
     Fcitx5::Core
     Fcitx5::Config
     Fcitx5::Module::Emoji
+    ${NGOSEN_DBUS_MODULE}
     Bamboo::Core
     Pthread::Pthread
 )
@@ -50,9 +53,11 @@ function(ngosen_headless_test_settings target)
     )
     target_link_libraries(${target} PRIVATE
         ngosen_core
+        ngosen_migration
         Fcitx5::Core
         Fcitx5::Config
         Fcitx5::Module::Emoji
+        ${NGOSEN_DBUS_MODULE}
         Bamboo::Core
         Pthread::Pthread
     )
@@ -96,11 +101,17 @@ add_ngosen_headless_test(preedit_lifecycle preedit-lifecycle.cpp "integration;pr
 add_ngosen_headless_test(app_rule_reset app-rule-reset.cpp "integration;apprule")
 add_ngosen_headless_test(ctx_rule_cleanup ctx-rule-cleanup.cpp "integration;apprule")
 add_ngosen_headless_test(mode_menu_keys mode-menu-keys.cpp "integration;apprule")
+add_ngosen_headless_test(toggle_key toggle-key.cpp "integration;apprule")
 add_ngosen_headless_test(retype_after_switch retype-after-switch.cpp "integration;retype")
 add_ngosen_headless_test(gnome_shared_ibus_context gnome-shared-ibus-context.cpp "integration;apprule;gnome")
 add_ngosen_headless_test(mode_name_migration mode-name-migration.cpp "integration;mode")
 add_ngosen_headless_test(messenger_defaults messenger-defaults.cpp "integration;mode")
 add_ngosen_headless_test(options_sync options-sync.cpp "integration;config")
+add_ngosen_headless_test(tray_menu_items tray-menu-items.cpp "integration;config")
+add_ngosen_headless_test(ui_language ui-language.cpp "integration;config")
+target_compile_definitions(ui_language PRIVATE NGOSEN_TEST_CATALOG="${PROJECT_BINARY_DIR}/po/fcitx5-ngosen-vi.mo")
+add_dependencies(ui_language fcitx5-ngosen-translation)
+add_ngosen_headless_test(typing_log_file typing-log-file.cpp "integration;log")
 add_ngosen_headless_test(host_field_mapping host-field-mapping.cpp "unit;host")
 add_ngosen_headless_test(custom_keymap custom-keymap.cpp "integration;keymap")
 add_ngosen_headless_test(preedit_smoke_client preedit-smoke-client.cpp "integration;preedit")
@@ -246,14 +257,12 @@ add_test(NAME settings_gui_install
          COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/settings-gui-install.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 set_tests_properties(settings_gui_install PROPERTIES LABELS "unit;packaging" TIMEOUT 120)
 
-# The Rust typing core's own tests, ported from the Go core's.
-if (NGOSEN_RUST_CORE)
-    add_test(NAME bamboo_rs_cargo_test
-        COMMAND ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${NGOSEN_CARGO_TARGET_DIR}
-                ${CARGO_EXECUTABLE} test --offline --locked
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/bamboo-rs)
-    set_tests_properties(bamboo_rs_cargo_test PROPERTIES LABELS "unit;core" TIMEOUT 600)
-endif()
+# The typing core's own tests.
+add_test(NAME bamboo_rs_cargo_test
+    COMMAND ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${NGOSEN_CARGO_TARGET_DIR}
+            ${CARGO_EXECUTABLE} test --offline --locked
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/bamboo-rs)
+set_tests_properties(bamboo_rs_cargo_test PROPERTIES LABELS "unit;core" TIMEOUT 600)
 
 # Tests of the typing logic alone; NGOSEN_CORE_ONLY builds just these.
 add_subdirectory(core)

@@ -25,7 +25,6 @@ fn test_w2u_modes() {
     let cases = [
         ("default", default_config(), "w", "ư"),
         ("default-bw", default_config(), "bw", "bư"),
-        // The Go core had a w2u flag besides the mode; both map to the one crate setting.
         ("flag-off", with_w2u(W2uMode::Disabled), "w", "w"),
         ("flag-off-bw", with_w2u(W2uMode::Disabled), "bw", "bw"),
         ("disabled", with_w2u(W2uMode::Disabled), "w", "w"),

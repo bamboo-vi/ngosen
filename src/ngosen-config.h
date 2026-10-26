@@ -63,16 +63,16 @@ namespace fcitx {
     FCITX_CONFIG_ENUM_NAME_WITH_I18N(BracketTransformMode, N_("Disabled"), N_("Non-Start"), N_("Everywhere"));
 
     /**
-     * @brief Modifier that toggles macro skip for the next word.
+     * @brief Modifier whose tap keeps the word being typed as it is.
      */
-    enum class MacroSkipTriggerModifier : std::uint8_t {
+    enum class LockWordModifier : std::uint8_t {
         Disabled = 0,
         Shift    = 1,
         Ctrl     = 2,
         Alt      = 3,
     };
 
-    FCITX_CONFIG_ENUM_NAME_WITH_I18N(MacroSkipTriggerModifier, N_("Disabled"), N_("Shift"), N_("Ctrl"), N_("Alt"));
+    FCITX_CONFIG_ENUM_NAME_WITH_I18N(LockWordModifier, N_("Disabled"), N_("Shift"), N_("Ctrl"), N_("Alt"));
 
     /**
      * @brief Icon theme options.
@@ -84,6 +84,13 @@ namespace fcitx {
     };
 
     FCITX_CONFIG_ENUM_NAME_WITH_I18N(IconTheme, N_("Auto"), N_("Light"), N_("Dark"));
+
+    enum class UiLanguage : std::uint8_t {
+        Vietnamese,
+        English,
+    };
+
+    FCITX_CONFIG_ENUM_NAME(UiLanguage, "Vietnamese", "English");
 
     struct InputMethodConstrain;
     struct InputMethodAnnotation;
@@ -215,7 +222,16 @@ namespace fcitx {
         Option<std::string, InputMethodConstrain, DefaultMarshaller<std::string>, InputMethodAnnotation> inputMethod{
             this, "InputMethod", _("Input Method"), "Telex", InputMethodConstrain(&inputMethod), {}, InputMethodAnnotation()};
         OptionWithAnnotation<std::string, StringListAnnotation> outputCharset{this, "OutputCharset", _("Output Charset"), "Unicode", {}, {}, StringListAnnotation()};
-        KeyListOption                                           modeMenuKey{
+        // Ctrl+Shift as in UniKey, pressed in either order; ngosen-engine.cpp keeps Ctrl+Space for older installs.
+        KeyListOption toggleKey{this,
+                                "ToggleKey",
+                                _("Switch Between English and Vietnamese"),
+                                {Key("Control+Shift_L"), Key("Control+Shift_R"), Key("Shift+Control_L"), Key("Shift+Control_R")},
+                                KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
+        // What the toggle key last chose, for apps without a rule of their own.
+        HiddenOption<bool> vietnameseOn{this, "VietnameseOn", _("Vietnamese On"), false};
+        // Set once the settings were upgraded; fcitx5 leaves defaults out of the file, so nothing else tells.
+        HiddenOption<int> settingsVersion{this, "SettingsVersion", _("Settings Version"), 0}; KeyListOption modeMenuKey{
             this, "ModeMenuKey", _("Mode Menu Hotkey"), {Key("grave")}, KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
         KeyListOption cycleModeKey{this, "CycleModeKey", _("Cycle Mode Hotkey"), {}, KeyListConstrain({KeyConstrainFlag::AllowModifierLess, KeyConstrainFlag::AllowModifierOnly})};
         SubConfigOption                                                                appRules{this, "AppRules", _("App Rules"), "fcitx://config/addon/ngosen/app_rules"};
@@ -224,21 +240,22 @@ namespace fcitx {
                                                                                                         BracketTransformMode::Disabled};
 
         Option<bool> spellCheck{this, "SpellCheck", _("Enable Spell Check Using Dictionary"), true}; Option<bool> enableMacro{this, "EnableMacro", _("Enable Macro"), true};
-        Option<bool>                                                                           capitalizeMacro{this, "CapitalizeMacro", _("Capitalize Macro"), true};
-        OptionWithAnnotation<MacroSkipTriggerModifier, MacroSkipTriggerModifierI18NAnnotation> macroSkipTriggerModifier{
-            this, "MacroSkipTriggerModifier", _("Modifier to Skip Macro for Next Word"), MacroSkipTriggerModifier::Disabled};
-        Option<bool>       autoCapitalizeAfterPunctuation{this, "AutoCapitalizeAfterPunctuation", _("Auto capitalize after sentence-ending punctuation (. ! ? Enter)"), false};
-        Option<bool>       doubleSpaceToPeriod{this, "DoubleSpaceToPeriod", _("Double Space to Period"), false};
-        Option<bool>       doubleHyphenToEmDash{this, "DoubleHyphenToEmDash", _("Double Hyphen to Em-Dash (--)"), false};
-        HiddenOption<bool> retypeAfterSwitch{this, "RetypeAfterSwitch", _("Retype text typed before switching on"), false};
-        Option<bool>       autoNonVnRestore{this, "AutoNonVnRestore", _("Auto Restore Invalid Words"), true};
-        Option<bool>       modernStyle{this, "ModernStyle", _("Use oà, uý (Instead Of òa, úy)"), true};
-        Option<bool>       freeMarking{this, "FreeMarking", _("Allow Type With More Freedom"), true};
-        Option<bool>       ddFreeStyle{this, "DdFreeStyle", _("Allow dd To Produce đ When Auto Restore Invalid Words Is On"), true};
-        Option<bool>       backspaceRemovesTone{this, "BackspaceRemovesTone", _("Backspace Removes the Tone Mark"), false};
+        Option<bool> capitalizeMacro{this, "CapitalizeMacro", _("Capitalize Macro"), true}; OptionWithAnnotation<LockWordModifier, LockWordModifierI18NAnnotation> lockWordModifier{
+            this, "LockWordModifier", _("Key to Keep the Word as Typed"), LockWordModifier::Ctrl};
+        Option<bool> autoCapitalizeAfterPunctuation{this, "AutoCapitalizeAfterPunctuation", _("Auto capitalize after sentence-ending punctuation (. ! ? Enter)"), false};
+        Option<bool> capitalizeStartOfText{this, "CapitalizeStartOfText", _("Capitalize the first letter of the text or of a line"), false};
+        Option<bool> doubleSpaceToPeriod{this, "DoubleSpaceToPeriod", _("Double Space to Period"), false};
+        Option<bool> doubleHyphenToEmDash{this, "DoubleHyphenToEmDash", _("Double Hyphen to Em-Dash (--)"), false};
+        Option<bool> retypeAfterSwitch{this, "RetypeAfterSwitch", _("Retype text typed before switching on"), true};
+        Option<bool> retoneSelection{this, "RetoneSelection", _("Change the tone of a selected word"), true};
+        Option<bool> autoNonVnRestore{this, "AutoNonVnRestore", _("Auto Restore Invalid Words"), true};
+        Option<bool> modernStyle{this, "ModernStyle", _("Use oà, uý (Instead Of òa, úy)"), true};
+        Option<bool> freeMarking{this, "FreeMarking", _("Allow Type With More Freedom"), true};
+        Option<bool> ddFreeStyle{this, "DdFreeStyle", _("Allow dd To Produce đ When Auto Restore Invalid Words Is On"), true};
+        Option<bool> backspaceRemovesTone{this, "BackspaceRemovesTone", _("Backspace Removes the Tone Mark"), false};
         // Timing for deleting through the app. Hidden from the config window; tests and bug reports
         // still set them in ngosen.conf.
-        HiddenOption<bool> waitSurroundingEvent{this, "WaitSurroundingEvent", _("Experiment: after uinput backspaces, wait for the surrounding-text event instead of sleeping"),
+        HiddenOption<bool> waitSurroundingEvent{this, "WaitSurroundingEvent", _("Experiment: after forwarded backspaces, wait for the surrounding-text event instead of sleeping"),
                                                 true};
         HiddenOption<int> waitSurroundingTimeoutMs{this, "WaitSurroundingTimeoutMs", _("Experiment: timeout (ms) for that wait"), 50}; HiddenOption<int> waitSurroundingShortMs{
             this, "WaitSurroundingShortMs", _("Experiment: shorter timeout (ms) used after two consecutive timeouts without a matching event"), 40};
@@ -254,6 +271,16 @@ namespace fcitx {
         HiddenOption<int>  surrCommitSleepMs{this, "SurrCommitSleepMs", _("Experiment: ms per committed char to sleep after commitString on the surrounding-text path"), 3};
         // The key keeps its old name so saved settings still load.
         Option<bool> useNgoSenIcons{this, "UseLotusIcons", _("Use Ngó Sen Status Icons"), true};
+
+        // Settings and Save typing log have no option: without them the menu could not lead back.
+        Option<bool> showMenuInputMethod{this, "ShowMenuInputMethod", _("Show Input Method in the tray menu"), true};
+        Option<bool> showMenuCharset{this, "ShowMenuCharset", _("Show Charset in the tray menu"), true};
+        Option<bool> showMenuSpellCheck{this, "ShowMenuSpellCheck", _("Show Spell Check in the tray menu"), true};
+        Option<bool> showMenuMacro{this, "ShowMenuMacro", _("Show Macro in the tray menu"), true};
+        Option<bool> showMenuCapitalizeMacro{this, "ShowMenuCapitalizeMacro", _("Show Capitalize Macro in the tray menu"), true};
+        Option<bool> showMenuAutoCapitalize{this, "ShowMenuAutoCapitalize", _("Show Auto Capitalize in the tray menu"), true};
+        Option<bool> showMenuAutoRestore{this, "ShowMenuAutoRestore", _("Show Auto Restore Invalid Words in the tray menu"), true};
+        Option<bool> showMenuDictionary{this, "ShowMenuDictionary", _("Show Custom Dictionary in the tray menu"), true};
 
         Option<bool> enableDictionary{this, "EnableDictionary", _("Custom Dictionary"), false};
         Option<bool> enableCustomKeymap{this, "EnableCustomKeymap", _("Custom Keymap"), false};
@@ -274,7 +301,8 @@ namespace fcitx {
 
         SubConfigOption                                          macroEditor{this, "MacroEditor", _("Macro"), "fcitx://config/addon/ngosen/ngosen-macro"};
         SubConfigOption                                          customKeymap{this, "CustomKeymap", _("Custom Keymap"), "fcitx://config/addon/ngosen/custom_keymap"};
-        OptionWithAnnotation<IconTheme, IconThemeI18NAnnotation> iconTheme{this, "IconTheme", _("Icon Color"), IconTheme::Auto};);
+        OptionWithAnnotation<IconTheme, IconThemeI18NAnnotation> iconTheme{this, "IconTheme", _("Icon Color"), IconTheme::Auto};
+        Option<UiLanguage>                                       uiLanguage{this, "UiLanguage", _("Interface Language"), UiLanguage::Vietnamese};);
 
 } // namespace fcitx
 

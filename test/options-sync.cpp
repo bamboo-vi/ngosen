@@ -40,7 +40,7 @@ namespace {
         c.setValueByPath("EnableMacro", "False");
         c.setValueByPath("EnableMacroInOffMode", "True");
         c.setValueByPath("CapitalizeMacro", "False");
-        c.setValueByPath("MacroSkipTriggerModifier", "Ctrl");
+        c.setValueByPath("LockWordModifier", "Alt");
         c.setValueByPath("AutoCapitalizeAfterPunctuation", "True");
         c.setValueByPath("DoubleSpaceToPeriod", "True");
         c.setValueByPath("DoubleHyphenToEmDash", "True");
@@ -76,6 +76,7 @@ namespace {
         check(step + ": EnableMacroInOffMode", o.enableMacroInOffMode == c.enableMacroInOffMode.value());
         check(step + ": CapitalizeMacro", o.capitalizeMacro == c.capitalizeMacro.value());
         check(step + ": AutoCapitalizeAfterPunctuation", o.autoCapitalizeAfterPunctuation == c.autoCapitalizeAfterPunctuation.value());
+        check(step + ": CapitalizeStartOfText", o.capitalizeStartOfText == c.capitalizeStartOfText.value());
         check(step + ": DoubleSpaceToPeriod", o.doubleSpaceToPeriod == c.doubleSpaceToPeriod.value());
         check(step + ": DoubleHyphenToEmDash", o.doubleHyphenToEmDash == c.doubleHyphenToEmDash.value());
         check(step + ": MessengerSelectOvertype", o.messengerSelectOvertype == c.messengerSelectOvertype.value());
@@ -88,12 +89,12 @@ namespace {
         check(step + ": WaitSurroundingProbeEvery", o.waitSurroundingProbeEvery == c.waitSurroundingProbeEvery.value());
         check(step + ": SurrDeleteSleepMs", o.surrDeleteSleepMs == c.surrDeleteSleepMs.value());
         check(step + ": SurrCommitSleepMs", o.surrCommitSleepMs == c.surrCommitSleepMs.value());
-        const auto skip = c.macroSkipTriggerModifier.value();
-        const auto want = skip == fcitx::MacroSkipTriggerModifier::Shift ? ngosen::MacroSkipKey::Shift :
-            skip == fcitx::MacroSkipTriggerModifier::Ctrl                ? ngosen::MacroSkipKey::Ctrl :
-            skip == fcitx::MacroSkipTriggerModifier::Alt                 ? ngosen::MacroSkipKey::Alt :
-                                                                           ngosen::MacroSkipKey::None;
-        check(step + ": MacroSkipTriggerModifier", o.macroSkipKey == want);
+        const auto lock = c.lockWordModifier.value();
+        const auto want = lock == fcitx::LockWordModifier::Shift ? ngosen::LockWordKey::Shift :
+            lock == fcitx::LockWordModifier::Ctrl                ? ngosen::LockWordKey::Ctrl :
+            lock == fcitx::LockWordModifier::Alt                 ? ngosen::LockWordKey::Alt :
+                                                                   ngosen::LockWordKey::None;
+        check(step + ": LockWordModifier", o.lockWordKey == want);
     }
 
 } // namespace
@@ -107,7 +108,7 @@ int main() {
     engine.setConfig(changedConfig());
     check("the changed values took effect",
           engine.config().inputMethod.value() == "VNI" && engine.config().waitSurroundingTimeoutMs.value() == 222 &&
-              engine.config().macroSkipTriggerModifier.value() == fcitx::MacroSkipTriggerModifier::Ctrl);
+              engine.config().lockWordModifier.value() == fcitx::LockWordModifier::Alt);
     checkMatches("settings window", engine);
 
     TestInputContext context(&testInstance.instance);
@@ -133,6 +134,19 @@ int main() {
         }
         check("charset menu changes the copy", engine.options().outputCharset != before);
         checkMatches("charset menu", engine);
+    }
+
+    auto* methodMenu = ui.lookupAction("ngosen-input-method");
+    check("input method menu exists", methodMenu != nullptr && methodMenu->menu() != nullptr && methodMenu->menu()->actions().size() == 2);
+    auto* telex = dynamic_cast<fcitx::SimpleAction*>(ui.lookupAction("ngosen-input-method-Telex"));
+    auto* vni   = dynamic_cast<fcitx::SimpleAction*>(ui.lookupAction("ngosen-input-method-VNI"));
+    check("input method menu lists Telex and VNI", telex != nullptr && vni != nullptr);
+    if (telex != nullptr && vni != nullptr) {
+        check("the current method is checked", vni->isChecked(&context) && !telex->isChecked(&context));
+        telex->activate(&context);
+        check("input method menu changes the copy", engine.options().inputMethod == "Telex");
+        check("the picked method is checked", telex->isChecked(&context) && !vni->isChecked(&context));
+        checkMatches("input method menu", engine);
     }
 
     return failures == 0 ? 0 : 1;

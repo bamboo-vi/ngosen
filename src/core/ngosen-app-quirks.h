@@ -34,8 +34,8 @@ namespace ngosen {
     // surrounding text and selects an inline autocompletion after the typed text.
     bool selectsOverAutocompletion(const Field& field);
 
-    // Under GNOME, apps reach fcitx5 through GNOME Shell's IBus bridge, which forwards the client's
-    // surrounding text tens of milliseconds late and often one edit behind.
+    // Under GNOME, apps reach fcitx5 through GNOME Shell's IBus bridge, which can relay the client's
+    // surrounding text tens of milliseconds late, one edit at a time.
     bool surroundingTextLags(const Field& field);
 
     // Wayland text input delivers a commit only to the field that has focus.

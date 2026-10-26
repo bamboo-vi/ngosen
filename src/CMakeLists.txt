@@ -2,12 +2,14 @@ add_subdirectory(core)
 
 add_library(ngosen MODULE ngosen.cpp ${ngosen_fcitx_sources})
 set_target_properties(ngosen PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_options(ngosen PRIVATE "-Wl,-exclude-libs,ALL")
+target_link_options(ngosen PRIVATE "-Wl,-exclude-libs,ALL" "-Wl,--gc-sections")
 target_link_libraries(ngosen
 	ngosen_core
+	ngosen_migration
 	Fcitx5::Core
 	Fcitx5::Config
   Fcitx5::Module::Emoji
+  ${NGOSEN_DBUS_MODULE}
 	Bamboo::Core
 	Pthread::Pthread
 )
@@ -18,6 +20,7 @@ target_include_directories(ngosen PRIVATE
 target_compile_definitions(ngosen PRIVATE
     NGOSEN_SETTINGS_PATH=\"${CMAKE_INSTALL_FULL_BINDIR}/fcitx5-ngosen-settings\"
     NGOSEN_ICON_DIR=\"${CMAKE_INSTALL_FULL_DATADIR}/icons/hicolor/scalable/apps\"
+    NGOSEN_LOCALEDIR=\"${FCITX_INSTALL_LOCALEDIR}\"
 )
 install(TARGETS ngosen DESTINATION "${CMAKE_INSTALL_LIBDIR}/fcitx5")
 
