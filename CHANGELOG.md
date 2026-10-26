@@ -15,6 +15,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 - Khi bật log để gỡ lỗi, chữ gõ trong ô mật khẩu không còn bị ghi vào log; log chỉ ghi "(hidden)" (#321).
 - Cài Ngó Sen bằng package (apt, package tải về) trên máy để ngôn ngữ tiếng Việt: lần đầu fcitx5 chạy, Ngó Sen
   tự có trong danh sách bộ gõ, không phải thêm tay. Máy để tiếng Anh vẫn cần thêm tay hoặc dùng lệnh cài một dòng (#300, #316).
+- Dòng gợi ý cạnh con trỏ của Cứu chữ và Cứu dấu theo "Ngôn ngữ giao diện" của Ngó Sen như menu tray: mặc định
+  tiếng Việt, kể cả khi desktop dùng tiếng Anh (#PR).
 
 ### Tài liệu
 
