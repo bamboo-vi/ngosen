@@ -1,4 +1,4 @@
-Version 1.5.8 phát hành ngày 26/10/2026, sửa lỗi cửa sổ cài đặt không lưu được thay đổi trên version 1.5.7 dù fcitx5 đang chạy (#303, #305). Người dùng version 1.5.7 nên cập nhật. README bổ sung mục “Thiết lập sau khi cài package” cho máy cài từ repo hoặc package tải về, vì cách cài này không thêm Ngó Sen vào danh sách bộ gõ và không chuyển IBus sang fcitx5 (#301). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.6.0 phát hành ngày 26/10/2026, thêm Cứu chữ: bật lại tiếng Việt để đổi chữ đã gõ thành chữ có dấu (#82, #232, #239, #243, #290); Cứu dấu: bôi đen chữ rồi gõ phím dấu để đổi dấu (#272, #290). Phím riêng chuyển Anh/Việt dùng Ctrl+Shift như UniKey khi cài mới, giữ phím cũ khi cập nhật (#234). Cửa sổ cài đặt thêm giải thích (#281), menu tray thêm mục chuyển Telex/VNI (#274). Cập nhật bằng install.sh tự nạp lại fcitx5, không cần đăng xuất, trừ KDE Wayland (#230). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
@@ -8,9 +8,9 @@ Một lệnh cho mọi distro. Lệnh tự chọn đúng gói và hỏi lại tr
 curl -fsSL https://raw.githubusercontent.com/ngosen/ngosen/main/install.sh | bash
 ```
 
-Cài lần đầu thì đăng xuất rồi đăng nhập lại, sau đó bấm Ctrl+Space để bật tiếng Việt.
+Cài lần đầu thì đăng xuất rồi đăng nhập lại, sau đó nhấn rồi thả Ctrl+Shift để chuyển giữa tiếng Anh và tiếng Việt. Đã cài từ trước thì vẫn dùng phím chuyển cũ, thường là Ctrl+Space.
 
-Cập nhật thì chạy lại đúng lệnh đó, rồi khởi động lại fcitx5 bằng `fcitx5 -rd`. Trên KDE Wayland thì đăng xuất rồi đăng nhập lại thay cho lệnh này, vì fcitx5 bật bằng `fcitx5 -rd` không gõ được trong app Qt như Kate, Dolphin.
+Cập nhật thì chạy lại đúng lệnh đó: fcitx5 tự nạp version mới, gõ được ngay. Trên KDE Wayland thì đăng xuất rồi đăng nhập lại.
 
 ## Tải gói bằng tay
 
@@ -29,6 +29,8 @@ Cài gói bằng tay trên Ubuntu 26.04 thì bật thêm [extension sửa lỗi 
 Đối chiếu file tải về với `SHA256SUMS`: `sha256sum -c SHA256SUMS --ignore-missing`.
 
 ## Đã test những gì
+
+Gói 1.6.0 từ PR phát hành #314 được test trên VM ngày 26/10/2026 trên Ubuntu 26.04 (GNOME Wayland, gói `resolute`) và Linux Mint 22 (Cinnamon X11, gói `noble`), dùng Gõ Sen, Telex. Nâng cấp: mỗi máy cài 1.5.8-1, lưu một cài đặt và một gõ tắt, rồi chạy install.sh với gói mới; fcitx5 tự nạp lại, cài đặt, gõ tắt và phím Ctrl+Space còn nguyên, Cứu chữ đã bật. Sau đó, trong một ô chữ GTK 3 trên cả hai máy: gõ câu `dduwowngf tieengs Vieetj Nam cos dduwowjc khoong Haf Nooij` ra đúng chữ có dấu; gõ `tieengs vieetj` ở tiếng Anh rồi bật tiếng Việt, Cứu chữ đổi thành `tiếng việt`, nhấn Esc trả lại chữ cũ; gõ `tieengs Nam` rồi bật tiếng Việt thì chỉ hiện gợi ý, nhấn Tab giữ nguyên chữ đã gõ. Trên Ubuntu, bốn ca đó cũng đúng trong Chrome, và gõ câu trong terminal GNOME Console đúng; trên Mint, gõ câu trong Chrome đúng. Cài mới (gói build ngay trước bản sửa nâng cấp #315, bản sửa không đụng đường cài mới): mở ở tiếng Anh, Ctrl+Shift chuyển sang tiếng Việt, Cứu chữ bật sẵn. Fedora, Arch, Debian, openSUSE, Kali và KDE chưa được test với 1.6.0.
 
 Gói 1.5.8 từ PR phát hành #306 được test trên VM ngày 26/10/2026 trên Ubuntu 26.04 (GNOME Wayland, gói `resolute`) và CachyOS (KDE Plasma Wayland, gói Arch). Trên mỗi máy, cửa sổ cài đặt mở được và vẫn chạy sau 10 giây. Phần lưu của cửa sổ cài đặt được gọi thẳng với fcitx5 đang chạy, mỗi máy một lượt: đổi một ô cài đặt chính và lưu một gõ tắt, rồi đọc lại; cả hai đều lưu được. Với gói 1.5.7-1 đã phát hành trên cùng hai máy, cả hai lần lưu đều bị fcitx5 từ chối và cài đặt không đổi. Chưa bấm lưu bằng chuột trong cửa sổ; Fedora, Debian, Mint, openSUSE và Kali chưa được test với 1.5.8.
 
@@ -78,4 +80,4 @@ Gói 1.5.0 (PR #125) được gõ thử trên ba máy ảo: Linux Mint 22.1 (Cin
 
 Người giữ dự án dùng Ngó Sen hằng ngày trên Fedora 44 (KDE Plasma Wayland). Kali đã được gõ thử ở các version trước. Fedora 43, Ubuntu 22.04, Debian 12 và openSUSE chỉ được build và qua test lúc build, chưa ai gõ thử trên máy thật.
 
-Lõi gõ Rust nay có trong mọi gói trừ Debian 12, vẫn dùng lõi Go vì Rust có sẵn ở đó quá cũ.
+Mọi gói, kể cả Debian 12, nay dùng lõi gõ Rust; lõi Go đã bỏ.

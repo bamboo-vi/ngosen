@@ -10,6 +10,20 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ## [Chưa phát hành]
 
+### Tài liệu
+
+- README thêm mục "Tính năng chính": Cứu chữ, Cứu dấu, phím chuyển Anh/Việt, phím chốt chữ, gõ tắt,
+  menu tray và cửa sổ cài đặt, mỗi tính năng kèm ví dụ (#319).
+
+## [1.6.0-1] — 26/10/2026
+
+Cứu chữ đổi chữ gõ khi quên bật tiếng Việt thành chữ có dấu khi bật lại (#82, #232, #239, #243, #290);
+Cứu dấu cho bôi đen chữ rồi gõ phím dấu để đổi dấu (#272, #290).
+Có phím riêng chuyển Anh/Việt: cài mới dùng Ctrl+Shift như UniKey, đã cài giữ phím cũ (#234).
+Cửa sổ cài đặt thêm giải thích (#281), menu tray thêm mục chuyển Telex/VNI (#274); cập nhật bằng
+install.sh tự nạp lại fcitx5, không cần đăng xuất, trừ KDE Wayland (#230).
+Tải ở [ngosen-1.6.0-1](https://github.com/ngosen/ngosen/releases/tag/ngosen-1.6.0-1).
+
 ### Thêm
 
 - Cài Ngó Sen bằng package (apt, package tải về) trên máy để ngôn ngữ tiếng Việt: lần đầu fcitx5 chạy, Ngó Sen
@@ -36,8 +50,9 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
   vẫn ra `sách`); gõ phím dấu khác thì đổi dấu tiếp (`nhánh` + `f` → `nhành`). Tab, Esc hoặc gõ lại
   đúng phím dấu đó thì trả lại phím đã gõ, như gõ `2` hai lần ở VNI để được số `2`. Thêm, đổi, bỏ dấu
   thanh ở app hỗ trợ surrounding text; bật sẵn trong Gõ chữ → Gõ nhanh (#272, #290).
-- Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn. Tắt ô thì Ngó Sen
-  không ghi nhớ phím gõ lúc chưa bật tiếng Việt (#122).
+- Ô "Cứu chữ: gõ lại có dấu khi quên bật tiếng Việt" ở trang Gõ chữ, nhóm Gõ nhanh, bật sẵn, kể cả khi
+  nâng cấp từ version cũ đã lưu cài đặt. Tắt ô thì Ngó Sen không ghi nhớ phím gõ lúc chưa bật tiếng Việt
+  (#122, #315).
 - Khi icon hoặc menu tray bị mất hay treo, chạy `ngosen-save-log` trong terminal để lưu nhật ký gõ của Ngó Sen.
   Lệnh in đường dẫn file đã lưu, ví dụ `~/.local/state/ngosen/typing-<ngày giờ>.log`; chỉ tài khoản của bạn
   đọc được file này (#197).
@@ -97,6 +112,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Sửa
 
+- Gỡ bằng `install.sh --uninstall` trên GNOME không còn xoá file `~/.config/environment.d/90-ngosen.conf`
+  khi người dùng đã sửa nó sau khi cài; chỉ xoá khi file còn đúng như lúc cài (#317).
 - Sửa biểu tượng Ngó Sen trên thanh trên cùng GNOME nhỏ hơn biểu tượng mạng, loa. (#245, #246)
 - Cứu chữ không hiện khi phím chuyển là Ctrl+Space (phím mặc định của fcitx5) hay một phím tắt khác đặt trong
   fcitx5, và không chạy trong kitty (#83).
@@ -106,7 +123,8 @@ Gói có thêm "epoch" 1 để trình quản lý gói vẫn coi `0.5.0` mới h�
 
 ### Tài liệu
 
-- Lộ trình thêm thông báo "Có gì mới" cho 1.6.0 và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148).
+- Lộ trình thêm thông báo "Có gì mới" và mẹo dùng Ngó Sen trong cửa sổ cài đặt (#148). "Có gì mới" chưa
+  có trong 1.6.0, đã dời sang 1.7.0.
 
 ### Test
 

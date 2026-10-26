@@ -287,6 +287,12 @@ check_toggle_key_message() {
     check "no fcitx5 is started next to another input method" fcitx5_stopped
 }
 
+check_edited_environment_kept() {
+    echo 'MOZ_ENABLE_WAYLAND=1' | as_user tee -a "$im_env" >/dev/null
+    check "uninstall after the edit succeeds" installer --yes --uninstall
+    check "the edited environment.d file stays" has_line "$im_env" 'MOZ_ENABLE_WAYLAND=1'
+}
+
 main() {
     prepare_system
 
@@ -310,6 +316,11 @@ main() {
     if [ "$session" = x11 ]; then
         echo "== toggle key named before the addon runs"
         check_toggle_key_message
+    fi
+
+    if [ "$session" = gnome ]; then
+        echo "== uninstall after the user edited environment.d"
+        check_edited_environment_kept
     fi
 
     finish
