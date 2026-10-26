@@ -1,3 +1,12 @@
+fcitx5-ngosen (1:1.5.8-1) unstable; urgency=medium
+
+  * Settings window: changes are saved again; 1.5.7 could not save any setting (#303,
+    #305).
+  * README states how to finish setup after installing the package from a repository
+    (#301).
+
+ -- Nguyen Phi <nguyenphidt@gmail.com>  Mon, 26 Oct 2026 12:00:00 +0700
+
 fcitx5-ngosen (1:1.5.7-1) unstable; urgency=medium
 
   * Settings window on KDE Plasma Wayland: it opens again when PyQt5 is also installed, by
