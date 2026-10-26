@@ -159,6 +159,8 @@ namespace ngosen {
                 const auto* mode = settings.valueByPath("Mode");
                 settings.setValueByPath("VietnameseOn", mode != nullptr && *mode == "OFF" ? "False" : "True");
             }
+            // Retyping was a hidden option, so a saved False is fcitx5's default, not the user's choice.
+            settings.setValueByPath("RetypeAfterSwitch", "True");
         }
         settings.setValueByPath("SettingsVersion", std::to_string(Version));
         return true;

@@ -137,6 +137,21 @@ namespace {
         check("no switch key in fcitx5's config copies nothing", !ngosen::copySwitchKeys(defaults, settings));
     }
 
+    void testUpgradeTurnsRetypeOn() {
+        // fcitx5 saves every option, so a file saved before the upgrade holds the hidden default.
+        auto saved = parse("Mode=Sen\nRetypeAfterSwitch=False\n");
+        check("settings from before SettingsVersion are upgraded", ngosen::upgradeSettings(saved, true));
+        check("retyping is turned on for an upgraded user", value(saved, "RetypeAfterSwitch") == "True");
+
+        auto chosen = parse("SettingsVersion=1\nRetypeAfterSwitch=False\n");
+        check("current settings are left alone", !ngosen::upgradeSettings(chosen, true));
+        check("retyping turned off in the settings window stays off", value(chosen, "RetypeAfterSwitch") == "False");
+
+        fcitx::RawConfig fresh;
+        ngosen::upgradeSettings(fresh, false);
+        check("a fresh install keeps the built-in default", value(fresh, "RetypeAfterSwitch") == "<missing>");
+    }
+
     void testKeepOtherInputMethods() {
         auto twoLayouts = parse("[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=ngosen\n\n"
                                 "[Groups/0/Items/0]\nName=keyboard-us\nLayout=\n\n"
@@ -209,6 +224,7 @@ int main() {
     testDropKeyboard();
     testKeepOtherInputMethods();
     testCopySwitchKeys();
+    testUpgradeTurnsRetypeOn();
     testCopyFiles();
     testProcessesNamed();
     if (failures == 0) {
