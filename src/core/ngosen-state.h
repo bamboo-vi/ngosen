@@ -221,6 +221,8 @@ namespace ngosen {
 
         void handleKey(ngosen::KeyPress& keyEvent);
         void resetField(bool isFocusOut, bool commitPreedit);
+        // Typed text as a log line may show it: hidden in a password field.
+        std::string logged(const std::string& text) const;
         // The steps of keyEvent, in order. A true result means the key needs nothing more.
         bool     skipsKey(ngosen::KeyPress& keyEvent);
         void     settleBeforeKey();

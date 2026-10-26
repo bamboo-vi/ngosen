@@ -788,6 +788,43 @@ namespace {
         check(!has(log, "0x0065") && !has(log, "\"ti") && !has(log, "\"ê\"") && !has(log, " e\n"), "recorder: keeps no password text", log);
     }
 
+    // Types `keys`, a word and a macro, keeping every log line; returns them.
+    std::string logWhileTyping(ngosen::Mode mode, bool password, const std::string& keys) {
+        realMode = mode;
+        FakeLoop      loop;
+        FakeResources resources;
+        resources.setMacros({{"ko", "không"}});
+        Field field               = makeField("wayland", true, "firefox");
+        field.password            = password;
+        auto                owned = std::make_unique<FakeHost>(loop, field);
+        FakeHost*           host  = owned.get();
+        ngosen::TypingState state(&resources, std::move(owned));
+        host->setSurrounding("", 0);
+        ngosen::test::captureLog(true);
+        for (char c : keys) {
+            press(state, static_cast<uint32_t>(c));
+            loop.pump(20);
+        }
+        state.reset(true);
+        loop.pump(150);
+        std::string log;
+        for (const auto& line : ngosen::test::capturedLog())
+            log += line + "\n";
+        ngosen::test::captureLog(false);
+        return log;
+    }
+
+    void testLogHidesPasswords() {
+        for (const auto mode : {ngosen::Mode::Preedit, ngosen::Mode::Sen}) {
+            const std::string name  = mode == ngosen::Mode::Sen ? "Sen" : "Preedit";
+            const std::string plain = logWhileTyping(mode, false, "vieetj ko ");
+            // The fake field reports no text, so only Preedit gets as far as the macro.
+            check(has(plain, "ệ") && (mode == ngosen::Mode::Sen || has(plain, "không")), "log: " + name + " shows typed text outside a password field", plain);
+            const std::string hidden = logWhileTyping(mode, true, "vieetj ko ");
+            check(!has(hidden, "ê") && !has(hidden, "ệ") && !has(hidden, "vi") && !has(hidden, "không"), "log: " + name + " keeps no password text", hidden);
+        }
+    }
+
     // Focus that leaves a field and comes straight back keeps the word; a real switch starts a new
     // one. Chromium on Wayland reports the text while it leaves, as it does when a page redraws its
     // editor after every key (TikTok comments, #175).
@@ -1163,6 +1200,7 @@ int main() {
     testPreeditEnterAfterCommit();
     testAutoCapitalize();
     testResetAfterAppCommit();
+    testLogHidesPasswords();
     testCapitalizeStartOfText();
     testSenForwards("wayland", true);
     testSenForwards("wayland_v2", true);

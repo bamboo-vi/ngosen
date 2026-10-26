@@ -13,21 +13,40 @@
 #include <fcntl.h>
 #include <cstdlib>
 
+namespace {
+
+    bool capturing = false;
+
+} // namespace
+
 namespace ngosen {
 
     // NGOSEN_TEST_LOG=1 shows the typing logic's log on stderr.
     bool logEnabled(LogLevel /*level*/) {
         static const bool enabled = std::getenv("NGOSEN_TEST_LOG") != nullptr;
-        return enabled;
+        return enabled || capturing;
     }
 
     void writeLog(LogLevel /*level*/, const char* file, int line, const std::string& message) {
-        std::fprintf(stderr, "%s:%d %s\n", file, line, message.c_str());
+        if (capturing)
+            test::capturedLog().push_back(message);
+        else
+            std::fprintf(stderr, "%s:%d %s\n", file, line, message.c_str());
     }
 
 } // namespace ngosen
 
 namespace ngosen::test {
+
+    void captureLog(bool on) {
+        capturing = on;
+        capturedLog().clear();
+    }
+
+    std::vector<std::string>& capturedLog() {
+        static std::vector<std::string> lines;
+        return lines;
+    }
 
     FakeResources::FakeResources() {
         static const bool initialized = (Init(), true);
