@@ -1,4 +1,4 @@
-Version 1.6.0 phát hành ngày 26/10/2026, thêm Cứu chữ: bật lại tiếng Việt để đổi chữ đã gõ thành chữ có dấu (#82, #232, #239, #243, #290); Cứu dấu: bôi đen chữ rồi gõ phím dấu để đổi dấu (#272, #290). Phím riêng chuyển Anh/Việt dùng Ctrl+Shift như UniKey khi cài mới, giữ phím cũ khi cập nhật (#234). Cửa sổ cài đặt thêm giải thích (#281), menu tray thêm mục chuyển Telex/VNI (#274). Cập nhật bằng install.sh tự nạp lại fcitx5, không cần đăng xuất, trừ KDE Wayland (#230). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
+Version 1.6.1 phát hành ngày 26/10/2026, sửa gợi ý Cứu chữ / Cứu dấu để theo ngôn ngữ giao diện của Ngó Sen, mặc định tiếng Việt (#322); Ngó Sen tự có trong danh sách bộ gõ khi fcitx5 chạy lần đầu sau khi cài bằng package trên desktop tiếng Việt (#300, #316); chữ trong ô mật khẩu không còn bị ghi vào log gỡ lỗi (#321). Chi tiết ở [CHANGELOG.md](https://github.com/ngosen/ngosen/blob/main/CHANGELOG.md).
 
 ## Cài và cập nhật
 
